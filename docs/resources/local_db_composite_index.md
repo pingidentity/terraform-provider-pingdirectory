@@ -61,6 +61,7 @@ resource "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
 - `index_entry_limit` (Number) The maximum number of entries that any single index key will be allowed to match before the server stops maintaining the ID set for that index key.
 - `prime_index` (Boolean) Indicates whether the server should load the contents of this index into memory when the backend is being opened.
 - `prime_internal_nodes_only` (Boolean) Indicates whether to only prime the internal nodes of the index database, rather than priming both internal and leaf nodes.
+- `type` (String) The type of Local DB Composite Index resource. Options are ['local-db-composite-index']
 
 ### Read-Only
 

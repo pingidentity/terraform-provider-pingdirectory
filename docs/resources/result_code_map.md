@@ -58,6 +58,7 @@ resource "pingdirectory_result_code_map" "myResultCodeMap" {
 - `bind_missing_user_result_code` (Number) Specifies the result code that should be returned if a bind attempt fails because the target user entry does not exist in the server.
 - `description` (String) A description for this Result Code Map
 - `server_error_result_code` (Number) Specifies the result code that should be returned if a generic error occurs within the server.
+- `type` (String) The type of Result Code Map resource. Options are ['result-code-map']
 
 ### Read-Only
 

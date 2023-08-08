@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -143,41 +144,47 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"time-limit", "fixed-time", "never-rotate", "size-limit"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logRotationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRotationPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_interval"),
+			path.MatchRoot("type"),
+			[]string{"time-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("file_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"size-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_of_day"),
+			path.MatchRoot("type"),
+			[]string{"fixed-time"},
+		),
+	}
 }
 
-func (r *defaultLogRotationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRotationPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logRotationPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRotationPolicy()
 }
 
-func modifyPlanLogRotationPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logRotationPolicyResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.RotationInterval) && model.Type.ValueString() != "time-limit" {
-		resp.Diagnostics.AddError("Attribute 'rotation_interval' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'rotation_interval', the 'type' attribute must be one of ['time-limit']")
-	}
-	if internaltypes.IsDefined(model.FileSizeLimit) && model.Type.ValueString() != "size-limit" {
-		resp.Diagnostics.AddError("Attribute 'file_size_limit' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'file_size_limit', the 'type' attribute must be one of ['size-limit']")
-	}
-	if internaltypes.IsDefined(model.TimeOfDay) && model.Type.ValueString() != "fixed-time" {
-		resp.Diagnostics.AddError("Attribute 'time_of_day' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'time_of_day', the 'type' attribute must be one of ['fixed-time']")
-	}
+// Add config validators
+func (r defaultLogRotationPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRotationPolicy()
 }
 
 // Add optional fields to create request for time-limit log-rotation-policy
@@ -489,16 +496,16 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state logRotationPolicyResourceModel
-	if plan.Type.ValueString() == "time-limit" {
+	if readResponse.TimeLimitLogRotationPolicyResponse != nil {
 		readTimeLimitLogRotationPolicyResponse(ctx, readResponse.TimeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "fixed-time" {
+	if readResponse.FixedTimeLogRotationPolicyResponse != nil {
 		readFixedTimeLogRotationPolicyResponse(ctx, readResponse.FixedTimeLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "never-rotate" {
+	if readResponse.NeverRotateLogRotationPolicyResponse != nil {
 		readNeverRotateLogRotationPolicyResponse(ctx, readResponse.NeverRotateLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "size-limit" {
+	if readResponse.SizeLimitLogRotationPolicyResponse != nil {
 		readSizeLimitLogRotationPolicyResponse(ctx, readResponse.SizeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -523,16 +530,16 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRotationPolicyResponse != nil {
 			readTimeLimitLogRotationPolicyResponse(ctx, updateResponse.TimeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fixed-time" {
+		if updateResponse.FixedTimeLogRotationPolicyResponse != nil {
 			readFixedTimeLogRotationPolicyResponse(ctx, updateResponse.FixedTimeLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-rotate" {
+		if updateResponse.NeverRotateLogRotationPolicyResponse != nil {
 			readNeverRotateLogRotationPolicyResponse(ctx, updateResponse.NeverRotateLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRotationPolicyResponse != nil {
 			readSizeLimitLogRotationPolicyResponse(ctx, updateResponse.SizeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -640,16 +647,16 @@ func updateLogRotationPolicy(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRotationPolicyResponse != nil {
 			readTimeLimitLogRotationPolicyResponse(ctx, updateResponse.TimeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fixed-time" {
+		if updateResponse.FixedTimeLogRotationPolicyResponse != nil {
 			readFixedTimeLogRotationPolicyResponse(ctx, updateResponse.FixedTimeLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-rotate" {
+		if updateResponse.NeverRotateLogRotationPolicyResponse != nil {
 			readNeverRotateLogRotationPolicyResponse(ctx, updateResponse.NeverRotateLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRotationPolicyResponse != nil {
 			readSizeLimitLogRotationPolicyResponse(ctx, updateResponse.SizeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

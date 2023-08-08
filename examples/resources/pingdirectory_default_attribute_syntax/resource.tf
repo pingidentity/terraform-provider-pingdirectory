@@ -22,9 +22,8 @@ provider "pingdirectory" {
   product_version        = "9.3.0.0"
 }
 
-resource "pingdirectory_attribute_syntax" "myAttributeSyntax" {
+resource "pingdirectory_default_attribute_syntax" "myAttributeSyntax" {
   name                    = "MyAttributeSyntax"
-  type                    = "attribute-type-description"
   enabled                 = false
   require_binary_transfer = true
 }

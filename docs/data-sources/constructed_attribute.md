@@ -53,5 +53,6 @@ data "pingdirectory_constructed_attribute" "myConstructedAttribute" {
 - `attribute_type` (String) Specifies the attribute type for the attribute whose values are to be constructed.
 - `description` (String) A description for this Constructed Attribute
 - `id` (String) The ID of this resource.
+- `type` (String) The type of Constructed Attribute resource. Options are ['constructed-attribute']
 - `value_pattern` (Set of String) Specifies a pattern for constructing the attribute value using fixed text and attribute values from the entry.
 

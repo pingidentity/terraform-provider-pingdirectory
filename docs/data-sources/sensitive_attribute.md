@@ -59,4 +59,5 @@ data "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 - `description` (String) A description for this Sensitive Attribute
 - `id` (String) The ID of this resource.
 - `include_default_sensitive_operational_attributes` (Boolean) Indicates whether to automatically include any server-generated operational attributes that may contain sensitive data.
+- `type` (String) The type of Sensitive Attribute resource. Options are ['sensitive-attribute']
 

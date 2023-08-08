@@ -59,7 +59,6 @@ Manages a Connection Handler.
 - `ssl_client_auth_policy` (String) Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates.
 - `ssl_protocol` (Set of String) Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
 - `trust_manager_provider` (String) Specifies the name of the trust manager that should be used with the LDAP Connection Handler .
-- `type` (String) The type of Connection Handler resource. Options are ['jmx', 'ldap', 'ldif', 'http']
 - `use_correlation_id_header` (Boolean) If enabled, a correlation ID header will be added to outgoing HTTP responses.
 - `use_forwarded_headers` (Boolean) Indicates whether to use "Forwarded" and "X-Forwarded-*" request headers to override corresponding HTTP request information available during request processing.
 - `use_ssl` (Boolean) Indicates whether the JMX Connection Handler should use SSL.
@@ -72,6 +71,7 @@ Manages a Connection Handler.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Connection Handler resource. Options are ['jmx', 'ldap', 'ldif', 'http']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

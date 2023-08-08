@@ -48,6 +48,7 @@ func (r *rootDseBackendDataSource) Configure(_ context.Context, req datasource.C
 
 type rootDseBackendDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Type                          types.String `tfsdk:"type"`
 	SubordinateBaseDN             types.Set    `tfsdk:"subordinate_base_dn"`
 	AdditionalSupportedControlOID types.Set    `tfsdk:"additional_supported_control_oid"`
 	ShowAllAttributes             types.Bool   `tfsdk:"show_all_attributes"`
@@ -59,6 +60,12 @@ func (r *rootDseBackendDataSource) Schema(ctx context.Context, req datasource.Sc
 	schemaDef := schema.Schema{
 		Description: "Describes a Root Dse Backend.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DSE Backend resource. Options are ['root-dse-backend']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"subordinate_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of base DNs used for singleLevel, wholeSubtree, and subordinateSubtree searches based at the root DSE.",
 				Required:    false,
@@ -93,6 +100,7 @@ func (r *rootDseBackendDataSource) Schema(ctx context.Context, req datasource.Sc
 
 // Read a RootDseBackendResponse object into the model struct
 func readRootDseBackendResponseDataSource(ctx context.Context, r *client.RootDseBackendResponse, state *rootDseBackendDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dse-backend")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.SubordinateBaseDN = internaltypes.GetStringSet(r.SubordinateBaseDN)

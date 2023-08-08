@@ -56,4 +56,5 @@ data "pingdirectory_result_code_map" "myResultCodeMap" {
 - `description` (String) A description for this Result Code Map
 - `id` (String) The ID of this resource.
 - `server_error_result_code` (Number) Specifies the result code that should be returned if a generic error occurs within the server.
+- `type` (String) The type of Result Code Map resource. Options are ['result-code-map']
 

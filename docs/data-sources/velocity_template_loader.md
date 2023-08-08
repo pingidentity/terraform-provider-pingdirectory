@@ -59,4 +59,5 @@ data "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
 - `mime_type_matcher` (String) Specifies a media type for matching Accept request-header values.
 - `template_directory` (String) Specifies the directory in which to search for the template files.
 - `template_suffix` (String) Specifies the suffix to append to the requested resource name when searching for the template file with which to form a response.
+- `type` (String) The type of Velocity Template Loader resource. Options are ['velocity-template-loader']
 

@@ -58,6 +58,7 @@ resource "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 - `connection_type` (String) Specifies the protocol and security that this StatsD Monitoring Endpoint should use to connect to the configured endpoint.
 - `server_port` (Number) Specifies the port number of the endpoint where metric data should be sent.
 - `trust_manager_provider` (String) The trust manager provider to use if SSL over TCP is to be used for connection-level security.
+- `type` (String) The type of Monitoring Endpoint resource. Options are ['statsd']
 
 ### Read-Only
 

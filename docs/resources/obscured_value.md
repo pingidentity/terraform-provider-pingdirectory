@@ -53,6 +53,7 @@ resource "pingdirectory_obscured_value" "myObscuredValue" {
 ### Optional
 
 - `description` (String) A description for this Obscured Value
+- `type` (String) The type of Obscured Value resource. Options are ['obscured-value']
 
 ### Read-Only
 

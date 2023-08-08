@@ -34,7 +34,6 @@ Manages a Scim Resource Type.
 - `required_schema_extension` (Set of String) Required additive schemas that are enforced on extension attributes in a SCIM resource representation for this Mapping SCIM Resource Type.
 - `schema_checking_option` (Set of String) Options to alter the way schema checking is performed during create or modify requests.
 - `structural_ldap_objectclass` (String) Specifies the LDAP structural object class that should be exposed by this SCIM Resource Type.
-- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
 
 ### Read-Only
 
@@ -42,6 +41,7 @@ Manages a Scim Resource Type.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

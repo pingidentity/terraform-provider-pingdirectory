@@ -24,7 +24,6 @@ Manages a Failure Lockout Action.
 - `delay` (String) The length of time to delay the bind response for accounts with too many failed authentication attempts.
 - `description` (String) A description for this Failure Lockout Action
 - `generate_account_status_notification` (Boolean) Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.
-- `type` (String) The type of Failure Lockout Action resource. Options are ['delay-bind-response', 'no-operation', 'lock-account']
 
 ### Read-Only
 
@@ -32,6 +31,7 @@ Manages a Failure Lockout Action.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Failure Lockout Action resource. Options are ['delay-bind-response', 'no-operation', 'lock-account']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

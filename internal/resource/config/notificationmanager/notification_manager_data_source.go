@@ -49,6 +49,7 @@ func (r *notificationManagerDataSource) Configure(_ context.Context, req datasou
 type notificationManagerDataSourceModel struct {
 	Id                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
+	Type                    types.String `tfsdk:"type"`
 	ExtensionClass          types.String `tfsdk:"extension_class"`
 	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
 	Description             types.String `tfsdk:"description"`
@@ -63,6 +64,12 @@ func (r *notificationManagerDataSource) Schema(ctx context.Context, req datasour
 	schemaDef := schema.Schema{
 		Description: "Describes a Notification Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Notification Manager resource. Options are ['third-party']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Notification Manager.",
 				Required:    false,
@@ -114,6 +121,7 @@ func (r *notificationManagerDataSource) Schema(ctx context.Context, req datasour
 
 // Read a ThirdPartyNotificationManagerResponse object into the model struct
 func readThirdPartyNotificationManagerResponseDataSource(ctx context.Context, r *client.ThirdPartyNotificationManagerResponse, state *notificationManagerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -223,41 +224,47 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"ldap-pass-through", "ldap-mapping"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *scimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsScimResourceType() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("optional_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("core_schema"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("required_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+	}
 }
 
-func (r *defaultScimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r scimResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsScimResourceType()
 }
 
-func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model scimResourceTypeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.OptionalSchemaExtension) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'optional_schema_extension' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'optional_schema_extension', the 'type' attribute must be one of ['ldap-mapping']")
-	}
-	if internaltypes.IsDefined(model.CoreSchema) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'core_schema' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'core_schema', the 'type' attribute must be one of ['ldap-mapping']")
-	}
-	if internaltypes.IsDefined(model.RequiredSchemaExtension) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'required_schema_extension' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'required_schema_extension', the 'type' attribute must be one of ['ldap-mapping']")
-	}
+// Add config validators
+func (r defaultScimResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsScimResourceType()
 }
 
 // Add optional fields to create request for ldap-pass-through scim-resource-type
@@ -592,10 +599,10 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state scimResourceTypeResourceModel
-	if plan.Type.ValueString() == "ldap-pass-through" {
+	if readResponse.LdapPassThroughScimResourceTypeResponse != nil {
 		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap-mapping" {
+	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -620,10 +627,10 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap-pass-through" {
+		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapping" {
+		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -725,10 +732,10 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap-pass-through" {
+		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapping" {
+		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

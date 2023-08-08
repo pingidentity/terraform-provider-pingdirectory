@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -231,53 +232,62 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"velocity-tools", "custom", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"http_servlet_extension_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "http_servlet_extension_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *velocityContextProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVelocityContextProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_method"),
+			path.MatchRoot("type"),
+			[]string{"custom", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("session_tool"),
+			path.MatchRoot("type"),
+			[]string{"velocity-tools"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_tool"),
+			path.MatchRoot("type"),
+			[]string{"velocity-tools"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("application_tool"),
+			path.MatchRoot("type"),
+			[]string{"velocity-tools"},
+		),
+	}
 }
 
-func (r *defaultVelocityContextProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVelocityContextProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r velocityContextProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsVelocityContextProvider()
 }
 
-func modifyPlanVelocityContextProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model velocityContextProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.HttpMethod) && model.Type.ValueString() != "custom" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'http_method' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_method', the 'type' attribute must be one of ['custom', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.SessionTool) && model.Type.ValueString() != "velocity-tools" {
-		resp.Diagnostics.AddError("Attribute 'session_tool' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'session_tool', the 'type' attribute must be one of ['velocity-tools']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.RequestTool) && model.Type.ValueString() != "velocity-tools" {
-		resp.Diagnostics.AddError("Attribute 'request_tool' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_tool', the 'type' attribute must be one of ['velocity-tools']")
-	}
-	if internaltypes.IsDefined(model.ApplicationTool) && model.Type.ValueString() != "velocity-tools" {
-		resp.Diagnostics.AddError("Attribute 'application_tool' not supported by pingdirectory_velocity_context_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'application_tool', the 'type' attribute must be one of ['velocity-tools']")
-	}
+// Add config validators
+func (r defaultVelocityContextProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsVelocityContextProvider()
 }
 
 // Add optional fields to create request for velocity-tools velocity-context-provider
@@ -603,13 +613,13 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state velocityContextProviderResourceModel
-	if plan.Type.ValueString() == "velocity-tools" {
+	if readResponse.VelocityToolsVelocityContextProviderResponse != nil {
 		readVelocityToolsVelocityContextProviderResponse(ctx, readResponse.VelocityToolsVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomVelocityContextProviderResponse != nil {
 		readCustomVelocityContextProviderResponse(ctx, readResponse.CustomVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyVelocityContextProviderResponse != nil {
 		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -634,13 +644,13 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "velocity-tools" {
+		if updateResponse.VelocityToolsVelocityContextProviderResponse != nil {
 			readVelocityToolsVelocityContextProviderResponse(ctx, updateResponse.VelocityToolsVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVelocityContextProviderResponse != nil {
 			readCustomVelocityContextProviderResponse(ctx, updateResponse.CustomVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -746,13 +756,13 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "velocity-tools" {
+		if updateResponse.VelocityToolsVelocityContextProviderResponse != nil {
 			readVelocityToolsVelocityContextProviderResponse(ctx, updateResponse.VelocityToolsVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVelocityContextProviderResponse != nil {
 			readCustomVelocityContextProviderResponse(ctx, updateResponse.CustomVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

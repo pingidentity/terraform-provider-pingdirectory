@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -61,6 +63,7 @@ type replicationDomainResourceModel struct {
 	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
+	Type                                      types.String `tfsdk:"type"`
 	SynchronizationProviderName               types.String `tfsdk:"synchronization_provider_name"`
 	ServerID                                  types.Int64  `tfsdk:"server_id"`
 	BaseDN                                    types.String `tfsdk:"base_dn"`
@@ -77,6 +80,15 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 	schemaDef := schema.Schema{
 		Description: "Manages a Replication Domain.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Domain resource. Options are ['replication-domain']",
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"replication-domain"}...),
+				},
+			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -156,6 +168,7 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 
 // Read a ReplicationDomainResponse object into the model struct
 func readReplicationDomainResponse(ctx context.Context, r *client.ReplicationDomainResponse, state *replicationDomainResourceModel, expectedValues *replicationDomainResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-domain")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ServerID = types.Int64Value(r.ServerID)

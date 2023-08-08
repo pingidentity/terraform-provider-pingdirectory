@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -153,45 +154,52 @@ func oauthTokenHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"groovy-scripted", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *oauthTokenHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsOauthTokenHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+	}
 }
 
-func (r *defaultOauthTokenHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r oauthTokenHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsOauthTokenHandler()
 }
 
-func modifyPlanOauthTokenHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model oauthTokenHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_oauth_token_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_oauth_token_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_oauth_token_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_oauth_token_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
+// Add config validators
+func (r defaultOauthTokenHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsOauthTokenHandler()
 }
 
 // Add optional fields to create request for groovy-scripted oauth-token-handler
@@ -397,10 +405,10 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state oauthTokenHandlerResourceModel
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 		readGroovyScriptedOauthTokenHandlerResponse(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -425,10 +433,10 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 			readGroovyScriptedOauthTokenHandlerResponse(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -530,10 +538,10 @@ func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 			readGroovyScriptedOauthTokenHandlerResponse(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

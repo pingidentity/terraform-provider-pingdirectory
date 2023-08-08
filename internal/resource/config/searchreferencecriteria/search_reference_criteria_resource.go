@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -223,73 +224,87 @@ func searchReferenceCriteriaSchema(ctx context.Context, req resource.SchemaReque
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"simple", "aggregate", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *searchReferenceCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanSearchReferenceCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+	}
 }
 
-func (r *defaultSearchReferenceCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanSearchReferenceCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r searchReferenceCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsSearchReferenceCriteria()
 }
 
-func modifyPlanSearchReferenceCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model searchReferenceCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NotAllIncludedSearchReferenceCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_search_reference_criteria' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_search_reference_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedReferenceControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_reference_control' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_reference_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedSearchReferenceCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_search_reference_criteria' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_search_reference_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedReferenceControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_reference_control' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_reference_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedReferenceControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_reference_control' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_reference_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedSearchReferenceCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'none_included_search_reference_criteria' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_search_reference_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedReferenceControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_reference_control' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_reference_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedSearchReferenceCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_search_reference_criteria' not supported by pingdirectory_search_reference_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_search_reference_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
+// Add config validators
+func (r defaultSearchReferenceCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsSearchReferenceCriteria()
 }
 
 // Add optional fields to create request for simple search-reference-criteria
@@ -625,13 +640,13 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state searchReferenceCriteriaResourceModel
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleSearchReferenceCriteriaResponse != nil {
 		readSimpleSearchReferenceCriteriaResponse(ctx, readResponse.SimpleSearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateSearchReferenceCriteriaResponse != nil {
 		readAggregateSearchReferenceCriteriaResponse(ctx, readResponse.AggregateSearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 		readThirdPartySearchReferenceCriteriaResponse(ctx, readResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -656,13 +671,13 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchReferenceCriteriaResponse != nil {
 			readSimpleSearchReferenceCriteriaResponse(ctx, updateResponse.SimpleSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchReferenceCriteriaResponse != nil {
 			readAggregateSearchReferenceCriteriaResponse(ctx, updateResponse.AggregateSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 			readThirdPartySearchReferenceCriteriaResponse(ctx, updateResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -767,13 +782,13 @@ func updateSearchReferenceCriteria(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchReferenceCriteriaResponse != nil {
 			readSimpleSearchReferenceCriteriaResponse(ctx, updateResponse.SimpleSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchReferenceCriteriaResponse != nil {
 			readAggregateSearchReferenceCriteriaResponse(ctx, updateResponse.AggregateSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 			readThirdPartySearchReferenceCriteriaResponse(ctx, updateResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

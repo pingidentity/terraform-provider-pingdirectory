@@ -24,7 +24,6 @@ Manages a Log Rotation Policy.
 - `file_size_limit` (String) Specifies the maximum size that a log file can reach before it is rotated.
 - `rotation_interval` (String) Specifies the time interval between rotations.
 - `time_of_day` (Set of String) Specifies the time of day at which log rotation should occur.
-- `type` (String) The type of Log Rotation Policy resource. Options are ['time-limit', 'fixed-time', 'never-rotate', 'size-limit']
 
 ### Read-Only
 
@@ -32,6 +31,7 @@ Manages a Log Rotation Policy.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Log Rotation Policy resource. Options are ['time-limit', 'fixed-time', 'never-rotate', 'size-limit']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

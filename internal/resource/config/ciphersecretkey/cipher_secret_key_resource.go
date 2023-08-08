@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -62,6 +64,7 @@ type cipherSecretKeyResourceModel struct {
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
+	Type                           types.String `tfsdk:"type"`
 	ServerInstanceName             types.String `tfsdk:"server_instance_name"`
 	CipherTransformationName       types.String `tfsdk:"cipher_transformation_name"`
 	InitializationVectorLengthBits types.Int64  `tfsdk:"initialization_vector_length_bits"`
@@ -76,6 +79,15 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 	schemaDef := schema.Schema{
 		Description: "Manages a Cipher Secret Key.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Cipher Secret Key resource. Options are ['cipher-secret-key']",
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cipher-secret-key"}...),
+				},
+			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance",
 				Required:    true,
@@ -140,6 +152,7 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 
 // Read a CipherSecretKeyResponse object into the model struct
 func readCipherSecretKeyResponse(ctx context.Context, r *client.CipherSecretKeyResponse, state *cipherSecretKeyResourceModel, expectedValues *cipherSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("cipher-secret-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CipherTransformationName = internaltypes.StringTypeOrNil(r.CipherTransformationName, true)

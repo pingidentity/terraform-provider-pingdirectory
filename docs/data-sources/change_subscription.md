@@ -56,4 +56,5 @@ data "pingdirectory_change_subscription" "myChangeSubscription" {
 - `id` (String) The ID of this resource.
 - `request_criteria` (String) Specifies a set of request criteria that must match the request associated with an operation in order for that operation to be processed by a change subscription handler.
 - `result_criteria` (String) Specifies a set of result criteria that must match the result associated with an operation in order for that operation to be processed by a change subscription handler.
+- `type` (String) The type of Change Subscription resource. Options are ['change-subscription']
 

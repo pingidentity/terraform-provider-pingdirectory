@@ -59,5 +59,6 @@ data "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
 - `readable` (Boolean) Specifies whether the mapping is used to map from LDAP attribute to SCIM Resource Type attribute in a read operation.
 - `scim_resource_type_attribute` (String) The attribute path of SCIM Resource Type attributes to be mapped.
 - `searchable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a search filter.
+- `type` (String) The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']
 - `writable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a write operation.
 

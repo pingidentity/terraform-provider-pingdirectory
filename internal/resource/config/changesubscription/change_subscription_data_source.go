@@ -49,6 +49,7 @@ func (r *changeSubscriptionDataSource) Configure(_ context.Context, req datasour
 type changeSubscriptionDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
+	Type               types.String `tfsdk:"type"`
 	Description        types.String `tfsdk:"description"`
 	ConnectionCriteria types.String `tfsdk:"connection_criteria"`
 	RequestCriteria    types.String `tfsdk:"request_criteria"`
@@ -61,6 +62,12 @@ func (r *changeSubscriptionDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Change Subscription.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Change Subscription resource. Options are ['change-subscription']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Change Subscription",
 				Required:    false,
@@ -99,6 +106,7 @@ func (r *changeSubscriptionDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a ChangeSubscriptionResponse object into the model struct
 func readChangeSubscriptionResponseDataSource(ctx context.Context, r *client.ChangeSubscriptionResponse, state *changeSubscriptionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("change-subscription")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

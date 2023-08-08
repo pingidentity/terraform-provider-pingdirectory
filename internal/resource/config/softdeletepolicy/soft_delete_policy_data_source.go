@@ -49,6 +49,7 @@ func (r *softDeletePolicyDataSource) Configure(_ context.Context, req datasource
 type softDeletePolicyDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
 	Name                             types.String `tfsdk:"name"`
+	Type                             types.String `tfsdk:"type"`
 	Description                      types.String `tfsdk:"description"`
 	AutoSoftDeleteConnectionCriteria types.String `tfsdk:"auto_soft_delete_connection_criteria"`
 	AutoSoftDeleteRequestCriteria    types.String `tfsdk:"auto_soft_delete_request_criteria"`
@@ -61,6 +62,12 @@ func (r *softDeletePolicyDataSource) Schema(ctx context.Context, req datasource.
 	schemaDef := schema.Schema{
 		Description: "Describes a Soft Delete Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Soft Delete Policy resource. Options are ['soft-delete-policy']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Soft Delete Policy",
 				Required:    false,
@@ -99,6 +106,7 @@ func (r *softDeletePolicyDataSource) Schema(ctx context.Context, req datasource.
 
 // Read a SoftDeletePolicyResponse object into the model struct
 func readSoftDeletePolicyResponseDataSource(ctx context.Context, r *client.SoftDeletePolicyResponse, state *softDeletePolicyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("soft-delete-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

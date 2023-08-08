@@ -34,7 +34,6 @@ Manages a Log Field Behavior.
 - `tokenize_entire_value_field_name` (Set of String) The names of any custom fields whose values should be completely tokenized. This should generally only be used for fields that are not available through the tokenize-entire-value-field property (for example, custom log fields defined in Server SDK extensions).
 - `tokenize_value_components_field` (Set of String) The log fields whose values will include tokenized components.
 - `tokenize_value_components_field_name` (Set of String) The names of any custom fields for which to tokenize components within the value. This should generally only be used for fields that are not available through the tokenize-value-components-field property (for example, custom log fields defined in Server SDK extensions).
-- `type` (String) The type of Log Field Behavior resource. Options are ['text-access', 'json-formatted-access']
 
 ### Read-Only
 
@@ -42,6 +41,7 @@ Manages a Log Field Behavior.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Log Field Behavior resource. Options are ['text-access', 'json-formatted-access']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

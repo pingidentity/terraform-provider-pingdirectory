@@ -64,6 +64,7 @@ resource "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
 - `scheduled_month` (Set of String) The months of the year in which instances of this Recurring Task Chain may be scheduled to start.
 - `server_offline_at_start_time_behavior` (String) Specifies the behavior that the server should exhibit if it is offline when the start time arrives for the tasks in this Recurring Task Chain.
 - `time_zone` (String) The time zone that will be used to interpret the scheduled-time-of-day values. If no value is provided, then the JVM's default time zone will be used.
+- `type` (String) The type of Recurring Task Chain resource. Options are ['recurring-task-chain']
 
 ### Read-Only
 

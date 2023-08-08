@@ -55,6 +55,7 @@ resource "pingdirectory_dn_map" "myDnMap" {
 ### Optional
 
 - `description` (String) A description for this DN Map
+- `type` (String) The type of DN Map resource. Options are ['dn-map']
 
 ### Read-Only
 

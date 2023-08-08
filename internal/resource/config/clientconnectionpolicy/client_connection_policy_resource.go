@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type clientConnectionPolicyResourceModel struct {
 	LastUpdated                                              types.String `tfsdk:"last_updated"`
 	Notifications                                            types.Set    `tfsdk:"notifications"`
 	RequiredActions                                          types.Set    `tfsdk:"required_actions"`
+	Type                                                     types.String `tfsdk:"type"`
 	PolicyID                                                 types.String `tfsdk:"policy_id"`
 	Description                                              types.String `tfsdk:"description"`
 	Enabled                                                  types.Bool   `tfsdk:"enabled"`
@@ -143,6 +147,15 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 	schemaDef := schema.Schema{
 		Description: "Manages a Client Connection Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Client Connection Policy resource. Options are ['client-connection-policy']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("client-connection-policy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"client-connection-policy"}...),
+				},
+			},
 			"policy_id": schema.StringAttribute{
 				Description: "Specifies a name which uniquely identifies this Client Connection Policy in the server.",
 				Required:    true,
@@ -460,8 +473,13 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"policy_id"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "policy_id"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -666,6 +684,7 @@ func addOptionalClientConnectionPolicyFields(ctx context.Context, addRequest *cl
 
 // Read a ClientConnectionPolicyResponse object into the model struct
 func readClientConnectionPolicyResponse(ctx context.Context, r *client.ClientConnectionPolicyResponse, state *clientConnectionPolicyResourceModel, expectedValues *clientConnectionPolicyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("client-connection-policy")
 	state.Id = types.StringValue(r.Id)
 	state.PolicyID = types.StringValue(r.PolicyID)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

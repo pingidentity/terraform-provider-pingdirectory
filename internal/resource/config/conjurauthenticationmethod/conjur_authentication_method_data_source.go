@@ -49,6 +49,7 @@ func (r *conjurAuthenticationMethodDataSource) Configure(_ context.Context, req 
 type conjurAuthenticationMethodDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
+	Type        types.String `tfsdk:"type"`
 	Username    types.String `tfsdk:"username"`
 	Password    types.String `tfsdk:"password"`
 	ApiKey      types.String `tfsdk:"api_key"`
@@ -60,6 +61,12 @@ func (r *conjurAuthenticationMethodDataSource) Schema(ctx context.Context, req d
 	schemaDef := schema.Schema{
 		Description: "Describes a Conjur Authentication Method.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Conjur Authentication Method resource. Options are ['api-key']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"username": schema.StringAttribute{
 				Description: "The username for the user to authenticate.",
 				Required:    false,
@@ -94,6 +101,7 @@ func (r *conjurAuthenticationMethodDataSource) Schema(ctx context.Context, req d
 
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponseDataSource(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("api-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)

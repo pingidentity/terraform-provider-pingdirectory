@@ -48,6 +48,7 @@ func (r *consentServiceDataSource) Configure(_ context.Context, req datasource.C
 
 type consentServiceDataSourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Type                        types.String `tfsdk:"type"`
 	Enabled                     types.Bool   `tfsdk:"enabled"`
 	BaseDN                      types.String `tfsdk:"base_dn"`
 	BindDN                      types.String `tfsdk:"bind_dn"`
@@ -64,6 +65,12 @@ func (r *consentServiceDataSource) Schema(ctx context.Context, req datasource.Sc
 	schemaDef := schema.Schema{
 		Description: "Describes a Consent Service.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Service resource. Options are ['consent-service']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether the Consent Service is enabled.",
 				Required:    false,
@@ -128,6 +135,7 @@ func (r *consentServiceDataSource) Schema(ctx context.Context, req datasource.Sc
 
 // Read a ConsentServiceResponse object into the model struct
 func readConsentServiceResponseDataSource(ctx context.Context, r *client.ConsentServiceResponse, state *consentServiceDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-service")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.Enabled = types.BoolValue(r.Enabled)

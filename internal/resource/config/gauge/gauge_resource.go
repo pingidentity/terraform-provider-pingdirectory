@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -283,45 +284,52 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"indicator", "numeric"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *gaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsGauge() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minor_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("critical_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("major_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("warning_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+	}
 }
 
-func (r *defaultGaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r gaugeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGauge()
 }
 
-func modifyPlanGauge(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model gaugeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MinorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minor_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.CriticalExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'critical_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.MajorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'major_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.WarningExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'warning_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
+// Add config validators
+func (r defaultGaugeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGauge()
 }
 
 // Add optional fields to create request for indicator gauge
@@ -745,10 +753,10 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state gaugeResourceModel
-	if plan.Type.ValueString() == "indicator" {
+	if readResponse.IndicatorGaugeResponse != nil {
 		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "numeric" {
+	if readResponse.NumericGaugeResponse != nil {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -773,10 +781,10 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "indicator" {
+		if updateResponse.IndicatorGaugeResponse != nil {
 			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "numeric" {
+		if updateResponse.NumericGaugeResponse != nil {
 			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -878,10 +886,10 @@ func updateGauge(ctx context.Context, req resource.UpdateRequest, resp *resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "indicator" {
+		if updateResponse.IndicatorGaugeResponse != nil {
 			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "numeric" {
+		if updateResponse.NumericGaugeResponse != nil {
 			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

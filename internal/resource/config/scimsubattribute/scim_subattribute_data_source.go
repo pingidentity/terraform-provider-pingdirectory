@@ -49,6 +49,7 @@ func (r *scimSubattributeDataSource) Configure(_ context.Context, req datasource
 type scimSubattributeDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	Name              types.String `tfsdk:"name"`
+	ResourceType      types.String `tfsdk:"resource_type"`
 	ScimAttributeName types.String `tfsdk:"scim_attribute_name"`
 	ScimSchemaName    types.String `tfsdk:"scim_schema_name"`
 	Description       types.String `tfsdk:"description"`
@@ -67,6 +68,12 @@ func (r *scimSubattributeDataSource) Schema(ctx context.Context, req datasource.
 	schemaDef := schema.Schema{
 		Description: "Describes a Scim Subattribute.",
 		Attributes: map[string]schema.Attribute{
+			"resource_type": schema.StringAttribute{
+				Description: "The type of SCIM Subattribute resource. Options are ['scim-subattribute']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"scim_attribute_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Attribute",
 				Required:    true,
@@ -139,6 +146,7 @@ func (r *scimSubattributeDataSource) Schema(ctx context.Context, req datasource.
 
 // Read a ScimSubattributeResponse object into the model struct
 func readScimSubattributeResponseDataSource(ctx context.Context, r *client.ScimSubattributeResponse, state *scimSubattributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("scim-subattribute")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

@@ -49,6 +49,7 @@ func (r *customLoggedStatsDataSource) Configure(_ context.Context, req datasourc
 type customLoggedStatsDataSourceModel struct {
 	Id                     types.String `tfsdk:"id"`
 	Name                   types.String `tfsdk:"name"`
+	Type                   types.String `tfsdk:"type"`
 	PluginName             types.String `tfsdk:"plugin_name"`
 	Description            types.String `tfsdk:"description"`
 	Enabled                types.Bool   `tfsdk:"enabled"`
@@ -72,6 +73,12 @@ func (r *customLoggedStatsDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Custom Logged Stats.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Custom Logged Stats resource. Options are ['custom-logged-stats']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"plugin_name": schema.StringAttribute{
 				Description: "Name of the parent Plugin",
 				Required:    true,
@@ -177,6 +184,7 @@ func (r *customLoggedStatsDataSource) Schema(ctx context.Context, req datasource
 
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponseDataSource(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom-logged-stats")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

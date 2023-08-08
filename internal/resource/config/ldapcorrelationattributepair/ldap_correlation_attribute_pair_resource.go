@@ -5,12 +5,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -86,6 +89,7 @@ type ldapCorrelationAttributePairResourceModel struct {
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
+	Type                          types.String `tfsdk:"type"`
 	CorrelatedLdapDataViewName    types.String `tfsdk:"correlated_ldap_data_view_name"`
 	ScimResourceTypeName          types.String `tfsdk:"scim_resource_type_name"`
 	PrimaryCorrelationAttribute   types.String `tfsdk:"primary_correlation_attribute"`
@@ -105,6 +109,15 @@ func ldapCorrelationAttributePairSchema(ctx context.Context, req resource.Schema
 	schemaDef := schema.Schema{
 		Description: "Manages a Ldap Correlation Attribute Pair.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of LDAP Correlation Attribute Pair resource. Options are ['ldap-correlation-attribute-pair']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("ldap-correlation-attribute-pair"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ldap-correlation-attribute-pair"}...),
+				},
+			},
 			"correlated_ldap_data_view_name": schema.StringAttribute{
 				Description: "Name of the parent Correlated LDAP Data View",
 				Required:    true,
@@ -130,8 +143,13 @@ func ldapCorrelationAttributePairSchema(ctx context.Context, req resource.Schema
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"correlated_ldap_data_view_name", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "correlated_ldap_data_view_name", "scim_resource_type_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -143,6 +161,7 @@ func addOptionalLdapCorrelationAttributePairFields(ctx context.Context, addReque
 
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairResourceModel, expectedValues *ldapCorrelationAttributePairResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ldap-correlation-attribute-pair")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PrimaryCorrelationAttribute = types.StringValue(r.PrimaryCorrelationAttribute)
@@ -153,11 +172,11 @@ func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.Lda
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *ldapCorrelationAttributePairResourceModel) setStateValuesNotReturnedByAPI(expectedValues *ldapCorrelationAttributePairResourceModel) {
-	if !expectedValues.ScimResourceTypeName.IsUnknown() {
-		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
-	}
 	if !expectedValues.CorrelatedLdapDataViewName.IsUnknown() {
 		state.CorrelatedLdapDataViewName = expectedValues.CorrelatedLdapDataViewName
+	}
+	if !expectedValues.ScimResourceTypeName.IsUnknown() {
+		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
 	}
 }
 

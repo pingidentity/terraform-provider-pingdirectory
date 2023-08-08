@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -142,45 +143,52 @@ func logRetentionPolicySchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"time-limit", "never-delete", "file-count", "free-disk-space", "size-limit"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logRetentionPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_duration"),
+			path.MatchRoot("type"),
+			[]string{"time-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disk_space_used"),
+			path.MatchRoot("type"),
+			[]string{"size-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("free_disk_space"),
+			path.MatchRoot("type"),
+			[]string{"free-disk-space"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("number_of_files"),
+			path.MatchRoot("type"),
+			[]string{"file-count"},
+		),
+	}
 }
 
-func (r *defaultLogRetentionPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logRetentionPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRetentionPolicy()
 }
 
-func modifyPlanLogRetentionPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logRetentionPolicyResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.RetainDuration) && model.Type.ValueString() != "time-limit" {
-		resp.Diagnostics.AddError("Attribute 'retain_duration' not supported by pingdirectory_log_retention_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_duration', the 'type' attribute must be one of ['time-limit']")
-	}
-	if internaltypes.IsDefined(model.DiskSpaceUsed) && model.Type.ValueString() != "size-limit" {
-		resp.Diagnostics.AddError("Attribute 'disk_space_used' not supported by pingdirectory_log_retention_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disk_space_used', the 'type' attribute must be one of ['size-limit']")
-	}
-	if internaltypes.IsDefined(model.FreeDiskSpace) && model.Type.ValueString() != "free-disk-space" {
-		resp.Diagnostics.AddError("Attribute 'free_disk_space' not supported by pingdirectory_log_retention_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'free_disk_space', the 'type' attribute must be one of ['free-disk-space']")
-	}
-	if internaltypes.IsDefined(model.NumberOfFiles) && model.Type.ValueString() != "file-count" {
-		resp.Diagnostics.AddError("Attribute 'number_of_files' not supported by pingdirectory_log_retention_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'number_of_files', the 'type' attribute must be one of ['file-count']")
-	}
+// Add config validators
+func (r defaultLogRetentionPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRetentionPolicy()
 }
 
 // Add optional fields to create request for time-limit log-retention-policy
@@ -540,19 +548,19 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state logRetentionPolicyResourceModel
-	if plan.Type.ValueString() == "time-limit" {
+	if readResponse.TimeLimitLogRetentionPolicyResponse != nil {
 		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "never-delete" {
+	if readResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-count" {
+	if readResponse.FileCountLogRetentionPolicyResponse != nil {
 		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "free-disk-space" {
+	if readResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "size-limit" {
+	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
 		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -577,19 +585,19 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRetentionPolicyResponse != nil {
 			readTimeLimitLogRetentionPolicyResponse(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-delete" {
+		if updateResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 			readNeverDeleteLogRetentionPolicyResponse(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-count" {
+		if updateResponse.FileCountLogRetentionPolicyResponse != nil {
 			readFileCountLogRetentionPolicyResponse(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "free-disk-space" {
+		if updateResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 			readFreeDiskSpaceLogRetentionPolicyResponse(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRetentionPolicyResponse != nil {
 			readSizeLimitLogRetentionPolicyResponse(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -700,19 +708,19 @@ func updateLogRetentionPolicy(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRetentionPolicyResponse != nil {
 			readTimeLimitLogRetentionPolicyResponse(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-delete" {
+		if updateResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 			readNeverDeleteLogRetentionPolicyResponse(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-count" {
+		if updateResponse.FileCountLogRetentionPolicyResponse != nil {
 			readFileCountLogRetentionPolicyResponse(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "free-disk-space" {
+		if updateResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 			readFreeDiskSpaceLogRetentionPolicyResponse(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRetentionPolicyResponse != nil {
 			readSizeLimitLogRetentionPolicyResponse(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

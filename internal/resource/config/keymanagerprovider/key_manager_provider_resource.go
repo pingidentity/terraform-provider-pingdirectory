@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -222,12 +223,13 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"file-based", "custom", "pkcs11", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -243,64 +245,6 @@ func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model keyManagerProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PrivateKeyPinPassphraseProvider) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin_passphrase_provider', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.PrivateKeyPin) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderClass) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_class', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11KeyStoreType) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_key_store_type', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.KeyStoreFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderConfigurationFile) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_configuration_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_configuration_file', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.KeyStoreType) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_type', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinPassphraseProvider) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_passphrase_provider', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePin) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinFile) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_file', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.PrivateKeyPinFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11MaxCacheDuration) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_max_cache_duration', the 'type' attribute must be one of ['pkcs11']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -310,9 +254,97 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 		// Every remaining property is supported
 		return
 	}
+	var model keyManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_class"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_configuration_file"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_max_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+	}
+}
+
+// Add config validators
+func (r keyManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsKeyManagerProvider()
+}
+
+// Add config validators
+func (r defaultKeyManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsKeyManagerProvider()
 }
 
 // Add optional fields to create request for file-based key-manager-provider
@@ -681,16 +713,16 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state keyManagerProviderResourceModel
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedKeyManagerProviderResponse != nil {
 		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomKeyManagerProviderResponse != nil {
 		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pkcs11" {
+	if readResponse.Pkcs11KeyManagerProviderResponse != nil {
 		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
 		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -715,16 +747,16 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedKeyManagerProviderResponse != nil {
 			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomKeyManagerProviderResponse != nil {
 			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11KeyManagerProviderResponse != nil {
 			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyKeyManagerProviderResponse != nil {
 			readThirdPartyKeyManagerProviderResponse(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -833,16 +865,16 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedKeyManagerProviderResponse != nil {
 			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomKeyManagerProviderResponse != nil {
 			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11KeyManagerProviderResponse != nil {
 			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyKeyManagerProviderResponse != nil {
 			readThirdPartyKeyManagerProviderResponse(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

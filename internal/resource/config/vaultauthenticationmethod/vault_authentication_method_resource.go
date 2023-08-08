@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -159,53 +160,62 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"static-token", "app-role", "user-pass"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *vaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVaultAuthenticationMethod(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsVaultAuthenticationMethod() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_access_token"),
+			path.MatchRoot("type"),
+			[]string{"static-token"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("login_mechanism_name"),
+			path.MatchRoot("type"),
+			[]string{"app-role", "user-pass"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"user-pass"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_role_id"),
+			path.MatchRoot("type"),
+			[]string{"app-role"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_id"),
+			path.MatchRoot("type"),
+			[]string{"app-role"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"user-pass"},
+		),
+	}
 }
 
-func (r *defaultVaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVaultAuthenticationMethod(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r vaultAuthenticationMethodResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsVaultAuthenticationMethod()
 }
 
-func modifyPlanVaultAuthenticationMethod(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model vaultAuthenticationMethodResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.VaultAccessToken) && model.Type.ValueString() != "static-token" {
-		resp.Diagnostics.AddError("Attribute 'vault_access_token' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_access_token', the 'type' attribute must be one of ['static-token']")
-	}
-	if internaltypes.IsDefined(model.LoginMechanismName) && model.Type.ValueString() != "app-role" && model.Type.ValueString() != "user-pass" {
-		resp.Diagnostics.AddError("Attribute 'login_mechanism_name' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'login_mechanism_name', the 'type' attribute must be one of ['app-role', 'user-pass']")
-	}
-	if internaltypes.IsDefined(model.Password) && model.Type.ValueString() != "user-pass" {
-		resp.Diagnostics.AddError("Attribute 'password' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password', the 'type' attribute must be one of ['user-pass']")
-	}
-	if internaltypes.IsDefined(model.VaultRoleID) && model.Type.ValueString() != "app-role" {
-		resp.Diagnostics.AddError("Attribute 'vault_role_id' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_role_id', the 'type' attribute must be one of ['app-role']")
-	}
-	if internaltypes.IsDefined(model.VaultSecretID) && model.Type.ValueString() != "app-role" {
-		resp.Diagnostics.AddError("Attribute 'vault_secret_id' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_secret_id', the 'type' attribute must be one of ['app-role']")
-	}
-	if internaltypes.IsDefined(model.Username) && model.Type.ValueString() != "user-pass" {
-		resp.Diagnostics.AddError("Attribute 'username' not supported by pingdirectory_vault_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'username', the 'type' attribute must be one of ['user-pass']")
-	}
+// Add config validators
+func (r defaultVaultAuthenticationMethodResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsVaultAuthenticationMethod()
 }
 
 // Add optional fields to create request for static-token vault-authentication-method
@@ -489,13 +499,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state vaultAuthenticationMethodResourceModel
-	if plan.Type.ValueString() == "static-token" {
+	if readResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "app-role" {
+	if readResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "user-pass" {
+	if readResponse.UserPassVaultAuthenticationMethodResponse != nil {
 		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -520,13 +530,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static-token" {
+		if updateResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 			readStaticTokenVaultAuthenticationMethodResponse(ctx, updateResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "app-role" {
+		if updateResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 			readAppRoleVaultAuthenticationMethodResponse(ctx, updateResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-pass" {
+		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -632,13 +642,13 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static-token" {
+		if updateResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 			readStaticTokenVaultAuthenticationMethodResponse(ctx, updateResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "app-role" {
+		if updateResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 			readAppRoleVaultAuthenticationMethodResponse(ctx, updateResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-pass" {
+		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

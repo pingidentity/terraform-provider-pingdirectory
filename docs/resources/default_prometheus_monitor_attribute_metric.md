@@ -34,6 +34,7 @@ Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory produc
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -178,57 +179,67 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"default", "last-access-time", "filter-based", "groovy-scripted", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_time_threshold"),
+			path.MatchRoot("type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_identifies_uncached_entries"),
+			path.MatchRoot("type"),
+			[]string{"filter-based"},
+		),
+	}
 }
 
-func (r *defaultUncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r uncachedEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedEntryCriteria()
 }
 
-func modifyPlanUncachedEntryCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model uncachedEntryCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "filter-based" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter', the 'type' attribute must be one of ['filter-based']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AccessTimeThreshold) && model.Type.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'access_time_threshold' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_time_threshold', the 'type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.FilterIdentifiesUncachedEntries) && model.Type.ValueString() != "filter-based" {
-		resp.Diagnostics.AddError("Attribute 'filter_identifies_uncached_entries' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter_identifies_uncached_entries', the 'type' attribute must be one of ['filter-based']")
-	}
+// Add config validators
+func (r defaultUncachedEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedEntryCriteria()
 }
 
 // Add optional fields to create request for default uncached-entry-criteria
@@ -629,19 +640,19 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 
 	// Read the existing configuration
 	var state uncachedEntryCriteriaResourceModel
-	if plan.Type.ValueString() == "default" {
+	if readResponse.DefaultUncachedEntryCriteriaResponse != nil {
 		readDefaultUncachedEntryCriteriaResponse(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "last-access-time" {
+	if readResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 		readLastAccessTimeUncachedEntryCriteriaResponse(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "filter-based" {
+	if readResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 		readFilterBasedUncachedEntryCriteriaResponse(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 		readGroovyScriptedUncachedEntryCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -666,19 +677,19 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedEntryCriteriaResponse != nil {
 			readDefaultUncachedEntryCriteriaResponse(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 			readLastAccessTimeUncachedEntryCriteriaResponse(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter-based" {
+		if updateResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 			readFilterBasedUncachedEntryCriteriaResponse(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 			readGroovyScriptedUncachedEntryCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 			readThirdPartyUncachedEntryCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -789,19 +800,19 @@ func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedEntryCriteriaResponse != nil {
 			readDefaultUncachedEntryCriteriaResponse(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 			readLastAccessTimeUncachedEntryCriteriaResponse(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter-based" {
+		if updateResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 			readFilterBasedUncachedEntryCriteriaResponse(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 			readGroovyScriptedUncachedEntryCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 			readThirdPartyUncachedEntryCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

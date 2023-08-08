@@ -49,6 +49,7 @@ func (r *resultCodeMapDataSource) Configure(_ context.Context, req datasource.Co
 type resultCodeMapDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
 	Name                          types.String `tfsdk:"name"`
+	Type                          types.String `tfsdk:"type"`
 	Description                   types.String `tfsdk:"description"`
 	BindAccountLockedResultCode   types.Int64  `tfsdk:"bind_account_locked_result_code"`
 	BindMissingUserResultCode     types.Int64  `tfsdk:"bind_missing_user_result_code"`
@@ -61,6 +62,12 @@ func (r *resultCodeMapDataSource) Schema(ctx context.Context, req datasource.Sch
 	schemaDef := schema.Schema{
 		Description: "Describes a Result Code Map.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Result Code Map resource. Options are ['result-code-map']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Result Code Map",
 				Required:    false,
@@ -99,6 +106,7 @@ func (r *resultCodeMapDataSource) Schema(ctx context.Context, req datasource.Sch
 
 // Read a ResultCodeMapResponse object into the model struct
 func readResultCodeMapResponseDataSource(ctx context.Context, r *client.ResultCodeMapResponse, state *resultCodeMapDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("result-code-map")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

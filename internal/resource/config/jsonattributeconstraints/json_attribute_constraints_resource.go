@@ -4,13 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -85,6 +88,7 @@ type jsonAttributeConstraintsResourceModel struct {
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
+	Type               types.String `tfsdk:"type"`
 	Description        types.String `tfsdk:"description"`
 	Enabled            types.Bool   `tfsdk:"enabled"`
 	AttributeType      types.String `tfsdk:"attribute_type"`
@@ -104,6 +108,15 @@ func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequ
 	schemaDef := schema.Schema{
 		Description: "Manages a Json Attribute Constraints.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("json-attribute-constraints"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"json-attribute-constraints"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this JSON Attribute Constraints",
 				Optional:    true,
@@ -134,8 +147,13 @@ func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequ
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "attribute_type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -157,6 +175,7 @@ func addOptionalJsonAttributeConstraintsFields(ctx context.Context, addRequest *
 
 // Read a JsonAttributeConstraintsResponse object into the model struct
 func readJsonAttributeConstraintsResponse(ctx context.Context, r *client.JsonAttributeConstraintsResponse, state *jsonAttributeConstraintsResourceModel, expectedValues *jsonAttributeConstraintsResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("json-attribute-constraints")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)

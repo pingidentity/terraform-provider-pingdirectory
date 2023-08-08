@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -162,41 +164,55 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"string-array", "boolean", "string"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"id_token_validator_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "id_token_validator_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *tokenClaimValidationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"string-array"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("any_required_value"),
+				path.MatchRoot("all_required_value"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_required_value"),
+			path.MatchRoot("type"),
+			[]string{"string-array", "string"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("required_value"),
+			path.MatchRoot("type"),
+			[]string{"boolean"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_required_value"),
+			path.MatchRoot("type"),
+			[]string{"string-array"},
+		),
+	}
 }
 
-func (r *defaultTokenClaimValidationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r tokenClaimValidationResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsTokenClaimValidation()
 }
 
-func modifyPlanTokenClaimValidation(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model tokenClaimValidationResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AnyRequiredValue) && model.Type.ValueString() != "string-array" && model.Type.ValueString() != "string" {
-		resp.Diagnostics.AddError("Attribute 'any_required_value' not supported by pingdirectory_token_claim_validation resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_required_value', the 'type' attribute must be one of ['string-array', 'string']")
-	}
-	if internaltypes.IsDefined(model.RequiredValue) && model.Type.ValueString() != "boolean" {
-		resp.Diagnostics.AddError("Attribute 'required_value' not supported by pingdirectory_token_claim_validation resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'required_value', the 'type' attribute must be one of ['boolean']")
-	}
-	if internaltypes.IsDefined(model.AllRequiredValue) && model.Type.ValueString() != "string-array" {
-		resp.Diagnostics.AddError("Attribute 'all_required_value' not supported by pingdirectory_token_claim_validation resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_required_value', the 'type' attribute must be one of ['string-array']")
-	}
+// Add config validators
+func (r defaultTokenClaimValidationResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsTokenClaimValidation()
 }
 
 // Add optional fields to create request for string-array token-claim-validation
@@ -481,13 +497,13 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state tokenClaimValidationResourceModel
-	if plan.Type.ValueString() == "string-array" {
+	if readResponse.StringArrayTokenClaimValidationResponse != nil {
 		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "boolean" {
+	if readResponse.BooleanTokenClaimValidationResponse != nil {
 		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "string" {
+	if readResponse.StringTokenClaimValidationResponse != nil {
 		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -512,13 +528,13 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "string-array" {
+		if updateResponse.StringArrayTokenClaimValidationResponse != nil {
 			readStringArrayTokenClaimValidationResponse(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanTokenClaimValidationResponse != nil {
 			readBooleanTokenClaimValidationResponse(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "string" {
+		if updateResponse.StringTokenClaimValidationResponse != nil {
 			readStringTokenClaimValidationResponse(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -624,13 +640,13 @@ func updateTokenClaimValidation(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "string-array" {
+		if updateResponse.StringArrayTokenClaimValidationResponse != nil {
 			readStringArrayTokenClaimValidationResponse(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanTokenClaimValidationResponse != nil {
 			readBooleanTokenClaimValidationResponse(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "string" {
+		if updateResponse.StringTokenClaimValidationResponse != nil {
 			readStringTokenClaimValidationResponse(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

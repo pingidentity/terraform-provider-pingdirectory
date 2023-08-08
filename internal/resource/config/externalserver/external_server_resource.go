@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -513,12 +515,13 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory", "conjur", "amazon-aws", "vault"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -534,212 +537,6 @@ func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model externalServerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SmtpConnectionProperties) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'smtp_connection_properties' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'smtp_connection_properties', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.MaxConnections) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'max_connections' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_connections', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.SmtpSecurity) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'smtp_security' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'smtp_security', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.VerifyCredentialsMethod) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'verify_credentials_method' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'verify_credentials_method', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.BindDN) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'bind_dn' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bind_dn', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.Password) && model.Type.ValueString() != "smtp" && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "jdbc" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'password' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password', the 'type' attribute must be one of ['smtp', 'opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'jdbc', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.AbandonOnTimeout) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'abandon_on_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'abandon_on_timeout', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.BasicAuthenticationUsername) && model.Type.ValueString() != "http-proxy" {
-		resp.Diagnostics.AddError("Attribute 'basic_authentication_username' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'basic_authentication_username', the 'type' attribute must be one of ['http-proxy']")
-	}
-	if internaltypes.IsDefined(model.TrustManagerProvider) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "ping-one-http" && model.Type.ValueString() != "http" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "syslog" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'trust_manager_provider' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_manager_provider', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'ping-one-http', 'http', 'oracle-unified-directory', 'syslog', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ServerHostName) && model.Type.ValueString() != "smtp" && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "jdbc" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "syslog" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "http-proxy" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'server_host_name' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_host_name', the 'type' attribute must be one of ['smtp', 'opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'jdbc', 'oracle-unified-directory', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.MaxConnectionAge) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "syslog" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'max_connection_age' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_connection_age', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'syslog', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ConjurServerBaseURI) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_server_base_uri' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_server_base_uri', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreFile) && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_file' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_file', the 'type' attribute must be one of ['conjur', 'vault']")
-	}
-	if internaltypes.IsDefined(model.HostnameVerificationMethod) && model.Type.ValueString() != "ping-one-http" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'hostname_verification_method' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'hostname_verification_method', the 'type' attribute must be one of ['ping-one-http', 'http']")
-	}
-	if internaltypes.IsDefined(model.PassphraseProvider) && model.Type.ValueString() != "smtp" && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "jdbc" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'passphrase_provider' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'passphrase_provider', the 'type' attribute must be one of ['smtp', 'opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'jdbc', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.BaseURL) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'base_url' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_url', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.DefunctConnectionResultCode) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'defunct_connection_result_code' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'defunct_connection_result_code', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ValidationQuery) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'validation_query' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'validation_query', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "amazon-aws" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['amazon-aws']")
-	}
-	if internaltypes.IsDefined(model.JdbcDriverType) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'jdbc_driver_type' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jdbc_driver_type', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.UserName) && model.Type.ValueString() != "smtp" && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'user_name' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'user_name', the 'type' attribute must be one of ['smtp', 'jdbc']")
-	}
-	if internaltypes.IsDefined(model.AwsAccessKeyID) && model.Type.ValueString() != "amazon-aws" {
-		resp.Diagnostics.AddError("Attribute 'aws_access_key_id' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_access_key_id', the 'type' attribute must be one of ['amazon-aws']")
-	}
-	if internaltypes.IsDefined(model.VaultAuthenticationMethod) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_authentication_method' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_authentication_method', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.AuthenticationMethod) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "amazon-aws" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'authentication_method', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'amazon-aws', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.JdbcDriverURL) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'jdbc_driver_url' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jdbc_driver_url', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.HealthCheckConnectTimeout) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'health_check_connect_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'health_check_connect_timeout', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.UseAdministrativeOperationControl) && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'use_administrative_operation_control' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_administrative_operation_control', the 'type' attribute must be one of ['nokia-ds', 'ping-identity-ds', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.SmtpTimeout) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'smtp_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'smtp_timeout', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.ConjurAuthenticationMethod) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_authentication_method' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_authentication_method', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.ValidationQueryTimeout) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'validation_query_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'validation_query_timeout', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePin) && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin', the 'type' attribute must be one of ['conjur', 'vault']")
-	}
-	if internaltypes.IsDefined(model.AwsRegionName) && model.Type.ValueString() != "amazon-aws" {
-		resp.Diagnostics.AddError("Attribute 'aws_region_name' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_region_name', the 'type' attribute must be one of ['amazon-aws']")
-	}
-	if internaltypes.IsDefined(model.ServerPort) && model.Type.ValueString() != "smtp" && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "jdbc" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "syslog" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "http-proxy" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'server_port' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_port', the 'type' attribute must be one of ['smtp', 'opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'jdbc', 'oracle-unified-directory', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.KeyManagerProvider) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "http" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'key_manager_provider' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_manager_provider', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'http', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ResponseTimeout) && model.Type.ValueString() != "ping-one-http" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'response_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'response_timeout', the 'type' attribute must be one of ['ping-one-http', 'http']")
-	}
-	if internaltypes.IsDefined(model.ConjurAccountName) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_account_name' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_account_name', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['conjur', 'vault']")
-	}
-	if internaltypes.IsDefined(model.BasicAuthenticationPassphraseProvider) && model.Type.ValueString() != "http-proxy" {
-		resp.Diagnostics.AddError("Attribute 'basic_authentication_passphrase_provider' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'basic_authentication_passphrase_provider', the 'type' attribute must be one of ['http-proxy']")
-	}
-	if internaltypes.IsDefined(model.TransactionIsolationLevel) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'transaction_isolation_level' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'transaction_isolation_level', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.MinExpiredConnectionDisconnectInterval) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'min_expired_connection_disconnect_interval' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_expired_connection_disconnect_interval', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.JdbcConnectionProperties) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'jdbc_connection_properties' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jdbc_connection_properties', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.InitialConnections) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'initial_connections', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ConnectTimeout) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "ping-one-http" && model.Type.ValueString() != "http" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "syslog" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'connect_timeout' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'connect_timeout', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'ping-one-http', 'http', 'oracle-unified-directory', 'syslog', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.VaultServerBaseURI) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_server_base_uri' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_server_base_uri', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.AwsSecretAccessKey) && model.Type.ValueString() != "amazon-aws" {
-		resp.Diagnostics.AddError("Attribute 'aws_secret_access_key' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_secret_access_key', the 'type' attribute must be one of ['amazon-aws']")
-	}
-	if internaltypes.IsDefined(model.DatabaseName) && model.Type.ValueString() != "jdbc" {
-		resp.Diagnostics.AddError("Attribute 'database_name' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'database_name', the 'type' attribute must be one of ['jdbc']")
-	}
-	if internaltypes.IsDefined(model.SslCertNickname) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'ssl_cert_nickname' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_cert_nickname', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.Location) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'location' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'location', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.MaxResponseSize) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'max_response_size' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_response_size', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.ConnectionSecurity) && model.Type.ValueString() != "opendj" && model.Type.ValueString() != "nokia-ds" && model.Type.ValueString() != "ping-identity-ds" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "active-directory" && model.Type.ValueString() != "oracle-unified-directory" && model.Type.ValueString() != "ping-identity-proxy-server" && model.Type.ValueString() != "nokia-proxy-server" {
-		resp.Diagnostics.AddError("Attribute 'connection_security' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'connection_security', the 'type' attribute must be one of ['opendj', 'nokia-ds', 'ping-identity-ds', 'ldap', 'active-directory', 'oracle-unified-directory', 'ping-identity-proxy-server', 'nokia-proxy-server']")
-	}
-	if internaltypes.IsDefined(model.TransportMechanism) && model.Type.ValueString() != "syslog" {
-		resp.Diagnostics.AddError("Attribute 'transport_mechanism' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'transport_mechanism', the 'type' attribute must be one of ['syslog']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -749,6 +546,8 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 		// Every remaining property is supported
 		return
 	}
+	var model externalServerResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
@@ -756,6 +555,293 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsExternalServer() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_connection_properties"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_security"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("verify_credentials_method"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("abandon_on_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("basic_authentication_username"),
+			path.MatchRoot("type"),
+			[]string{"http-proxy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_host_name"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connection_age"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hostname_verification_method"),
+			path.MatchRoot("type"),
+			[]string{"ping-one-http", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_url"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("defunct_connection_result_code"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validation_query"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_driver_type"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_name"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_access_key_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory", "amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_driver_url"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("health_check_connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_administrative_operation_control"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "ping-identity-proxy-server", "nokia-proxy-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_timeout"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validation_query_timeout"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_region_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("response_timeout"),
+			path.MatchRoot("type"),
+			[]string{"ping-one-http", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_account_name"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("basic_authentication_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"http-proxy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("transaction_isolation_level"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_expired_connection_disconnect_interval"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_connection_properties"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_secret_access_key"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("database_name"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("location"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_response_size"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_security"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("transport_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"syslog"},
+		),
+	}
+}
+
+// Add config validators
+func (r externalServerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsExternalServer()
+}
+
+// Add config validators
+func (r defaultExternalServerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsExternalServer()
 }
 
 // Add optional fields to create request for smtp external-server
@@ -1879,14 +1965,14 @@ func populateExternalServerUnknownValues(ctx context.Context, model *externalSer
 	if model.JdbcConnectionProperties.ElementType(ctx) == nil {
 		model.JdbcConnectionProperties = types.SetNull(types.StringType)
 	}
-	if model.AwsSecretAccessKey.IsUnknown() {
-		model.AwsSecretAccessKey = types.StringNull()
-	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()
+	}
+	if model.AwsSecretAccessKey.IsUnknown() {
+		model.AwsSecretAccessKey = types.StringNull()
 	}
 }
 
@@ -2380,14 +2466,14 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *externalServerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *externalServerResourceModel) {
-	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
-		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
-	}
 	if !expectedValues.Password.IsUnknown() {
 		state.Password = expectedValues.Password
 	}
 	if !expectedValues.TrustStorePin.IsUnknown() {
 		state.TrustStorePin = expectedValues.TrustStorePin
+	}
+	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
+		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	}
 }
 
@@ -3268,55 +3354,55 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 
 	// Read the existing configuration
 	var state externalServerResourceModel
-	if plan.Type.ValueString() == "smtp" {
+	if readResponse.SmtpExternalServerResponse != nil {
 		readSmtpExternalServerResponse(ctx, readResponse.SmtpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nokia-ds" {
+	if readResponse.NokiaDsExternalServerResponse != nil {
 		readNokiaDsExternalServerResponse(ctx, readResponse.NokiaDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-identity-ds" {
+	if readResponse.PingIdentityDsExternalServerResponse != nil {
 		readPingIdentityDsExternalServerResponse(ctx, readResponse.PingIdentityDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "active-directory" {
+	if readResponse.ActiveDirectoryExternalServerResponse != nil {
 		readActiveDirectoryExternalServerResponse(ctx, readResponse.ActiveDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc" {
+	if readResponse.JdbcExternalServerResponse != nil {
 		readJdbcExternalServerResponse(ctx, readResponse.JdbcExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog" {
+	if readResponse.SyslogExternalServerResponse != nil {
 		readSyslogExternalServerResponse(ctx, readResponse.SyslogExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-identity-proxy-server" {
+	if readResponse.PingIdentityProxyServerExternalServerResponse != nil {
 		readPingIdentityProxyServerExternalServerResponse(ctx, readResponse.PingIdentityProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http-proxy" {
+	if readResponse.HttpProxyExternalServerResponse != nil {
 		readHttpProxyExternalServerResponse(ctx, readResponse.HttpProxyExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nokia-proxy-server" {
+	if readResponse.NokiaProxyServerExternalServerResponse != nil {
 		readNokiaProxyServerExternalServerResponse(ctx, readResponse.NokiaProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "opendj" {
+	if readResponse.OpendjExternalServerResponse != nil {
 		readOpendjExternalServerResponse(ctx, readResponse.OpendjExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapExternalServerResponse != nil {
 		readLdapExternalServerResponse(ctx, readResponse.LdapExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-one-http" {
+	if readResponse.PingOneHttpExternalServerResponse != nil {
 		readPingOneHttpExternalServerResponse(ctx, readResponse.PingOneHttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http" {
+	if readResponse.HttpExternalServerResponse != nil {
 		readHttpExternalServerResponse(ctx, readResponse.HttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "oracle-unified-directory" {
+	if readResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 		readOracleUnifiedDirectoryExternalServerResponse(ctx, readResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurExternalServerResponse != nil {
 		readConjurExternalServerResponse(ctx, readResponse.ConjurExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-aws" {
+	if readResponse.AmazonAwsExternalServerResponse != nil {
 		readAmazonAwsExternalServerResponse(ctx, readResponse.AmazonAwsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultExternalServerResponse != nil {
 		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -3341,55 +3427,55 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpExternalServerResponse != nil {
 			readSmtpExternalServerResponse(ctx, updateResponse.SmtpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-ds" {
+		if updateResponse.NokiaDsExternalServerResponse != nil {
 			readNokiaDsExternalServerResponse(ctx, updateResponse.NokiaDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-ds" {
+		if updateResponse.PingIdentityDsExternalServerResponse != nil {
 			readPingIdentityDsExternalServerResponse(ctx, updateResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-directory" {
+		if updateResponse.ActiveDirectoryExternalServerResponse != nil {
 			readActiveDirectoryExternalServerResponse(ctx, updateResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc" {
+		if updateResponse.JdbcExternalServerResponse != nil {
 			readJdbcExternalServerResponse(ctx, updateResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog" {
+		if updateResponse.SyslogExternalServerResponse != nil {
 			readSyslogExternalServerResponse(ctx, updateResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-proxy-server" {
+		if updateResponse.PingIdentityProxyServerExternalServerResponse != nil {
 			readPingIdentityProxyServerExternalServerResponse(ctx, updateResponse.PingIdentityProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http-proxy" {
+		if updateResponse.HttpProxyExternalServerResponse != nil {
 			readHttpProxyExternalServerResponse(ctx, updateResponse.HttpProxyExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-proxy-server" {
+		if updateResponse.NokiaProxyServerExternalServerResponse != nil {
 			readNokiaProxyServerExternalServerResponse(ctx, updateResponse.NokiaProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "opendj" {
+		if updateResponse.OpendjExternalServerResponse != nil {
 			readOpendjExternalServerResponse(ctx, updateResponse.OpendjExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapExternalServerResponse != nil {
 			readLdapExternalServerResponse(ctx, updateResponse.LdapExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-one-http" {
+		if updateResponse.PingOneHttpExternalServerResponse != nil {
 			readPingOneHttpExternalServerResponse(ctx, updateResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpExternalServerResponse != nil {
 			readHttpExternalServerResponse(ctx, updateResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oracle-unified-directory" {
+		if updateResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 			readOracleUnifiedDirectoryExternalServerResponse(ctx, updateResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurExternalServerResponse != nil {
 			readConjurExternalServerResponse(ctx, updateResponse.ConjurExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-aws" {
+		if updateResponse.AmazonAwsExternalServerResponse != nil {
 			readAmazonAwsExternalServerResponse(ctx, updateResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3537,55 +3623,55 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpExternalServerResponse != nil {
 			readSmtpExternalServerResponse(ctx, updateResponse.SmtpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-ds" {
+		if updateResponse.NokiaDsExternalServerResponse != nil {
 			readNokiaDsExternalServerResponse(ctx, updateResponse.NokiaDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-ds" {
+		if updateResponse.PingIdentityDsExternalServerResponse != nil {
 			readPingIdentityDsExternalServerResponse(ctx, updateResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-directory" {
+		if updateResponse.ActiveDirectoryExternalServerResponse != nil {
 			readActiveDirectoryExternalServerResponse(ctx, updateResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc" {
+		if updateResponse.JdbcExternalServerResponse != nil {
 			readJdbcExternalServerResponse(ctx, updateResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog" {
+		if updateResponse.SyslogExternalServerResponse != nil {
 			readSyslogExternalServerResponse(ctx, updateResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-proxy-server" {
+		if updateResponse.PingIdentityProxyServerExternalServerResponse != nil {
 			readPingIdentityProxyServerExternalServerResponse(ctx, updateResponse.PingIdentityProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http-proxy" {
+		if updateResponse.HttpProxyExternalServerResponse != nil {
 			readHttpProxyExternalServerResponse(ctx, updateResponse.HttpProxyExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-proxy-server" {
+		if updateResponse.NokiaProxyServerExternalServerResponse != nil {
 			readNokiaProxyServerExternalServerResponse(ctx, updateResponse.NokiaProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "opendj" {
+		if updateResponse.OpendjExternalServerResponse != nil {
 			readOpendjExternalServerResponse(ctx, updateResponse.OpendjExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapExternalServerResponse != nil {
 			readLdapExternalServerResponse(ctx, updateResponse.LdapExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-one-http" {
+		if updateResponse.PingOneHttpExternalServerResponse != nil {
 			readPingOneHttpExternalServerResponse(ctx, updateResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpExternalServerResponse != nil {
 			readHttpExternalServerResponse(ctx, updateResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oracle-unified-directory" {
+		if updateResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 			readOracleUnifiedDirectoryExternalServerResponse(ctx, updateResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurExternalServerResponse != nil {
 			readConjurExternalServerResponse(ctx, updateResponse.ConjurExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-aws" {
+		if updateResponse.AmazonAwsExternalServerResponse != nil {
 			readAmazonAwsExternalServerResponse(ctx, updateResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

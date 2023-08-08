@@ -5,13 +5,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -86,6 +89,7 @@ type localDbVlvIndexResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	BackendName     types.String `tfsdk:"backend_name"`
 	BaseDN          types.String `tfsdk:"base_dn"`
 	Scope           types.String `tfsdk:"scope"`
@@ -109,6 +113,15 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 	schemaDef := schema.Schema{
 		Description: "Manages a Local Db Vlv Index.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("local-db-vlv-index"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"local-db-vlv-index"}...),
+				},
+			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -158,8 +171,13 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"name", "backend_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "name", "backend_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -183,6 +201,7 @@ func addOptionalLocalDbVlvIndexFields(ctx context.Context, addRequest *client.Ad
 
 // Read a LocalDbVlvIndexResponse object into the model struct
 func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexResponse, state *localDbVlvIndexResourceModel, expectedValues *localDbVlvIndexResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("local-db-vlv-index")
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.Scope = types.StringValue(r.Scope.String())

@@ -48,6 +48,7 @@ func (r *rootDnDataSource) Configure(_ context.Context, req datasource.Configure
 
 type rootDnDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Type                     types.String `tfsdk:"type"`
 	DefaultRootPrivilegeName types.Set    `tfsdk:"default_root_privilege_name"`
 }
 
@@ -56,6 +57,12 @@ func (r *rootDnDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	schemaDef := schema.Schema{
 		Description: "Describes a Root Dn.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DN resource. Options are ['root-dn']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"default_root_privilege_name": schema.SetAttribute{
 				Description: "Specifies the names of the privileges that root users will be granted by default.",
 				Required:    false,
@@ -71,6 +78,7 @@ func (r *rootDnDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 
 // Read a RootDnResponse object into the model struct
 func readRootDnResponseDataSource(ctx context.Context, r *client.RootDnResponse, state *rootDnDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dn")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DefaultRootPrivilegeName = internaltypes.GetStringSet(

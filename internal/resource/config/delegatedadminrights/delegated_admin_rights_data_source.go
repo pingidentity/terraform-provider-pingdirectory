@@ -49,6 +49,7 @@ func (r *delegatedAdminRightsDataSource) Configure(_ context.Context, req dataso
 type delegatedAdminRightsDataSourceModel struct {
 	Id           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
+	Type         types.String `tfsdk:"type"`
 	Description  types.String `tfsdk:"description"`
 	Enabled      types.Bool   `tfsdk:"enabled"`
 	AdminUserDN  types.String `tfsdk:"admin_user_dn"`
@@ -60,6 +61,12 @@ func (r *delegatedAdminRightsDataSource) Schema(ctx context.Context, req datasou
 	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Rights.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Rights",
 				Required:    false,
@@ -92,6 +99,7 @@ func (r *delegatedAdminRightsDataSource) Schema(ctx context.Context, req datasou
 
 // Read a DelegatedAdminRightsResponse object into the model struct
 func readDelegatedAdminRightsResponseDataSource(ctx context.Context, r *client.DelegatedAdminRightsResponse, state *delegatedAdminRightsDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-rights")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

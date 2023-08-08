@@ -42,7 +42,6 @@ Manages a Web Application Extension.
 - `trust_store_file` (String) Specifies the path to the truststore file, which is used by this application to establish trust of managed servers.
 - `trust_store_pin_passphrase_provider` (String) The passphrase provider that may be used to obtain the PIN for the trust store used with managed LDAP servers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
 - `trust_store_type` (String) Specifies the format for the data in the trust store file.
-- `type` (String) The type of Web Application Extension resource. Options are ['console', 'generic']
 - `war_file` (String) Specifies the path to a standard web application archive (WAR) file.
 
 ### Read-Only
@@ -51,6 +50,7 @@ Manages a Web Application Extension.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Web Application Extension resource. Options are ['console', 'generic']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

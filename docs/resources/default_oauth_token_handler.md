@@ -25,7 +25,6 @@ Manages a Oauth Token Handler.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party OAuth Token Handler.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted OAuth Token Handler. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted OAuth Token Handler.
-- `type` (String) The type of OAuth Token Handler resource. Options are ['groovy-scripted', 'third-party']
 
 ### Read-Only
 
@@ -33,6 +32,7 @@ Manages a Oauth Token Handler.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of OAuth Token Handler resource. Options are ['groovy-scripted', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

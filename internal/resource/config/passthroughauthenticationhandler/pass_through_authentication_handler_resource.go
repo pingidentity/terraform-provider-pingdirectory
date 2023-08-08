@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -348,12 +350,13 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"ping-one", "ldap", "aggregate", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -369,112 +372,6 @@ func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context
 }
 
 func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model passThroughAuthenticationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AdditionalUserMappingSCIMFilter) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'additional_user_mapping_scim_filter' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'additional_user_mapping_scim_filter', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.Server) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'server' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.ApiURL) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'api_url' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'api_url', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.UseLocation) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'use_location' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_location', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.AuthURL) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'auth_url' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'auth_url', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientID) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_id' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oauth_client_id', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.ServerAccessMode) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'server_access_mode' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_access_mode', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.ContinueOnFailureType) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'continue_on_failure_type' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'continue_on_failure_type', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.MaxConnections) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'max_connections' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_connections', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.SearchBaseDN) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'search_base_dn' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_base_dn', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.DnMap) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'dn_map' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'dn_map', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientSecretPassphraseProvider) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_secret_passphrase_provider' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oauth_client_secret_passphrase_provider', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.UserMappingRemoteJSONField) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'user_mapping_remote_json_field' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'user_mapping_remote_json_field', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.UserMappingLocalAttribute) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'user_mapping_local_attribute' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'user_mapping_local_attribute', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.SubordinatePassThroughAuthenticationHandler) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'subordinate_pass_through_authentication_handler' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'subordinate_pass_through_authentication_handler', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.EnvironmentID) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'environment_id' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'environment_id', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.InitialConnections) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'initial_connections', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.SearchFilterPattern) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'search_filter_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_filter_pattern', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.MaximumAllowedLocalResponseTime) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'maximum_allowed_local_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_allowed_local_response_time', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientSecret) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_secret' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oauth_client_secret', the 'type' attribute must be one of ['ping-one']")
-	}
-	if internaltypes.IsDefined(model.MaximumAllowedNonlocalResponseTime) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'maximum_allowed_nonlocal_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_allowed_nonlocal_response_time', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.UsePasswordPolicyControl) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'use_password_policy_control' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_password_policy_control', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.BindDNPattern) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'bind_dn_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bind_dn_pattern', the 'type' attribute must be one of ['ldap']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -484,6 +381,8 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 		// Every remaining property is supported
 		return
 	}
+	var model passThroughAuthenticationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "ping-one" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"ping_one\"")
@@ -492,6 +391,160 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
+				path.MatchRoot("oauth_client_secret"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("additional_user_mapping_scim_filter"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("api_url"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_location"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auth_url"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("continue_on_failure_type"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_remote_json_field"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_local_attribute"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subordinate_pass_through_authentication_handler"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_filter_pattern"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_allowed_local_response_time"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_allowed_nonlocal_response_time"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_password_policy_control"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+	}
+}
+
+// Add config validators
+func (r passThroughAuthenticationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPassThroughAuthenticationHandler()
+}
+
+// Add config validators
+func (r defaultPassThroughAuthenticationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPassThroughAuthenticationHandler()
 }
 
 // Add optional fields to create request for ping-one pass-through-authentication-handler
@@ -1057,16 +1110,16 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state passThroughAuthenticationHandlerResourceModel
-	if plan.Type.ValueString() == "ping-one" {
+	if readResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 		readPingOnePassThroughAuthenticationHandlerResponse(ctx, readResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 		readAggregatePassThroughAuthenticationHandlerResponse(ctx, readResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1091,16 +1144,16 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1209,16 +1262,16 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

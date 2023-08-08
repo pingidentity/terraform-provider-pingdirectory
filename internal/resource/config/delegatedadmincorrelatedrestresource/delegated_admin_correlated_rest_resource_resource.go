@@ -5,13 +5,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type delegatedAdminCorrelatedRestResourceResourceModel struct {
 	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
+	Type                                      types.String `tfsdk:"type"`
 	RestResourceTypeName                      types.String `tfsdk:"rest_resource_type_name"`
 	DisplayName                               types.String `tfsdk:"display_name"`
 	CorrelatedRESTResource                    types.String `tfsdk:"correlated_rest_resource"`
@@ -108,6 +112,15 @@ func delegatedAdminCorrelatedRestResourceSchema(ctx context.Context, req resourc
 	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Correlated Rest Resource.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Correlated REST Resource resource. Options are ['delegated-admin-correlated-rest-resource']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("delegated-admin-correlated-rest-resource"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"delegated-admin-correlated-rest-resource"}...),
+				},
+			},
 			"rest_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent REST Resource Type",
 				Required:    true,
@@ -142,8 +155,13 @@ func delegatedAdminCorrelatedRestResourceSchema(ctx context.Context, req resourc
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"rest_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "rest_resource_type_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -158,6 +176,7 @@ func addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx context.Context, 
 
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponse(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceResourceModel, expectedValues *delegatedAdminCorrelatedRestResourceResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-correlated-rest-resource")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DisplayName = types.StringValue(r.DisplayName)

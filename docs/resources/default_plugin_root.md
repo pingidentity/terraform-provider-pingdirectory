@@ -103,6 +103,7 @@ resource "pingdirectory_default_plugin_root" "myPluginRoot" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Plugin Root resource. Options are ['plugin-root']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

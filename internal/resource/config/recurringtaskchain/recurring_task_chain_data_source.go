@@ -49,6 +49,7 @@ func (r *recurringTaskChainDataSource) Configure(_ context.Context, req datasour
 type recurringTaskChainDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
 	Name                             types.String `tfsdk:"name"`
+	Type                             types.String `tfsdk:"type"`
 	Description                      types.String `tfsdk:"description"`
 	Enabled                          types.Bool   `tfsdk:"enabled"`
 	RecurringTask                    types.Set    `tfsdk:"recurring_task"`
@@ -67,6 +68,12 @@ func (r *recurringTaskChainDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Recurring Task Chain.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Recurring Task Chain resource. Options are ['recurring-task-chain']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task Chain",
 				Required:    false,
@@ -146,6 +153,7 @@ func (r *recurringTaskChainDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a RecurringTaskChainResponse object into the model struct
 func readRecurringTaskChainResponseDataSource(ctx context.Context, r *client.RecurringTaskChainResponse, state *recurringTaskChainDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("recurring-task-chain")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

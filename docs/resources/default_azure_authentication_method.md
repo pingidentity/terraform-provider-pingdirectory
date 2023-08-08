@@ -25,7 +25,6 @@ Manages a Azure Authentication Method.
 - `description` (String) A description for this Azure Authentication Method
 - `password` (String, Sensitive) The password for the user to authenticate.
 - `tenant_id` (String) The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.
-- `type` (String) The type of Azure Authentication Method resource. Options are ['default', 'client-secret', 'username-password']
 - `username` (String) The username for the user to authenticate.
 
 ### Read-Only
@@ -34,6 +33,7 @@ Manages a Azure Authentication Method.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Azure Authentication Method resource. Options are ['default', 'client-secret', 'username-password']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

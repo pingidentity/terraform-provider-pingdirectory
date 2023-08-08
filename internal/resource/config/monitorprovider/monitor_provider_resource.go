@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -197,6 +198,10 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"memory-usage", "stack-trace", "encryption-settings-database-accessibility", "custom", "active-operations", "ssl-context", "version", "host-system", "general", "disk-space-usage", "system-info", "client-connection", "third-party"}...),
 		}
@@ -260,7 +265,7 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -276,68 +281,6 @@ func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req res
 }
 
 func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model defaultMonitorProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ProlongedOutageDuration) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'prolonged_outage_duration' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prolonged_outage_duration', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceWarningSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_warning_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_warning_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.SystemUtilizationMonitorLogDirectory) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'system_utilization_monitor_log_directory' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'system_utilization_monitor_log_directory', the 'type' attribute must be one of ['host-system']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceWarningPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_warning_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_warning_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ProlongedOutageBehavior) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'prolonged_outage_behavior' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prolonged_outage_behavior', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.OutOfSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'out_of_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'out_of_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.OutOfSpaceErrorPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'out_of_space_error_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'out_of_space_error_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.AlertFrequency) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'alert_frequency' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alert_frequency', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.DiskDevices) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'disk_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disk_devices', the 'type' attribute must be one of ['host-system']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.CheckFrequency) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'check_frequency' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'check_frequency', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceErrorPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_error_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_error_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.NetworkDevices) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'network_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'network_devices', the 'type' attribute must be one of ['host-system']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -347,10 +290,105 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 		// Every remaining property is supported
 		return
 	}
+	var model defaultMonitorProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsMonitorProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prolonged_outage_duration"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prolonged_outage_behavior"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("check_frequency"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+	}
+}
+
+// Add config validators
+func (r monitorProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsMonitorProvider()
+}
+
+// Add config validators
+func (r defaultMonitorProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_warning_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_utilization_monitor_log_directory"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_warning_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("out_of_space_error_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("out_of_space_error_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alert_frequency"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disk_devices"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("network_devices"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+	}
+	return append(configValidatorsMonitorProvider(), validators...)
 }
 
 // Add optional fields to create request for encryption-settings-database-accessibility monitor-provider
@@ -792,43 +830,43 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state defaultMonitorProviderResourceModel
-	if plan.Type.ValueString() == "memory-usage" {
+	if readResponse.MemoryUsageMonitorProviderResponse != nil {
 		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "stack-trace" {
+	if readResponse.StackTraceMonitorProviderResponse != nil {
 		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+	if readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 		readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomMonitorProviderResponse != nil {
 		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "active-operations" {
+	if readResponse.ActiveOperationsMonitorProviderResponse != nil {
 		readActiveOperationsMonitorProviderResponseDefault(ctx, readResponse.ActiveOperationsMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ssl-context" {
+	if readResponse.SslContextMonitorProviderResponse != nil {
 		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "version" {
+	if readResponse.VersionMonitorProviderResponse != nil {
 		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "host-system" {
+	if readResponse.HostSystemMonitorProviderResponse != nil {
 		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "general" {
+	if readResponse.GeneralMonitorProviderResponse != nil {
 		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disk-space-usage" {
+	if readResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "system-info" {
+	if readResponse.SystemInfoMonitorProviderResponse != nil {
 		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "client-connection" {
+	if readResponse.ClientConnectionMonitorProviderResponse != nil {
 		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyMonitorProviderResponse != nil {
 		readThirdPartyMonitorProviderResponseDefault(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -853,43 +891,43 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "memory-usage" {
+		if updateResponse.MemoryUsageMonitorProviderResponse != nil {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "stack-trace" {
+		if updateResponse.StackTraceMonitorProviderResponse != nil {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomMonitorProviderResponse != nil {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-operations" {
+		if updateResponse.ActiveOperationsMonitorProviderResponse != nil {
 			readActiveOperationsMonitorProviderResponseDefault(ctx, updateResponse.ActiveOperationsMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ssl-context" {
+		if updateResponse.SslContextMonitorProviderResponse != nil {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "version" {
+		if updateResponse.VersionMonitorProviderResponse != nil {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "host-system" {
+		if updateResponse.HostSystemMonitorProviderResponse != nil {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "general" {
+		if updateResponse.GeneralMonitorProviderResponse != nil {
 			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
+		if updateResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "system-info" {
+		if updateResponse.SystemInfoMonitorProviderResponse != nil {
 			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
+		if updateResponse.ClientConnectionMonitorProviderResponse != nil {
 			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1037,10 +1075,10 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponse(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1091,43 +1129,43 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "memory-usage" {
+		if updateResponse.MemoryUsageMonitorProviderResponse != nil {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "stack-trace" {
+		if updateResponse.StackTraceMonitorProviderResponse != nil {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomMonitorProviderResponse != nil {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-operations" {
+		if updateResponse.ActiveOperationsMonitorProviderResponse != nil {
 			readActiveOperationsMonitorProviderResponseDefault(ctx, updateResponse.ActiveOperationsMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ssl-context" {
+		if updateResponse.SslContextMonitorProviderResponse != nil {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "version" {
+		if updateResponse.VersionMonitorProviderResponse != nil {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "host-system" {
+		if updateResponse.HostSystemMonitorProviderResponse != nil {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "general" {
+		if updateResponse.GeneralMonitorProviderResponse != nil {
 			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
+		if updateResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "system-info" {
+		if updateResponse.SystemInfoMonitorProviderResponse != nil {
 			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
+		if updateResponse.ClientConnectionMonitorProviderResponse != nil {
 			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

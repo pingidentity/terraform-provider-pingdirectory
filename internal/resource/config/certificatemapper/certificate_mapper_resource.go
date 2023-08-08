@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -201,65 +202,77 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"subject-equals-dn", "subject-dn-to-user-attribute", "groovy-scripted", "subject-attribute-to-user-attribute", "fingerprint", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *certificateMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsCertificateMapper() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subject_attribute_mapping"),
+			path.MatchRoot("type"),
+			[]string{"subject-attribute-to-user-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"subject-dn-to-user-attribute", "subject-attribute-to-user-attribute", "fingerprint"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("fingerprint_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"fingerprint"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subject_attribute"),
+			path.MatchRoot("type"),
+			[]string{"subject-dn-to-user-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("fingerprint_attribute"),
+			path.MatchRoot("type"),
+			[]string{"fingerprint"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+	}
 }
 
-func (r *defaultCertificateMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r certificateMapperResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCertificateMapper()
 }
 
-func modifyPlanCertificateMapper(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model certificateMapperResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SubjectAttributeMapping) && model.Type.ValueString() != "subject-attribute-to-user-attribute" {
-		resp.Diagnostics.AddError("Attribute 'subject_attribute_mapping' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'subject_attribute_mapping', the 'type' attribute must be one of ['subject-attribute-to-user-attribute']")
-	}
-	if internaltypes.IsDefined(model.UserBaseDN) && model.Type.ValueString() != "subject-dn-to-user-attribute" && model.Type.ValueString() != "subject-attribute-to-user-attribute" && model.Type.ValueString() != "fingerprint" {
-		resp.Diagnostics.AddError("Attribute 'user_base_dn' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'user_base_dn', the 'type' attribute must be one of ['subject-dn-to-user-attribute', 'subject-attribute-to-user-attribute', 'fingerprint']")
-	}
-	if internaltypes.IsDefined(model.FingerprintAlgorithm) && model.Type.ValueString() != "fingerprint" {
-		resp.Diagnostics.AddError("Attribute 'fingerprint_algorithm' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'fingerprint_algorithm', the 'type' attribute must be one of ['fingerprint']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.SubjectAttribute) && model.Type.ValueString() != "subject-dn-to-user-attribute" {
-		resp.Diagnostics.AddError("Attribute 'subject_attribute' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'subject_attribute', the 'type' attribute must be one of ['subject-dn-to-user-attribute']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.FingerprintAttribute) && model.Type.ValueString() != "fingerprint" {
-		resp.Diagnostics.AddError("Attribute 'fingerprint_attribute' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'fingerprint_attribute', the 'type' attribute must be one of ['fingerprint']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
+// Add config validators
+func (r defaultCertificateMapperResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCertificateMapper()
 }
 
 // Add optional fields to create request for subject-equals-dn certificate-mapper
@@ -756,22 +769,22 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state certificateMapperResourceModel
-	if plan.Type.ValueString() == "subject-equals-dn" {
+	if readResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+	if readResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedCertificateMapperResponse != nil {
 		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+	if readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "fingerprint" {
+	if readResponse.FingerprintCertificateMapperResponse != nil {
 		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyCertificateMapperResponse != nil {
 		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -796,22 +809,22 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "subject-equals-dn" {
+		if updateResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 			readSubjectEqualsDnCertificateMapperResponse(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+		if updateResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 			readSubjectDnToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedCertificateMapperResponse != nil {
 			readGroovyScriptedCertificateMapperResponse(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+		if updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 			readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fingerprint" {
+		if updateResponse.FingerprintCertificateMapperResponse != nil {
 			readFingerprintCertificateMapperResponse(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -925,22 +938,22 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "subject-equals-dn" {
+		if updateResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 			readSubjectEqualsDnCertificateMapperResponse(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+		if updateResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 			readSubjectDnToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedCertificateMapperResponse != nil {
 			readGroovyScriptedCertificateMapperResponse(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+		if updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 			readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fingerprint" {
+		if updateResponse.FingerprintCertificateMapperResponse != nil {
 			readFingerprintCertificateMapperResponse(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

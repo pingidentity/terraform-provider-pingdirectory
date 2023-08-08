@@ -61,6 +61,7 @@ resource "pingdirectory_replication_assurance_policy" "myReplicationAssurancePol
 - `local_level` (String) Specifies the assurance level used to replicate to local servers. A local server is defined as one with the same value for the location setting in the global configuration.  The local-level must be set to an assurance level at least as strict as the remote-level. In other words, if remote-level is set to "received-any-remote-location" or "received-all-remote-locations", then local-level must be either "received-any-server" or "processed-all-servers". If remote-level is "processed-all-remote-servers", then local-level must be "processed-all-servers".
 - `remote_level` (String) Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.
 - `request_criteria` (String) Specifies a request criteria used to indicate which operations from clients matching this criteria use this policy. If both a connection criteria and a request criteria are specified for a policy, then both must match an operation for the policy to be assigned.
+- `type` (String) The type of Replication Assurance Policy resource. Options are ['replication-assurance-policy']
 
 ### Read-Only
 

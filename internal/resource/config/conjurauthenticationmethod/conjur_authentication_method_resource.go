@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type conjurAuthenticationMethodResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Username        types.String `tfsdk:"username"`
 	Password        types.String `tfsdk:"password"`
 	ApiKey          types.String `tfsdk:"api_key"`
@@ -102,6 +106,15 @@ func conjurAuthenticationMethodSchema(ctx context.Context, req resource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Manages a Conjur Authentication Method.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Conjur Authentication Method resource. Options are ['api-key']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("api-key"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"api-key"}...),
+				},
+			},
 			"username": schema.StringAttribute{
 				Description: "The username for the user to authenticate.",
 				Required:    true,
@@ -123,8 +136,13 @@ func conjurAuthenticationMethodSchema(ctx context.Context, req resource.SchemaRe
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -148,16 +166,17 @@ func addOptionalApiKeyConjurAuthenticationMethodFields(ctx context.Context, addR
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model *conjurAuthenticationMethodResourceModel) {
-	if model.ApiKey.IsUnknown() {
-		model.ApiKey = types.StringNull()
-	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
+	}
+	if model.ApiKey.IsUnknown() {
+		model.ApiKey = types.StringNull()
 	}
 }
 
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodResourceModel, expectedValues *conjurAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("api-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
@@ -169,11 +188,11 @@ func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *conjurAuthenticationMethodResourceModel) setStateValuesNotReturnedByAPI(expectedValues *conjurAuthenticationMethodResourceModel) {
-	if !expectedValues.ApiKey.IsUnknown() {
-		state.ApiKey = expectedValues.ApiKey
-	}
 	if !expectedValues.Password.IsUnknown() {
 		state.Password = expectedValues.Password
+	}
+	if !expectedValues.ApiKey.IsUnknown() {
+		state.ApiKey = expectedValues.ApiKey
 	}
 }
 

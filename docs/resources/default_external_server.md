@@ -65,7 +65,6 @@ Manages a External Server.
 - `trust_store_file` (String) The path to a file containing the information needed to trust the certificate presented by the Conjur servers.
 - `trust_store_pin` (String, Sensitive) The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
 - `trust_store_type` (String) The store type for the specified trust store file. The value should likely be one of "JKS", "PKCS12", or "BCFKS".
-- `type` (String) The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']
 - `use_administrative_operation_control` (Boolean) Indicates whether to include the administrative operation request control in requests sent to this server which are intended for administrative operations (e.g., health checking) rather than requests directly from clients.
 - `user_name` (String) The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.
 - `validation_query` (String) The SQL query that will be used to validate connections to the database before making them available to the Directory Server.
@@ -80,6 +79,7 @@ Manages a External Server.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

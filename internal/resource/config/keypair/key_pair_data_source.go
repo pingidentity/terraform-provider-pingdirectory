@@ -49,6 +49,7 @@ func (r *keyPairDataSource) Configure(_ context.Context, req datasource.Configur
 type keyPairDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
 	Name                          types.String `tfsdk:"name"`
+	Type                          types.String `tfsdk:"type"`
 	KeyAlgorithm                  types.String `tfsdk:"key_algorithm"`
 	SelfSignedCertificateValidity types.String `tfsdk:"self_signed_certificate_validity"`
 	SubjectDN                     types.String `tfsdk:"subject_dn"`
@@ -61,6 +62,12 @@ func (r *keyPairDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 	schemaDef := schema.Schema{
 		Description: "Describes a Key Pair.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Key Pair resource. Options are ['key-pair']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"key_algorithm": schema.StringAttribute{
 				Description: "The algorithm name and the length in bits of the key, e.g. RSA_2048.",
 				Required:    false,
@@ -100,6 +107,7 @@ func (r *keyPairDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 
 // Read a KeyPairResponse object into the model struct
 func readKeyPairResponseDataSource(ctx context.Context, r *client.KeyPairResponse, state *keyPairDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("key-pair")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())

@@ -30,6 +30,7 @@ Manages a Constructed Attribute.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Constructed Attribute resource. Options are ['constructed-attribute']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

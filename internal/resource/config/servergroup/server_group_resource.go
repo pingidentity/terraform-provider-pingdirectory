@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -85,6 +88,7 @@ type serverGroupResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Member          types.Set    `tfsdk:"member"`
 }
 
@@ -101,6 +105,15 @@ func serverGroupSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 	schemaDef := schema.Schema{
 		Description: "Manages a Server Group.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Server Group resource. Options are ['server-group']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("server-group"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"server-group"}...),
+				},
+			},
 			"member": schema.SetAttribute{
 				Description: "A server instance that is a member of this group.",
 				Optional:    true,
@@ -113,8 +126,13 @@ func serverGroupSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -131,6 +149,7 @@ func addOptionalServerGroupFields(ctx context.Context, addRequest *client.AddSer
 
 // Read a ServerGroupResponse object into the model struct
 func readServerGroupResponse(ctx context.Context, r *client.ServerGroupResponse, state *serverGroupResourceModel, expectedValues *serverGroupResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("server-group")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Member = internaltypes.GetStringSet(r.Member)

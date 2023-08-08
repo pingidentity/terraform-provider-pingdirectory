@@ -4,13 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -85,6 +88,7 @@ type consentDefinitionResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	UniqueID        types.String `tfsdk:"unique_id"`
 	DisplayName     types.String `tfsdk:"display_name"`
 	Parameter       types.Set    `tfsdk:"parameter"`
@@ -104,6 +108,15 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 	schemaDef := schema.Schema{
 		Description: "Manages a Consent Definition.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Definition resource. Options are ['consent-definition']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("consent-definition"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"consent-definition"}...),
+				},
+			},
 			"unique_id": schema.StringAttribute{
 				Description: "A version-independent unique identifier for this Consent Definition.",
 				Required:    true,
@@ -131,8 +144,13 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"unique_id"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "unique_id"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -157,6 +175,7 @@ func addOptionalConsentDefinitionFields(ctx context.Context, addRequest *client.
 
 // Read a ConsentDefinitionResponse object into the model struct
 func readConsentDefinitionResponse(ctx context.Context, r *client.ConsentDefinitionResponse, state *consentDefinitionResourceModel, expectedValues *consentDefinitionResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-definition")
 	state.Id = types.StringValue(r.Id)
 	state.UniqueID = types.StringValue(r.UniqueID)
 	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))

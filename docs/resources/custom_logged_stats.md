@@ -70,6 +70,7 @@ resource "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
 - `non_zero_implies_not_idle` (Boolean) If this property is set to true, then the value of any of the monitored attributes here can contribute to whether an interval is considered "idle" by the Periodic Stats Logger.
 - `regex_pattern` (String) An optional regular expression pattern, that when used in conjunction with regex-replacement, can alter the value of the attribute being monitored.
 - `regex_replacement` (String) An optional regular expression replacement value, that when used in conjunction with regex-pattern, can alter the value of the attribute being monitored.
+- `type` (String) The type of Custom Logged Stats resource. Options are ['custom-logged-stats']
 
 ### Read-Only
 

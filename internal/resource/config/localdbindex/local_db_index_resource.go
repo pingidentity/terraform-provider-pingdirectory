@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type localDbIndexResourceModel struct {
 	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
+	Type                                         types.String `tfsdk:"type"`
 	BackendName                                  types.String `tfsdk:"backend_name"`
 	Attribute                                    types.String `tfsdk:"attribute"`
 	IndexEntryLimit                              types.Int64  `tfsdk:"index_entry_limit"`
@@ -115,6 +119,15 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	schemaDef := schema.Schema{
 		Description: "Manages a Local Db Index.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Local DB Index resource. Options are ['local-db-index']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("local-db-index"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"local-db-index"}...),
+				},
+			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -210,8 +223,13 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"attribute", "backend_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "attribute", "backend_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -258,6 +276,7 @@ func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLo
 
 // Read a LocalDbIndexResponse object into the model struct
 func readLocalDbIndexResponse(ctx context.Context, r *client.LocalDbIndexResponse, state *localDbIndexResourceModel, expectedValues *localDbIndexResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("local-db-index")
 	state.Id = types.StringValue(r.Id)
 	state.Attribute = types.StringValue(r.Attribute)
 	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)

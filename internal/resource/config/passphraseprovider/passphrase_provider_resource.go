@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -243,12 +244,13 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"environment-variable", "amazon-secrets-manager", "obscured-value", "azure-key-vault", "file-based", "conjur", "vault", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -264,88 +266,6 @@ func (r *defaultPassphraseProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanPassphraseProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model passphraseProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.EnvironmentVariable) && model.Type.ValueString() != "environment-variable" {
-		resp.Diagnostics.AddError("Attribute 'environment_variable' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'environment_variable', the 'type' attribute must be one of ['environment-variable']")
-	}
-	if internaltypes.IsDefined(model.SecretFieldName) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_field_name' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_field_name', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.ConjurExternalServer) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_external_server' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_external_server', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.SecretVersionID) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_version_id' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_version_id', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.AwsExternalServer) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'aws_external_server' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_external_server', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.VaultSecretFieldName) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_secret_field_name' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_secret_field_name', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.VaultSecretPath) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_secret_path' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_secret_path', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.PasswordFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'password_file' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.VaultExternalServer) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_external_server' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_external_server', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.SecretName) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'secret_name' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_name', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.SecretID) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_id' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_id', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.ObscuredValue) && model.Type.ValueString() != "obscured-value" {
-		resp.Diagnostics.AddError("Attribute 'obscured_value' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'obscured_value', the 'type' attribute must be one of ['obscured-value']")
-	}
-	if internaltypes.IsDefined(model.KeyVaultURI) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'key_vault_uri' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_vault_uri', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ConjurSecretRelativePath) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_secret_relative_path' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_secret_relative_path', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.AzureAuthenticationMethod) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'azure_authentication_method' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'azure_authentication_method', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.SecretVersionStage) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_version_stage' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_version_stage', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.MaxCacheDuration) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'max_cache_duration' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_cache_duration', the 'type' attribute must be one of ['amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'vault']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -355,9 +275,127 @@ func modifyPlanPassphraseProvider(ctx context.Context, req resource.ModifyPlanRe
 		// Every remaining property is supported
 		return
 	}
+	var model passphraseProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPassphraseProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("environment_variable"),
+			path.MatchRoot("type"),
+			[]string{"environment-variable"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_path"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_external_server"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_name"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("obscured_value"),
+			path.MatchRoot("type"),
+			[]string{"obscured-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_secret_relative_path"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_stage"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "vault"},
+		),
+	}
+}
+
+// Add config validators
+func (r passphraseProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPassphraseProvider()
+}
+
+// Add config validators
+func (r defaultPassphraseProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPassphraseProvider()
 }
 
 // Add optional fields to create request for environment-variable passphrase-provider
@@ -1016,28 +1054,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state passphraseProviderResourceModel
-	if plan.Type.ValueString() == "environment-variable" {
+	if readResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-secrets-manager" {
+	if readResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "obscured-value" {
+	if readResponse.ObscuredValuePassphraseProviderResponse != nil {
 		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "azure-key-vault" {
+	if readResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedPassphraseProviderResponse != nil {
 		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurPassphraseProviderResponse != nil {
 		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultPassphraseProviderResponse != nil {
 		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPassphraseProviderResponse != nil {
 		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1062,28 +1100,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "environment-variable" {
+		if updateResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 			readEnvironmentVariablePassphraseProviderResponse(ctx, updateResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 			readAmazonSecretsManagerPassphraseProviderResponse(ctx, updateResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "obscured-value" {
+		if updateResponse.ObscuredValuePassphraseProviderResponse != nil {
 			readObscuredValuePassphraseProviderResponse(ctx, updateResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 			readAzureKeyVaultPassphraseProviderResponse(ctx, updateResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedPassphraseProviderResponse != nil {
 			readFileBasedPassphraseProviderResponse(ctx, updateResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPassphraseProviderResponse != nil {
 			readConjurPassphraseProviderResponse(ctx, updateResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPassphraseProviderResponse != nil {
 			readVaultPassphraseProviderResponse(ctx, updateResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassphraseProviderResponse != nil {
 			readThirdPartyPassphraseProviderResponse(ctx, updateResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1204,28 +1242,28 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "environment-variable" {
+		if updateResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 			readEnvironmentVariablePassphraseProviderResponse(ctx, updateResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 			readAmazonSecretsManagerPassphraseProviderResponse(ctx, updateResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "obscured-value" {
+		if updateResponse.ObscuredValuePassphraseProviderResponse != nil {
 			readObscuredValuePassphraseProviderResponse(ctx, updateResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 			readAzureKeyVaultPassphraseProviderResponse(ctx, updateResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedPassphraseProviderResponse != nil {
 			readFileBasedPassphraseProviderResponse(ctx, updateResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPassphraseProviderResponse != nil {
 			readConjurPassphraseProviderResponse(ctx, updateResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPassphraseProviderResponse != nil {
 			readVaultPassphraseProviderResponse(ctx, updateResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassphraseProviderResponse != nil {
 			readThirdPartyPassphraseProviderResponse(ctx, updateResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

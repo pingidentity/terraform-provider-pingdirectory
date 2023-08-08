@@ -5,10 +5,13 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -84,6 +87,7 @@ type delegatedAdminRightsResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Description     types.String `tfsdk:"description"`
 	Enabled         types.Bool   `tfsdk:"enabled"`
 	AdminUserDN     types.String `tfsdk:"admin_user_dn"`
@@ -103,6 +107,15 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Rights.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("delegated-admin-rights"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"delegated-admin-rights"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Rights",
 				Optional:    true,
@@ -122,21 +135,36 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Add config validators
-func (r delegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsDelegatedAdminRights() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.ExactlyOneOf(
 			path.MatchRoot("admin_group_dn"),
 			path.MatchRoot("admin_user_dn"),
 		),
 	}
+}
+
+// Add config validators
+func (r delegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminRights()
+}
+
+// Add config validators
+func (r defaultDelegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminRights()
 }
 
 // Add optional fields to create request for delegated-admin-rights delegated-admin-rights
@@ -157,6 +185,7 @@ func addOptionalDelegatedAdminRightsFields(ctx context.Context, addRequest *clie
 
 // Read a DelegatedAdminRightsResponse object into the model struct
 func readDelegatedAdminRightsResponse(ctx context.Context, r *client.DelegatedAdminRightsResponse, state *delegatedAdminRightsResourceModel, expectedValues *delegatedAdminRightsResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-rights")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

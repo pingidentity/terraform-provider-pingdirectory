@@ -49,6 +49,7 @@ func (r *macSecretKeyDataSource) Configure(_ context.Context, req datasource.Con
 type macSecretKeyDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
+	Type               types.String `tfsdk:"type"`
 	ServerInstanceName types.String `tfsdk:"server_instance_name"`
 	MacAlgorithmName   types.String `tfsdk:"mac_algorithm_name"`
 	KeyID              types.String `tfsdk:"key_id"`
@@ -62,6 +63,12 @@ func (r *macSecretKeyDataSource) Schema(ctx context.Context, req datasource.Sche
 	schemaDef := schema.Schema{
 		Description: "Describes a Mac Secret Key.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Mac Secret Key resource. Options are ['mac-secret-key']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance",
 				Required:    true,
@@ -105,6 +112,7 @@ func (r *macSecretKeyDataSource) Schema(ctx context.Context, req datasource.Sche
 
 // Read a MacSecretKeyResponse object into the model struct
 func readMacSecretKeyResponseDataSource(ctx context.Context, r *client.MacSecretKeyResponse, state *macSecretKeyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("mac-secret-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.MacAlgorithmName = internaltypes.StringTypeOrNil(r.MacAlgorithmName, false)

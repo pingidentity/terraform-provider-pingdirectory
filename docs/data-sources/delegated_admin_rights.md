@@ -55,4 +55,5 @@ data "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 - `description` (String) A description for this Delegated Admin Rights
 - `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
 - `id` (String) The ID of this resource.
+- `type` (String) The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']
 

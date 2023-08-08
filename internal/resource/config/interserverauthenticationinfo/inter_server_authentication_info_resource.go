@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -79,10 +80,9 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"password", "certificate"}...),
 				},
@@ -149,25 +149,29 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *interServerAuthenticationInfoResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model interServerAuthenticationInfoResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.BindDN) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'bind_dn' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bind_dn', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.Password) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'password' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.AuthenticationType) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'authentication_type' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'authentication_type', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.Username) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'username' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'username', the 'type' attribute must be one of ['password']")
+// Add config validators
+func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
 	}
 }
 
@@ -207,14 +211,14 @@ func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *interServerAuthenticationInfoResourceModel) setStateValuesNotReturnedByAPI(expectedValues *interServerAuthenticationInfoResourceModel) {
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 	if !expectedValues.ServerInstanceListenerName.IsUnknown() {
 		state.ServerInstanceListenerName = expectedValues.ServerInstanceListenerName
 	}
 	if !expectedValues.ServerInstanceName.IsUnknown() {
 		state.ServerInstanceName = expectedValues.ServerInstanceName
-	}
-	if !expectedValues.Password.IsUnknown() {
-		state.Password = expectedValues.Password
 	}
 }
 
@@ -257,10 +261,10 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state interServerAuthenticationInfoResourceModel
-	if plan.Type.ValueString() == "password" {
+	if readResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 		readPasswordInterServerAuthenticationInfoResponse(ctx, readResponse.PasswordInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "certificate" {
+	if readResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 		readCertificateInterServerAuthenticationInfoResponse(ctx, readResponse.CertificateInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -285,10 +289,10 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "password" {
+		if updateResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 			readPasswordInterServerAuthenticationInfoResponse(ctx, updateResponse.PasswordInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 			readCertificateInterServerAuthenticationInfoResponse(ctx, updateResponse.CertificateInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -375,10 +379,10 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "password" {
+		if updateResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 			readPasswordInterServerAuthenticationInfoResponse(ctx, updateResponse.PasswordInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 			readCertificateInterServerAuthenticationInfoResponse(ctx, updateResponse.CertificateInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

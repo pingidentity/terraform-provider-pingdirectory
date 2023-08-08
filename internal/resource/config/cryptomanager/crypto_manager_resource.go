@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -61,6 +63,7 @@ type cryptoManagerResourceModel struct {
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
+	Type                             types.String `tfsdk:"type"`
 	DigestAlgorithm                  types.String `tfsdk:"digest_algorithm"`
 	MacAlgorithm                     types.String `tfsdk:"mac_algorithm"`
 	MacKeyLength                     types.Int64  `tfsdk:"mac_key_length"`
@@ -82,6 +85,15 @@ func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaR
 	schemaDef := schema.Schema{
 		Description: "Manages a Crypto Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Crypto Manager resource. Options are ['crypto-manager']",
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"crypto-manager"}...),
+				},
+			},
 			"digest_algorithm": schema.StringAttribute{
 				Description: "Specifies the preferred message digest algorithm for the Directory Server.",
 				Optional:    true,
@@ -224,6 +236,7 @@ func (r *cryptoManagerResource) ModifyPlan(ctx context.Context, req resource.Mod
 
 // Read a CryptoManagerResponse object into the model struct
 func readCryptoManagerResponse(ctx context.Context, r *client.CryptoManagerResponse, state *cryptoManagerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("crypto-manager")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(r.DigestAlgorithm, true)

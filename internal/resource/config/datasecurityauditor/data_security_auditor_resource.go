@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -257,12 +258,13 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"expired-password", "idle-account", "disabled-account", "weakly-encoded-password", "privilege", "account-usability-issues", "locked-account", "filter", "account-validity-window", "multiple-password", "deprecated-password-storage-scheme", "nonexistent-password-policy", "access-control", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -278,60 +280,6 @@ func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req
 }
 
 func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model dataSecurityAuditorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PasswordEvaluationAge) && model.Type.ValueString() != "expired-password" {
-		resp.Diagnostics.AddError("Attribute 'password_evaluation_age' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_evaluation_age', the 'type' attribute must be one of ['expired-password']")
-	}
-	if internaltypes.IsDefined(model.IncludePrivilege) && model.Type.ValueString() != "privilege" {
-		resp.Diagnostics.AddError("Attribute 'include_privilege' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_privilege', the 'type' attribute must be one of ['privilege']")
-	}
-	if internaltypes.IsDefined(model.MaximumIdleTime) && model.Type.ValueString() != "locked-account" {
-		resp.Diagnostics.AddError("Attribute 'maximum_idle_time' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_idle_time', the 'type' attribute must be one of ['locked-account']")
-	}
-	if internaltypes.IsDefined(model.IdleAccountWarningInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'idle_account_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'idle_account_warning_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.AccountExpirationWarningInterval) && model.Type.ValueString() != "account-validity-window" {
-		resp.Diagnostics.AddError("Attribute 'account_expiration_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_expiration_warning_interval', the 'type' attribute must be one of ['account-validity-window']")
-	}
-	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "filter" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter', the 'type' attribute must be one of ['filter']")
-	}
-	if internaltypes.IsDefined(model.IdleAccountErrorInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'idle_account_error_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'idle_account_error_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.WeakPasswordStorageScheme) && model.Type.ValueString() != "weakly-encoded-password" {
-		resp.Diagnostics.AddError("Attribute 'weak_password_storage_scheme' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'weak_password_storage_scheme', the 'type' attribute must be one of ['weakly-encoded-password']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.NeverLoggedInAccountWarningInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'never_logged_in_account_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'never_logged_in_account_warning_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.NeverLoggedInAccountErrorInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'never_logged_in_account_error_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'never_logged_in_account_error_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.WeakCryptEncoding) && model.Type.ValueString() != "weakly-encoded-password" {
-		resp.Diagnostics.AddError("Attribute 'weak_crypt_encoding' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'weak_crypt_encoding', the 'type' attribute must be one of ['weakly-encoded-password']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -341,6 +289,8 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 		// Every remaining property is supported
 		return
 	}
+	var model dataSecurityAuditorResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "filter" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"filter\"")
@@ -369,6 +319,95 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"third_party\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+			configvalidators.Implies(
+				path.MatchRoot("never_logged_in_account_error_interval"),
+				path.MatchRoot("never_logged_in_account_warning_interval"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_evaluation_age"),
+			path.MatchRoot("type"),
+			[]string{"expired-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_privilege"),
+			path.MatchRoot("type"),
+			[]string{"privilege"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_idle_time"),
+			path.MatchRoot("type"),
+			[]string{"locked-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("idle_account_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_expiration_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"account-validity-window"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("idle_account_error_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_password_storage_scheme"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("never_logged_in_account_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("never_logged_in_account_error_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_crypt_encoding"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+	}
+}
+
+// Add config validators
+func (r dataSecurityAuditorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDataSecurityAuditor()
+}
+
+// Add config validators
+func (r defaultDataSecurityAuditorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDataSecurityAuditor()
 }
 
 // Add optional fields to create request for expired-password data-security-auditor
@@ -1786,46 +1825,46 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 
 	// Read the existing configuration
 	var state dataSecurityAuditorResourceModel
-	if plan.Type.ValueString() == "expired-password" {
+	if readResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 		readExpiredPasswordDataSecurityAuditorResponse(ctx, readResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "idle-account" {
+	if readResponse.IdleAccountDataSecurityAuditorResponse != nil {
 		readIdleAccountDataSecurityAuditorResponse(ctx, readResponse.IdleAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disabled-account" {
+	if readResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 		readDisabledAccountDataSecurityAuditorResponse(ctx, readResponse.DisabledAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "weakly-encoded-password" {
+	if readResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 		readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, readResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "privilege" {
+	if readResponse.PrivilegeDataSecurityAuditorResponse != nil {
 		readPrivilegeDataSecurityAuditorResponse(ctx, readResponse.PrivilegeDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "account-usability-issues" {
+	if readResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 		readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, readResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "locked-account" {
+	if readResponse.LockedAccountDataSecurityAuditorResponse != nil {
 		readLockedAccountDataSecurityAuditorResponse(ctx, readResponse.LockedAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "filter" {
+	if readResponse.FilterDataSecurityAuditorResponse != nil {
 		readFilterDataSecurityAuditorResponse(ctx, readResponse.FilterDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "account-validity-window" {
+	if readResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 		readAccountValidityWindowDataSecurityAuditorResponse(ctx, readResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "multiple-password" {
+	if readResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 		readMultiplePasswordDataSecurityAuditorResponse(ctx, readResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+	if readResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 		readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, readResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nonexistent-password-policy" {
+	if readResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 		readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, readResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "access-control" {
+	if readResponse.AccessControlDataSecurityAuditorResponse != nil {
 		readAccessControlDataSecurityAuditorResponse(ctx, readResponse.AccessControlDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 		readThirdPartyDataSecurityAuditorResponse(ctx, readResponse.ThirdPartyDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1850,46 +1889,46 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "expired-password" {
+		if updateResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 			readExpiredPasswordDataSecurityAuditorResponse(ctx, updateResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "idle-account" {
+		if updateResponse.IdleAccountDataSecurityAuditorResponse != nil {
 			readIdleAccountDataSecurityAuditorResponse(ctx, updateResponse.IdleAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disabled-account" {
+		if updateResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 			readDisabledAccountDataSecurityAuditorResponse(ctx, updateResponse.DisabledAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "weakly-encoded-password" {
+		if updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 			readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "privilege" {
+		if updateResponse.PrivilegeDataSecurityAuditorResponse != nil {
 			readPrivilegeDataSecurityAuditorResponse(ctx, updateResponse.PrivilegeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-usability-issues" {
+		if updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 			readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "locked-account" {
+		if updateResponse.LockedAccountDataSecurityAuditorResponse != nil {
 			readLockedAccountDataSecurityAuditorResponse(ctx, updateResponse.LockedAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter" {
+		if updateResponse.FilterDataSecurityAuditorResponse != nil {
 			readFilterDataSecurityAuditorResponse(ctx, updateResponse.FilterDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-validity-window" {
+		if updateResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 			readAccountValidityWindowDataSecurityAuditorResponse(ctx, updateResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multiple-password" {
+		if updateResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 			readMultiplePasswordDataSecurityAuditorResponse(ctx, updateResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+		if updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 			readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nonexistent-password-policy" {
+		if updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 			readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "access-control" {
+		if updateResponse.AccessControlDataSecurityAuditorResponse != nil {
 			readAccessControlDataSecurityAuditorResponse(ctx, updateResponse.AccessControlDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 			readThirdPartyDataSecurityAuditorResponse(ctx, updateResponse.ThirdPartyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2027,46 +2066,46 @@ func updateDataSecurityAuditor(ctx context.Context, req resource.UpdateRequest, 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "expired-password" {
+		if updateResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 			readExpiredPasswordDataSecurityAuditorResponse(ctx, updateResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "idle-account" {
+		if updateResponse.IdleAccountDataSecurityAuditorResponse != nil {
 			readIdleAccountDataSecurityAuditorResponse(ctx, updateResponse.IdleAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disabled-account" {
+		if updateResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 			readDisabledAccountDataSecurityAuditorResponse(ctx, updateResponse.DisabledAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "weakly-encoded-password" {
+		if updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 			readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "privilege" {
+		if updateResponse.PrivilegeDataSecurityAuditorResponse != nil {
 			readPrivilegeDataSecurityAuditorResponse(ctx, updateResponse.PrivilegeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-usability-issues" {
+		if updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 			readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "locked-account" {
+		if updateResponse.LockedAccountDataSecurityAuditorResponse != nil {
 			readLockedAccountDataSecurityAuditorResponse(ctx, updateResponse.LockedAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter" {
+		if updateResponse.FilterDataSecurityAuditorResponse != nil {
 			readFilterDataSecurityAuditorResponse(ctx, updateResponse.FilterDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-validity-window" {
+		if updateResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 			readAccountValidityWindowDataSecurityAuditorResponse(ctx, updateResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multiple-password" {
+		if updateResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 			readMultiplePasswordDataSecurityAuditorResponse(ctx, updateResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+		if updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 			readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nonexistent-password-policy" {
+		if updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 			readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "access-control" {
+		if updateResponse.AccessControlDataSecurityAuditorResponse != nil {
 			readAccessControlDataSecurityAuditorResponse(ctx, updateResponse.AccessControlDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 			readThirdPartyDataSecurityAuditorResponse(ctx, updateResponse.ThirdPartyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

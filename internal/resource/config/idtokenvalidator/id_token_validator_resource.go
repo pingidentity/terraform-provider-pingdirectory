@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -217,45 +218,52 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"ping-one", "openid-connect"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *idTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsIdTokenValidator() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_signing_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("signing_certificate"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("openid_connect_metadata_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+	}
 }
 
-func (r *defaultIdTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r idTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdTokenValidator()
 }
 
-func modifyPlanIdTokenValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model idTokenValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AllowedSigningAlgorithm) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'allowed_signing_algorithm' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_signing_algorithm', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.SigningCertificate) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'signing_certificate' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'signing_certificate', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.JwksEndpointPath) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'jwks_endpoint_path' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jwks_endpoint_path', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.OpenIDConnectMetadataCacheDuration) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'openid_connect_metadata_cache_duration' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'openid_connect_metadata_cache_duration', the 'type' attribute must be one of ['ping-one']")
-	}
+// Add config validators
+func (r defaultIdTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdTokenValidator()
 }
 
 // Add optional fields to create request for ping-one id-token-validator
@@ -540,10 +548,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state idTokenValidatorResourceModel
-	if plan.Type.ValueString() == "ping-one" {
+	if readResponse.PingOneIdTokenValidatorResponse != nil {
 		readPingOneIdTokenValidatorResponse(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "openid-connect" {
+	if readResponse.OpenidConnectIdTokenValidatorResponse != nil {
 		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -568,10 +576,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOneIdTokenValidatorResponse != nil {
 			readPingOneIdTokenValidatorResponse(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "openid-connect" {
+		if updateResponse.OpenidConnectIdTokenValidatorResponse != nil {
 			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -673,10 +681,10 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOneIdTokenValidatorResponse != nil {
 			readPingOneIdTokenValidatorResponse(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "openid-connect" {
+		if updateResponse.OpenidConnectIdTokenValidatorResponse != nil {
 			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

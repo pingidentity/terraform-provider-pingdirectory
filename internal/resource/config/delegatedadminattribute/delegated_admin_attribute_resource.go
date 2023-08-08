@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -224,37 +225,42 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"certificate", "photo", "generic"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type", "rest_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "attribute_type", "rest_resource_type_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *delegatedAdminAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsDelegatedAdminAttribute() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_mime_type"),
+			path.MatchRoot("type"),
+			[]string{"certificate", "photo"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_in_summary"),
+			path.MatchRoot("type"),
+			[]string{"generic"},
+		),
+	}
 }
 
-func (r *defaultDelegatedAdminAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r delegatedAdminAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminAttribute()
 }
 
-func modifyPlanDelegatedAdminAttribute(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model delegatedAdminAttributeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AllowedMIMEType) && model.Type.ValueString() != "certificate" && model.Type.ValueString() != "photo" {
-		resp.Diagnostics.AddError("Attribute 'allowed_mime_type' not supported by pingdirectory_delegated_admin_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_mime_type', the 'type' attribute must be one of ['certificate', 'photo']")
-	}
-	if internaltypes.IsDefined(model.IncludeInSummary) && model.Type.ValueString() != "generic" {
-		resp.Diagnostics.AddError("Attribute 'include_in_summary' not supported by pingdirectory_delegated_admin_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_in_summary', the 'type' attribute must be one of ['generic']")
-	}
+// Add config validators
+func (r defaultDelegatedAdminAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminAttribute()
 }
 
 // Add optional fields to create request for certificate delegated-admin-attribute
@@ -695,13 +701,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state delegatedAdminAttributeResourceModel
-	if plan.Type.ValueString() == "certificate" {
+	if readResponse.CertificateDelegatedAdminAttributeResponse != nil {
 		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "photo" {
+	if readResponse.PhotoDelegatedAdminAttributeResponse != nil {
 		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
 		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -726,13 +732,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateDelegatedAdminAttributeResponse != nil {
 			readCertificateDelegatedAdminAttributeResponse(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "photo" {
+		if updateResponse.PhotoDelegatedAdminAttributeResponse != nil {
 			readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericDelegatedAdminAttributeResponse != nil {
 			readGenericDelegatedAdminAttributeResponse(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -838,13 +844,13 @@ func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateDelegatedAdminAttributeResponse != nil {
 			readCertificateDelegatedAdminAttributeResponse(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "photo" {
+		if updateResponse.PhotoDelegatedAdminAttributeResponse != nil {
 			readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericDelegatedAdminAttributeResponse != nil {
 			readGenericDelegatedAdminAttributeResponse(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -29,7 +29,6 @@ Manages a Uncached Entry Criteria.
 - `filter_identifies_uncached_entries` (Boolean) Indicates whether the associated filter identifies those entries which should be stored in the uncached-id2entry database (if true) or entries which should be stored in the id2entry database (if false).
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Uncached Entry Criteria. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Uncached Entry Criteria.
-- `type` (String) The type of Uncached Entry Criteria resource. Options are ['default', 'last-access-time', 'filter-based', 'groovy-scripted', 'third-party']
 
 ### Read-Only
 
@@ -37,6 +36,7 @@ Manages a Uncached Entry Criteria.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Uncached Entry Criteria resource. Options are ['default', 'last-access-time', 'filter-based', 'groovy-scripted', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

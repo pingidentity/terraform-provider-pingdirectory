@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -392,221 +393,272 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"access", "error"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logFieldMappingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogFieldMapping() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_entries_returned"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authentication_failure_reason"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_connection_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authenticated_user_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_replication_change_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_new_rdn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_request_oid"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_scope"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_host"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_message_type"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_result_code"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_referral_urls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_sasl_mechanism_name"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_operation_type"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_message_id_to_abandon"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_intermediate_client_request"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_processing_time"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_address"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_filter"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_response_oid"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_matched_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_new_superior_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_category"),
+			path.MatchRoot("type"),
+			[]string{"error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_requester_ip_address"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authentication_failure_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_protocol"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_disconnect_reason"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_protocol_name"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_port"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_response_controls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_operation_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_source_address"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_intermediate_client_result"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_unindexed"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_additional_information"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_delete_old_rdn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_request_controls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_protocol_version"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_origin"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_alternate_authorization_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_severity"),
+			path.MatchRoot("type"),
+			[]string{"error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_requester_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_requested_attributes"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+	}
 }
 
-func (r *defaultLogFieldMappingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logFieldMappingResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFieldMapping()
 }
 
-func modifyPlanLogFieldMapping(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logFieldMappingResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.LogFieldEntriesReturned) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_entries_returned' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_entries_returned', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAuthenticationFailureReason) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_authentication_failure_reason' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_authentication_failure_reason', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldConnectionID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_connection_id' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_connection_id', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAuthenticatedUserDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_authenticated_user_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_authenticated_user_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldReplicationChangeID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_replication_change_id' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_replication_change_id', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldBaseDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_base_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_base_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldNewRDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_new_rdn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_new_rdn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldRequestOID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_request_oid' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_request_oid', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldScope) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_scope' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_scope', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldTargetHost) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_target_host' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_target_host', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldMessageType) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_message_type' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_message_type', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldResultCode) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_result_code' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_result_code', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldReferralUrls) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_referral_urls' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_referral_urls', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldSASLMechanismName) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_sasl_mechanism_name' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_sasl_mechanism_name', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldOperationType) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_operation_type' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_operation_type', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldBindDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_bind_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_bind_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldMessageIDToAbandon) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_message_id_to_abandon' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_message_id_to_abandon', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldIntermediateClientRequest) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_intermediate_client_request' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_intermediate_client_request', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldProcessingTime) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_processing_time' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_processing_time', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldTargetAddress) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_target_address' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_target_address', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldFilter) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_filter' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_filter', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldResponseOID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_response_oid' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_response_oid', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldMatchedDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_matched_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_matched_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldNewSuperiorDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_new_superior_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_new_superior_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldCategory) && model.Type.ValueString() != "error" {
-		resp.Diagnostics.AddError("Attribute 'log_field_category' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_category', the 'type' attribute must be one of ['error']")
-	}
-	if internaltypes.IsDefined(model.LogFieldRequesterIPAddress) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_requester_ip_address' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_requester_ip_address', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAuthenticationFailureID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_authentication_failure_id' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_authentication_failure_id', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldTargetAttribute) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_target_attribute' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_target_attribute', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldTargetProtocol) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_target_protocol' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_target_protocol', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldDisconnectReason) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_disconnect_reason' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_disconnect_reason', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldProtocolName) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_protocol_name' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_protocol_name', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldTargetPort) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_target_port' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_target_port', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldResponseControls) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_response_controls' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_response_controls', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldOperationID) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_operation_id' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_operation_id', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldSourceAddress) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_source_address' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_source_address', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldIntermediateClientResult) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_intermediate_client_result' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_intermediate_client_result', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldUnindexed) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_unindexed' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_unindexed', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAdditionalInformation) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_additional_information' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_additional_information', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldDeleteOldRDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_delete_old_rdn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_delete_old_rdn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldRequestControls) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_request_controls' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_request_controls', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldProtocolVersion) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_protocol_version' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_protocol_version', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldOrigin) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_origin' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_origin', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAlternateAuthorizationDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_alternate_authorization_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_alternate_authorization_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldSeverity) && model.Type.ValueString() != "error" {
-		resp.Diagnostics.AddError("Attribute 'log_field_severity' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_severity', the 'type' attribute must be one of ['error']")
-	}
-	if internaltypes.IsDefined(model.LogFieldEntryDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_entry_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_entry_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldRequesterDN) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_requester_dn' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_requester_dn', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldAuthenticationType) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_authentication_type' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_authentication_type', the 'type' attribute must be one of ['access']")
-	}
-	if internaltypes.IsDefined(model.LogFieldRequestedAttributes) && model.Type.ValueString() != "access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_requested_attributes' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_requested_attributes', the 'type' attribute must be one of ['access']")
-	}
+// Add config validators
+func (r defaultLogFieldMappingResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFieldMapping()
 }
 
 // Add optional fields to create request for access log-field-mapping
@@ -1134,10 +1186,10 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state logFieldMappingResourceModel
-	if plan.Type.ValueString() == "access" {
+	if readResponse.AccessLogFieldMappingResponse != nil {
 		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "error" {
+	if readResponse.ErrorLogFieldMappingResponse != nil {
 		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1162,10 +1214,10 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "access" {
+		if updateResponse.AccessLogFieldMappingResponse != nil {
 			readAccessLogFieldMappingResponse(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error" {
+		if updateResponse.ErrorLogFieldMappingResponse != nil {
 			readErrorLogFieldMappingResponse(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1267,10 +1319,10 @@ func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "access" {
+		if updateResponse.AccessLogFieldMappingResponse != nil {
 			readAccessLogFieldMappingResponse(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error" {
+		if updateResponse.ErrorLogFieldMappingResponse != nil {
 			readErrorLogFieldMappingResponse(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

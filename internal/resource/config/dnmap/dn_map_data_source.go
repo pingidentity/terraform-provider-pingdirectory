@@ -49,6 +49,7 @@ func (r *dnMapDataSource) Configure(_ context.Context, req datasource.ConfigureR
 type dnMapDataSourceModel struct {
 	Id            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
+	Type          types.String `tfsdk:"type"`
 	Description   types.String `tfsdk:"description"`
 	FromDNPattern types.String `tfsdk:"from_dn_pattern"`
 	ToDNPattern   types.String `tfsdk:"to_dn_pattern"`
@@ -59,6 +60,12 @@ func (r *dnMapDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 	schemaDef := schema.Schema{
 		Description: "Describes a Dn Map.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of DN Map resource. Options are ['dn-map']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this DN Map",
 				Required:    false,
@@ -85,6 +92,7 @@ func (r *dnMapDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 
 // Read a DnMapResponse object into the model struct
 func readDnMapResponseDataSource(ctx context.Context, r *client.DnMapResponse, state *dnMapDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("dn-map")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -357,6 +359,10 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"output", "smtp", "jmx", "groovy-scripted", "custom", "snmp", "twilio", "error-log", "snmp-sub-agent", "exec", "third-party"}...),
 		}
@@ -378,7 +384,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -394,96 +400,6 @@ func (r *defaultAlertHandlerResource) ModifyPlan(ctx context.Context, req resour
 }
 
 func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultAlertHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sender_address', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.CommunityName) && model.Type.ValueString() != "snmp" {
-		resp.Diagnostics.AddError("Attribute 'community_name' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'community_name', the 'type' attribute must be one of ['snmp']")
-	}
-	if internaltypes.IsDefined(model.ServerPort) && model.Type.ValueString() != "snmp" {
-		resp.Diagnostics.AddError("Attribute 'server_port' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_port', the 'type' attribute must be one of ['snmp']")
-	}
-	if internaltypes.IsDefined(model.LongMessageBehavior) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'long_message_behavior' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'long_message_behavior', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.IncludeMonitorDataFilter) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'include_monitor_data_filter' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_monitor_data_filter', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.ServerHostName) && model.Type.ValueString() != "snmp" {
-		resp.Diagnostics.AddError("Attribute 'server_host_name' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_host_name', the 'type' attribute must be one of ['snmp']")
-	}
-	if internaltypes.IsDefined(model.SenderPhoneNumber) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'sender_phone_number' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sender_phone_number', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.TwilioAuthTokenPassphraseProvider) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_auth_token_passphrase_provider' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_auth_token_passphrase_provider', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.MessageBody) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'message_body' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_body', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.TwilioAccountSID) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_account_sid' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_account_sid', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.OutputFormat) && model.Type.ValueString() != "output" {
-		resp.Diagnostics.AddError("Attribute 'output_format' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_format', the 'type' attribute must be one of ['output']")
-	}
-	if internaltypes.IsDefined(model.RecipientAddress) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'recipient_address' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'recipient_address', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.TwilioAuthToken) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_auth_token' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_auth_token', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.Command) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'command' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'command', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.MessageSubject) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'message_subject' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_subject', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.OutputLocation) && model.Type.ValueString() != "output" {
-		resp.Diagnostics.AddError("Attribute 'output_location' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_location', the 'type' attribute must be one of ['output']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.RecipientPhoneNumber) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'recipient_phone_number' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'recipient_phone_number', the 'type' attribute must be one of ['twilio']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -493,9 +409,147 @@ func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest,
 		// Every remaining property is supported
 		return
 	}
+	var model defaultAlertHandlerResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsAlertHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("twilio_auth_token_passphrase_provider"),
+				path.MatchRoot("twilio_auth_token"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("community_name"),
+			path.MatchRoot("type"),
+			[]string{"snmp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"snmp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("long_message_behavior"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_data_filter"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_host_name"),
+			path.MatchRoot("type"),
+			[]string{"snmp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_body"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_account_sid"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("recipient_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("recipient_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+	}
+}
+
+// Add config validators
+func (r alertHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAlertHandler()
+}
+
+// Add config validators
+func (r defaultAlertHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_format"),
+			path.MatchRoot("type"),
+			[]string{"output"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_location"),
+			path.MatchRoot("type"),
+			[]string{"output"},
+		),
+	}
+	return append(configValidatorsAlertHandler(), validators...)
 }
 
 // Add optional fields to create request for smtp alert-handler
@@ -1996,37 +2050,37 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state defaultAlertHandlerResourceModel
-	if plan.Type.ValueString() == "output" {
+	if readResponse.OutputAlertHandlerResponse != nil {
 		readOutputAlertHandlerResponseDefault(ctx, readResponse.OutputAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "smtp" {
+	if readResponse.SmtpAlertHandlerResponse != nil {
 		readSmtpAlertHandlerResponseDefault(ctx, readResponse.SmtpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jmx" {
+	if readResponse.JmxAlertHandlerResponse != nil {
 		readJmxAlertHandlerResponseDefault(ctx, readResponse.JmxAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedAlertHandlerResponse != nil {
 		readGroovyScriptedAlertHandlerResponseDefault(ctx, readResponse.GroovyScriptedAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomAlertHandlerResponse != nil {
 		readCustomAlertHandlerResponseDefault(ctx, readResponse.CustomAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "snmp" {
+	if readResponse.SnmpAlertHandlerResponse != nil {
 		readSnmpAlertHandlerResponseDefault(ctx, readResponse.SnmpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "twilio" {
+	if readResponse.TwilioAlertHandlerResponse != nil {
 		readTwilioAlertHandlerResponseDefault(ctx, readResponse.TwilioAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "error-log" {
+	if readResponse.ErrorLogAlertHandlerResponse != nil {
 		readErrorLogAlertHandlerResponseDefault(ctx, readResponse.ErrorLogAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "snmp-sub-agent" {
+	if readResponse.SnmpSubAgentAlertHandlerResponse != nil {
 		readSnmpSubAgentAlertHandlerResponseDefault(ctx, readResponse.SnmpSubAgentAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "exec" {
+	if readResponse.ExecAlertHandlerResponse != nil {
 		readExecAlertHandlerResponseDefault(ctx, readResponse.ExecAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyAlertHandlerResponse != nil {
 		readThirdPartyAlertHandlerResponseDefault(ctx, readResponse.ThirdPartyAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2051,37 +2105,37 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "output" {
+		if updateResponse.OutputAlertHandlerResponse != nil {
 			readOutputAlertHandlerResponseDefault(ctx, updateResponse.OutputAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponseDefault(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponseDefault(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponseDefault(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomAlertHandlerResponse != nil {
 			readCustomAlertHandlerResponseDefault(ctx, updateResponse.CustomAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponseDefault(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponseDefault(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponseDefault(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponseDefault(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponseDefault(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponseDefault(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2224,31 +2278,31 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponse(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponse(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponse(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponse(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponse(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponse(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponse(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponse(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponse(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2300,37 +2354,37 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "output" {
+		if updateResponse.OutputAlertHandlerResponse != nil {
 			readOutputAlertHandlerResponseDefault(ctx, updateResponse.OutputAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponseDefault(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponseDefault(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponseDefault(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomAlertHandlerResponse != nil {
 			readCustomAlertHandlerResponseDefault(ctx, updateResponse.CustomAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponseDefault(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponseDefault(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponseDefault(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponseDefault(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponseDefault(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponseDefault(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

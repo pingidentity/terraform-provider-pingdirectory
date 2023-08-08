@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -163,49 +164,57 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"summarize", "copy", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_directory"),
+			path.MatchRoot("type"),
+			[]string{"summarize"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress_on_copy"),
+			path.MatchRoot("type"),
+			[]string{"copy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("copy_to_directory"),
+			path.MatchRoot("type"),
+			[]string{"copy"},
+		),
+	}
 }
 
-func (r *defaultLogFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFileRotationListener()
 }
 
-func modifyPlanLogFileRotationListener(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logFileRotationListenerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.OutputDirectory) && model.Type.ValueString() != "summarize" {
-		resp.Diagnostics.AddError("Attribute 'output_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_directory', the 'type' attribute must be one of ['summarize']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.CompressOnCopy) && model.Type.ValueString() != "copy" {
-		resp.Diagnostics.AddError("Attribute 'compress_on_copy' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compress_on_copy', the 'type' attribute must be one of ['copy']")
-	}
-	if internaltypes.IsDefined(model.CopyToDirectory) && model.Type.ValueString() != "copy" {
-		resp.Diagnostics.AddError("Attribute 'copy_to_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'copy_to_directory', the 'type' attribute must be one of ['copy']")
-	}
+// Add config validators
+func (r defaultLogFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFileRotationListener()
 }
 
 // Add optional fields to create request for summarize log-file-rotation-listener
@@ -476,13 +485,13 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state logFileRotationListenerResourceModel
-	if plan.Type.ValueString() == "summarize" {
+	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
 		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "copy" {
+	if readResponse.CopyLogFileRotationListenerResponse != nil {
 		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -507,13 +516,13 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "summarize" {
+		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "copy" {
+		if updateResponse.CopyLogFileRotationListenerResponse != nil {
 			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -618,13 +627,13 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "summarize" {
+		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "copy" {
+		if updateResponse.CopyLogFileRotationListenerResponse != nil {
 			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

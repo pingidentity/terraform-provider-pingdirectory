@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -200,6 +201,10 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"console", "generic"}...),
 		}
@@ -294,98 +299,120 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *webApplicationExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanWebApplicationExtension(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultWebApplicationExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanWebApplicationExtension(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func modifyPlanWebApplicationExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultWebApplicationExtensionResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Complexity) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'complexity' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'complexity', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcTrustAll) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_trust_all' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_trust_all', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.SsoEnabled) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'sso_enabled' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sso_enabled', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcIssuerURL) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_issuer_url' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_issuer_url', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcClientID) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_client_id' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_client_id', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePinPassphraseProvider) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin_passphrase_provider' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin_passphrase_provider', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcStrictHostnameVerification) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_strict_hostname_verification' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_strict_hostname_verification', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcClientSecret) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_client_secret' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_client_secret', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcTrustStorePinPassphraseProvider) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_trust_store_pin_passphrase_provider' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_trust_store_pin_passphrase_provider', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreFile) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_file' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_file', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcClientSecretPassphraseProvider) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_client_secret_passphrase_provider' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_client_secret_passphrase_provider', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.LogFile) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'log_file' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcTrustStoreType) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_trust_store_type' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_trust_store_type', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.OidcTrustStoreFile) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'oidc_trust_store_file' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oidc_trust_store_file', the 'type' attribute must be one of ['console']")
-	}
-	if internaltypes.IsDefined(model.LdapServer) && model.Type.ValueString() != "console" {
-		resp.Diagnostics.AddError("Attribute 'ldap_server' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldap_server', the 'type' attribute must be one of ['console']")
-	}
-}
-
-// Add config validators
-func (r webApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsWebApplicationExtension() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.ExactlyOneOf(
 			path.MatchRoot("war_file"),
 			path.MatchRoot("document_root_directory"),
 		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"console"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("oidc_client_secret"),
+				path.MatchRoot("oidc_client_secret_passphrase_provider"),
+			),
+		),
 	}
+}
+
+// Add config validators
+func (r webApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsWebApplicationExtension()
+}
+
+// Add config validators
+func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("complexity"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_all"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sso_enabled"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_issuer_url"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_client_id"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_strict_hostname_verification"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_client_secret"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_client_secret_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_server"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+	}
+	return append(configValidatorsWebApplicationExtension(), validators...)
 }
 
 // Add optional fields to create request for generic web-application-extension
@@ -629,10 +656,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state defaultWebApplicationExtensionResourceModel
-	if plan.Type.ValueString() == "console" {
+	if readResponse.ConsoleWebApplicationExtensionResponse != nil {
 		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericWebApplicationExtensionResponse != nil {
 		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -657,10 +684,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "console" {
+		if updateResponse.ConsoleWebApplicationExtensionResponse != nil {
 			readConsoleWebApplicationExtensionResponseDefault(ctx, updateResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponseDefault(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -776,7 +803,7 @@ func (r *webApplicationExtensionResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponse(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -827,10 +854,10 @@ func (r *defaultWebApplicationExtensionResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "console" {
+		if updateResponse.ConsoleWebApplicationExtensionResponse != nil {
 			readConsoleWebApplicationExtensionResponseDefault(ctx, updateResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponseDefault(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

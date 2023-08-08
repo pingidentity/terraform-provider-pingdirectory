@@ -91,4 +91,5 @@ data "pingdirectory_client_connection_policy" "myClientConnectionPolicy" {
 - `result_code_map` (String) Specifies the result code map that should be used for clients associated with this Client Connection Policy. If a value is defined for this property, then it will override any result code map referenced in the global configuration.
 - `sensitive_attribute` (Set of String) Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.
 - `terminate_connection` (Boolean) Indicates whether any client connection for which this Client Connection Policy is selected should be terminated. This makes it possible to define fine-grained criteria for clients that should not be allowed to connect to this Directory Server.
+- `type` (String) The type of Client Connection Policy resource. Options are ['client-connection-policy']
 

@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -177,49 +178,57 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"groovy-scripted", "logging", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *changeSubscriptionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanChangeSubscriptionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsChangeSubscriptionHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"logging"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+	}
 }
 
-func (r *defaultChangeSubscriptionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanChangeSubscriptionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r changeSubscriptionHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsChangeSubscriptionHandler()
 }
 
-func modifyPlanChangeSubscriptionHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model changeSubscriptionHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_change_subscription_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_change_subscription_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.LogFile) && model.Type.ValueString() != "logging" {
-		resp.Diagnostics.AddError("Attribute 'log_file' not supported by pingdirectory_change_subscription_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file', the 'type' attribute must be one of ['logging']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_change_subscription_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_change_subscription_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
+// Add config validators
+func (r defaultChangeSubscriptionHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsChangeSubscriptionHandler()
 }
 
 // Add optional fields to create request for groovy-scripted change-subscription-handler
@@ -514,13 +523,13 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state changeSubscriptionHandlerResourceModel
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 		readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, readResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "logging" {
+	if readResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 		readLoggingChangeSubscriptionHandlerResponse(ctx, readResponse.LoggingChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 		readThirdPartyChangeSubscriptionHandlerResponse(ctx, readResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -545,13 +554,13 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 			readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "logging" {
+		if updateResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 			readLoggingChangeSubscriptionHandlerResponse(ctx, updateResponse.LoggingChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -656,13 +665,13 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 			readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "logging" {
+		if updateResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 			readLoggingChangeSubscriptionHandlerResponse(ctx, updateResponse.LoggingChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

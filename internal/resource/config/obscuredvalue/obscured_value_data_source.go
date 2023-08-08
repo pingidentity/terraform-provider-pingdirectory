@@ -49,6 +49,7 @@ func (r *obscuredValueDataSource) Configure(_ context.Context, req datasource.Co
 type obscuredValueDataSourceModel struct {
 	Id            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
+	Type          types.String `tfsdk:"type"`
 	Description   types.String `tfsdk:"description"`
 	ObscuredValue types.String `tfsdk:"obscured_value"`
 }
@@ -58,6 +59,12 @@ func (r *obscuredValueDataSource) Schema(ctx context.Context, req datasource.Sch
 	schemaDef := schema.Schema{
 		Description: "Describes a Obscured Value.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Obscured Value resource. Options are ['obscured-value']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Obscured Value",
 				Required:    false,
@@ -79,6 +86,7 @@ func (r *obscuredValueDataSource) Schema(ctx context.Context, req datasource.Sch
 
 // Read a ObscuredValueResponse object into the model struct
 func readObscuredValueResponseDataSource(ctx context.Context, r *client.ObscuredValueResponse, state *obscuredValueDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("obscured-value")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

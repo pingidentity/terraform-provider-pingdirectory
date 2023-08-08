@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,7 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type notificationManagerResourceModel struct {
 	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
+	Type                    types.String `tfsdk:"type"`
 	ExtensionClass          types.String `tfsdk:"extension_class"`
 	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
 	Description             types.String `tfsdk:"description"`
@@ -109,6 +113,15 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 	schemaDef := schema.Schema{
 		Description: "Manages a Notification Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Notification Manager resource. Options are ['third-party']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("third-party"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"third-party"}...),
+				},
+			},
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Notification Manager.",
 				Required:    true,
@@ -153,8 +166,13 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -187,6 +205,7 @@ func addOptionalThirdPartyNotificationManagerFields(ctx context.Context, addRequ
 
 // Read a ThirdPartyNotificationManagerResponse object into the model struct
 func readThirdPartyNotificationManagerResponse(ctx context.Context, r *client.ThirdPartyNotificationManagerResponse, state *notificationManagerResourceModel, expectedValues *notificationManagerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)

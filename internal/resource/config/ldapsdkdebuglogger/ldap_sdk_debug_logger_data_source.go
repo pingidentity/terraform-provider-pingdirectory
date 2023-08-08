@@ -48,6 +48,7 @@ func (r *ldapSdkDebugLoggerDataSource) Configure(_ context.Context, req datasour
 
 type ldapSdkDebugLoggerDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Type                           types.String `tfsdk:"type"`
 	Description                    types.String `tfsdk:"description"`
 	Enabled                        types.Bool   `tfsdk:"enabled"`
 	LogFile                        types.String `tfsdk:"log_file"`
@@ -77,6 +78,12 @@ func (r *ldapSdkDebugLoggerDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Ldap Sdk Debug Logger.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of LDAP SDK Debug Logger resource. Options are ['ldap-sdk-debug-logger']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this LDAP SDK Debug Logger",
 				Required:    false,
@@ -221,6 +228,7 @@ func (r *ldapSdkDebugLoggerDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a LdapSdkDebugLoggerResponse object into the model struct
 func readLdapSdkDebugLoggerResponseDataSource(ctx context.Context, r *client.LdapSdkDebugLoggerResponse, state *ldapSdkDebugLoggerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ldap-sdk-debug-logger")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

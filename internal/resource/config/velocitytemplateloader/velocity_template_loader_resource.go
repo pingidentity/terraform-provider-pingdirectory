@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type velocityTemplateLoaderResourceModel struct {
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	Type                     types.String `tfsdk:"type"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex     types.Int64  `tfsdk:"evaluation_order_index"`
@@ -110,6 +114,15 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 	schemaDef := schema.Schema{
 		Description: "Manages a Velocity Template Loader.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Velocity Template Loader resource. Options are ['velocity-template-loader']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("velocity-template-loader"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"velocity-template-loader"}...),
+				},
+			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -160,8 +173,13 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"http_servlet_extension_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "http_servlet_extension_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -191,6 +209,7 @@ func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *cl
 
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderResourceModel, expectedValues *velocityTemplateLoaderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("velocity-template-loader")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)

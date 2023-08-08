@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type constructedAttributeResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Description     types.String `tfsdk:"description"`
 	AttributeType   types.String `tfsdk:"attribute_type"`
 	ValuePattern    types.Set    `tfsdk:"value_pattern"`
@@ -101,6 +105,15 @@ func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest,
 	schemaDef := schema.Schema{
 		Description: "Manages a Constructed Attribute.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Constructed Attribute resource. Options are ['constructed-attribute']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("constructed-attribute"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"constructed-attribute"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Constructed Attribute",
 				Optional:    true,
@@ -117,8 +130,13 @@ func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest,
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -134,6 +152,7 @@ func addOptionalConstructedAttributeFields(ctx context.Context, addRequest *clie
 
 // Read a ConstructedAttributeResponse object into the model struct
 func readConstructedAttributeResponse(ctx context.Context, r *client.ConstructedAttributeResponse, state *constructedAttributeResourceModel, expectedValues *constructedAttributeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("constructed-attribute")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

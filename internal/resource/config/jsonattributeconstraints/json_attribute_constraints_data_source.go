@@ -48,6 +48,7 @@ func (r *jsonAttributeConstraintsDataSource) Configure(_ context.Context, req da
 
 type jsonAttributeConstraintsDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Type               types.String `tfsdk:"type"`
 	Description        types.String `tfsdk:"description"`
 	Enabled            types.Bool   `tfsdk:"enabled"`
 	AttributeType      types.String `tfsdk:"attribute_type"`
@@ -59,6 +60,12 @@ func (r *jsonAttributeConstraintsDataSource) Schema(ctx context.Context, req dat
 	schemaDef := schema.Schema{
 		Description: "Describes a Json Attribute Constraints.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this JSON Attribute Constraints",
 				Required:    false,
@@ -89,6 +96,7 @@ func (r *jsonAttributeConstraintsDataSource) Schema(ctx context.Context, req dat
 
 // Read a JsonAttributeConstraintsResponse object into the model struct
 func readJsonAttributeConstraintsResponseDataSource(ctx context.Context, r *client.JsonAttributeConstraintsResponse, state *jsonAttributeConstraintsDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("json-attribute-constraints")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)

@@ -38,7 +38,6 @@ provider "pingdirectory" {
 
 resource "pingdirectory_default_plugin" "myPlugin" {
   name    = "MyPlugin"
-  type    = "last-access-time"
   enabled = false
 }
 ```

@@ -93,7 +93,6 @@ Manages a Http Servlet Extension.
 - `template_directory` (Set of String) Specifies an ordered list of directories in which to search for the template files.
 - `temporary_directory` (String) Specifies the location of the directory that is used to create temporary files containing SCIM request data.
 - `temporary_directory_permissions` (String) Specifies the permissions that should be applied to the directory that is used to create temporary files.
-- `type` (String) The type of HTTP Servlet Extension resource. Options are ['delegated-admin', 'quickstart', 'availability-state', 'prometheus-monitoring', 'velocity', 'consent', 'ldap-mapped-scim', 'groovy-scripted', 'file-server', 'config', 'scim2', 'directory-rest-api', 'third-party']
 - `unavailable_status_code` (Number) Specifies the HTTP status code that the servlet should return if the server considers itself to be unavailable.
 
 ### Read-Only
@@ -102,6 +101,7 @@ Manages a Http Servlet Extension.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of HTTP Servlet Extension resource. Options are ['delegated-admin', 'quickstart', 'availability-state', 'prometheus-monitoring', 'velocity', 'consent', 'ldap-mapped-scim', 'groovy-scripted', 'file-server', 'config', 'scim2', 'directory-rest-api', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

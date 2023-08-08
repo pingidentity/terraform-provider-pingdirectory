@@ -57,4 +57,5 @@ data "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 - `id` (String) The ID of this resource.
 - `server_port` (Number) Specifies the port number of the endpoint where metric data should be sent.
 - `trust_manager_provider` (String) The trust manager provider to use if SSL over TCP is to be used for connection-level security.
+- `type` (String) The type of Monitoring Endpoint resource. Options are ['statsd']
 

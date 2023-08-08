@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -282,47 +283,46 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"user", "generic", "group"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *restResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultRestResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func modifyPlanRestResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model restResourceTypeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PasswordAttributeCategory) && model.Type.ValueString() != "user" {
-		resp.Diagnostics.AddError("Attribute 'password_attribute_category' not supported by pingdirectory_rest_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_attribute_category', the 'type' attribute must be one of ['user']")
-	}
-	if internaltypes.IsDefined(model.PasswordDisplayOrderIndex) && model.Type.ValueString() != "user" {
-		resp.Diagnostics.AddError("Attribute 'password_display_order_index' not supported by pingdirectory_rest_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_display_order_index', the 'type' attribute must be one of ['user']")
-	}
-}
-
-// Add config validators
-func (r restResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsRestResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.Conflicting(
 			path.MatchRoot("parent_resource_type"),
 			path.MatchRoot("parent_dn"),
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_attribute_category"),
+			path.MatchRoot("type"),
+			[]string{"user"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_display_order_index"),
+			path.MatchRoot("type"),
+			[]string{"user"},
+		),
 	}
+}
+
+// Add config validators
+func (r restResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRestResourceType()
+}
+
+// Add config validators
+func (r defaultRestResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRestResourceType()
 }
 
 // Add optional fields to create request for user rest-resource-type
@@ -837,13 +837,13 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state restResourceTypeResourceModel
-	if plan.Type.ValueString() == "user" {
+	if readResponse.UserRestResourceTypeResponse != nil {
 		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericRestResourceTypeResponse != nil {
 		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "group" {
+	if readResponse.GroupRestResourceTypeResponse != nil {
 		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -868,13 +868,13 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "user" {
+		if updateResponse.UserRestResourceTypeResponse != nil {
 			readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericRestResourceTypeResponse != nil {
 			readGenericRestResourceTypeResponse(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "group" {
+		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -979,13 +979,13 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "user" {
+		if updateResponse.UserRestResourceTypeResponse != nil {
 			readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericRestResourceTypeResponse != nil {
 			readGenericRestResourceTypeResponse(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "group" {
+		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

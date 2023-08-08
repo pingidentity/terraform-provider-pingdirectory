@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -1318,6 +1320,10 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["resource_type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
 		}
@@ -1485,7 +1491,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				int64planmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"resource_type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -1501,600 +1507,6 @@ func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model defaultPluginResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AdditionalUserMappingSCIMFilter) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'additional_user_mapping_scim_filter' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'additional_user_mapping_scim_filter', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.DatetimeAttribute) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'datetime_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'datetime_attribute', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.ApiURL) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'api_url' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'api_url', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.GaugeInfo) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'gauge_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'gauge_info', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.ExcludeBaseDN) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'exclude_base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'exclude_base_dn', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.HistogramOpType) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'histogram_op_type' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'histogram_op_type', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.SourceAttributeRemovalBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'source_attribute_removal_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'source_attribute_removal_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.Type) && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'type' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'type', the 'resource_type' attribute must be one of ['unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.PollingInterval) && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-access-grants" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-sessions" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'polling_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'polling_interval', the 'resource_type' attribute must be one of ['clean-up-expired-pingfederate-persistent-access-grants', 'purge-expired-data', 'clean-up-expired-pingfederate-persistent-sessions', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.EnableControlMapping) && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'enable_control_mapping' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'enable_control_mapping', the 'resource_type' attribute must be one of ['attribute-mapper', 'dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.DefaultAuthPasswordStorageScheme) && model.ResourceType.ValueString() != "password-policy-import" {
-		resp.Diagnostics.AddError("Attribute 'default_auth_password_storage_scheme' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'default_auth_password_storage_scheme', the 'resource_type' attribute must be one of ['password-policy-import']")
-	}
-	if internaltypes.IsDefined(model.SampleInterval) && model.ResourceType.ValueString() != "stats-collector" {
-		resp.Diagnostics.AddError("Attribute 'sample_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'sample_interval', the 'resource_type' attribute must be one of ['stats-collector']")
-	}
-	if internaltypes.IsDefined(model.ConnectionCriteria) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'connection_criteria', the 'resource_type' attribute must be one of ['pass-through-authentication', 'delay', 'ping-one-pass-through-authentication', 'simple-to-external-bind', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ChangelogPasswordEncryptionKeyPassphraseProvider) && model.ResourceType.ValueString() != "changelog-password-encryption" {
-		resp.Diagnostics.AddError("Attribute 'changelog_password_encryption_key_passphrase_provider' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'changelog_password_encryption_key_passphrase_provider', the 'resource_type' attribute must be one of ['changelog-password-encryption']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'resource_type' attribute must be one of ['pass-through-authentication', 'last-access-time', 'delay', 'groovy-scripted', 'ping-one-pass-through-authentication', 'simple-to-external-bind', 'coalesce-modifications', 'pluggable-pass-through-authentication', 'sub-operation-timing', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'included_local_entry_base_dn', the 'resource_type' attribute must be one of ['pass-through-authentication', 'ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ValuePattern) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'value_pattern' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'value_pattern', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.SessionTimeout) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'session_timeout' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'session_timeout', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.IncludeQueueTime) && model.ResourceType.ValueString() != "processing-time-histogram" {
-		resp.Diagnostics.AddError("Attribute 'include_queue_time' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'include_queue_time', the 'resource_type' attribute must be one of ['processing-time-histogram']")
-	}
-	if internaltypes.IsDefined(model.MultipleValuePatternBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'multiple_value_pattern_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'multiple_value_pattern_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.TargetDN) && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'target_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'target_dn', the 'resource_type' attribute must be one of ['dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.HistogramFormat) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'histogram_format' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'histogram_format', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.LogFileFormat) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'log_file_format' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'log_file_format', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.ContextName) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'context_name' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'context_name', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.EnableProfilingOnStartup) && model.ResourceType.ValueString() != "profiler" {
-		resp.Diagnostics.AddError("Attribute 'enable_profiling_on_startup' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'enable_profiling_on_startup', the 'resource_type' attribute must be one of ['profiler']")
-	}
-	if internaltypes.IsDefined(model.PluginType) && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'plugin_type' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'plugin_type', the 'resource_type' attribute must be one of ['encrypt-attribute-values', 'pass-through-authentication', 'internal-search-rate', 'seven-bit-clean', 'periodic-gc', 'dn-mapper', 'referral-on-update', 'custom', 'changelog-password-encryption', 'composed-attribute', 'processing-time-histogram', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'change-subscription-notification', 'last-mod', 'referential-integrity', 'unique-attribute', 'sub-operation-timing', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.SearchFilterPattern) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'search_filter_pattern' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'search_filter_pattern', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.IncludeFilter) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'include_filter' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'include_filter', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.UpdatedEntryNewlyMatchesCriteriaBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'updated_entry_newly_matches_criteria_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'updated_entry_newly_matches_criteria_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.BaseDN) && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "modifiable-password-policy-state" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-access-grants" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-sessions" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'base_dn', the 'resource_type' attribute must be one of ['search-shutdown', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'purge-expired-data', 'referral-on-update', 'clean-up-expired-pingfederate-persistent-sessions', 'referential-integrity', 'unique-attribute', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.PurgeBehavior) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'purge_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'purge_behavior', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.EnableAttributeMapping) && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'enable_attribute_mapping' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'enable_attribute_mapping', the 'resource_type' attribute must be one of ['dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.NumDeleteThreads) && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-access-grants" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-sessions" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'num_delete_threads' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'num_delete_threads', the 'resource_type' attribute must be one of ['clean-up-expired-pingfederate-persistent-access-grants', 'purge-expired-data', 'clean-up-expired-pingfederate-persistent-sessions', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.ReferralBaseURL) && model.ResourceType.ValueString() != "referral-on-update" {
-		resp.Diagnostics.AddError("Attribute 'referral_base_url' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'referral_base_url', the 'resource_type' attribute must be one of ['referral-on-update']")
-	}
-	if internaltypes.IsDefined(model.Delay) && model.ResourceType.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'delay' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'delay', the 'resource_type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.PerApplicationLDAPStats) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'per_application_ldap_stats' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'per_application_ldap_stats', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.OperationType) && model.ResourceType.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'operation_type' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'operation_type', the 'resource_type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.FilterSuffix) && model.ResourceType.ValueString() != "internal-search-rate" {
-		resp.Diagnostics.AddError("Attribute 'filter_suffix' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'filter_suffix', the 'resource_type' attribute must be one of ['internal-search-rate']")
-	}
-	if internaltypes.IsDefined(model.UpdateInterval) && model.ResourceType.ValueString() != "referential-integrity" {
-		resp.Diagnostics.AddError("Attribute 'update_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'update_interval', the 'resource_type' attribute must be one of ['referential-integrity']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.ResourceType.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'extension_class', the 'resource_type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.MaxSearchResultEntriesToUpdate) && model.ResourceType.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'max_search_result_entries_to_update' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'max_search_result_entries_to_update', the 'resource_type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.PassThroughAuthenticationHandler) && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'pass_through_authentication_handler' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'pass_through_authentication_handler', the 'resource_type' attribute must be one of ['pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.IncludeBaseDN) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'include_base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'include_base_dn', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'allow_lax_pass_through_authentication_passwords' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'allow_lax_pass_through_authentication_passwords', the 'resource_type' attribute must be one of ['pass-through-authentication', 'ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.IncludeAttribute) && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "last-mod" {
-		resp.Diagnostics.AddError("Attribute 'include_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'include_attribute', the 'resource_type' attribute must be one of ['search-shutdown', 'last-mod']")
-	}
-	if internaltypes.IsDefined(model.Server) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'server' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'server', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.UpdatedEntryNoLongerMatchesCriteriaBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'updated_entry_no_longer_matches_criteria_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'updated_entry_no_longer_matches_criteria_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.LinesBetweenHeader) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'lines_between_header' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'lines_between_header', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientID) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_id' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'oauth_client_id', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.DatetimeJSONField) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'datetime_json_field' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'datetime_json_field', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.AgentxPort) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'agentx_port' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'agentx_port', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.PreventConflictsWithSoftDeletedEntries) && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'prevent_conflicts_with_soft_deleted_entries' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'prevent_conflicts_with_soft_deleted_entries', the 'resource_type' attribute must be one of ['unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.DatetimeFormat) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'datetime_format' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'datetime_format', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.UpdateSourceAttributeBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'update_source_attribute_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'update_source_attribute_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.UpdateLocalPasswordDN) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'update_local_password_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'update_local_password_dn', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.LowerBound) && model.ResourceType.ValueString() != "internal-search-rate" {
-		resp.Diagnostics.AddError("Attribute 'lower_bound' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'lower_bound', the 'resource_type' attribute must be one of ['internal-search-rate']")
-	}
-	if internaltypes.IsDefined(model.DnMap) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'dn_map' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'dn_map', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.PeerServerPriorityIndex) && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-access-grants" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-sessions" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'peer_server_priority_index' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'peer_server_priority_index', the 'resource_type' attribute must be one of ['clean-up-expired-pingfederate-persistent-access-grants', 'purge-expired-data', 'clean-up-expired-pingfederate-persistent-sessions', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.EnvironmentID) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'environment_id' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'environment_id', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.ResourceType.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'resource_type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.ResourceType.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'script_argument', the 'resource_type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.LocalDBBackendInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'local_db_backend_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'local_db_backend_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.LogFile) && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "monitor-history" && model.ResourceType.ValueString() != "referential-integrity" {
-		resp.Diagnostics.AddError("Attribute 'log_file' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'log_file', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history', 'referential-integrity']")
-	}
-	if internaltypes.IsDefined(model.RetainFilesSparselyByAge) && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'retain_files_sparsely_by_age' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'retain_files_sparsely_by_age', the 'resource_type' attribute must be one of ['monitor-history']")
-	}
-	if internaltypes.IsDefined(model.TryLocalBind) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'try_local_bind' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'try_local_bind', the 'resource_type' attribute must be one of ['pass-through-authentication', 'ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.NumWorkerThreads) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'num_worker_threads' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'num_worker_threads', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.IncludedLDAPStat) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'included_ldap_stat' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'included_ldap_stat', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.HeaderPrefixPerColumn) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'header_prefix_per_column' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'header_prefix_per_column', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.ExcludeAttribute) && model.ResourceType.ValueString() != "last-mod" {
-		resp.Diagnostics.AddError("Attribute 'exclude_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'exclude_attribute', the 'resource_type' attribute must be one of ['last-mod']")
-	}
-	if internaltypes.IsDefined(model.MultipleAttributeBehavior) && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'multiple_attribute_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'multiple_attribute_behavior', the 'resource_type' attribute must be one of ['unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.TargetAttributeExistsDuringInitialPopulationBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'target_attribute_exists_during_initial_population_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'target_attribute_exists_during_initial_population_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.Filter) && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "modifiable-password-policy-state" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'filter', the 'resource_type' attribute must be one of ['search-shutdown', 'modifiable-password-policy-state', 'purge-expired-data', 'unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.EncryptionSettingsDefinitionID) && model.ResourceType.ValueString() != "encrypt-attribute-values" {
-		resp.Diagnostics.AddError("Attribute 'encryption_settings_definition_id' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'encryption_settings_definition_id', the 'resource_type' attribute must be one of ['encrypt-attribute-values']")
-	}
-	if internaltypes.IsDefined(model.ProfileDirectory) && model.ResourceType.ValueString() != "profiler" {
-		resp.Diagnostics.AddError("Attribute 'profile_directory' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'profile_directory', the 'resource_type' attribute must be one of ['profiler']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientSecret) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_secret' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'oauth_client_secret', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ExcludeFilter) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'exclude_filter' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'exclude_filter', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.HistogramCategoryBoundary) && model.ResourceType.ValueString() != "processing-time-histogram" {
-		resp.Diagnostics.AddError("Attribute 'histogram_category_boundary' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'histogram_category_boundary', the 'resource_type' attribute must be one of ['processing-time-histogram']")
-	}
-	if internaltypes.IsDefined(model.PreviousFileExtension) && model.ResourceType.ValueString() != "search-shutdown" {
-		resp.Diagnostics.AddError("Attribute 'previous_file_extension' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'previous_file_extension', the 'resource_type' attribute must be one of ['search-shutdown']")
-	}
-	if internaltypes.IsDefined(model.TargetAttribute) && model.ResourceType.ValueString() != "attribute-mapper" {
-		resp.Diagnostics.AddError("Attribute 'target_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'target_attribute', the 'resource_type' attribute must be one of ['attribute-mapper']")
-	}
-	if internaltypes.IsDefined(model.Sanitize) && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'sanitize' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'sanitize', the 'resource_type' attribute must be one of ['monitor-history']")
-	}
-	if internaltypes.IsDefined(model.LogInterval) && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'log_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'log_interval', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history']")
-	}
-	if internaltypes.IsDefined(model.InvokeGCDayOfWeek) && model.ResourceType.ValueString() != "periodic-gc" {
-		resp.Diagnostics.AddError("Attribute 'invoke_gc_day_of_week' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'invoke_gc_day_of_week', the 'resource_type' attribute must be one of ['periodic-gc']")
-	}
-	if internaltypes.IsDefined(model.ReplicationInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'replication_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'replication_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.AuthURL) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'auth_url' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'auth_url', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ServerAccessMode) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'server_access_mode' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'server_access_mode', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.UpdateTargetAttributeBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'update_target_attribute_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'update_target_attribute_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.MaxConnections) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'max_connections' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'max_connections', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.SearchBaseDN) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'search_base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'search_base_dn', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.IncludedResourceStat) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'included_resource_stat' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'included_resource_stat', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.ExpirationOffset) && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'expiration_offset' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'expiration_offset', the 'resource_type' attribute must be one of ['purge-expired-data', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.CustomTimezone) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'custom_timezone' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'custom_timezone', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.SuppressIfIdle) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'suppress_if_idle' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'suppress_if_idle', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.AllowedRequestControl) && model.ResourceType.ValueString() != "coalesce-modifications" {
-		resp.Diagnostics.AddError("Attribute 'allowed_request_control' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'allowed_request_control', the 'resource_type' attribute must be one of ['coalesce-modifications']")
-	}
-	if internaltypes.IsDefined(model.MultiValuedAttributeBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'multi_valued_attribute_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'multi_valued_attribute_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.SourceAttribute) && model.ResourceType.ValueString() != "attribute-mapper" {
-		resp.Diagnostics.AddError("Attribute 'source_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'source_attribute', the 'resource_type' attribute must be one of ['attribute-mapper']")
-	}
-	if internaltypes.IsDefined(model.EntryCacheInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'entry_cache_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'entry_cache_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.AgentxAddress) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'agentx_address' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'agentx_address', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.AttributeType) && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "composed-attribute" {
-		resp.Diagnostics.AddError("Attribute 'attribute_type' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'attribute_type', the 'resource_type' attribute must be one of ['encrypt-attribute-values', 'seven-bit-clean', 'referential-integrity', 'composed-attribute']")
-	}
-	if internaltypes.IsDefined(model.FilterPrefix) && model.ResourceType.ValueString() != "internal-search-rate" {
-		resp.Diagnostics.AddError("Attribute 'filter_prefix' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'filter_prefix', the 'resource_type' attribute must be one of ['internal-search-rate']")
-	}
-	if internaltypes.IsDefined(model.IncludedLDAPApplication) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'included_ldap_application' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'included_ldap_application', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.DelayAfterAlert) && model.ResourceType.ValueString() != "periodic-gc" {
-		resp.Diagnostics.AddError("Attribute 'delay_after_alert' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'delay_after_alert', the 'resource_type' attribute must be one of ['periodic-gc']")
-	}
-	if internaltypes.IsDefined(model.UpdateLocalPassword) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'update_local_password' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'update_local_password', the 'resource_type' attribute must be one of ['pass-through-authentication', 'ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.CustomDatetimeFormat) && model.ResourceType.ValueString() != "purge-expired-data" {
-		resp.Diagnostics.AddError("Attribute 'custom_datetime_format' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'custom_datetime_format', the 'resource_type' attribute must be one of ['purge-expired-data']")
-	}
-	if internaltypes.IsDefined(model.NumThreads) && model.ResourceType.ValueString() != "internal-search-rate" {
-		resp.Diagnostics.AddError("Attribute 'num_threads' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'num_threads', the 'resource_type' attribute must be one of ['internal-search-rate']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.IgnoredPasswordPolicyStateErrorCondition) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'ignored_password_policy_state_error_condition' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'ignored_password_policy_state_error_condition', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.RotationListener) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'rotation_listener' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'rotation_listener', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.MapAttribute) && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'map_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'map_attribute', the 'resource_type' attribute must be one of ['dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.StatusSummaryInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'status_summary_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'status_summary_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.SeparateMonitorEntryPerTrackedApplication) && model.ResourceType.ValueString() != "processing-time-histogram" {
-		resp.Diagnostics.AddError("Attribute 'separate_monitor_entry_per_tracked_application' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'separate_monitor_entry_per_tracked_application', the 'resource_type' attribute must be one of ['processing-time-histogram']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.ResourceType.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'script_class', the 'resource_type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.MaxUpdateFrequency) && model.ResourceType.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'max_update_frequency' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'max_update_frequency', the 'resource_type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.CollectionInterval) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'collection_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'collection_interval', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.EmptyInsteadOfZero) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'empty_instead_of_zero' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'empty_instead_of_zero', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.BindDNPattern) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'bind_dn_pattern' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'bind_dn_pattern', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.SourceDN) && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'source_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'source_dn', the 'resource_type' attribute must be one of ['dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.InvokeForFailedBinds) && model.ResourceType.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'invoke_for_failed_binds' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'invoke_for_failed_binds', the 'resource_type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.RotationPolicy) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'rotation_policy' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'rotation_policy', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.LoggingErrorBehavior) && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'logging_error_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'logging_error_behavior', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history']")
-	}
-	if internaltypes.IsDefined(model.PingInterval) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'ping_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'ping_interval', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.Description) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "modifiable-password-policy-state" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "monitor-history" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "profiler" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'description' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'description', the 'resource_type' attribute must be one of ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.HostInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'host_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'host_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.DefaultUserPasswordStorageScheme) && model.ResourceType.ValueString() != "password-policy-import" {
-		resp.Diagnostics.AddError("Attribute 'default_user_password_storage_scheme' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'default_user_password_storage_scheme', the 'resource_type' attribute must be one of ['password-policy-import']")
-	}
-	if internaltypes.IsDefined(model.UpperBound) && model.ResourceType.ValueString() != "internal-search-rate" {
-		resp.Diagnostics.AddError("Attribute 'upper_bound' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'upper_bound', the 'resource_type' attribute must be one of ['internal-search-rate']")
-	}
-	if internaltypes.IsDefined(model.MaxUpdatesPerSecond) && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-access-grants" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "clean-up-expired-pingfederate-persistent-sessions" && model.ResourceType.ValueString() != "clean-up-inactive-pingfederate-persistent-sessions" {
-		resp.Diagnostics.AddError("Attribute 'max_updates_per_second' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'max_updates_per_second', the 'resource_type' attribute must be one of ['clean-up-expired-pingfederate-persistent-access-grants', 'purge-expired-data', 'clean-up-expired-pingfederate-persistent-sessions', 'clean-up-inactive-pingfederate-persistent-sessions']")
-	}
-	if internaltypes.IsDefined(model.LdapInfo) && model.ResourceType.ValueString() != "stats-collector" {
-		resp.Diagnostics.AddError("Attribute 'ldap_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'ldap_info', the 'resource_type' attribute must be one of ['stats-collector']")
-	}
-	if internaltypes.IsDefined(model.ChangelogPasswordEncryptionKey) && model.ResourceType.ValueString() != "changelog-password-encryption" {
-		resp.Diagnostics.AddError("Attribute 'changelog_password_encryption_key' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'changelog_password_encryption_key', the 'resource_type' attribute must be one of ['changelog-password-encryption']")
-	}
-	if internaltypes.IsDefined(model.LdapChangelogInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'ldap_changelog_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'ldap_changelog_info', the 'resource_type' attribute must be one of ['stats-collector', 'periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.OAuthClientSecretPassphraseProvider) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'oauth_client_secret_passphrase_provider' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'oauth_client_secret_passphrase_provider', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.UserMappingRemoteJSONField) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'user_mapping_remote_json_field' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'user_mapping_remote_json_field', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.UserMappingLocalAttribute) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'user_mapping_local_attribute' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'user_mapping_local_attribute', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ConnectRetryMaxWait) && model.ResourceType.ValueString() != "snmp-subagent" {
-		resp.Diagnostics.AddError("Attribute 'connect_retry_max_wait' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'connect_retry_max_wait', the 'resource_type' attribute must be one of ['snmp-subagent']")
-	}
-	if internaltypes.IsDefined(model.Scope) && model.ResourceType.ValueString() != "search-shutdown" {
-		resp.Diagnostics.AddError("Attribute 'scope' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'scope', the 'resource_type' attribute must be one of ['search-shutdown']")
-	}
-	if internaltypes.IsDefined(model.OverrideLocalPassword) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'override_local_password' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'override_local_password', the 'resource_type' attribute must be one of ['pass-through-authentication', 'ping-one-pass-through-authentication', 'pluggable-pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.ProfileSampleInterval) && model.ResourceType.ValueString() != "profiler" {
-		resp.Diagnostics.AddError("Attribute 'profile_sample_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'profile_sample_interval', the 'resource_type' attribute must be one of ['profiler']")
-	}
-	if internaltypes.IsDefined(model.GenerateCollectorFiles) && model.ResourceType.ValueString() != "stats-collector" {
-		resp.Diagnostics.AddError("Attribute 'generate_collector_files' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'generate_collector_files', the 'resource_type' attribute must be one of ['stats-collector']")
-	}
-	if internaltypes.IsDefined(model.ProfileAction) && model.ResourceType.ValueString() != "profiler" {
-		resp.Diagnostics.AddError("Attribute 'profile_action' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'profile_action', the 'resource_type' attribute must be one of ['profiler']")
-	}
-	if internaltypes.IsDefined(model.OutputFile) && model.ResourceType.ValueString() != "search-shutdown" {
-		resp.Diagnostics.AddError("Attribute 'output_file' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'output_file', the 'resource_type' attribute must be one of ['search-shutdown']")
-	}
-	if internaltypes.IsDefined(model.RetentionPolicy) && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'retention_policy' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'retention_policy', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history']")
-	}
-	if internaltypes.IsDefined(model.InvokeForInternalOperations) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
-		resp.Diagnostics.AddError("Attribute 'invoke_for_internal_operations' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'invoke_for_internal_operations', the 'resource_type' attribute must be one of ['last-access-time', 'internal-search-rate', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'referral-on-update', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
-	}
-	if internaltypes.IsDefined(model.InitialConnections) && model.ResourceType.ValueString() != "pass-through-authentication" {
-		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'initial_connections', the 'resource_type' attribute must be one of ['pass-through-authentication']")
-	}
-	if internaltypes.IsDefined(model.DelayPostGC) && model.ResourceType.ValueString() != "periodic-gc" {
-		resp.Diagnostics.AddError("Attribute 'delay_post_gc' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'delay_post_gc', the 'resource_type' attribute must be one of ['periodic-gc']")
-	}
-	if internaltypes.IsDefined(model.NumMostExpensivePhasesShown) && model.ResourceType.ValueString() != "sub-operation-timing" {
-		resp.Diagnostics.AddError("Attribute 'num_most_expensive_phases_shown' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'num_most_expensive_phases_shown', the 'resource_type' attribute must be one of ['sub-operation-timing']")
-	}
-	if internaltypes.IsDefined(model.AlwaysMapResponses) && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "dn-mapper" {
-		resp.Diagnostics.AddError("Attribute 'always_map_responses' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'always_map_responses', the 'resource_type' attribute must be one of ['attribute-mapper', 'dn-mapper']")
-	}
-	if internaltypes.IsDefined(model.ServerInfo) && model.ResourceType.ValueString() != "stats-collector" {
-		resp.Diagnostics.AddError("Attribute 'server_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'server_info', the 'resource_type' attribute must be one of ['stats-collector']")
-	}
-	if internaltypes.IsDefined(model.LogFilePermissions) && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "monitor-history" {
-		resp.Diagnostics.AddError("Attribute 'log_file_permissions' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'log_file_permissions', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history']")
-	}
-	if internaltypes.IsDefined(model.Append) && model.ResourceType.ValueString() != "periodic-stats-logger" {
-		resp.Diagnostics.AddError("Attribute 'append' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'append', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
-	}
-	if internaltypes.IsDefined(model.InvokeGCTimeUtc) && model.ResourceType.ValueString() != "periodic-gc" {
-		resp.Diagnostics.AddError("Attribute 'invoke_gc_time_utc' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'invoke_gc_time_utc', the 'resource_type' attribute must be one of ['periodic-gc']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -2104,6 +1516,8 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		// Every remaining property is supported
 		return
 	}
+	var model defaultPluginResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "coalesce-modifications" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"coalesce_modifications\"")
@@ -2120,6 +1534,812 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPlugin() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"changelog-password-encryption"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("changelog_password_encryption_key"),
+				path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ping-one-pass-through-authentication"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
+				path.MatchRoot("oauth_client_secret"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("additional_user_mapping_scim_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("api_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gauge_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_op_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute_removal_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("polling_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_control_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time", "ping-one-pass-through-authentication", "sub-operation-timing", "third-party", "pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "delay", "groovy-scripted", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_local_entry_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("session_timeout"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_value_pattern_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("context_name"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("plugin_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_filter_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_newly_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("purge_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_attribute_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_delete_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("referral_base_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"referral-on-update"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay"),
+			path.MatchRoot("resource_type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("per_application_ldap_stats"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_suffix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pass_through_authentication_handler"),
+			path.MatchRoot("resource_type"),
+			[]string{"pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown", "last-mod"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_no_longer_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("lines_between_header"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_json_field"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_port"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_source_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("lower_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("peer_server_priority_index"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("local_db_backend_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history", "referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("try_local_bind"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_worker_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_ldap_stat"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("header_prefix_per_column"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute_exists_during_initial_population_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("previous_file_extension"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_day_of_week"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auth_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_target_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_resource_stat"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expiration_offset"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_timezone"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_if_idle"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_request_control"),
+			path.MatchRoot("resource_type"),
+			[]string{"coalesce-modifications"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multi_valued_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("entry_cache_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_address"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_prefix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_ldap_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_after_alert"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ignored_password_policy_state_error_condition"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("map_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("status_summary_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("collection_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("empty_instead_of_zero"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_policy"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("logging_error_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ping_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("description"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("host_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("upper_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_updates_per_second"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_changelog_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_remote_json_field"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_local_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connect_retry_max_wait"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scope"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_file"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_internal_operations"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_post_gc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_most_expensive_phases_shown"),
+			path.MatchRoot("resource_type"),
+			[]string{"sub-operation-timing"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_map_responses"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_permissions"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("append"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_time_utc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+	}
+}
+
+// Add config validators
+func (r pluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPlugin()
+}
+
+// Add config validators
+func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_auth_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"changelog-password-encryption"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_queue_time"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_profiling_on_startup"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("operation_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_search_result_entries_to_update"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_files_sparsely_by_age"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-mod"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"encrypt-attribute-values"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_directory"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_category_boundary"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sanitize"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("separate_monitor_entry_per_tracked_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_update_frequency"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_failed_binds"),
+			path.MatchRoot("resource_type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_user_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_password_encryption_key"),
+			path.MatchRoot("resource_type"),
+			[]string{"changelog-password-encryption"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_sample_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generate_collector_files"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_action"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+	}
+	return append(configValidatorsPlugin(), validators...)
 }
 
 // Add optional fields to create request for internal-search-rate plugin
@@ -6468,118 +6688,118 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 
 	// Read the existing configuration
 	var state defaultPluginResourceModel
-	if plan.ResourceType.ValueString() == "last-access-time" {
+	if readResponse.LastAccessTimePluginResponse != nil {
 		readLastAccessTimePluginResponseDefault(ctx, readResponse.LastAccessTimePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "stats-collector" {
+	if readResponse.StatsCollectorPluginResponse != nil {
 		readStatsCollectorPluginResponseDefault(ctx, readResponse.StatsCollectorPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "internal-search-rate" {
+	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponseDefault(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+	if readResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 		readModifiablePasswordPolicyStatePluginResponseDefault(ctx, readResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "seven-bit-clean" {
+	if readResponse.SevenBitCleanPluginResponse != nil {
 		readSevenBitCleanPluginResponseDefault(ctx, readResponse.SevenBitCleanPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+	if readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 		readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "periodic-gc" {
+	if readResponse.PeriodicGcPluginResponse != nil {
 		readPeriodicGcPluginResponseDefault(ctx, readResponse.PeriodicGcPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+	if readResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 		readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+	if readResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 		readChangelogPasswordEncryptionPluginResponseDefault(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "processing-time-histogram" {
+	if readResponse.ProcessingTimeHistogramPluginResponse != nil {
 		readProcessingTimeHistogramPluginResponseDefault(ctx, readResponse.ProcessingTimeHistogramPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "search-shutdown" {
+	if readResponse.SearchShutdownPluginResponse != nil {
 		readSearchShutdownPluginResponseDefault(ctx, readResponse.SearchShutdownPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+	if readResponse.PeriodicStatsLoggerPluginResponse != nil {
 		readPeriodicStatsLoggerPluginResponseDefault(ctx, readResponse.PeriodicStatsLoggerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "purge-expired-data" {
+	if readResponse.PurgeExpiredDataPluginResponse != nil {
 		readPurgeExpiredDataPluginResponseDefault(ctx, readResponse.PurgeExpiredDataPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "change-subscription-notification" {
+	if readResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 		readChangeSubscriptionNotificationPluginResponseDefault(ctx, readResponse.ChangeSubscriptionNotificationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "sub-operation-timing" {
+	if readResponse.SubOperationTimingPluginResponse != nil {
 		readSubOperationTimingPluginResponseDefault(ctx, readResponse.SubOperationTimingPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPluginResponse != nil {
 		readThirdPartyPluginResponseDefault(ctx, readResponse.ThirdPartyPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+	if readResponse.EncryptAttributeValuesPluginResponse != nil {
 		readEncryptAttributeValuesPluginResponseDefault(ctx, readResponse.EncryptAttributeValuesPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "pass-through-authentication" {
+	if readResponse.PassThroughAuthenticationPluginResponse != nil {
 		readPassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "dn-mapper" {
+	if readResponse.DnMapperPluginResponse != nil {
 		readDnMapperPluginResponseDefault(ctx, readResponse.DnMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "monitor-history" {
+	if readResponse.MonitorHistoryPluginResponse != nil {
 		readMonitorHistoryPluginResponseDefault(ctx, readResponse.MonitorHistoryPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "referral-on-update" {
+	if readResponse.ReferralOnUpdatePluginResponse != nil {
 		readReferralOnUpdatePluginResponseDefault(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+	if readResponse.SimpleToExternalBindPluginResponse != nil {
 		readSimpleToExternalBindPluginResponseDefault(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "custom" {
+	if readResponse.CustomPluginResponse != nil {
 		readCustomPluginResponseDefault(ctx, readResponse.CustomPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "snmp-subagent" {
+	if readResponse.SnmpSubagentPluginResponse != nil {
 		readSnmpSubagentPluginResponseDefault(ctx, readResponse.SnmpSubagentPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "coalesce-modifications" {
+	if readResponse.CoalesceModificationsPluginResponse != nil {
 		readCoalesceModificationsPluginResponseDefault(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "password-policy-import" {
+	if readResponse.PasswordPolicyImportPluginResponse != nil {
 		readPasswordPolicyImportPluginResponseDefault(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "profiler" {
+	if readResponse.ProfilerPluginResponse != nil {
 		readProfilerPluginResponseDefault(ctx, readResponse.ProfilerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+	if readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "composed-attribute" {
+	if readResponse.ComposedAttributePluginResponse != nil {
 		readComposedAttributePluginResponseDefault(ctx, readResponse.ComposedAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+	if readResponse.LdapResultCodeTrackerPluginResponse != nil {
 		readLdapResultCodeTrackerPluginResponseDefault(ctx, readResponse.LdapResultCodeTrackerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "attribute-mapper" {
+	if readResponse.AttributeMapperPluginResponse != nil {
 		readAttributeMapperPluginResponseDefault(ctx, readResponse.AttributeMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "delay" {
+	if readResponse.DelayPluginResponse != nil {
 		readDelayPluginResponseDefault(ctx, readResponse.DelayPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+	if readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedPluginResponse != nil {
 		readGroovyScriptedPluginResponseDefault(ctx, readResponse.GroovyScriptedPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "last-mod" {
+	if readResponse.LastModPluginResponse != nil {
 		readLastModPluginResponseDefault(ctx, readResponse.LastModPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+	if readResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 		readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "referential-integrity" {
+	if readResponse.ReferentialIntegrityPluginResponse != nil {
 		readReferentialIntegrityPluginResponseDefault(ctx, readResponse.ReferentialIntegrityPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "unique-attribute" {
+	if readResponse.UniqueAttributePluginResponse != nil {
 		readUniqueAttributePluginResponseDefault(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -6604,118 +6824,118 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "stats-collector" {
+		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponseDefault(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponseDefault(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponseDefault(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+		if updateResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 			readChangelogPasswordEncryptionPluginResponseDefault(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "processing-time-histogram" {
+		if updateResponse.ProcessingTimeHistogramPluginResponse != nil {
 			readProcessingTimeHistogramPluginResponseDefault(ctx, updateResponse.ProcessingTimeHistogramPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponseDefault(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponseDefault(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponseDefault(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "change-subscription-notification" {
+		if updateResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 			readChangeSubscriptionNotificationPluginResponseDefault(ctx, updateResponse.ChangeSubscriptionNotificationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponseDefault(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponseDefault(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+		if updateResponse.EncryptAttributeValuesPluginResponse != nil {
 			readEncryptAttributeValuesPluginResponseDefault(ctx, updateResponse.EncryptAttributeValuesPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponseDefault(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "monitor-history" {
+		if updateResponse.MonitorHistoryPluginResponse != nil {
 			readMonitorHistoryPluginResponseDefault(ctx, updateResponse.MonitorHistoryPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponseDefault(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponseDefault(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "custom" {
+		if updateResponse.CustomPluginResponse != nil {
 			readCustomPluginResponseDefault(ctx, updateResponse.CustomPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "password-policy-import" {
+		if updateResponse.PasswordPolicyImportPluginResponse != nil {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "profiler" {
+		if updateResponse.ProfilerPluginResponse != nil {
 			readProfilerPluginResponseDefault(ctx, updateResponse.ProfilerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponseDefault(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+		if updateResponse.LdapResultCodeTrackerPluginResponse != nil {
 			readLdapResultCodeTrackerPluginResponseDefault(ctx, updateResponse.LdapResultCodeTrackerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponseDefault(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponseDefault(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponseDefault(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "last-mod" {
+		if updateResponse.LastModPluginResponse != nil {
 			readLastModPluginResponseDefault(ctx, updateResponse.LastModPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponseDefault(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -6939,82 +7159,82 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponse(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponse(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponse(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponse(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponse(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponse(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponse(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponse(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponse(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponse(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponse(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponse(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponse(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponse(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponse(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponse(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponse(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponse(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponse(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponse(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponse(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponse(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -7066,118 +7286,118 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "stats-collector" {
+		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponseDefault(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponseDefault(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponseDefault(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+		if updateResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 			readChangelogPasswordEncryptionPluginResponseDefault(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "processing-time-histogram" {
+		if updateResponse.ProcessingTimeHistogramPluginResponse != nil {
 			readProcessingTimeHistogramPluginResponseDefault(ctx, updateResponse.ProcessingTimeHistogramPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponseDefault(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponseDefault(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponseDefault(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "change-subscription-notification" {
+		if updateResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 			readChangeSubscriptionNotificationPluginResponseDefault(ctx, updateResponse.ChangeSubscriptionNotificationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponseDefault(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponseDefault(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+		if updateResponse.EncryptAttributeValuesPluginResponse != nil {
 			readEncryptAttributeValuesPluginResponseDefault(ctx, updateResponse.EncryptAttributeValuesPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponseDefault(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "monitor-history" {
+		if updateResponse.MonitorHistoryPluginResponse != nil {
 			readMonitorHistoryPluginResponseDefault(ctx, updateResponse.MonitorHistoryPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponseDefault(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponseDefault(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "custom" {
+		if updateResponse.CustomPluginResponse != nil {
 			readCustomPluginResponseDefault(ctx, updateResponse.CustomPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "password-policy-import" {
+		if updateResponse.PasswordPolicyImportPluginResponse != nil {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "profiler" {
+		if updateResponse.ProfilerPluginResponse != nil {
 			readProfilerPluginResponseDefault(ctx, updateResponse.ProfilerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponseDefault(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+		if updateResponse.LdapResultCodeTrackerPluginResponse != nil {
 			readLdapResultCodeTrackerPluginResponseDefault(ctx, updateResponse.LdapResultCodeTrackerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponseDefault(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponseDefault(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponseDefault(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "last-mod" {
+		if updateResponse.LastModPluginResponse != nil {
 			readLastModPluginResponseDefault(ctx, updateResponse.LastModPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponseDefault(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

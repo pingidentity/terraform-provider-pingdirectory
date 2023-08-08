@@ -48,6 +48,7 @@ func (r *localDbIndexDataSource) Configure(_ context.Context, req datasource.Con
 
 type localDbIndexDataSourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Type                                         types.String `tfsdk:"type"`
 	BackendName                                  types.String `tfsdk:"backend_name"`
 	Attribute                                    types.String `tfsdk:"attribute"`
 	IndexEntryLimit                              types.Int64  `tfsdk:"index_entry_limit"`
@@ -67,6 +68,12 @@ func (r *localDbIndexDataSource) Schema(ctx context.Context, req datasource.Sche
 	schemaDef := schema.Schema{
 		Description: "Describes a Local Db Index.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Local DB Index resource. Options are ['local-db-index']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -145,6 +152,7 @@ func (r *localDbIndexDataSource) Schema(ctx context.Context, req datasource.Sche
 
 // Read a LocalDbIndexResponse object into the model struct
 func readLocalDbIndexResponseDataSource(ctx context.Context, r *client.LocalDbIndexResponse, state *localDbIndexDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("local-db-index")
 	state.Id = types.StringValue(r.Id)
 	state.Attribute = types.StringValue(r.Attribute)
 	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)

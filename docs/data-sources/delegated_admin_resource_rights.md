@@ -59,4 +59,5 @@ data "pingdirectory_delegated_admin_resource_rights" "myDelegatedAdminResourceRi
 - `id` (String) The ID of this resource.
 - `resource_subtree` (Set of String) Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.
 - `resources_in_group` (Set of String) Specifies groups whose members can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-groups.
+- `type` (String) The type of Delegated Admin Resource Rights resource. Options are ['delegated-admin-resource-rights']
 

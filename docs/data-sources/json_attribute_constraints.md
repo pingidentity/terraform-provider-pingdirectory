@@ -54,4 +54,5 @@ data "pingdirectory_json_attribute_constraints" "myJsonAttributeConstraints" {
 - `description` (String) A description for this JSON Attribute Constraints
 - `enabled` (Boolean) Indicates whether this JSON Attribute Constraints is enabled.
 - `id` (String) The ID of this resource.
+- `type` (String) The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']
 

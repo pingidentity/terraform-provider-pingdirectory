@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -298,12 +299,13 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"salted-sha256", "argon2d", "crypt", "argon2i", "base64", "salted-md5", "aes", "argon2id", "vault", "third-party", "argon2", "third-party-enhanced", "pbkdf2", "rc4", "salted-sha384", "triple-des", "clear", "aes-256", "bcrypt", "blowfish", "sha1", "amazon-secrets-manager", "azure-key-vault", "conjur", "salted-sha1", "salted-sha512", "scrypt", "md5"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -319,100 +321,6 @@ func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, r
 }
 
 func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model passwordStorageSchemeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MemoryUsageKb) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'memory_usage_kb' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'memory_usage_kb', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.DefaultField) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'default_field' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_field', the 'type' attribute must be one of ['amazon-secrets-manager', 'vault']")
-	}
-	if internaltypes.IsDefined(model.ScryptBlockSize) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_block_size' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_block_size', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.DigestAlgorithm) && model.Type.ValueString() != "pbkdf2" {
-		resp.Diagnostics.AddError("Attribute 'digest_algorithm' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'digest_algorithm', the 'type' attribute must be one of ['pbkdf2']")
-	}
-	if internaltypes.IsDefined(model.MaxPasswordLength) && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "crypt" && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'max_password_length' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_password_length', the 'type' attribute must be one of ['pbkdf2', 'crypt', 'scrypt']")
-	}
-	if internaltypes.IsDefined(model.VaultExternalServer) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_external_server', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.IterationCount) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'iteration_count', the 'type' attribute must be one of ['argon2', 'argon2id', 'pbkdf2', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.PasswordEncodingMechanism) && model.Type.ValueString() != "crypt" {
-		resp.Diagnostics.AddError("Attribute 'password_encoding_mechanism' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_encoding_mechanism', the 'type' attribute must be one of ['crypt']")
-	}
-	if internaltypes.IsDefined(model.KeyVaultURI) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'key_vault_uri' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_vault_uri', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party-enhanced" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party-enhanced', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.AzureAuthenticationMethod) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'azure_authentication_method' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'azure_authentication_method', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ParallelismFactor) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'parallelism_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'parallelism_factor', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.ConjurExternalServer) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_external_server', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.DerivedKeyLengthBytes) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'derived_key_length_bytes' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'derived_key_length_bytes', the 'type' attribute must be one of ['argon2', 'argon2id', 'pbkdf2', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.AwsExternalServer) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'aws_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_external_server', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ScryptParallelizationParameter) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_parallelization_parameter' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_parallelization_parameter', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.EncryptionSettingsDefinitionID) && model.Type.ValueString() != "aes-256" {
-		resp.Diagnostics.AddError("Attribute 'encryption_settings_definition_id' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_settings_definition_id', the 'type' attribute must be one of ['aes-256']")
-	}
-	if internaltypes.IsDefined(model.ScryptCpuMemoryCostFactorExponent) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_cpu_memory_cost_factor_exponent' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_cpu_memory_cost_factor_exponent', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.NumDigestRounds) && model.Type.ValueString() != "crypt" {
-		resp.Diagnostics.AddError("Attribute 'num_digest_rounds' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_digest_rounds', the 'type' attribute must be one of ['crypt']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party-enhanced" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party-enhanced', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.SaltLengthBytes) && model.Type.ValueString() != "salted-sha256" && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "salted-sha384" && model.Type.ValueString() != "argon2i" && model.Type.ValueString() != "salted-md5" && model.Type.ValueString() != "salted-sha1" && model.Type.ValueString() != "salted-sha512" {
-		resp.Diagnostics.AddError("Attribute 'salt_length_bytes' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'salt_length_bytes', the 'type' attribute must be one of ['salted-sha256', 'argon2', 'argon2id', 'pbkdf2', 'argon2d', 'salted-sha384', 'argon2i', 'salted-md5', 'salted-sha1', 'salted-sha512']")
-	}
-	if internaltypes.IsDefined(model.BcryptCostFactor) && model.Type.ValueString() != "bcrypt" {
-		resp.Diagnostics.AddError("Attribute 'bcrypt_cost_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bcrypt_cost_factor', the 'type' attribute must be one of ['bcrypt']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -422,6 +330,8 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 		// Every remaining property is supported
 		return
 	}
+	var model passwordStorageSchemeResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
@@ -437,6 +347,137 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("memory_usage_kb"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_field"),
+			path.MatchRoot("type"),
+			[]string{"vault", "amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_password_length"),
+			path.MatchRoot("type"),
+			[]string{"crypt", "pbkdf2", "scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_external_server"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_encoding_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"crypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party", "third-party-enhanced"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("parallelism_factor"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("derived_key_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_parallelization_parameter"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"aes-256"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_digest_rounds"),
+			path.MatchRoot("type"),
+			[]string{"crypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party", "third-party-enhanced"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bcrypt_cost_factor"),
+			path.MatchRoot("type"),
+			[]string{"bcrypt"},
+		),
+	}
+}
+
+// Add config validators
+func (r passwordStorageSchemeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordStorageScheme()
+}
+
+// Add config validators
+func (r defaultPasswordStorageSchemeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordStorageScheme()
 }
 
 // Add optional fields to create request for argon2d password-storage-scheme
@@ -1787,88 +1828,88 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 
 	// Read the existing configuration
 	var state passwordStorageSchemeResourceModel
-	if plan.Type.ValueString() == "salted-sha256" {
+	if readResponse.SaltedSha256PasswordStorageSchemeResponse != nil {
 		readSaltedSha256PasswordStorageSchemeResponse(ctx, readResponse.SaltedSha256PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "argon2d" {
+	if readResponse.Argon2dPasswordStorageSchemeResponse != nil {
 		readArgon2dPasswordStorageSchemeResponse(ctx, readResponse.Argon2dPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "crypt" {
+	if readResponse.CryptPasswordStorageSchemeResponse != nil {
 		readCryptPasswordStorageSchemeResponse(ctx, readResponse.CryptPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "argon2i" {
+	if readResponse.Argon2iPasswordStorageSchemeResponse != nil {
 		readArgon2iPasswordStorageSchemeResponse(ctx, readResponse.Argon2iPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "base64" {
+	if readResponse.Base64PasswordStorageSchemeResponse != nil {
 		readBase64PasswordStorageSchemeResponse(ctx, readResponse.Base64PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "salted-md5" {
+	if readResponse.SaltedMd5PasswordStorageSchemeResponse != nil {
 		readSaltedMd5PasswordStorageSchemeResponse(ctx, readResponse.SaltedMd5PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aes" {
+	if readResponse.AesPasswordStorageSchemeResponse != nil {
 		readAesPasswordStorageSchemeResponse(ctx, readResponse.AesPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "argon2id" {
+	if readResponse.Argon2idPasswordStorageSchemeResponse != nil {
 		readArgon2idPasswordStorageSchemeResponse(ctx, readResponse.Argon2idPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultPasswordStorageSchemeResponse != nil {
 		readVaultPasswordStorageSchemeResponse(ctx, readResponse.VaultPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPasswordStorageSchemeResponse != nil {
 		readThirdPartyPasswordStorageSchemeResponse(ctx, readResponse.ThirdPartyPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "argon2" {
+	if readResponse.Argon2PasswordStorageSchemeResponse != nil {
 		readArgon2PasswordStorageSchemeResponse(ctx, readResponse.Argon2PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-enhanced" {
+	if readResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse != nil {
 		readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx, readResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pbkdf2" {
+	if readResponse.Pbkdf2PasswordStorageSchemeResponse != nil {
 		readPbkdf2PasswordStorageSchemeResponse(ctx, readResponse.Pbkdf2PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "rc4" {
+	if readResponse.Rc4PasswordStorageSchemeResponse != nil {
 		readRc4PasswordStorageSchemeResponse(ctx, readResponse.Rc4PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "salted-sha384" {
+	if readResponse.SaltedSha384PasswordStorageSchemeResponse != nil {
 		readSaltedSha384PasswordStorageSchemeResponse(ctx, readResponse.SaltedSha384PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "triple-des" {
+	if readResponse.TripleDesPasswordStorageSchemeResponse != nil {
 		readTripleDesPasswordStorageSchemeResponse(ctx, readResponse.TripleDesPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "clear" {
+	if readResponse.ClearPasswordStorageSchemeResponse != nil {
 		readClearPasswordStorageSchemeResponse(ctx, readResponse.ClearPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aes-256" {
+	if readResponse.Aes256PasswordStorageSchemeResponse != nil {
 		readAes256PasswordStorageSchemeResponse(ctx, readResponse.Aes256PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "bcrypt" {
+	if readResponse.BcryptPasswordStorageSchemeResponse != nil {
 		readBcryptPasswordStorageSchemeResponse(ctx, readResponse.BcryptPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "blowfish" {
+	if readResponse.BlowfishPasswordStorageSchemeResponse != nil {
 		readBlowfishPasswordStorageSchemeResponse(ctx, readResponse.BlowfishPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "sha1" {
+	if readResponse.Sha1PasswordStorageSchemeResponse != nil {
 		readSha1PasswordStorageSchemeResponse(ctx, readResponse.Sha1PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-secrets-manager" {
+	if readResponse.AmazonSecretsManagerPasswordStorageSchemeResponse != nil {
 		readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx, readResponse.AmazonSecretsManagerPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "azure-key-vault" {
+	if readResponse.AzureKeyVaultPasswordStorageSchemeResponse != nil {
 		readAzureKeyVaultPasswordStorageSchemeResponse(ctx, readResponse.AzureKeyVaultPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurPasswordStorageSchemeResponse != nil {
 		readConjurPasswordStorageSchemeResponse(ctx, readResponse.ConjurPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "salted-sha1" {
+	if readResponse.SaltedSha1PasswordStorageSchemeResponse != nil {
 		readSaltedSha1PasswordStorageSchemeResponse(ctx, readResponse.SaltedSha1PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "salted-sha512" {
+	if readResponse.SaltedSha512PasswordStorageSchemeResponse != nil {
 		readSaltedSha512PasswordStorageSchemeResponse(ctx, readResponse.SaltedSha512PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "scrypt" {
+	if readResponse.ScryptPasswordStorageSchemeResponse != nil {
 		readScryptPasswordStorageSchemeResponse(ctx, readResponse.ScryptPasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "md5" {
+	if readResponse.Md5PasswordStorageSchemeResponse != nil {
 		readMd5PasswordStorageSchemeResponse(ctx, readResponse.Md5PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1893,88 +1934,88 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "salted-sha256" {
+		if updateResponse.SaltedSha256PasswordStorageSchemeResponse != nil {
 			readSaltedSha256PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha256PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2d" {
+		if updateResponse.Argon2dPasswordStorageSchemeResponse != nil {
 			readArgon2dPasswordStorageSchemeResponse(ctx, updateResponse.Argon2dPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "crypt" {
+		if updateResponse.CryptPasswordStorageSchemeResponse != nil {
 			readCryptPasswordStorageSchemeResponse(ctx, updateResponse.CryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2i" {
+		if updateResponse.Argon2iPasswordStorageSchemeResponse != nil {
 			readArgon2iPasswordStorageSchemeResponse(ctx, updateResponse.Argon2iPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "base64" {
+		if updateResponse.Base64PasswordStorageSchemeResponse != nil {
 			readBase64PasswordStorageSchemeResponse(ctx, updateResponse.Base64PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-md5" {
+		if updateResponse.SaltedMd5PasswordStorageSchemeResponse != nil {
 			readSaltedMd5PasswordStorageSchemeResponse(ctx, updateResponse.SaltedMd5PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aes" {
+		if updateResponse.AesPasswordStorageSchemeResponse != nil {
 			readAesPasswordStorageSchemeResponse(ctx, updateResponse.AesPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2id" {
+		if updateResponse.Argon2idPasswordStorageSchemeResponse != nil {
 			readArgon2idPasswordStorageSchemeResponse(ctx, updateResponse.Argon2idPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPasswordStorageSchemeResponse != nil {
 			readVaultPasswordStorageSchemeResponse(ctx, updateResponse.VaultPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordStorageSchemeResponse != nil {
 			readThirdPartyPasswordStorageSchemeResponse(ctx, updateResponse.ThirdPartyPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2" {
+		if updateResponse.Argon2PasswordStorageSchemeResponse != nil {
 			readArgon2PasswordStorageSchemeResponse(ctx, updateResponse.Argon2PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-enhanced" {
+		if updateResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse != nil {
 			readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx, updateResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pbkdf2" {
+		if updateResponse.Pbkdf2PasswordStorageSchemeResponse != nil {
 			readPbkdf2PasswordStorageSchemeResponse(ctx, updateResponse.Pbkdf2PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "rc4" {
+		if updateResponse.Rc4PasswordStorageSchemeResponse != nil {
 			readRc4PasswordStorageSchemeResponse(ctx, updateResponse.Rc4PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha384" {
+		if updateResponse.SaltedSha384PasswordStorageSchemeResponse != nil {
 			readSaltedSha384PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha384PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "triple-des" {
+		if updateResponse.TripleDesPasswordStorageSchemeResponse != nil {
 			readTripleDesPasswordStorageSchemeResponse(ctx, updateResponse.TripleDesPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "clear" {
+		if updateResponse.ClearPasswordStorageSchemeResponse != nil {
 			readClearPasswordStorageSchemeResponse(ctx, updateResponse.ClearPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aes-256" {
+		if updateResponse.Aes256PasswordStorageSchemeResponse != nil {
 			readAes256PasswordStorageSchemeResponse(ctx, updateResponse.Aes256PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "bcrypt" {
+		if updateResponse.BcryptPasswordStorageSchemeResponse != nil {
 			readBcryptPasswordStorageSchemeResponse(ctx, updateResponse.BcryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "blowfish" {
+		if updateResponse.BlowfishPasswordStorageSchemeResponse != nil {
 			readBlowfishPasswordStorageSchemeResponse(ctx, updateResponse.BlowfishPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "sha1" {
+		if updateResponse.Sha1PasswordStorageSchemeResponse != nil {
 			readSha1PasswordStorageSchemeResponse(ctx, updateResponse.Sha1PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPasswordStorageSchemeResponse != nil {
 			readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx, updateResponse.AmazonSecretsManagerPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPasswordStorageSchemeResponse != nil {
 			readAzureKeyVaultPasswordStorageSchemeResponse(ctx, updateResponse.AzureKeyVaultPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPasswordStorageSchemeResponse != nil {
 			readConjurPasswordStorageSchemeResponse(ctx, updateResponse.ConjurPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha1" {
+		if updateResponse.SaltedSha1PasswordStorageSchemeResponse != nil {
 			readSaltedSha1PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha1PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha512" {
+		if updateResponse.SaltedSha512PasswordStorageSchemeResponse != nil {
 			readSaltedSha512PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha512PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "scrypt" {
+		if updateResponse.ScryptPasswordStorageSchemeResponse != nil {
 			readScryptPasswordStorageSchemeResponse(ctx, updateResponse.ScryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "md5" {
+		if updateResponse.Md5PasswordStorageSchemeResponse != nil {
 			readMd5PasswordStorageSchemeResponse(ctx, updateResponse.Md5PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2154,88 +2195,88 @@ func updatePasswordStorageScheme(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "salted-sha256" {
+		if updateResponse.SaltedSha256PasswordStorageSchemeResponse != nil {
 			readSaltedSha256PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha256PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2d" {
+		if updateResponse.Argon2dPasswordStorageSchemeResponse != nil {
 			readArgon2dPasswordStorageSchemeResponse(ctx, updateResponse.Argon2dPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "crypt" {
+		if updateResponse.CryptPasswordStorageSchemeResponse != nil {
 			readCryptPasswordStorageSchemeResponse(ctx, updateResponse.CryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2i" {
+		if updateResponse.Argon2iPasswordStorageSchemeResponse != nil {
 			readArgon2iPasswordStorageSchemeResponse(ctx, updateResponse.Argon2iPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "base64" {
+		if updateResponse.Base64PasswordStorageSchemeResponse != nil {
 			readBase64PasswordStorageSchemeResponse(ctx, updateResponse.Base64PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-md5" {
+		if updateResponse.SaltedMd5PasswordStorageSchemeResponse != nil {
 			readSaltedMd5PasswordStorageSchemeResponse(ctx, updateResponse.SaltedMd5PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aes" {
+		if updateResponse.AesPasswordStorageSchemeResponse != nil {
 			readAesPasswordStorageSchemeResponse(ctx, updateResponse.AesPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2id" {
+		if updateResponse.Argon2idPasswordStorageSchemeResponse != nil {
 			readArgon2idPasswordStorageSchemeResponse(ctx, updateResponse.Argon2idPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPasswordStorageSchemeResponse != nil {
 			readVaultPasswordStorageSchemeResponse(ctx, updateResponse.VaultPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordStorageSchemeResponse != nil {
 			readThirdPartyPasswordStorageSchemeResponse(ctx, updateResponse.ThirdPartyPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "argon2" {
+		if updateResponse.Argon2PasswordStorageSchemeResponse != nil {
 			readArgon2PasswordStorageSchemeResponse(ctx, updateResponse.Argon2PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-enhanced" {
+		if updateResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse != nil {
 			readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx, updateResponse.ThirdPartyEnhancedPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pbkdf2" {
+		if updateResponse.Pbkdf2PasswordStorageSchemeResponse != nil {
 			readPbkdf2PasswordStorageSchemeResponse(ctx, updateResponse.Pbkdf2PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "rc4" {
+		if updateResponse.Rc4PasswordStorageSchemeResponse != nil {
 			readRc4PasswordStorageSchemeResponse(ctx, updateResponse.Rc4PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha384" {
+		if updateResponse.SaltedSha384PasswordStorageSchemeResponse != nil {
 			readSaltedSha384PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha384PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "triple-des" {
+		if updateResponse.TripleDesPasswordStorageSchemeResponse != nil {
 			readTripleDesPasswordStorageSchemeResponse(ctx, updateResponse.TripleDesPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "clear" {
+		if updateResponse.ClearPasswordStorageSchemeResponse != nil {
 			readClearPasswordStorageSchemeResponse(ctx, updateResponse.ClearPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aes-256" {
+		if updateResponse.Aes256PasswordStorageSchemeResponse != nil {
 			readAes256PasswordStorageSchemeResponse(ctx, updateResponse.Aes256PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "bcrypt" {
+		if updateResponse.BcryptPasswordStorageSchemeResponse != nil {
 			readBcryptPasswordStorageSchemeResponse(ctx, updateResponse.BcryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "blowfish" {
+		if updateResponse.BlowfishPasswordStorageSchemeResponse != nil {
 			readBlowfishPasswordStorageSchemeResponse(ctx, updateResponse.BlowfishPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "sha1" {
+		if updateResponse.Sha1PasswordStorageSchemeResponse != nil {
 			readSha1PasswordStorageSchemeResponse(ctx, updateResponse.Sha1PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPasswordStorageSchemeResponse != nil {
 			readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx, updateResponse.AmazonSecretsManagerPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPasswordStorageSchemeResponse != nil {
 			readAzureKeyVaultPasswordStorageSchemeResponse(ctx, updateResponse.AzureKeyVaultPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPasswordStorageSchemeResponse != nil {
 			readConjurPasswordStorageSchemeResponse(ctx, updateResponse.ConjurPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha1" {
+		if updateResponse.SaltedSha1PasswordStorageSchemeResponse != nil {
 			readSaltedSha1PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha1PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "salted-sha512" {
+		if updateResponse.SaltedSha512PasswordStorageSchemeResponse != nil {
 			readSaltedSha512PasswordStorageSchemeResponse(ctx, updateResponse.SaltedSha512PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "scrypt" {
+		if updateResponse.ScryptPasswordStorageSchemeResponse != nil {
 			readScryptPasswordStorageSchemeResponse(ctx, updateResponse.ScryptPasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "md5" {
+		if updateResponse.Md5PasswordStorageSchemeResponse != nil {
 			readMd5PasswordStorageSchemeResponse(ctx, updateResponse.Md5PasswordStorageSchemeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type trustedCertificateResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Certificate     types.String `tfsdk:"certificate"`
 }
 
@@ -99,6 +103,15 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 	schemaDef := schema.Schema{
 		Description: "Manages a Trusted Certificate.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Trusted Certificate resource. Options are ['trusted-certificate']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("trusted-certificate"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"trusted-certificate"}...),
+				},
+			},
 			"certificate": schema.StringAttribute{
 				Description: "The PEM-encoded X.509v3 certificate.",
 				Required:    true,
@@ -106,8 +119,13 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -119,6 +137,7 @@ func addOptionalTrustedCertificateFields(ctx context.Context, addRequest *client
 
 // Read a TrustedCertificateResponse object into the model struct
 func readTrustedCertificateResponse(ctx context.Context, r *client.TrustedCertificateResponse, state *trustedCertificateResourceModel, expectedValues *trustedCertificateResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("trusted-certificate")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Certificate = types.StringValue(r.Certificate)

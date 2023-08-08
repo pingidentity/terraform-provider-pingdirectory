@@ -48,6 +48,7 @@ func (r *httpConfigurationDataSource) Configure(_ context.Context, req datasourc
 
 type httpConfigurationDataSourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
+	Type                                  types.String `tfsdk:"type"`
 	IncludeStackTracesInErrorPages        types.Bool   `tfsdk:"include_stack_traces_in_error_pages"`
 	IncludeServletInformationInErrorPages types.Bool   `tfsdk:"include_servlet_information_in_error_pages"`
 }
@@ -57,6 +58,12 @@ func (r *httpConfigurationDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Http Configuration.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of HTTP Configuration resource. Options are ['http-configuration']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"include_stack_traces_in_error_pages": schema.BoolAttribute{
 				Description: "Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.",
 				Required:    false,
@@ -77,6 +84,7 @@ func (r *httpConfigurationDataSource) Schema(ctx context.Context, req datasource
 
 // Read a HttpConfigurationResponse object into the model struct
 func readHttpConfigurationResponseDataSource(ctx context.Context, r *client.HttpConfigurationResponse, state *httpConfigurationDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("http-configuration")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.IncludeStackTracesInErrorPages = internaltypes.BoolTypeOrNil(r.IncludeStackTracesInErrorPages)

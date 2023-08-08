@@ -53,7 +53,6 @@ Manages a Cipher Stream Provider.
 - `trust_store_file` (String) The path to a file containing the information needed to trust the certificate presented by the Vault servers.
 - `trust_store_pin` (String, Sensitive) The passphrase needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
 - `trust_store_type` (String) The store type for the specified trust store file. The value should likely be one of "JKS" or "PKCS12".
-- `type` (String) The type of Cipher Stream Provider resource. Options are ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'wait-for-passphrase', 'conjur', 'pkcs11', 'vault', 'third-party']
 - `vault_authentication_method` (String) The mechanism used to authenticate to the Vault server.
 - `vault_encryption_metadata_file` (String) The path to a file that will hold metadata about the encryption performed by this Vault Cipher Stream Provider.
 - `vault_external_server` (String) An external server definition with information needed to connect and authenticate to the Vault server.
@@ -68,6 +67,7 @@ Manages a Cipher Stream Provider.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Cipher Stream Provider resource. Options are ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'wait-for-passphrase', 'conjur', 'pkcs11', 'vault', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

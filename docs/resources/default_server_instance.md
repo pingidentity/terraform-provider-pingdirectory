@@ -38,7 +38,6 @@ provider "pingdirectory" {
 
 resource "pingdirectory_default_directory_server_instance" "myServerInstance" {
   name                 = "MyServerInstance"
-  type                 = "directory"
   server_instance_name = "MyDirectoryServerInstance"
   server_version       = "9.3.0.0"
 }
@@ -50,7 +49,6 @@ resource "pingdirectory_default_directory_server_instance" "myServerInstance" {
 ### Required
 
 - `name` (String) Name of this config object.
-- `type` (String) The type of Server Instance resource. Options are ['proxy', 'metrics-engine', 'authorize', 'directory', 'sync']
 
 ### Optional
 
@@ -84,6 +82,7 @@ resource "pingdirectory_default_directory_server_instance" "myServerInstance" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Server Instance resource. Options are ['proxy', 'metrics-engine', 'authorize', 'directory', 'sync']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

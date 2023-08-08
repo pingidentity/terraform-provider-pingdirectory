@@ -60,6 +60,7 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAd
 
 ### Optional
 
+- `type` (String) The type of Delegated Admin Correlated REST Resource resource. Options are ['delegated-admin-correlated-rest-resource']
 - `use_secondary_value_for_linking` (Boolean) Indicates whether links should be created using the secondary correlation attribute value.
 
 ### Read-Only

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -737,12 +739,13 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"generate-server-profile", "leave-lockdown-mode", "backup", "delay", "statically-defined", "collect-support-data", "ldif-export", "enter-lockdown-mode", "audit-data-security", "exec", "file-retention", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -758,284 +761,6 @@ func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resou
 }
 
 func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model recurringTaskResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Reason) && model.Type.ValueString() != "leave-lockdown-mode" && model.Type.ValueString() != "enter-lockdown-mode" {
-		resp.Diagnostics.AddError("Attribute 'reason' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'reason', the 'type' attribute must be one of ['leave-lockdown-mode', 'enter-lockdown-mode']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousReportAge) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_report_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_report_age', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.BackendID) && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'backend_id' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'backend_id', the 'type' attribute must be one of ['ldif-export']")
-	}
-	if internaltypes.IsDefined(model.LogFileHeadCollectionSize) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'log_file_head_collection_size' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file_head_collection_size', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousLDIFExportCount) && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_ldif_export_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_ldif_export_count', the 'type' attribute must be one of ['ldif-export']")
-	}
-	if internaltypes.IsDefined(model.Sign) && model.Type.ValueString() != "backup" && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'sign' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sign', the 'type' attribute must be one of ['backup', 'ldif-export']")
-	}
-	if internaltypes.IsDefined(model.TaskAttributeValue) && model.Type.ValueString() != "statically-defined" {
-		resp.Diagnostics.AddError("Attribute 'task_attribute_value' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_attribute_value', the 'type' attribute must be one of ['statically-defined']")
-	}
-	if internaltypes.IsDefined(model.LogDuration) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'log_duration' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_duration', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.OutputDirectory) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'output_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_directory', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousOutputFileCount) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_output_file_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_output_file_count', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.RetainAggregateFileSize) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'retain_aggregate_file_size' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_aggregate_file_size', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.LdapURLForSearchExpectedToReturnEntries) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'ldap_url_for_search_expected_to_return_entries' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldap_url_for_search_expected_to_return_entries', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.ReportCount) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'report_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'report_count', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousSupportDataArchiveAge) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_support_data_archive_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_support_data_archive_age', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousLDIFExportAge) && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_ldif_export_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_ldif_export_age', the 'type' attribute must be one of ['ldif-export']")
-	}
-	if internaltypes.IsDefined(model.BaseOutputDirectory) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'base_output_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_output_directory', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.SecurityLevel) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'security_level' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'security_level', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.JstackCount) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'jstack_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jstack_count', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.LogFileTailCollectionSize) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'log_file_tail_collection_size' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file_tail_collection_size', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.Compress) && model.Type.ValueString() != "backup" && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'compress' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compress', the 'type' attribute must be one of ['backup', 'ldif-export']")
-	}
-	if internaltypes.IsDefined(model.IncludeExpensiveData) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'include_expensive_data' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_expensive_data', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainFileAge) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'retain_file_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_file_age', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.ExcludeBackendID) && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'exclude_backend_id' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_backend_id', the 'type' attribute must be one of ['ldif-export']")
-	}
-	if internaltypes.IsDefined(model.IncludeFilter) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'include_filter' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_filter', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.LogCommandOutput) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'log_command_output' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_command_output', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.DurationToWaitForSearchToReturnEntries) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'duration_to_wait_for_search_to_return_entries' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'duration_to_wait_for_search_to_return_entries', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.ExcludedBackendID) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'excluded_backend_id' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_backend_id', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.EncryptionPassphraseFile) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'encryption_passphrase_file' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_passphrase_file', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.CommandPath) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'command_path' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'command_path', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.IncludeExtensionSource) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'include_extension_source' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_extension_source', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousProfileAge) && model.Type.ValueString() != "generate-server-profile" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_profile_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_profile_age', the 'type' attribute must be one of ['generate-server-profile']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousSupportDataArchiveCount) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_support_data_archive_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_support_data_archive_count', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.TaskReturnStateIfTimeoutIsEncountered) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'task_return_state_if_timeout_is_encountered' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_return_state_if_timeout_is_encountered', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.ReportIntervalSeconds) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'report_interval_seconds' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'report_interval_seconds', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.IncludeBinaryFiles) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'include_binary_files' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_binary_files', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.RetainFileCount) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'retain_file_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_file_count', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.FilenamePattern) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'filename_pattern' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filename_pattern', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.TargetDirectory) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'target_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'target_directory', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.TaskJavaClass) && model.Type.ValueString() != "statically-defined" {
-		resp.Diagnostics.AddError("Attribute 'task_java_class' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_java_class', the 'type' attribute must be one of ['statically-defined']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousFullBackupCount) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_full_backup_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_full_backup_count', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.SearchTimeLimit) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'search_time_limit' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_time_limit', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.IncludedBackendID) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'included_backend_id' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_backend_id', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousFullBackupAge) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_full_backup_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_full_backup_age', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousReportCount) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_report_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_report_count', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.TaskCompletionStateForNonzeroExitCode) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'task_completion_state_for_nonzero_exit_code' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_completion_state_for_nonzero_exit_code', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.MaxMegabytesPerSecond) && model.Type.ValueString() != "backup" && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'max_megabytes_per_second' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_megabytes_per_second', the 'type' attribute must be one of ['backup', 'ldif-export']")
-	}
-	if internaltypes.IsDefined(model.Encrypt) && model.Type.ValueString() != "backup" && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'encrypt' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encrypt', the 'type' attribute must be one of ['backup', 'ldif-export']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousOutputFileAge) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_output_file_age' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_output_file_age', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.Backend) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'backend' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'backend', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.DurationToWaitForWorkQueueIdle) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'duration_to_wait_for_work_queue_idle' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'duration_to_wait_for_work_queue_idle', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.CommandArguments) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'command_arguments' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'command_arguments', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.RetainPreviousProfileCount) && model.Type.ValueString() != "generate-server-profile" {
-		resp.Diagnostics.AddError("Attribute 'retain_previous_profile_count' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retain_previous_profile_count', the 'type' attribute must be one of ['generate-server-profile']")
-	}
-	if internaltypes.IsDefined(model.BackupDirectory) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'backup_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'backup_directory', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.UseSequentialMode) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'use_sequential_mode' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_sequential_mode', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.SearchInterval) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'search_interval' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_interval', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.SleepDuration) && model.Type.ValueString() != "delay" {
-		resp.Diagnostics.AddError("Attribute 'sleep_duration' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sleep_duration', the 'type' attribute must be one of ['delay']")
-	}
-	if internaltypes.IsDefined(model.IncludeReplicationStateDump) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'include_replication_state_dump' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_replication_state_dump', the 'type' attribute must be one of ['collect-support-data']")
-	}
-	if internaltypes.IsDefined(model.WorkingDirectory) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'working_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'working_directory', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.IncludePath) && model.Type.ValueString() != "generate-server-profile" {
-		resp.Diagnostics.AddError("Attribute 'include_path' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_path', the 'type' attribute must be one of ['generate-server-profile']")
-	}
-	if internaltypes.IsDefined(model.TaskObjectClass) && model.Type.ValueString() != "statically-defined" {
-		resp.Diagnostics.AddError("Attribute 'task_object_class' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_object_class', the 'type' attribute must be one of ['statically-defined']")
-	}
-	if internaltypes.IsDefined(model.DataSecurityAuditor) && model.Type.ValueString() != "audit-data-security" {
-		resp.Diagnostics.AddError("Attribute 'data_security_auditor' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'data_security_auditor', the 'type' attribute must be one of ['audit-data-security']")
-	}
-	if internaltypes.IsDefined(model.LdifDirectory) && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'ldif_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldif_directory', the 'type' attribute must be one of ['ldif-export']")
-	}
-	if internaltypes.IsDefined(model.ProfileDirectory) && model.Type.ValueString() != "generate-server-profile" {
-		resp.Diagnostics.AddError("Attribute 'profile_directory' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'profile_directory', the 'type' attribute must be one of ['generate-server-profile']")
-	}
-	if internaltypes.IsDefined(model.EncryptionSettingsDefinitionID) && model.Type.ValueString() != "backup" && model.Type.ValueString() != "ldif-export" {
-		resp.Diagnostics.AddError("Attribute 'encryption_settings_definition_id' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_settings_definition_id', the 'type' attribute must be one of ['backup', 'ldif-export']")
-	}
-	if internaltypes.IsDefined(model.CommandOutputFileBaseName) && model.Type.ValueString() != "exec" {
-		resp.Diagnostics.AddError("Attribute 'command_output_file_base_name' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'command_output_file_base_name', the 'type' attribute must be one of ['exec']")
-	}
-	if internaltypes.IsDefined(model.TimestampFormat) && model.Type.ValueString() != "file-retention" {
-		resp.Diagnostics.AddError("Attribute 'timestamp_format' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'timestamp_format', the 'type' attribute must be one of ['file-retention']")
-	}
-	if internaltypes.IsDefined(model.Comment) && model.Type.ValueString() != "collect-support-data" {
-		resp.Diagnostics.AddError("Attribute 'comment' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'comment', the 'type' attribute must be one of ['collect-support-data']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -1045,10 +770,415 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 		// Every remaining property is supported
 		return
 	}
+	var model recurringTaskResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsRecurringTask() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"delay"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+				path.MatchRoot("sleep_duration"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_aggregate_file_size"),
+				path.MatchRoot("retain_file_age"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("reason"),
+			path.MatchRoot("type"),
+			[]string{"leave-lockdown-mode", "enter-lockdown-mode"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_age"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_head_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_count"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sign"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_attribute_value"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_duration"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_directory"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_count"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_aggregate_file_size"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("report_count"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_age"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_output_directory"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("security_level"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jstack_count"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_tail_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_expensive_data"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_file_age"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_command_output"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("duration_to_wait_for_search_to_return_entries"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_backend_id"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_passphrase_file"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_path"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extension_source"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_age"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_return_state_if_timeout_is_encountered"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("report_interval_seconds"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_binary_files"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_file_count"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filename_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_directory"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_java_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_full_backup_count"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_backend_id"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_full_backup_age"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_count"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_completion_state_for_nonzero_exit_code"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_megabytes_per_second"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_age"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_arguments"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_count"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backup_directory"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_sequential_mode"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_interval"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sleep_duration"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_replication_state_dump"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("working_directory"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_object_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("data_security_auditor"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_directory"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_output_file_base_name"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("timestamp_format"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("comment"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+	}
+}
+
+// Add config validators
+func (r recurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRecurringTask()
+}
+
+// Add config validators
+func (r defaultRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRecurringTask()
 }
 
 // Add optional fields to create request for generate-server-profile recurring-task
@@ -2767,40 +2897,40 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 
 	// Read the existing configuration
 	var state recurringTaskResourceModel
-	if plan.Type.ValueString() == "generate-server-profile" {
+	if readResponse.GenerateServerProfileRecurringTaskResponse != nil {
 		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "leave-lockdown-mode" {
+	if readResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "backup" {
+	if readResponse.BackupRecurringTaskResponse != nil {
 		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "delay" {
+	if readResponse.DelayRecurringTaskResponse != nil {
 		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "statically-defined" {
+	if readResponse.StaticallyDefinedRecurringTaskResponse != nil {
 		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "collect-support-data" {
+	if readResponse.CollectSupportDataRecurringTaskResponse != nil {
 		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldif-export" {
+	if readResponse.LdifExportRecurringTaskResponse != nil {
 		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "enter-lockdown-mode" {
+	if readResponse.EnterLockdownModeRecurringTaskResponse != nil {
 		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "audit-data-security" {
+	if readResponse.AuditDataSecurityRecurringTaskResponse != nil {
 		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "exec" {
+	if readResponse.ExecRecurringTaskResponse != nil {
 		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-retention" {
+	if readResponse.FileRetentionRecurringTaskResponse != nil {
 		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyRecurringTaskResponse != nil {
 		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2825,40 +2955,40 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generate-server-profile" {
+		if updateResponse.GenerateServerProfileRecurringTaskResponse != nil {
 			readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "leave-lockdown-mode" {
+		if updateResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 			readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupRecurringTaskResponse != nil {
 			readBackupRecurringTaskResponse(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "delay" {
+		if updateResponse.DelayRecurringTaskResponse != nil {
 			readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "statically-defined" {
+		if updateResponse.StaticallyDefinedRecurringTaskResponse != nil {
 			readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataRecurringTaskResponse != nil {
 			readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif-export" {
+		if updateResponse.LdifExportRecurringTaskResponse != nil {
 			readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "enter-lockdown-mode" {
+		if updateResponse.EnterLockdownModeRecurringTaskResponse != nil {
 			readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "audit-data-security" {
+		if updateResponse.AuditDataSecurityRecurringTaskResponse != nil {
 			readAuditDataSecurityRecurringTaskResponse(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecRecurringTaskResponse != nil {
 			readExecRecurringTaskResponse(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-retention" {
+		if updateResponse.FileRetentionRecurringTaskResponse != nil {
 			readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2990,40 +3120,40 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generate-server-profile" {
+		if updateResponse.GenerateServerProfileRecurringTaskResponse != nil {
 			readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "leave-lockdown-mode" {
+		if updateResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 			readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupRecurringTaskResponse != nil {
 			readBackupRecurringTaskResponse(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "delay" {
+		if updateResponse.DelayRecurringTaskResponse != nil {
 			readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "statically-defined" {
+		if updateResponse.StaticallyDefinedRecurringTaskResponse != nil {
 			readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataRecurringTaskResponse != nil {
 			readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif-export" {
+		if updateResponse.LdifExportRecurringTaskResponse != nil {
 			readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "enter-lockdown-mode" {
+		if updateResponse.EnterLockdownModeRecurringTaskResponse != nil {
 			readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "audit-data-security" {
+		if updateResponse.AuditDataSecurityRecurringTaskResponse != nil {
 			readAuditDataSecurityRecurringTaskResponse(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecRecurringTaskResponse != nil {
 			readExecRecurringTaskResponse(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-retention" {
+		if updateResponse.FileRetentionRecurringTaskResponse != nil {
 			readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -42,7 +42,6 @@ Manages a Search Entry Criteria.
 - `not_all_included_entry_group_dn` (Set of String) Specifies the DN of a group in which the user associated with the entry should not be a member to be included in this Simple Search Entry Criteria. If any group DNs are provided, then the entry must not be a member of at least one of them (that is, the entry may be a member of zero or more of the specified groups, but not of all of them).
 - `not_all_included_search_entry_criteria` (Set of String) Specifies a search entry criteria object that should not match the associated search result entry in order to match the aggregate search entry criteria. If one or more not-all-included search entry criteria objects are provided, then a search result entry must not match all of them (that is, it may match zero or more of them, but it must not match all of them) in order to match the aggregate search entry criteria.
 - `request_criteria` (String) Specifies a request criteria object that must match the associated request for entries included in this Simple Search Entry Criteria. of them.
-- `type` (String) The type of Search Entry Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 ### Read-Only
 
@@ -50,6 +49,7 @@ Manages a Search Entry Criteria.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Search Entry Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

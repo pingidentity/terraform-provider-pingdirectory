@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -58,6 +60,7 @@ type alarmManagerResourceModel struct {
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
 	RequiredActions        types.Set    `tfsdk:"required_actions"`
+	Type                   types.String `tfsdk:"type"`
 	DefaultGaugeAlertLevel types.String `tfsdk:"default_gauge_alert_level"`
 	GeneratedAlertTypes    types.Set    `tfsdk:"generated_alert_types"`
 	SuppressedAlarm        types.Set    `tfsdk:"suppressed_alarm"`
@@ -68,6 +71,15 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Manages a Alarm Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Alarm Manager resource. Options are ['alarm-manager']",
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"alarm-manager"}...),
+				},
+			},
 			"default_gauge_alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by the Alarm Manager.",
 				Optional:    true,
@@ -102,6 +114,7 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 
 // Read a AlarmManagerResponse object into the model struct
 func readAlarmManagerResponse(ctx context.Context, r *client.AlarmManagerResponse, state *alarmManagerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("alarm-manager")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DefaultGaugeAlertLevel = types.StringValue(r.DefaultGaugeAlertLevel.String())

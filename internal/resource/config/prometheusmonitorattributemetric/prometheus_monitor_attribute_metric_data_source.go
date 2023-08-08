@@ -49,6 +49,7 @@ func (r *prometheusMonitorAttributeMetricDataSource) Configure(_ context.Context
 
 type prometheusMonitorAttributeMetricDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Type                     types.String `tfsdk:"type"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	MetricName               types.String `tfsdk:"metric_name"`
 	MonitorAttributeName     types.String `tfsdk:"monitor_attribute_name"`
@@ -64,6 +65,12 @@ func (r *prometheusMonitorAttributeMetricDataSource) Schema(ctx context.Context,
 	schemaDef := schema.Schema{
 		Description: "Describes a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -125,6 +132,7 @@ func (r *prometheusMonitorAttributeMetricDataSource) ValidateConfig(ctx context.
 
 // Read a PrometheusMonitorAttributeMetricResponse object into the model struct
 func readPrometheusMonitorAttributeMetricResponseDataSource(ctx context.Context, r *client.PrometheusMonitorAttributeMetricResponse, state *prometheusMonitorAttributeMetricDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("prometheus-monitor-attribute-metric")
 	state.Id = types.StringValue(r.Id)
 	state.MetricName = types.StringValue(r.MetricName)
 	state.MonitorAttributeName = types.StringValue(r.MonitorAttributeName)

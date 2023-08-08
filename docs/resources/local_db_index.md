@@ -63,6 +63,7 @@ resource "pingdirectory_local_db_index" "myLocalDbIndex" {
 - `prime_internal_nodes_only` (Boolean) If this option is enabled and this index's backend is configured to prime indexes using the preload method, then only the internal database nodes (i.e., the database keys but not values) should be primed when the backend is initialized.
 - `substring_index_entry_limit` (Number) Specifies, for substring indexes, the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained. Setting a large limit can dramatically increase the database size on disk and have a big impact on server performance if the indexed attribute is modified frequently. When a very large limit is required, creating a dedicated composite index with an index-filter-pattern of (attr=*?*) will give the best balance between search and update performance.
 - `substring_length` (Number) The length of substrings in a substring index.
+- `type` (String) The type of Local DB Index resource. Options are ['local-db-index']
 
 ### Read-Only
 

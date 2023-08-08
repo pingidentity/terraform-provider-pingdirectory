@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type debugTargetResourceModel struct {
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	Type                     types.String `tfsdk:"type"`
 	LogPublisherName         types.String `tfsdk:"log_publisher_name"`
 	DebugScope               types.String `tfsdk:"debug_scope"`
 	DebugLevel               types.String `tfsdk:"debug_level"`
@@ -112,6 +116,15 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 	schemaDef := schema.Schema{
 		Description: "Manages a Debug Target.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Debug Target resource. Options are ['debug-target']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("debug-target"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"debug-target"}...),
+				},
+			},
 			"log_publisher_name": schema.StringAttribute{
 				Description: "Name of the parent Log Publisher",
 				Required:    true,
@@ -178,8 +191,13 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"debug_scope", "log_publisher_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -221,6 +239,7 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 
 // Read a DebugTargetResponse object into the model struct
 func readDebugTargetResponse(ctx context.Context, r *client.DebugTargetResponse, state *debugTargetResourceModel, expectedValues *debugTargetResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("debug-target")
 	state.Id = types.StringValue(r.Id)
 	state.DebugScope = types.StringValue(r.DebugScope)
 	state.DebugLevel = types.StringValue(r.DebugLevel.String())

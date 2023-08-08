@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -485,12 +487,13 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"character-set", "similarity-based", "attribute-value", "custom", "repeated-characters", "dictionary", "haystack", "utf-8", "groovy-scripted", "pwned-passwords", "disallowed-characters", "length-based", "regular-expression", "unique-characters", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -506,176 +509,6 @@ func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model passwordValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.CharacterSet) && model.Type.ValueString() != "character-set" && model.Type.ValueString() != "repeated-characters" {
-		resp.Diagnostics.AddError("Attribute 'character_set' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'character_set', the 'type' attribute must be one of ['character-set', 'repeated-characters']")
-	}
-	if internaltypes.IsDefined(model.PwnedPasswordsBaseURL) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'pwned_passwords_base_url' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pwned_passwords_base_url', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.DisallowedLeadingCharacters) && model.Type.ValueString() != "disallowed-characters" {
-		resp.Diagnostics.AddError("Attribute 'disallowed_leading_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disallowed_leading_characters', the 'type' attribute must be one of ['disallowed-characters']")
-	}
-	if internaltypes.IsDefined(model.MaxPasswordLength) && model.Type.ValueString() != "length-based" {
-		resp.Diagnostics.AddError("Attribute 'max_password_length' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_password_length', the 'type' attribute must be one of ['length-based']")
-	}
-	if internaltypes.IsDefined(model.InvokeForSelfChange) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'invoke_for_self_change' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'invoke_for_self_change', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.MinPasswordLength) && model.Type.ValueString() != "length-based" {
-		resp.Diagnostics.AddError("Attribute 'min_password_length' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_password_length', the 'type' attribute must be one of ['length-based']")
-	}
-	if internaltypes.IsDefined(model.KeyManagerProvider) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'key_manager_provider' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_manager_provider', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.IgnoreLeadingNonAlphabeticCharacters) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'ignore_leading_non_alphabetic_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ignore_leading_non_alphabetic_characters', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.InvokeForAdd) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'invoke_for_add' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'invoke_for_add', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.AcceptPasswordOnServiceError) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'accept_password_on_service_error' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'accept_password_on_service_error', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.TestAttributeValueSubstringOfPassword) && model.Type.ValueString() != "attribute-value" {
-		resp.Diagnostics.AddError("Attribute 'test_attribute_value_substring_of_password' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'test_attribute_value_substring_of_password', the 'type' attribute must be one of ['attribute-value']")
-	}
-	if internaltypes.IsDefined(model.TrustManagerProvider) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'trust_manager_provider' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_manager_provider', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.MatchPattern) && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_pattern' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_pattern', the 'type' attribute must be one of ['regular-expression']")
-	}
-	if internaltypes.IsDefined(model.MinimumRequiredCharacterSets) && model.Type.ValueString() != "character-set" {
-		resp.Diagnostics.AddError("Attribute 'minimum_required_character_sets' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minimum_required_character_sets', the 'type' attribute must be one of ['character-set']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.DisallowedCharacters) && model.Type.ValueString() != "disallowed-characters" {
-		resp.Diagnostics.AddError("Attribute 'disallowed_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disallowed_characters', the 'type' attribute must be one of ['disallowed-characters']")
-	}
-	if internaltypes.IsDefined(model.MinUniqueCharacters) && model.Type.ValueString() != "unique-characters" {
-		resp.Diagnostics.AddError("Attribute 'min_unique_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_unique_characters', the 'type' attribute must be one of ['unique-characters']")
-	}
-	if internaltypes.IsDefined(model.MinPasswordDifference) && model.Type.ValueString() != "similarity-based" {
-		resp.Diagnostics.AddError("Attribute 'min_password_difference' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_password_difference', the 'type' attribute must be one of ['similarity-based']")
-	}
-	if internaltypes.IsDefined(model.AllowedCharacterType) && model.Type.ValueString() != "utf-8" {
-		resp.Diagnostics.AddError("Attribute 'allowed_character_type' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_character_type', the 'type' attribute must be one of ['utf-8']")
-	}
-	if internaltypes.IsDefined(model.StripDiacriticalMarks) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'strip_diacritical_marks' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'strip_diacritical_marks', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.AllowNonAsciiCharacters) && model.Type.ValueString() != "utf-8" {
-		resp.Diagnostics.AddError("Attribute 'allow_non_ascii_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_non_ascii_characters', the 'type' attribute must be one of ['utf-8']")
-	}
-	if internaltypes.IsDefined(model.MinimumAttributeValueLengthForSubstringMatches) && model.Type.ValueString() != "attribute-value" {
-		resp.Diagnostics.AddError("Attribute 'minimum_attribute_value_length_for_substring_matches' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minimum_attribute_value_length_for_substring_matches', the 'type' attribute must be one of ['attribute-value']")
-	}
-	if internaltypes.IsDefined(model.InvokeForAdminReset) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'invoke_for_admin_reset' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'invoke_for_admin_reset', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.CaseSensitiveValidation) && model.Type.ValueString() != "dictionary" && model.Type.ValueString() != "unique-characters" && model.Type.ValueString() != "repeated-characters" {
-		resp.Diagnostics.AddError("Attribute 'case_sensitive_validation' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'case_sensitive_validation', the 'type' attribute must be one of ['dictionary', 'unique-characters', 'repeated-characters']")
-	}
-	if internaltypes.IsDefined(model.DisallowedTrailingCharacters) && model.Type.ValueString() != "disallowed-characters" {
-		resp.Diagnostics.AddError("Attribute 'disallowed_trailing_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disallowed_trailing_characters', the 'type' attribute must be one of ['disallowed-characters']")
-	}
-	if internaltypes.IsDefined(model.AllowUnclassifiedCharacters) && model.Type.ValueString() != "character-set" {
-		resp.Diagnostics.AddError("Attribute 'allow_unclassified_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_unclassified_characters', the 'type' attribute must be one of ['character-set']")
-	}
-	if internaltypes.IsDefined(model.MatchBehavior) && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_behavior' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_behavior', the 'type' attribute must be one of ['regular-expression']")
-	}
-	if internaltypes.IsDefined(model.TestPasswordSubstringOfAttributeValue) && model.Type.ValueString() != "attribute-value" {
-		resp.Diagnostics.AddError("Attribute 'test_password_substring_of_attribute_value' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'test_password_substring_of_attribute_value', the 'type' attribute must be one of ['attribute-value']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "pwned-passwords" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['pwned-passwords']")
-	}
-	if internaltypes.IsDefined(model.MaximumAllowedPercentOfPassword) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'maximum_allowed_percent_of_password' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_allowed_percent_of_password', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.MinimumAcceptableTimeToExhaustSearchSpace) && model.Type.ValueString() != "haystack" {
-		resp.Diagnostics.AddError("Attribute 'minimum_acceptable_time_to_exhaust_search_space' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minimum_acceptable_time_to_exhaust_search_space', the 'type' attribute must be one of ['haystack']")
-	}
-	if internaltypes.IsDefined(model.DictionaryFile) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'dictionary_file' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'dictionary_file', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.IgnoreTrailingNonAlphabeticCharacters) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'ignore_trailing_non_alphabetic_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ignore_trailing_non_alphabetic_characters', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.MatchAttribute) && model.Type.ValueString() != "attribute-value" {
-		resp.Diagnostics.AddError("Attribute 'match_attribute' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_attribute', the 'type' attribute must be one of ['attribute-value']")
-	}
-	if internaltypes.IsDefined(model.MaxConsecutiveLength) && model.Type.ValueString() != "repeated-characters" {
-		resp.Diagnostics.AddError("Attribute 'max_consecutive_length' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_consecutive_length', the 'type' attribute must be one of ['repeated-characters']")
-	}
-	if internaltypes.IsDefined(model.AlternativePasswordCharacterMapping) && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'alternative_password_character_mapping' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alternative_password_character_mapping', the 'type' attribute must be one of ['dictionary']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AssumedPasswordGuessesPerSecond) && model.Type.ValueString() != "haystack" {
-		resp.Diagnostics.AddError("Attribute 'assumed_password_guesses_per_second' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'assumed_password_guesses_per_second', the 'type' attribute must be one of ['haystack']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.TestReversedPassword) && model.Type.ValueString() != "attribute-value" && model.Type.ValueString() != "dictionary" {
-		resp.Diagnostics.AddError("Attribute 'test_reversed_password' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'test_reversed_password', the 'type' attribute must be one of ['attribute-value', 'dictionary']")
-	}
-	if internaltypes.IsDefined(model.AllowUnknownCharacters) && model.Type.ValueString() != "utf-8" {
-		resp.Diagnostics.AddError("Attribute 'allow_unknown_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_unknown_characters', the 'type' attribute must be one of ['utf-8']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -685,6 +518,8 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 		// Every remaining property is supported
 		return
 	}
+	var model passwordValidatorResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "utf-8" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"utf_8\"")
@@ -705,6 +540,241 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPasswordValidator() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("disallowed_leading_characters"),
+				path.MatchRoot("disallowed_trailing_characters"),
+				path.MatchRoot("disallowed_characters"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("character_set"),
+			path.MatchRoot("type"),
+			[]string{"character-set", "repeated-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pwned_passwords_base_url"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_leading_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_password_length"),
+			path.MatchRoot("type"),
+			[]string{"length-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_self_change"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_password_length"),
+			path.MatchRoot("type"),
+			[]string{"length-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ignore_leading_non_alphabetic_characters"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_add"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("accept_password_on_service_error"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("test_attribute_value_substring_of_password"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_required_character_sets"),
+			path.MatchRoot("type"),
+			[]string{"character-set"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_unique_characters"),
+			path.MatchRoot("type"),
+			[]string{"unique-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_password_difference"),
+			path.MatchRoot("type"),
+			[]string{"similarity-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_character_type"),
+			path.MatchRoot("type"),
+			[]string{"utf-8"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("strip_diacritical_marks"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_non_ascii_characters"),
+			path.MatchRoot("type"),
+			[]string{"utf-8"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_attribute_value_length_for_substring_matches"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_admin_reset"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("case_sensitive_validation"),
+			path.MatchRoot("type"),
+			[]string{"repeated-characters", "dictionary", "unique-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_trailing_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_unclassified_characters"),
+			path.MatchRoot("type"),
+			[]string{"character-set"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_behavior"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("test_password_substring_of_attribute_value"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_allowed_percent_of_password"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_acceptable_time_to_exhaust_search_space"),
+			path.MatchRoot("type"),
+			[]string{"haystack"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dictionary_file"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ignore_trailing_non_alphabetic_characters"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_attribute"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_consecutive_length"),
+			path.MatchRoot("type"),
+			[]string{"repeated-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alternative_password_character_mapping"),
+			path.MatchRoot("type"),
+			[]string{"dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assumed_password_guesses_per_second"),
+			path.MatchRoot("type"),
+			[]string{"haystack"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("test_reversed_password"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value", "dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_unknown_characters"),
+			path.MatchRoot("type"),
+			[]string{"utf-8"},
+		),
+	}
+}
+
+// Add config validators
+func (r passwordValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordValidator()
+}
+
+// Add config validators
+func (r defaultPasswordValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordValidator()
 }
 
 // Add optional fields to create request for character-set password-validator
@@ -2082,49 +2152,49 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state passwordValidatorResourceModel
-	if plan.Type.ValueString() == "character-set" {
+	if readResponse.CharacterSetPasswordValidatorResponse != nil {
 		readCharacterSetPasswordValidatorResponse(ctx, readResponse.CharacterSetPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "similarity-based" {
+	if readResponse.SimilarityBasedPasswordValidatorResponse != nil {
 		readSimilarityBasedPasswordValidatorResponse(ctx, readResponse.SimilarityBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "attribute-value" {
+	if readResponse.AttributeValuePasswordValidatorResponse != nil {
 		readAttributeValuePasswordValidatorResponse(ctx, readResponse.AttributeValuePasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomPasswordValidatorResponse != nil {
 		readCustomPasswordValidatorResponse(ctx, readResponse.CustomPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "repeated-characters" {
+	if readResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 		readRepeatedCharactersPasswordValidatorResponse(ctx, readResponse.RepeatedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "dictionary" {
+	if readResponse.DictionaryPasswordValidatorResponse != nil {
 		readDictionaryPasswordValidatorResponse(ctx, readResponse.DictionaryPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "haystack" {
+	if readResponse.HaystackPasswordValidatorResponse != nil {
 		readHaystackPasswordValidatorResponse(ctx, readResponse.HaystackPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "utf-8" {
+	if readResponse.Utf8PasswordValidatorResponse != nil {
 		readUtf8PasswordValidatorResponse(ctx, readResponse.Utf8PasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedPasswordValidatorResponse != nil {
 		readGroovyScriptedPasswordValidatorResponse(ctx, readResponse.GroovyScriptedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pwned-passwords" {
+	if readResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 		readPwnedPasswordsPasswordValidatorResponse(ctx, readResponse.PwnedPasswordsPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disallowed-characters" {
+	if readResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 		readDisallowedCharactersPasswordValidatorResponse(ctx, readResponse.DisallowedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "length-based" {
+	if readResponse.LengthBasedPasswordValidatorResponse != nil {
 		readLengthBasedPasswordValidatorResponse(ctx, readResponse.LengthBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "regular-expression" {
+	if readResponse.RegularExpressionPasswordValidatorResponse != nil {
 		readRegularExpressionPasswordValidatorResponse(ctx, readResponse.RegularExpressionPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unique-characters" {
+	if readResponse.UniqueCharactersPasswordValidatorResponse != nil {
 		readUniqueCharactersPasswordValidatorResponse(ctx, readResponse.UniqueCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPasswordValidatorResponse != nil {
 		readThirdPartyPasswordValidatorResponse(ctx, readResponse.ThirdPartyPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2149,49 +2219,49 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "character-set" {
+		if updateResponse.CharacterSetPasswordValidatorResponse != nil {
 			readCharacterSetPasswordValidatorResponse(ctx, updateResponse.CharacterSetPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "similarity-based" {
+		if updateResponse.SimilarityBasedPasswordValidatorResponse != nil {
 			readSimilarityBasedPasswordValidatorResponse(ctx, updateResponse.SimilarityBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-value" {
+		if updateResponse.AttributeValuePasswordValidatorResponse != nil {
 			readAttributeValuePasswordValidatorResponse(ctx, updateResponse.AttributeValuePasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomPasswordValidatorResponse != nil {
 			readCustomPasswordValidatorResponse(ctx, updateResponse.CustomPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "repeated-characters" {
+		if updateResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 			readRepeatedCharactersPasswordValidatorResponse(ctx, updateResponse.RepeatedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dictionary" {
+		if updateResponse.DictionaryPasswordValidatorResponse != nil {
 			readDictionaryPasswordValidatorResponse(ctx, updateResponse.DictionaryPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "haystack" {
+		if updateResponse.HaystackPasswordValidatorResponse != nil {
 			readHaystackPasswordValidatorResponse(ctx, updateResponse.HaystackPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "utf-8" {
+		if updateResponse.Utf8PasswordValidatorResponse != nil {
 			readUtf8PasswordValidatorResponse(ctx, updateResponse.Utf8PasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordValidatorResponse != nil {
 			readGroovyScriptedPasswordValidatorResponse(ctx, updateResponse.GroovyScriptedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pwned-passwords" {
+		if updateResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 			readPwnedPasswordsPasswordValidatorResponse(ctx, updateResponse.PwnedPasswordsPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disallowed-characters" {
+		if updateResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 			readDisallowedCharactersPasswordValidatorResponse(ctx, updateResponse.DisallowedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "length-based" {
+		if updateResponse.LengthBasedPasswordValidatorResponse != nil {
 			readLengthBasedPasswordValidatorResponse(ctx, updateResponse.LengthBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionPasswordValidatorResponse != nil {
 			readRegularExpressionPasswordValidatorResponse(ctx, updateResponse.RegularExpressionPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unique-characters" {
+		if updateResponse.UniqueCharactersPasswordValidatorResponse != nil {
 			readUniqueCharactersPasswordValidatorResponse(ctx, updateResponse.UniqueCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordValidatorResponse != nil {
 			readThirdPartyPasswordValidatorResponse(ctx, updateResponse.ThirdPartyPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2332,49 +2402,49 @@ func updatePasswordValidator(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "character-set" {
+		if updateResponse.CharacterSetPasswordValidatorResponse != nil {
 			readCharacterSetPasswordValidatorResponse(ctx, updateResponse.CharacterSetPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "similarity-based" {
+		if updateResponse.SimilarityBasedPasswordValidatorResponse != nil {
 			readSimilarityBasedPasswordValidatorResponse(ctx, updateResponse.SimilarityBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-value" {
+		if updateResponse.AttributeValuePasswordValidatorResponse != nil {
 			readAttributeValuePasswordValidatorResponse(ctx, updateResponse.AttributeValuePasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomPasswordValidatorResponse != nil {
 			readCustomPasswordValidatorResponse(ctx, updateResponse.CustomPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "repeated-characters" {
+		if updateResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 			readRepeatedCharactersPasswordValidatorResponse(ctx, updateResponse.RepeatedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dictionary" {
+		if updateResponse.DictionaryPasswordValidatorResponse != nil {
 			readDictionaryPasswordValidatorResponse(ctx, updateResponse.DictionaryPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "haystack" {
+		if updateResponse.HaystackPasswordValidatorResponse != nil {
 			readHaystackPasswordValidatorResponse(ctx, updateResponse.HaystackPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "utf-8" {
+		if updateResponse.Utf8PasswordValidatorResponse != nil {
 			readUtf8PasswordValidatorResponse(ctx, updateResponse.Utf8PasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordValidatorResponse != nil {
 			readGroovyScriptedPasswordValidatorResponse(ctx, updateResponse.GroovyScriptedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pwned-passwords" {
+		if updateResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 			readPwnedPasswordsPasswordValidatorResponse(ctx, updateResponse.PwnedPasswordsPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disallowed-characters" {
+		if updateResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 			readDisallowedCharactersPasswordValidatorResponse(ctx, updateResponse.DisallowedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "length-based" {
+		if updateResponse.LengthBasedPasswordValidatorResponse != nil {
 			readLengthBasedPasswordValidatorResponse(ctx, updateResponse.LengthBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionPasswordValidatorResponse != nil {
 			readRegularExpressionPasswordValidatorResponse(ctx, updateResponse.RegularExpressionPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unique-characters" {
+		if updateResponse.UniqueCharactersPasswordValidatorResponse != nil {
 			readUniqueCharactersPasswordValidatorResponse(ctx, updateResponse.UniqueCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordValidatorResponse != nil {
 			readThirdPartyPasswordValidatorResponse(ctx, updateResponse.ThirdPartyPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

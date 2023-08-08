@@ -65,4 +65,5 @@ data "pingdirectory_replication_server" "myReplicationServer" {
 - `replication_purge_delay` (String) Changes are guaranteed to be maintained in the changelog database for at least this duration. Setting target-database-size can allow additional changes to be maintained up to the configured size on disk.
 - `restricted_domain` (Set of String) Specifies the base DN of domains that are only replicated between server instances that belong to the same replication set.
 - `target_database_size` (String) The replication changelog database is allowed to grow up to this size even if changes are older than the configured replication-purge-delay.
+- `type` (String) The type of Replication Server resource. Options are ['replication-server']
 

@@ -32,7 +32,6 @@ Manages a Search Reference Criteria.
 - `not_all_included_reference_control` (Set of String) Specifies the OID of a control that should not be present in search result references included in this Simple Search Reference Criteria. If any control OIDs are provided, then the reference must not contain at least one of those controls (that is, it may contain zero or more of those controls, but not all of them).
 - `not_all_included_search_reference_criteria` (Set of String) Specifies a search reference criteria object that should not match the associated search result reference in order to match the aggregate search reference criteria. If one or more not-all-included search reference criteria objects are provided, then a search result reference must not match all of them (that is, it may match zero or more of them, but it must not match all of them) in order to match the aggregate search reference criteria.
 - `request_criteria` (String) Specifies a request criteria object that must match the associated request for references included in this Simple Search Reference Criteria.
-- `type` (String) The type of Search Reference Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 ### Read-Only
 
@@ -40,6 +39,7 @@ Manages a Search Reference Criteria.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Search Reference Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

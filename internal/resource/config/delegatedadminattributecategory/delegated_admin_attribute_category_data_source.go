@@ -48,6 +48,7 @@ func (r *delegatedAdminAttributeCategoryDataSource) Configure(_ context.Context,
 
 type delegatedAdminAttributeCategoryDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Type              types.String `tfsdk:"type"`
 	Description       types.String `tfsdk:"description"`
 	DisplayName       types.String `tfsdk:"display_name"`
 	DisplayOrderIndex types.Int64  `tfsdk:"display_order_index"`
@@ -58,6 +59,12 @@ func (r *delegatedAdminAttributeCategoryDataSource) Schema(ctx context.Context, 
 	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Attribute Category.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Attribute Category resource. Options are ['delegated-admin-attribute-category']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Attribute Category",
 				Required:    false,
@@ -82,6 +89,7 @@ func (r *delegatedAdminAttributeCategoryDataSource) Schema(ctx context.Context, 
 
 // Read a DelegatedAdminAttributeCategoryResponse object into the model struct
 func readDelegatedAdminAttributeCategoryResponseDataSource(ctx context.Context, r *client.DelegatedAdminAttributeCategoryResponse, state *delegatedAdminAttributeCategoryDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-attribute-category")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.DisplayName = types.StringValue(r.DisplayName)

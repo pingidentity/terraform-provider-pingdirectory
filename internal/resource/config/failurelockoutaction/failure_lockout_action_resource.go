@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -146,41 +147,47 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"delay-bind-response", "no-operation", "lock-account"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *failureLockoutActionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generate_account_status_notification"),
+			path.MatchRoot("type"),
+			[]string{"delay-bind-response", "no-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_blocking_delay"),
+			path.MatchRoot("type"),
+			[]string{"delay-bind-response"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay"),
+			path.MatchRoot("type"),
+			[]string{"delay-bind-response"},
+		),
+	}
 }
 
-func (r *defaultFailureLockoutActionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r failureLockoutActionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsFailureLockoutAction()
 }
 
-func modifyPlanFailureLockoutAction(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model failureLockoutActionResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.GenerateAccountStatusNotification) && model.Type.ValueString() != "delay-bind-response" && model.Type.ValueString() != "no-operation" {
-		resp.Diagnostics.AddError("Attribute 'generate_account_status_notification' not supported by pingdirectory_failure_lockout_action resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'generate_account_status_notification', the 'type' attribute must be one of ['delay-bind-response', 'no-operation']")
-	}
-	if internaltypes.IsDefined(model.AllowBlockingDelay) && model.Type.ValueString() != "delay-bind-response" {
-		resp.Diagnostics.AddError("Attribute 'allow_blocking_delay' not supported by pingdirectory_failure_lockout_action resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_blocking_delay', the 'type' attribute must be one of ['delay-bind-response']")
-	}
-	if internaltypes.IsDefined(model.Delay) && model.Type.ValueString() != "delay-bind-response" {
-		resp.Diagnostics.AddError("Attribute 'delay' not supported by pingdirectory_failure_lockout_action resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'delay', the 'type' attribute must be one of ['delay-bind-response']")
-	}
+// Add config validators
+func (r defaultFailureLockoutActionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsFailureLockoutAction()
 }
 
 // Add optional fields to create request for delay-bind-response failure-lockout-action
@@ -429,13 +436,13 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state failureLockoutActionResourceModel
-	if plan.Type.ValueString() == "delay-bind-response" {
+	if readResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "no-operation" {
+	if readResponse.NoOperationFailureLockoutActionResponse != nil {
 		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "lock-account" {
+	if readResponse.LockAccountFailureLockoutActionResponse != nil {
 		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -460,13 +467,13 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delay-bind-response" {
+		if updateResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 			readDelayBindResponseFailureLockoutActionResponse(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "no-operation" {
+		if updateResponse.NoOperationFailureLockoutActionResponse != nil {
 			readNoOperationFailureLockoutActionResponse(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "lock-account" {
+		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -571,13 +578,13 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delay-bind-response" {
+		if updateResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 			readDelayBindResponseFailureLockoutActionResponse(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "no-operation" {
+		if updateResponse.NoOperationFailureLockoutActionResponse != nil {
 			readNoOperationFailureLockoutActionResponse(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "lock-account" {
+		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

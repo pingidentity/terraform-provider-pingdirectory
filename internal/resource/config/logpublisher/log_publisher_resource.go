@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -1102,469 +1103,582 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "third-party-http-operation", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "third-party-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "groovy-scripted-access", "third-party-file-based-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "groovy-scripted-error", "file-based-json-http-operation", "syslog-json-error", "groovy-scripted-http-operation"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogPublisher() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("directory_rest_api_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_result_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "syslog-json-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_entry_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_requests"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_requester_dn"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_host_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_validator_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_response_headers"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppressed_request_header_name"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_response_cookie_names"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_internal_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_response_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_headers"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_string_length"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access", "admin-alert-access", "file-based-trace", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("write_multi_line_messages"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "console-json-error", "file-based-json-audit", "json-access", "syslog-json-http-operation", "json-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_intermediate_responses"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generify_message_strings_when_possible"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-error", "syslog-text-access", "json-access", "json-error", "syslog-json-access", "console-json-access", "file-based-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scim_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_result_code_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_phase_time_nanos"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_return_value"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlate_requests_and_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_message_application_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("obscure_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "debug-access", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sign_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("buffer_size"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_cookie_names"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_protocol"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppressed_request_parameter_name"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_category"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_security_negotiation"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_interval"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_add_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extended_search_request_details"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_redirect_uri"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_operation_processing_time"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("consent_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_aci_enabled"),
+			path.MatchRoot("type"),
+			[]string{"debug-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_authorization_type"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_mapping"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppressed_response_header_name"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_level"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_behavior"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_replication_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_client_certificates"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_intermediate_client_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_facility"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-based-error", "syslog-text-error", "syslog-based-access", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_assurance_completed"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "syslog-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_reference_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_operation_purpose_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_startup_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_entry_arguments"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_requester_ip_address"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_search_entry_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_throwable_stack_frames"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("timestamp_precision"),
+			path.MatchRoot("type"),
+			[]string{"syslog-text-error", "file-based-debug", "file-based-error", "syslog-text-access", "file-based-audit", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_message_host_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_references"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_location"),
+			path.MatchRoot("type"),
+			[]string{"console-json-error", "console-json-audit", "console-json-http-operation", "console-json-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_connects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compression_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_parameters"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_table_name"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_entries"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("obscure_sensitive_content"),
+			path.MatchRoot("type"),
+			[]string{"debug-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_audit_behavior"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_thread_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("asynchronous"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_modify_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_include_throwable_cause"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_replication_change_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_product_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_instance_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_external_server"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_disconnects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_flush"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("queue_size"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_intermediate_response_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_permissions"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("append"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+	}
 }
 
-func (r *defaultLogPublisherResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logPublisherResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogPublisher()
 }
 
-func modifyPlanLogPublisher(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logPublisherResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.DirectoryRESTAPIMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'directory_rest_api_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'directory_rest_api_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_request_details_in_result_messages' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_request_details_in_result_messages', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'detailed-http-operation', 'syslog-json-http-operation', 'json-access', 'console-json-http-operation', 'admin-alert-access', 'console-json-access', 'file-based-access', 'file-based-json-http-operation', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_request_details_in_search_entry_messages' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_request_details_in_search_entry_messages', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogRequests) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_requests' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_requests', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'syslog-json-http-operation', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequesterDN) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_requester_dn' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_requester_dn', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-access', 'syslog-json-audit', 'operation-timing-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'admin-alert-access', 'file-based-audit', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.ConnectionCriteria) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'connection_criteria', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ServerHostName) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'server_host_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_host_name', the 'type' attribute must be one of ['syslog-based-error', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.AccessTokenValidatorMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'access_token_validator_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_token_validator_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.LogResponseHeaders) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_response_headers' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_response_headers', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SuppressedRequestHeaderName) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'suppressed_request_header_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'suppressed_request_header_name', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SearchReferenceCriteria) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'search_reference_criteria' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_reference_criteria', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogResponseCookieNames) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_response_cookie_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_response_cookie_names', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SuppressInternalOperations) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'suppress_internal_operations' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'suppress_internal_operations', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeResponseControls) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_response_controls' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_response_controls', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'json-access', 'console-json-audit', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogRequestHeaders) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_request_headers' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_request_headers', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.MaxStringLength) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'max_string_length' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_string_length', the 'type' attribute must be one of ['syslog-json-access', 'operation-timing-access', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'admin-alert-access', 'file-based-trace', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.EncryptLog) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'encrypt_log' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encrypt_log', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.WriteMultiLineMessages) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'write_multi_line_messages' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'write_multi_line_messages', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'syslog-json-http-operation', 'json-access', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'json-error', 'console-json-error', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.LogIntermediateResponses) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_intermediate_responses' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_intermediate_responses', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party-error" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "third-party-http-operation" && model.Type.ValueString() != "third-party-access" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party-error', 'third-party-file-based-access', 'third-party-file-based-error', 'third-party-http-operation', 'third-party-access']")
-	}
-	if internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'generify_message_strings_when_possible' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'generify_message_strings_when_possible', the 'type' attribute must be one of ['syslog-json-access', 'file-based-error', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'json-error', 'file-based-access', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.ScimMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'scim_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scim_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.IncludeResultCodeNames) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_result_code_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_result_code_names', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.OverrideSeverity) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "groovy-scripted-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'override_severity' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'override_severity', the 'type' attribute must be one of ['syslog-based-error', 'file-based-error', 'third-party-error', 'third-party-file-based-error', 'json-error', 'jdbc-based-error', 'groovy-scripted-error', 'console-json-error', 'syslog-text-error', 'groovy-scripted-file-based-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.Server) && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "jdbc-based-access" {
-		resp.Diagnostics.AddError("Attribute 'server' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server', the 'type' attribute must be one of ['jdbc-based-error', 'jdbc-based-access']")
-	}
-	if internaltypes.IsDefined(model.MinIncludedPhaseTimeNanos) && model.Type.ValueString() != "operation-timing-access" {
-		resp.Diagnostics.AddError("Attribute 'min_included_phase_time_nanos' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_included_phase_time_nanos', the 'type' attribute must be one of ['operation-timing-access']")
-	}
-	if internaltypes.IsDefined(model.DefaultOmitMethodReturnValue) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_omit_method_return_value' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_omit_method_return_value', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.CorrelateRequestsAndResults) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'correlate_requests_and_results' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'correlate_requests_and_results', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.SyslogMessageApplicationName) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'syslog_message_application_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'syslog_message_application_name', the 'type' attribute must be one of ['syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'syslog-json-http-operation', 'syslog-text-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.ObscureAttribute) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'obscure_attribute' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'obscure_attribute', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'debug-access', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.SignLog) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'sign_log' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sign_log', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.BufferSize) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'buffer_size' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'buffer_size', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.HttpMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'http_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.LogRequestCookieNames) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_request_cookie_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_request_cookie_names', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.LogRequestProtocol) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_request_protocol' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_request_protocol', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SuppressedRequestParameterName) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'suppressed_request_parameter_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'suppressed_request_parameter_name', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.DefaultDebugCategory) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_debug_category' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_debug_category', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party-error" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "third-party-http-operation" && model.Type.ValueString() != "third-party-access" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party-error', 'third-party-file-based-access', 'third-party-file-based-error', 'third-party-http-operation', 'third-party-access']")
-	}
-	if internaltypes.IsDefined(model.LogSecurityNegotiation) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_security_negotiation' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_security_negotiation', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "groovy-scripted-error" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "groovy-scripted-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted-access', 'groovy-scripted-file-based-access', 'groovy-scripted-error', 'groovy-scripted-file-based-error', 'groovy-scripted-http-operation']")
-	}
-	if internaltypes.IsDefined(model.TimeInterval) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'time_interval' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'time_interval', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.LogFile) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_file' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.IncludeAddAttributeNames) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_add_attribute_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_add_attribute_names', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_extended_search_request_details' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_extended_search_request_details', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.ExcludeAttribute) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'exclude_attribute' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_attribute', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.LogRedirectURI) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_redirect_uri' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_redirect_uri', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.UseReversibleForm) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'use_reversible_form' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_reversible_form', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.ResultCriteria) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'result_criteria' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'result_criteria', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ExcludePathPattern) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'exclude_path_pattern' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_path_pattern', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.EncryptionSettingsDefinitionID) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'encryption_settings_definition_id' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_settings_definition_id', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.MinIncludedOperationProcessingTime) && model.Type.ValueString() != "operation-timing-access" {
-		resp.Diagnostics.AddError("Attribute 'min_included_operation_processing_time' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_included_operation_processing_time', the 'type' attribute must be one of ['operation-timing-access']")
-	}
-	if internaltypes.IsDefined(model.ConsentMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'consent_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'consent_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.IdTokenValidatorMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'id_token_validator_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id_token_validator_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.DebugACIEnabled) && model.Type.ValueString() != "debug-access" {
-		resp.Diagnostics.AddError("Attribute 'debug_aci_enabled' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'debug_aci_enabled', the 'type' attribute must be one of ['debug-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequestControls) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_request_controls' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_request_controls', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'json-access', 'console-json-audit', 'admin-alert-access', 'file-based-audit', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogRequestAuthorizationType) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_request_authorization_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_request_authorization_type', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.DebugMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'debug_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'debug_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.LogFieldMapping) && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "jdbc-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_mapping' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_mapping', the 'type' attribute must be one of ['jdbc-based-error', 'jdbc-based-access']")
-	}
-	if internaltypes.IsDefined(model.SuppressedResponseHeaderName) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'suppressed_response_header_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'suppressed_response_header_name', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.DefaultDebugLevel) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_debug_level' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_debug_level', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.LogFieldBehavior) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_field_behavior' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_field_behavior', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.SuppressReplicationOperations) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'suppress_replication_operations' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'suppress_replication_operations', the 'type' attribute must be one of ['syslog-json-audit', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'third-party-access', 'admin-alert-access', 'file-based-audit', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogClientCertificates) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_client_certificates' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_client_certificates', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'include_intermediate_client_request_control' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_intermediate_client_request_control', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.SyslogFacility) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'syslog_facility' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'syslog_facility', the 'type' attribute must be one of ['syslog-json-access', 'syslog-json-audit', 'syslog-based-error', 'syslog-text-access', 'syslog-json-http-operation', 'syslog-text-error', 'syslog-based-access', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.IncludePathPattern) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'include_path_pattern' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_path_pattern', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.LogAssuranceCompleted) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_assurance_completed' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_assurance_completed', the 'type' attribute must be one of ['syslog-json-access', 'debug-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_request_details_in_search_reference_messages' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_request_details_in_search_reference_messages', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeOperationPurposeRequestControl) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'include_operation_purpose_request_control' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_operation_purpose_request_control', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.IncludeStartupID) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'include_startup_id' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_startup_id', the 'type' attribute must be one of ['syslog-json-audit', 'operation-timing-access', 'syslog-json-http-operation', 'admin-alert-access', 'file-based-audit', 'json-error', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.DefaultOmitMethodEntryArguments) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_omit_method_entry_arguments' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_omit_method_entry_arguments', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequesterIPAddress) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_requester_ip_address' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_requester_ip_address', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-access', 'syslog-json-audit', 'operation-timing-access', 'syslog-text-access', 'json-access', 'console-json-audit', 'admin-alert-access', 'file-based-audit', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_search_entry_attribute_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_search_entry_attribute_names', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.DefaultSeverity) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "groovy-scripted-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'default_severity' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_severity', the 'type' attribute must be one of ['syslog-based-error', 'file-based-error', 'third-party-error', 'third-party-file-based-error', 'json-error', 'jdbc-based-error', 'groovy-scripted-error', 'console-json-error', 'syslog-text-error', 'groovy-scripted-file-based-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.LogResults) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_results' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_results', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'syslog-json-http-operation', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.RotationListener) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'rotation_listener' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'rotation_listener', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.DefaultThrowableStackFrames) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_throwable_stack_frames' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_throwable_stack_frames', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.TimestampPrecision) && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-text-error" {
-		resp.Diagnostics.AddError("Attribute 'timestamp_precision' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'timestamp_precision', the 'type' attribute must be one of ['file-based-debug', 'file-based-error', 'syslog-text-access', 'file-based-audit', 'file-based-access', 'syslog-text-error']")
-	}
-	if internaltypes.IsDefined(model.SyslogMessageHostName) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'syslog_message_host_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'syslog_message_host_name', the 'type' attribute must be one of ['syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'syslog-json-http-operation', 'syslog-text-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.LogSearchReferences) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_search_references' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_search_references', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.OutputLocation) && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "console-json-error" {
-		resp.Diagnostics.AddError("Attribute 'output_location' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_location', the 'type' attribute must be one of ['console-json-audit', 'console-json-http-operation', 'console-json-access', 'console-json-error']")
-	}
-	if internaltypes.IsDefined(model.LogConnects) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_connects' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_connects', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "groovy-scripted-error" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "groovy-scripted-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted-access', 'groovy-scripted-file-based-access', 'groovy-scripted-error', 'groovy-scripted-file-based-error', 'groovy-scripted-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SyslogSeverity) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'syslog_severity' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'syslog_severity', the 'type' attribute must be one of ['syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'syslog-json-http-operation', 'syslog-text-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.CompressionMechanism) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'compression_mechanism' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compression_mechanism', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.RotationPolicy) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'rotation_policy' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'rotation_policy', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.LogRequestParameters) && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_request_parameters' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_request_parameters', the 'type' attribute must be one of ['detailed-http-operation', 'syslog-json-http-operation', 'console-json-http-operation', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.SearchEntryCriteria) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'search_entry_criteria' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_entry_criteria', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ServerPort) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'server_port' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_port', the 'type' attribute must be one of ['syslog-based-error', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogTableName) && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "jdbc-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_table_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_table_name', the 'type' attribute must be one of ['jdbc-based-error', 'jdbc-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogSearchEntries) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_search_entries' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_search_entries', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.ObscureSensitiveContent) && model.Type.ValueString() != "debug-access" {
-		resp.Diagnostics.AddError("Attribute 'obscure_sensitive_content' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'obscure_sensitive_content', the 'type' attribute must be one of ['debug-access']")
-	}
-	if internaltypes.IsDefined(model.SoftDeleteEntryAuditBehavior) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "file-based-audit" {
-		resp.Diagnostics.AddError("Attribute 'soft_delete_entry_audit_behavior' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'soft_delete_entry_audit_behavior', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-audit', 'console-json-audit', 'file-based-audit']")
-	}
-	if internaltypes.IsDefined(model.IncludeThreadID) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'include_thread_id' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_thread_id', the 'type' attribute must be one of ['syslog-json-audit', 'operation-timing-access', 'syslog-json-http-operation', 'admin-alert-access', 'file-based-audit', 'json-error', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.Asynchronous) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'asynchronous' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'asynchronous', the 'type' attribute must be one of ['syslog-based-error', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'admin-alert-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'syslog-based-access', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.IncludeModifyAttributeNames) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_modify_attribute_names' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_modify_attribute_names', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.RetentionPolicy) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'retention_policy' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retention_policy', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.DefaultIncludeThrowableCause) && model.Type.ValueString() != "file-based-debug" {
-		resp.Diagnostics.AddError("Attribute 'default_include_throwable_cause' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_include_throwable_cause', the 'type' attribute must be one of ['file-based-debug']")
-	}
-	if internaltypes.IsDefined(model.IncludeReplicationChangeID) && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_replication_change_id' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_replication_change_id', the 'type' attribute must be one of ['file-based-json-audit', 'syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'json-access', 'console-json-audit', 'admin-alert-access', 'file-based-audit', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.IncludeProductName) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'include_product_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_product_name', the 'type' attribute must be one of ['syslog-json-audit', 'operation-timing-access', 'syslog-json-http-operation', 'admin-alert-access', 'file-based-audit', 'json-error', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.IncludeInstanceName) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "console-json-error" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-audit" && model.Type.ValueString() != "console-json-http-operation" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'include_instance_name' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_instance_name', the 'type' attribute must be one of ['syslog-json-audit', 'operation-timing-access', 'syslog-json-http-operation', 'admin-alert-access', 'file-based-audit', 'json-error', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'syslog-json-access', 'file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'file-based-json-http-operation', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.ExtensionMessageType) && model.Type.ValueString() != "file-based-trace" {
-		resp.Diagnostics.AddError("Attribute 'extension_message_type' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_message_type', the 'type' attribute must be one of ['file-based-trace']")
-	}
-	if internaltypes.IsDefined(model.SyslogExternalServer) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'syslog_external_server' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'syslog_external_server', the 'type' attribute must be one of ['syslog-json-access', 'syslog-json-audit', 'syslog-text-access', 'syslog-json-http-operation', 'syslog-text-error', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.LogDisconnects) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "third-party-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "groovy-scripted-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" {
-		resp.Diagnostics.AddError("Attribute 'log_disconnects' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_disconnects', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'third-party-access', 'admin-alert-access', 'jdbc-based-access', 'groovy-scripted-file-based-access', 'syslog-based-access', 'syslog-json-access', 'groovy-scripted-access', 'syslog-text-access', 'json-access', 'console-json-access', 'file-based-access']")
-	}
-	if internaltypes.IsDefined(model.AutoFlush) && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'auto_flush' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'auto_flush', the 'type' attribute must be one of ['syslog-based-error', 'third-party-file-based-access', 'debug-access', 'operation-timing-access', 'admin-alert-access', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'syslog-based-access', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.QueueSize) && model.Type.ValueString() != "syslog-json-audit" && model.Type.ValueString() != "syslog-based-error" && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "jdbc-based-error" && model.Type.ValueString() != "jdbc-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "syslog-text-error" && model.Type.ValueString() != "syslog-based-access" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "syslog-json-http-operation" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" && model.Type.ValueString() != "syslog-json-error" {
-		resp.Diagnostics.AddError("Attribute 'queue_size' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'queue_size', the 'type' attribute must be one of ['syslog-json-audit', 'syslog-based-error', 'third-party-file-based-access', 'operation-timing-access', 'admin-alert-access', 'file-based-trace', 'jdbc-based-error', 'jdbc-based-access', 'common-log-file-http-operation', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'debug-access', 'syslog-json-http-operation', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'groovy-scripted-file-based-error', 'syslog-json-access', 'third-party-file-based-error', 'file-based-access', 'file-based-json-http-operation', 'syslog-json-error']")
-	}
-	if internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) && model.Type.ValueString() != "syslog-json-access" && model.Type.ValueString() != "syslog-text-access" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "admin-alert-access" && model.Type.ValueString() != "console-json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "syslog-based-access" {
-		resp.Diagnostics.AddError("Attribute 'include_request_details_in_intermediate_response_messages' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_request_details_in_intermediate_response_messages', the 'type' attribute must be one of ['syslog-json-access', 'syslog-text-access', 'json-access', 'admin-alert-access', 'console-json-access', 'file-based-access', 'syslog-based-access']")
-	}
-	if internaltypes.IsDefined(model.LogFilePermissions) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'log_file_permissions' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'log_file_permissions', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
-	if internaltypes.IsDefined(model.Append) && model.Type.ValueString() != "third-party-file-based-access" && model.Type.ValueString() != "debug-access" && model.Type.ValueString() != "operation-timing-access" && model.Type.ValueString() != "file-based-trace" && model.Type.ValueString() != "file-based-audit" && model.Type.ValueString() != "json-error" && model.Type.ValueString() != "groovy-scripted-file-based-access" && model.Type.ValueString() != "common-log-file-http-operation" && model.Type.ValueString() != "groovy-scripted-file-based-error" && model.Type.ValueString() != "file-based-json-audit" && model.Type.ValueString() != "file-based-debug" && model.Type.ValueString() != "file-based-error" && model.Type.ValueString() != "third-party-file-based-error" && model.Type.ValueString() != "detailed-http-operation" && model.Type.ValueString() != "json-access" && model.Type.ValueString() != "file-based-access" && model.Type.ValueString() != "file-based-json-http-operation" {
-		resp.Diagnostics.AddError("Attribute 'append' not supported by pingdirectory_log_publisher resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'append', the 'type' attribute must be one of ['third-party-file-based-access', 'debug-access', 'operation-timing-access', 'file-based-trace', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'common-log-file-http-operation', 'groovy-scripted-file-based-error', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-file-based-error', 'detailed-http-operation', 'json-access', 'file-based-access', 'file-based-json-http-operation']")
-	}
+// Add config validators
+func (r defaultLogPublisherResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogPublisher()
 }
 
 // Add optional fields to create request for syslog-json-audit log-publisher
@@ -9132,118 +9246,118 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state logPublisherResourceModel
-	if plan.Type.ValueString() == "syslog-json-audit" {
+	if readResponse.SyslogJsonAuditLogPublisherResponse != nil {
 		readSyslogJsonAuditLogPublisherResponse(ctx, readResponse.SyslogJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-based-error" {
+	if readResponse.SyslogBasedErrorLogPublisherResponse != nil {
 		readSyslogBasedErrorLogPublisherResponse(ctx, readResponse.SyslogBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-file-based-access" {
+	if readResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 		readThirdPartyFileBasedAccessLogPublisherResponse(ctx, readResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "operation-timing-access" {
+	if readResponse.OperationTimingAccessLogPublisherResponse != nil {
 		readOperationTimingAccessLogPublisherResponse(ctx, readResponse.OperationTimingAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-http-operation" {
+	if readResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 		readThirdPartyHttpOperationLogPublisherResponse(ctx, readResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "admin-alert-access" {
+	if readResponse.AdminAlertAccessLogPublisherResponse != nil {
 		readAdminAlertAccessLogPublisherResponse(ctx, readResponse.AdminAlertAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-trace" {
+	if readResponse.FileBasedTraceLogPublisherResponse != nil {
 		readFileBasedTraceLogPublisherResponse(ctx, readResponse.FileBasedTraceLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc-based-error" {
+	if readResponse.JdbcBasedErrorLogPublisherResponse != nil {
 		readJdbcBasedErrorLogPublisherResponse(ctx, readResponse.JdbcBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc-based-access" {
+	if readResponse.JdbcBasedAccessLogPublisherResponse != nil {
 		readJdbcBasedAccessLogPublisherResponse(ctx, readResponse.JdbcBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "common-log-file-http-operation" {
+	if readResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 		readCommonLogFileHttpOperationLogPublisherResponse(ctx, readResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-error" {
+	if readResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 		readConsoleJsonErrorLogPublisherResponse(ctx, readResponse.ConsoleJsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-text-error" {
+	if readResponse.SyslogTextErrorLogPublisherResponse != nil {
 		readSyslogTextErrorLogPublisherResponse(ctx, readResponse.SyslogTextErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-based-access" {
+	if readResponse.SyslogBasedAccessLogPublisherResponse != nil {
 		readSyslogBasedAccessLogPublisherResponse(ctx, readResponse.SyslogBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-json-audit" {
+	if readResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 		readFileBasedJsonAuditLogPublisherResponse(ctx, readResponse.FileBasedJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-debug" {
+	if readResponse.FileBasedDebugLogPublisherResponse != nil {
 		readFileBasedDebugLogPublisherResponse(ctx, readResponse.FileBasedDebugLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-error" {
+	if readResponse.FileBasedErrorLogPublisherResponse != nil {
 		readFileBasedErrorLogPublisherResponse(ctx, readResponse.FileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-error" {
+	if readResponse.ThirdPartyErrorLogPublisherResponse != nil {
 		readThirdPartyErrorLogPublisherResponse(ctx, readResponse.ThirdPartyErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-text-access" {
+	if readResponse.SyslogTextAccessLogPublisherResponse != nil {
 		readSyslogTextAccessLogPublisherResponse(ctx, readResponse.SyslogTextAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "detailed-http-operation" {
+	if readResponse.DetailedHttpOperationLogPublisherResponse != nil {
 		readDetailedHttpOperationLogPublisherResponse(ctx, readResponse.DetailedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-access" {
+	if readResponse.JsonAccessLogPublisherResponse != nil {
 		readJsonAccessLogPublisherResponse(ctx, readResponse.JsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "debug-access" {
+	if readResponse.DebugAccessLogPublisherResponse != nil {
 		readDebugAccessLogPublisherResponse(ctx, readResponse.DebugAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-http-operation" {
+	if readResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 		readSyslogJsonHttpOperationLogPublisherResponse(ctx, readResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-access" {
+	if readResponse.ThirdPartyAccessLogPublisherResponse != nil {
 		readThirdPartyAccessLogPublisherResponse(ctx, readResponse.ThirdPartyAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-audit" {
+	if readResponse.FileBasedAuditLogPublisherResponse != nil {
 		readFileBasedAuditLogPublisherResponse(ctx, readResponse.FileBasedAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-error" {
+	if readResponse.JsonErrorLogPublisherResponse != nil {
 		readJsonErrorLogPublisherResponse(ctx, readResponse.JsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+	if readResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 		readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, readResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+	if readResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 		readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, readResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-access" {
+	if readResponse.SyslogJsonAccessLogPublisherResponse != nil {
 		readSyslogJsonAccessLogPublisherResponse(ctx, readResponse.SyslogJsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-access" {
+	if readResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 		readGroovyScriptedAccessLogPublisherResponse(ctx, readResponse.GroovyScriptedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-file-based-error" {
+	if readResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 		readThirdPartyFileBasedErrorLogPublisherResponse(ctx, readResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-audit" {
+	if readResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 		readConsoleJsonAuditLogPublisherResponse(ctx, readResponse.ConsoleJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-http-operation" {
+	if readResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 		readConsoleJsonHttpOperationLogPublisherResponse(ctx, readResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-access" {
+	if readResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 		readConsoleJsonAccessLogPublisherResponse(ctx, readResponse.ConsoleJsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-access" {
+	if readResponse.FileBasedAccessLogPublisherResponse != nil {
 		readFileBasedAccessLogPublisherResponse(ctx, readResponse.FileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-error" {
+	if readResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 		readGroovyScriptedErrorLogPublisherResponse(ctx, readResponse.GroovyScriptedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-json-http-operation" {
+	if readResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 		readFileBasedJsonHttpOperationLogPublisherResponse(ctx, readResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-error" {
+	if readResponse.SyslogJsonErrorLogPublisherResponse != nil {
 		readSyslogJsonErrorLogPublisherResponse(ctx, readResponse.SyslogJsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+	if readResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 		readGroovyScriptedHttpOperationLogPublisherResponse(ctx, readResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -9268,118 +9382,118 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "syslog-json-audit" {
+		if updateResponse.SyslogJsonAuditLogPublisherResponse != nil {
 			readSyslogJsonAuditLogPublisherResponse(ctx, updateResponse.SyslogJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-error" {
+		if updateResponse.SyslogBasedErrorLogPublisherResponse != nil {
 			readSyslogBasedErrorLogPublisherResponse(ctx, updateResponse.SyslogBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-access" {
+		if updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 			readThirdPartyFileBasedAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "operation-timing-access" {
+		if updateResponse.OperationTimingAccessLogPublisherResponse != nil {
 			readOperationTimingAccessLogPublisherResponse(ctx, updateResponse.OperationTimingAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-http-operation" {
+		if updateResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 			readThirdPartyHttpOperationLogPublisherResponse(ctx, updateResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert-access" {
+		if updateResponse.AdminAlertAccessLogPublisherResponse != nil {
 			readAdminAlertAccessLogPublisherResponse(ctx, updateResponse.AdminAlertAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-trace" {
+		if updateResponse.FileBasedTraceLogPublisherResponse != nil {
 			readFileBasedTraceLogPublisherResponse(ctx, updateResponse.FileBasedTraceLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-error" {
+		if updateResponse.JdbcBasedErrorLogPublisherResponse != nil {
 			readJdbcBasedErrorLogPublisherResponse(ctx, updateResponse.JdbcBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-access" {
+		if updateResponse.JdbcBasedAccessLogPublisherResponse != nil {
 			readJdbcBasedAccessLogPublisherResponse(ctx, updateResponse.JdbcBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "common-log-file-http-operation" {
+		if updateResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 			readCommonLogFileHttpOperationLogPublisherResponse(ctx, updateResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-error" {
+		if updateResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 			readConsoleJsonErrorLogPublisherResponse(ctx, updateResponse.ConsoleJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-error" {
+		if updateResponse.SyslogTextErrorLogPublisherResponse != nil {
 			readSyslogTextErrorLogPublisherResponse(ctx, updateResponse.SyslogTextErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-access" {
+		if updateResponse.SyslogBasedAccessLogPublisherResponse != nil {
 			readSyslogBasedAccessLogPublisherResponse(ctx, updateResponse.SyslogBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-audit" {
+		if updateResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 			readFileBasedJsonAuditLogPublisherResponse(ctx, updateResponse.FileBasedJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-debug" {
+		if updateResponse.FileBasedDebugLogPublisherResponse != nil {
 			readFileBasedDebugLogPublisherResponse(ctx, updateResponse.FileBasedDebugLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-error" {
+		if updateResponse.FileBasedErrorLogPublisherResponse != nil {
 			readFileBasedErrorLogPublisherResponse(ctx, updateResponse.FileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-error" {
+		if updateResponse.ThirdPartyErrorLogPublisherResponse != nil {
 			readThirdPartyErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-access" {
+		if updateResponse.SyslogTextAccessLogPublisherResponse != nil {
 			readSyslogTextAccessLogPublisherResponse(ctx, updateResponse.SyslogTextAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "detailed-http-operation" {
+		if updateResponse.DetailedHttpOperationLogPublisherResponse != nil {
 			readDetailedHttpOperationLogPublisherResponse(ctx, updateResponse.DetailedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-access" {
+		if updateResponse.JsonAccessLogPublisherResponse != nil {
 			readJsonAccessLogPublisherResponse(ctx, updateResponse.JsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "debug-access" {
+		if updateResponse.DebugAccessLogPublisherResponse != nil {
 			readDebugAccessLogPublisherResponse(ctx, updateResponse.DebugAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-http-operation" {
+		if updateResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 			readSyslogJsonHttpOperationLogPublisherResponse(ctx, updateResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-access" {
+		if updateResponse.ThirdPartyAccessLogPublisherResponse != nil {
 			readThirdPartyAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-audit" {
+		if updateResponse.FileBasedAuditLogPublisherResponse != nil {
 			readFileBasedAuditLogPublisherResponse(ctx, updateResponse.FileBasedAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-error" {
+		if updateResponse.JsonErrorLogPublisherResponse != nil {
 			readJsonErrorLogPublisherResponse(ctx, updateResponse.JsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+		if updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+		if updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-access" {
+		if updateResponse.SyslogJsonAccessLogPublisherResponse != nil {
 			readSyslogJsonAccessLogPublisherResponse(ctx, updateResponse.SyslogJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-access" {
+		if updateResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 			readGroovyScriptedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-error" {
+		if updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 			readThirdPartyFileBasedErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-audit" {
+		if updateResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 			readConsoleJsonAuditLogPublisherResponse(ctx, updateResponse.ConsoleJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-http-operation" {
+		if updateResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 			readConsoleJsonHttpOperationLogPublisherResponse(ctx, updateResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-access" {
+		if updateResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 			readConsoleJsonAccessLogPublisherResponse(ctx, updateResponse.ConsoleJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-access" {
+		if updateResponse.FileBasedAccessLogPublisherResponse != nil {
 			readFileBasedAccessLogPublisherResponse(ctx, updateResponse.FileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-error" {
+		if updateResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 			readGroovyScriptedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-http-operation" {
+		if updateResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 			readFileBasedJsonHttpOperationLogPublisherResponse(ctx, updateResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-error" {
+		if updateResponse.SyslogJsonErrorLogPublisherResponse != nil {
 			readSyslogJsonErrorLogPublisherResponse(ctx, updateResponse.SyslogJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -9589,118 +9703,118 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "syslog-json-audit" {
+		if updateResponse.SyslogJsonAuditLogPublisherResponse != nil {
 			readSyslogJsonAuditLogPublisherResponse(ctx, updateResponse.SyslogJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-error" {
+		if updateResponse.SyslogBasedErrorLogPublisherResponse != nil {
 			readSyslogBasedErrorLogPublisherResponse(ctx, updateResponse.SyslogBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-access" {
+		if updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 			readThirdPartyFileBasedAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "operation-timing-access" {
+		if updateResponse.OperationTimingAccessLogPublisherResponse != nil {
 			readOperationTimingAccessLogPublisherResponse(ctx, updateResponse.OperationTimingAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-http-operation" {
+		if updateResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 			readThirdPartyHttpOperationLogPublisherResponse(ctx, updateResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert-access" {
+		if updateResponse.AdminAlertAccessLogPublisherResponse != nil {
 			readAdminAlertAccessLogPublisherResponse(ctx, updateResponse.AdminAlertAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-trace" {
+		if updateResponse.FileBasedTraceLogPublisherResponse != nil {
 			readFileBasedTraceLogPublisherResponse(ctx, updateResponse.FileBasedTraceLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-error" {
+		if updateResponse.JdbcBasedErrorLogPublisherResponse != nil {
 			readJdbcBasedErrorLogPublisherResponse(ctx, updateResponse.JdbcBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-access" {
+		if updateResponse.JdbcBasedAccessLogPublisherResponse != nil {
 			readJdbcBasedAccessLogPublisherResponse(ctx, updateResponse.JdbcBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "common-log-file-http-operation" {
+		if updateResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 			readCommonLogFileHttpOperationLogPublisherResponse(ctx, updateResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-error" {
+		if updateResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 			readConsoleJsonErrorLogPublisherResponse(ctx, updateResponse.ConsoleJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-error" {
+		if updateResponse.SyslogTextErrorLogPublisherResponse != nil {
 			readSyslogTextErrorLogPublisherResponse(ctx, updateResponse.SyslogTextErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-access" {
+		if updateResponse.SyslogBasedAccessLogPublisherResponse != nil {
 			readSyslogBasedAccessLogPublisherResponse(ctx, updateResponse.SyslogBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-audit" {
+		if updateResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 			readFileBasedJsonAuditLogPublisherResponse(ctx, updateResponse.FileBasedJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-debug" {
+		if updateResponse.FileBasedDebugLogPublisherResponse != nil {
 			readFileBasedDebugLogPublisherResponse(ctx, updateResponse.FileBasedDebugLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-error" {
+		if updateResponse.FileBasedErrorLogPublisherResponse != nil {
 			readFileBasedErrorLogPublisherResponse(ctx, updateResponse.FileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-error" {
+		if updateResponse.ThirdPartyErrorLogPublisherResponse != nil {
 			readThirdPartyErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-access" {
+		if updateResponse.SyslogTextAccessLogPublisherResponse != nil {
 			readSyslogTextAccessLogPublisherResponse(ctx, updateResponse.SyslogTextAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "detailed-http-operation" {
+		if updateResponse.DetailedHttpOperationLogPublisherResponse != nil {
 			readDetailedHttpOperationLogPublisherResponse(ctx, updateResponse.DetailedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-access" {
+		if updateResponse.JsonAccessLogPublisherResponse != nil {
 			readJsonAccessLogPublisherResponse(ctx, updateResponse.JsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "debug-access" {
+		if updateResponse.DebugAccessLogPublisherResponse != nil {
 			readDebugAccessLogPublisherResponse(ctx, updateResponse.DebugAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-http-operation" {
+		if updateResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 			readSyslogJsonHttpOperationLogPublisherResponse(ctx, updateResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-access" {
+		if updateResponse.ThirdPartyAccessLogPublisherResponse != nil {
 			readThirdPartyAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-audit" {
+		if updateResponse.FileBasedAuditLogPublisherResponse != nil {
 			readFileBasedAuditLogPublisherResponse(ctx, updateResponse.FileBasedAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-error" {
+		if updateResponse.JsonErrorLogPublisherResponse != nil {
 			readJsonErrorLogPublisherResponse(ctx, updateResponse.JsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+		if updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+		if updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-access" {
+		if updateResponse.SyslogJsonAccessLogPublisherResponse != nil {
 			readSyslogJsonAccessLogPublisherResponse(ctx, updateResponse.SyslogJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-access" {
+		if updateResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 			readGroovyScriptedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-error" {
+		if updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 			readThirdPartyFileBasedErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-audit" {
+		if updateResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 			readConsoleJsonAuditLogPublisherResponse(ctx, updateResponse.ConsoleJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-http-operation" {
+		if updateResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 			readConsoleJsonHttpOperationLogPublisherResponse(ctx, updateResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-access" {
+		if updateResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 			readConsoleJsonAccessLogPublisherResponse(ctx, updateResponse.ConsoleJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-access" {
+		if updateResponse.FileBasedAccessLogPublisherResponse != nil {
 			readFileBasedAccessLogPublisherResponse(ctx, updateResponse.FileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-error" {
+		if updateResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 			readGroovyScriptedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-http-operation" {
+		if updateResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 			readFileBasedJsonHttpOperationLogPublisherResponse(ctx, updateResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-error" {
+		if updateResponse.SyslogJsonErrorLogPublisherResponse != nil {
 			readSyslogJsonErrorLogPublisherResponse(ctx, updateResponse.SyslogJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

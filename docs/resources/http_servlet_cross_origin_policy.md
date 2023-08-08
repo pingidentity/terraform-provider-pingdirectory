@@ -58,6 +58,7 @@ resource "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOri
 - `cors_exposed_headers` (Set of String) A list of HTTP headers other than the simple response headers that browsers are allowed to access.
 - `cors_preflight_max_age` (String) The maximum amount of time that a preflight request can be cached by a client.
 - `description` (String) A description for this HTTP Servlet Cross Origin Policy
+- `type` (String) The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']
 
 ### Read-Only
 

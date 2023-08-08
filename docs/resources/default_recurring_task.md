@@ -95,7 +95,6 @@ Manages a Recurring Task.
 - `task_object_class` (Set of String) The names or OIDs of the object classes to include in the tasks that are scheduled from this Statically Defined Recurring Task. All object classes must be defined in the server schema, and the combination of object classes must be valid for a task entry.
 - `task_return_state_if_timeout_is_encountered` (String) The return state to use if a timeout is encountered while waiting for the server work queue to become idle (if the duration-to-wait-for-work-queue-idle property has a value), or if the time specified by the duration-to-wait-for-search-to-return-entries elapses without the associated search returning any entries.
 - `timestamp_format` (String) The format to use for the timestamp represented by the "${timestamp}" token in the filename pattern.
-- `type` (String) The type of Recurring Task resource. Options are ['generate-server-profile', 'leave-lockdown-mode', 'backup', 'delay', 'statically-defined', 'collect-support-data', 'ldif-export', 'enter-lockdown-mode', 'audit-data-security', 'exec', 'file-retention', 'third-party']
 - `use_sequential_mode` (Boolean) Indicates whether to capture support data information sequentially rather than in parallel. Capturing data in sequential mode may reduce the amount of memory that the tool requires to operate, at the cost of taking longer to run.
 - `working_directory` (String) The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.
 
@@ -105,6 +104,7 @@ Manages a Recurring Task.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Recurring Task resource. Options are ['generate-server-profile', 'leave-lockdown-mode', 'backup', 'delay', 'statically-defined', 'collect-support-data', 'ldif-export', 'enter-lockdown-mode', 'audit-data-security', 'exec', 'file-retention', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

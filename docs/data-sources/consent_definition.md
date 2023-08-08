@@ -54,4 +54,5 @@ data "pingdirectory_consent_definition" "myConsentDefinition" {
 - `display_name` (String) A human-readable display name for this Consent Definition.
 - `id` (String) The ID of this resource.
 - `parameter` (Set of String) Optional parameters for this Consent Definition.
+- `type` (String) The type of Consent Definition resource. Options are ['consent-definition']
 

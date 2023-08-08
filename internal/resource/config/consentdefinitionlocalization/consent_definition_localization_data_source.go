@@ -48,6 +48,7 @@ func (r *consentDefinitionLocalizationDataSource) Configure(_ context.Context, r
 
 type consentDefinitionLocalizationDataSourceModel struct {
 	Id                    types.String `tfsdk:"id"`
+	Type                  types.String `tfsdk:"type"`
 	ConsentDefinitionName types.String `tfsdk:"consent_definition_name"`
 	Locale                types.String `tfsdk:"locale"`
 	Version               types.String `tfsdk:"version"`
@@ -61,6 +62,12 @@ func (r *consentDefinitionLocalizationDataSource) Schema(ctx context.Context, re
 	schemaDef := schema.Schema{
 		Description: "Describes a Consent Definition Localization.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Definition Localization resource. Options are ['consent-definition-localization']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"consent_definition_name": schema.StringAttribute{
 				Description: "Name of the parent Consent Definition",
 				Required:    true,
@@ -101,6 +108,7 @@ func (r *consentDefinitionLocalizationDataSource) Schema(ctx context.Context, re
 
 // Read a ConsentDefinitionLocalizationResponse object into the model struct
 func readConsentDefinitionLocalizationResponseDataSource(ctx context.Context, r *client.ConsentDefinitionLocalizationResponse, state *consentDefinitionLocalizationDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-definition-localization")
 	state.Id = types.StringValue(r.Id)
 	state.Locale = types.StringValue(r.Locale)
 	state.Version = types.StringValue(r.Version)

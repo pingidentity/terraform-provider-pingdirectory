@@ -123,7 +123,6 @@ Manages a Backend.
 - `trust_store_pin_file` (String) Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the Trust Store Backend.
 - `trust_store_pin_passphrase_provider` (String) The passphrase provider to use to obtain the clear-text PIN needed to access the Trust Store Backend.
 - `trust_store_type` (String) Specifies the format for the data in the key store file.
-- `type` (String) The type of Backend resource. Options are ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm', 'metrics']
 - `uncached_attribute_criteria` (String) The criteria that will be used to identify attributes that should be written into the uncached-id2entry database rather than the id2entry database. This will only be used for entries in which the associated uncached-entry-criteria does not indicate that the entire entry should be uncached.
 - `uncached_entry_criteria` (String) The criteria that will be used to identify entries that should be written into the uncached-id2entry database rather than the id2entry database.
 - `uncached_id2entry_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the uncached-id2entry database, which provides a way to store complete or partial encoded entries with a different (and presumably less memory-intensive) cache mode than records written to id2entry.
@@ -137,6 +136,7 @@ Manages a Backend.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Backend resource. Options are ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm', 'metrics']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

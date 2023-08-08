@@ -87,7 +87,6 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_server_instance" "%[1]s" {
-  type                 = "directory"
   name                 = "%[2]s"
   server_instance_name = "%[2]s"
   jmx_port             = %[3]d

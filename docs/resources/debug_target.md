@@ -60,6 +60,7 @@ resource "pingdirectory_debug_target" "myDebugTarget" {
 - `omit_method_entry_arguments` (Boolean) Specifies the property to indicate whether to include method arguments in debug messages.
 - `omit_method_return_value` (Boolean) Specifies the property to indicate whether to include the return value in debug messages.
 - `throwable_stack_frames` (Number) Specifies the property to indicate the number of stack frames to include in the stack trace for method entry and exception thrown messages.
+- `type` (String) The type of Debug Target resource. Options are ['debug-target']
 
 ### Read-Only
 

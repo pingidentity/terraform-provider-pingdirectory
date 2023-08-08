@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -174,61 +175,72 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"blind", "file-based", "jvm-default", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_jvm_default_issuers"),
+			path.MatchRoot("type"),
+			[]string{"blind", "file-based", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+	}
 }
 
-func (r *defaultTrustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r trustManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsTrustManagerProvider()
 }
 
-func modifyPlanTrustManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model trustManagerProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.TrustStorePin) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_file' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) && model.Type.ValueString() != "blind" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'include_jvm_default_issuers' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_jvm_default_issuers', the 'type' attribute must be one of ['blind', 'file-based', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePinFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin_file' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePinPassphraseProvider) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin_passphrase_provider' not supported by pingdirectory_trust_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin_passphrase_provider', the 'type' attribute must be one of ['file-based']")
-	}
+// Add config validators
+func (r defaultTrustManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsTrustManagerProvider()
 }
 
 // Add optional fields to create request for blind trust-manager-provider
@@ -574,16 +586,16 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state trustManagerProviderResourceModel
-	if plan.Type.ValueString() == "blind" {
+	if readResponse.BlindTrustManagerProviderResponse != nil {
 		readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedTrustManagerProviderResponse != nil {
 		readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jvm-default" {
+	if readResponse.JvmDefaultTrustManagerProviderResponse != nil {
 		readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyTrustManagerProviderResponse != nil {
 		readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -608,16 +620,16 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "blind" {
+		if updateResponse.BlindTrustManagerProviderResponse != nil {
 			readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedTrustManagerProviderResponse != nil {
 			readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jvm-default" {
+		if updateResponse.JvmDefaultTrustManagerProviderResponse != nil {
 			readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -726,16 +738,16 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "blind" {
+		if updateResponse.BlindTrustManagerProviderResponse != nil {
 			readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedTrustManagerProviderResponse != nil {
 			readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jvm-default" {
+		if updateResponse.JvmDefaultTrustManagerProviderResponse != nil {
 			readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

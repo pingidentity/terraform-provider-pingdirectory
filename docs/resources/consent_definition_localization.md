@@ -64,6 +64,7 @@ resource "pingdirectory_consent_definition_localization" "myConsentDefinitionLoc
 ### Optional
 
 - `title_text` (String) Localized text that may be used to provide a title or summary for a consent request or a granted consent.
+- `type` (String) The type of Consent Definition Localization resource. Options are ['consent-definition-localization']
 
 ### Read-Only
 

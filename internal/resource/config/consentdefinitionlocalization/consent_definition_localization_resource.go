@@ -5,12 +5,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -85,6 +88,7 @@ type consentDefinitionLocalizationResourceModel struct {
 	LastUpdated           types.String `tfsdk:"last_updated"`
 	Notifications         types.Set    `tfsdk:"notifications"`
 	RequiredActions       types.Set    `tfsdk:"required_actions"`
+	Type                  types.String `tfsdk:"type"`
 	ConsentDefinitionName types.String `tfsdk:"consent_definition_name"`
 	Locale                types.String `tfsdk:"locale"`
 	Version               types.String `tfsdk:"version"`
@@ -106,6 +110,15 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 	schemaDef := schema.Schema{
 		Description: "Manages a Consent Definition Localization.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Definition Localization resource. Options are ['consent-definition-localization']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("consent-definition-localization"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"consent-definition-localization"}...),
+				},
+			},
 			"consent_definition_name": schema.StringAttribute{
 				Description: "Name of the parent Consent Definition",
 				Required:    true,
@@ -139,8 +152,13 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"locale", "consent_definition_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "locale", "consent_definition_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -156,6 +174,7 @@ func addOptionalConsentDefinitionLocalizationFields(ctx context.Context, addRequ
 
 // Read a ConsentDefinitionLocalizationResponse object into the model struct
 func readConsentDefinitionLocalizationResponse(ctx context.Context, r *client.ConsentDefinitionLocalizationResponse, state *consentDefinitionLocalizationResourceModel, expectedValues *consentDefinitionLocalizationResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-definition-localization")
 	state.Id = types.StringValue(r.Id)
 	state.Locale = types.StringValue(r.Locale)
 	state.Version = types.StringValue(r.Version)

@@ -75,6 +75,7 @@ resource "pingdirectory_default_ldap_sdk_debug_logger" "myLdapSdkDebugLogger" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of LDAP SDK Debug Logger resource. Options are ['ldap-sdk-debug-logger']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

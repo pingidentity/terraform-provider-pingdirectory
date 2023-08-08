@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -58,6 +60,7 @@ type accessControlHandlerResourceModel struct {
 	LastUpdated           types.String `tfsdk:"last_updated"`
 	Notifications         types.Set    `tfsdk:"notifications"`
 	RequiredActions       types.Set    `tfsdk:"required_actions"`
+	Type                  types.String `tfsdk:"type"`
 	GlobalACI             types.Set    `tfsdk:"global_aci"`
 	AllowedBindControl    types.Set    `tfsdk:"allowed_bind_control"`
 	AllowedBindControlOID types.Set    `tfsdk:"allowed_bind_control_oid"`
@@ -69,6 +72,15 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 	schemaDef := schema.Schema{
 		Description: "Manages a Access Control Handler.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Access Control Handler resource. Options are ['dsee-compat']",
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"dsee-compat"}...),
+				},
+			},
 			"global_aci": schema.SetAttribute{
 				Description: "Defines global access control rules.",
 				Optional:    true,
@@ -112,6 +124,7 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct
 func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.DseeCompatAccessControlHandlerResponse, state *accessControlHandlerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("dsee-compat")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.GlobalACI = internaltypes.GetStringSet(r.GlobalACI)

@@ -36,7 +36,6 @@ Manages a Gauge.
 - `samples_per_update_interval` (Number) Indicates the number of times the monitor data source value will be collected during the update interval.
 - `server_degraded_severity_level` (String) Specifies the alarm severity level at or above which the server is considered degraded.
 - `server_unavailable_severity_level` (String) Specifies the alarm severity level at or above which the server is considered unavailable.
-- `type` (String) The type of Gauge resource. Options are ['indicator', 'numeric']
 - `update_interval` (String) The frequency with which this Gauge is updated.
 - `warning_exit_value` (Number) A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'warning'.
 - `warning_value` (String) A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.
@@ -47,6 +46,7 @@ Manages a Gauge.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Gauge resource. Options are ['indicator', 'numeric']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

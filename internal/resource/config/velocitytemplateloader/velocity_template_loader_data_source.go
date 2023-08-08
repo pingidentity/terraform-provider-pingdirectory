@@ -49,6 +49,7 @@ func (r *velocityTemplateLoaderDataSource) Configure(_ context.Context, req data
 type velocityTemplateLoaderDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
+	Type                     types.String `tfsdk:"type"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex     types.Int64  `tfsdk:"evaluation_order_index"`
@@ -63,6 +64,12 @@ func (r *velocityTemplateLoaderDataSource) Schema(ctx context.Context, req datas
 	schemaDef := schema.Schema{
 		Description: "Describes a Velocity Template Loader.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Velocity Template Loader resource. Options are ['velocity-template-loader']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -111,6 +118,7 @@ func (r *velocityTemplateLoaderDataSource) Schema(ctx context.Context, req datas
 
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponseDataSource(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("velocity-template-loader")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -16,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -452,165 +454,210 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"root-dse", "simple", "aggregate", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *requestCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsRequestCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"simple"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("excluded_application_name"),
+				path.MatchRoot("included_application_name"),
+			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("using_administrative_session_worker_thread"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_extended_operation_oid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_request_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_request_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_application_name"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_application_name"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_extended_operation_oid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_request_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_target_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("operation_origin"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_bind_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_search_scope"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("operation_type"),
+			path.MatchRoot("type"),
+			[]string{"root-dse", "simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_request_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_target_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+	}
 }
 
-func (r *defaultRequestCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r requestCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRequestCriteria()
 }
 
-func modifyPlanRequestCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model requestCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NotAllIncludedTargetEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_target_entry_group_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_target_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedRequestCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_request_criteria' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_request_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.UsingAdministrativeSessionWorkerThread) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'using_administrative_session_worker_thread' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'using_administrative_session_worker_thread', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedTargetSASLMechanism) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_target_sasl_mechanism' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_target_sasl_mechanism', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedExtendedOperationOID) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_extended_operation_oid' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_extended_operation_oid', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedRequestControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_request_control' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_request_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedTargetEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_target_entry_group_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_target_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedRequestCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_request_criteria' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_request_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedRequestControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_request_control' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_request_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedTargetEntryDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_target_entry_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_target_entry_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedApplicationName) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_application_name' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_application_name', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedTargetEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_target_entry_group_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_target_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ConnectionCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'connection_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedApplicationName) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_application_name' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_application_name', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedTargetEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_target_entry_filter' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_target_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedTargetEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_target_entry_filter' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_target_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedExtendedOperationOID) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_extended_operation_oid' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_extended_operation_oid', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedTargetEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_target_entry_filter' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_target_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedRequestCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'none_included_request_criteria' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_request_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedRequestControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_request_control' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_request_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedTargetSASLMechanism) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_target_sasl_mechanism' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_target_sasl_mechanism', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.OperationOrigin) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'operation_origin' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'operation_origin', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.TargetBindType) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'target_bind_type' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'target_bind_type', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedTargetEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_target_entry_filter' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_target_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedSearchScope) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_search_scope' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_search_scope', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedTargetAttribute) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_target_attribute' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_target_attribute', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedTargetAttribute) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_target_attribute' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_target_attribute', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedRequestCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_request_criteria' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_request_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.OperationType) && model.Type.ValueString() != "root-dse" && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'operation_type' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'operation_type', the 'type' attribute must be one of ['root-dse', 'simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedTargetEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_target_entry_group_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_target_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedRequestControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_request_control' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_request_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedTargetEntryDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_target_entry_dn' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_target_entry_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_request_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
+// Add config validators
+func (r defaultRequestCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsRequestCriteria()
 }
 
 // Add optional fields to create request for root-dse request-criteria
@@ -1305,16 +1352,16 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state requestCriteriaResourceModel
-	if plan.Type.ValueString() == "root-dse" {
+	if readResponse.RootDseRequestCriteriaResponse != nil {
 		readRootDseRequestCriteriaResponse(ctx, readResponse.RootDseRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleRequestCriteriaResponse != nil {
 		readSimpleRequestCriteriaResponse(ctx, readResponse.SimpleRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateRequestCriteriaResponse != nil {
 		readAggregateRequestCriteriaResponse(ctx, readResponse.AggregateRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyRequestCriteriaResponse != nil {
 		readThirdPartyRequestCriteriaResponse(ctx, readResponse.ThirdPartyRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1339,16 +1386,16 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "root-dse" {
+		if updateResponse.RootDseRequestCriteriaResponse != nil {
 			readRootDseRequestCriteriaResponse(ctx, updateResponse.RootDseRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleRequestCriteriaResponse != nil {
 			readSimpleRequestCriteriaResponse(ctx, updateResponse.SimpleRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateRequestCriteriaResponse != nil {
 			readAggregateRequestCriteriaResponse(ctx, updateResponse.AggregateRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1456,16 +1503,16 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "root-dse" {
+		if updateResponse.RootDseRequestCriteriaResponse != nil {
 			readRootDseRequestCriteriaResponse(ctx, updateResponse.RootDseRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleRequestCriteriaResponse != nil {
 			readSimpleRequestCriteriaResponse(ctx, updateResponse.SimpleRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateRequestCriteriaResponse != nil {
 			readAggregateRequestCriteriaResponse(ctx, updateResponse.AggregateRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

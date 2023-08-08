@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -187,57 +188,67 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"default", "groovy-scripted", "simple", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedAttributeCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsUncachedAttributeCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_value_count"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_total_value_size"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+	}
 }
 
-func (r *defaultUncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedAttributeCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r uncachedAttributeCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedAttributeCriteria()
 }
 
-func modifyPlanUncachedAttributeCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model uncachedAttributeCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MinValueCount) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'min_value_count' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_value_count', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.MinTotalValueSize) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'min_total_value_size' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_total_value_size', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AttributeType) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'attribute_type' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'attribute_type', the 'type' attribute must be one of ['simple']")
-	}
+// Add config validators
+func (r defaultUncachedAttributeCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedAttributeCriteria()
 }
 
 // Add optional fields to create request for default uncached-attribute-criteria
@@ -587,16 +598,16 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state uncachedAttributeCriteriaResourceModel
-	if plan.Type.ValueString() == "default" {
+	if readResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 		readDefaultUncachedAttributeCriteriaResponse(ctx, readResponse.DefaultUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 		readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 		readSimpleUncachedAttributeCriteriaResponse(ctx, readResponse.SimpleUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -621,16 +632,16 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 			readDefaultUncachedAttributeCriteriaResponse(ctx, updateResponse.DefaultUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 			readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 			readSimpleUncachedAttributeCriteriaResponse(ctx, updateResponse.SimpleUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -738,16 +749,16 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 			readDefaultUncachedAttributeCriteriaResponse(ctx, updateResponse.DefaultUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 			readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 			readSimpleUncachedAttributeCriteriaResponse(ctx, updateResponse.SimpleUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

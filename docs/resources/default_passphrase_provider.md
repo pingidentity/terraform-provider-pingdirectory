@@ -39,7 +39,6 @@ Manages a Passphrase Provider.
 - `secret_name` (String) The name of the secret to retrieve.
 - `secret_version_id` (String) The unique identifier for the version of the secret to be retrieved.
 - `secret_version_stage` (String) The staging label for the version of the secret to be retrieved.
-- `type` (String) The type of Passphrase Provider resource. Options are ['environment-variable', 'amazon-secrets-manager', 'obscured-value', 'azure-key-vault', 'file-based', 'conjur', 'vault', 'third-party']
 - `vault_external_server` (String) An external server definition with information needed to connect and authenticate to the Vault instance containing the passphrase.
 - `vault_secret_field_name` (String) The name of the field in the Vault secret record that contains the passphrase to use to generate the encryption key.
 - `vault_secret_path` (String) The path to the desired secret in the Vault service. This will be appended to the value of the base-url property for the associated Vault external server.
@@ -50,6 +49,7 @@ Manages a Passphrase Provider.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Passphrase Provider resource. Options are ['environment-variable', 'amazon-secrets-manager', 'obscured-value', 'azure-key-vault', 'file-based', 'conjur', 'vault', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

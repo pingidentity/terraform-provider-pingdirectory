@@ -52,6 +52,7 @@ resource "pingdirectory_location" "drangleic" {
 ### Optional
 
 - `description` (String) A description for this Location
+- `type` (String) The type of Location resource. Options are ['location']
 
 ### Read-Only
 

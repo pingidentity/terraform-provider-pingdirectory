@@ -48,6 +48,7 @@ func (r *workQueueDataSource) Configure(_ context.Context, req datasource.Config
 
 type workQueueDataSourceModel struct {
 	Id                                       types.String `tfsdk:"id"`
+	Type                                     types.String `tfsdk:"type"`
 	NumWorkerThreads                         types.Int64  `tfsdk:"num_worker_threads"`
 	NumWriteWorkerThreads                    types.Int64  `tfsdk:"num_write_worker_threads"`
 	NumAdministrativeSessionWorkerThreads    types.Int64  `tfsdk:"num_administrative_session_worker_threads"`
@@ -67,6 +68,12 @@ func (r *workQueueDataSource) Schema(ctx context.Context, req datasource.SchemaR
 	schemaDef := schema.Schema{
 		Description: "Describes a Work Queue.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Work Queue resource. Options are ['high-throughput']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"num_worker_threads": schema.Int64Attribute{
 				Description: "Specifies the total number of worker threads that should be used within the server in order to process requested operations. The worker threads will be split evenly across all of the configured queues.",
 				Required:    false,
@@ -147,6 +154,7 @@ func (r *workQueueDataSource) Schema(ctx context.Context, req datasource.SchemaR
 
 // Read a HighThroughputWorkQueueResponse object into the model struct
 func readHighThroughputWorkQueueResponseDataSource(ctx context.Context, r *client.HighThroughputWorkQueueResponse, state *workQueueDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("high-throughput")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)

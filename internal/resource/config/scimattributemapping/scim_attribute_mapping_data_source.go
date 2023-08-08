@@ -49,6 +49,7 @@ func (r *scimAttributeMappingDataSource) Configure(_ context.Context, req dataso
 type scimAttributeMappingDataSourceModel struct {
 	Id                        types.String `tfsdk:"id"`
 	Name                      types.String `tfsdk:"name"`
+	Type                      types.String `tfsdk:"type"`
 	ScimResourceTypeName      types.String `tfsdk:"scim_resource_type_name"`
 	CorrelatedLDAPDataView    types.String `tfsdk:"correlated_ldap_data_view"`
 	ScimResourceTypeAttribute types.String `tfsdk:"scim_resource_type_attribute"`
@@ -64,6 +65,12 @@ func (r *scimAttributeMappingDataSource) Schema(ctx context.Context, req datasou
 	schemaDef := schema.Schema{
 		Description: "Describes a Scim Attribute Mapping.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"scim_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Resource Type",
 				Required:    true,
@@ -118,6 +125,7 @@ func (r *scimAttributeMappingDataSource) Schema(ctx context.Context, req datasou
 
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponseDataSource(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("scim-attribute-mapping")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, false)

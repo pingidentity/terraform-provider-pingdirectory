@@ -248,12 +248,13 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"text-access", "json-formatted-access"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -725,10 +726,10 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state logFieldBehaviorResourceModel
-	if plan.Type.ValueString() == "text-access" {
+	if readResponse.TextAccessLogFieldBehaviorResponse != nil {
 		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-formatted-access" {
+	if readResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -753,10 +754,10 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "text-access" {
+		if updateResponse.TextAccessLogFieldBehaviorResponse != nil {
 			readTextAccessLogFieldBehaviorResponse(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-formatted-access" {
+		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -858,10 +859,10 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "text-access" {
+		if updateResponse.TextAccessLogFieldBehaviorResponse != nil {
 			readTextAccessLogFieldBehaviorResponse(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-formatted-access" {
+		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

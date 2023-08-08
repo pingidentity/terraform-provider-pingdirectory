@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -80,10 +81,9 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Server Instance Listener resource. Options are ['ldap', 'http']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ldap", "http"}...),
 				},
@@ -150,25 +150,29 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *serverInstanceListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model serverInstanceListenerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ServerHTTPPort) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'server_http_port' not supported by pingdirectory_server_instance_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_http_port', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.ListenAddress) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'listen_address' not supported by pingdirectory_server_instance_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'listen_address', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.ServerLDAPPort) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'server_ldap_port' not supported by pingdirectory_server_instance_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_ldap_port', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.ListenerCertificate) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'listener_certificate' not supported by pingdirectory_server_instance_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'listener_certificate', the 'type' attribute must be one of ['ldap']")
+// Add config validators
+func (r serverInstanceListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_http_port"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_address"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_ldap_port"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listener_certificate"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
 	}
 }
 
@@ -248,10 +252,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state serverInstanceListenerResourceModel
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapServerInstanceListenerResponse != nil {
 		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http" {
+	if readResponse.HttpServerInstanceListenerResponse != nil {
 		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -276,10 +280,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapServerInstanceListenerResponse != nil {
 			readLdapServerInstanceListenerResponse(ctx, updateResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpServerInstanceListenerResponse != nil {
 			readHttpServerInstanceListenerResponse(ctx, updateResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -366,10 +370,10 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapServerInstanceListenerResponse != nil {
 			readLdapServerInstanceListenerResponse(ctx, updateResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpServerInstanceListenerResponse != nil {
 			readHttpServerInstanceListenerResponse(ctx, updateResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

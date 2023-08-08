@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type rootDnUserResourceModel struct {
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
+	Type                           types.String `tfsdk:"type"`
 	AlternateBindDN                types.Set    `tfsdk:"alternate_bind_dn"`
 	Description                    types.String `tfsdk:"description"`
 	Password                       types.String `tfsdk:"password"`
@@ -136,6 +140,15 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	schemaDef := schema.Schema{
 		Description: "Manages a Root Dn User.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DN User resource. Options are ['root-dn-user']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("root-dn-user"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"root-dn-user"}...),
+				},
+			},
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Optional:    true,
@@ -402,8 +415,13 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -577,6 +595,7 @@ func populateRootDnUserUnknownValues(ctx context.Context, model *rootDnUserResou
 
 // Read a RootDnUserResponse object into the model struct
 func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, state *rootDnUserResourceModel, expectedValues *rootDnUserResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dn-user")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)

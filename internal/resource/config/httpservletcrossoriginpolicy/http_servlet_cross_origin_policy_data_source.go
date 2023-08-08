@@ -49,6 +49,7 @@ func (r *httpServletCrossOriginPolicyDataSource) Configure(_ context.Context, re
 type httpServletCrossOriginPolicyDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
 	Name                 types.String `tfsdk:"name"`
+	Type                 types.String `tfsdk:"type"`
 	Description          types.String `tfsdk:"description"`
 	CorsAllowedMethods   types.Set    `tfsdk:"cors_allowed_methods"`
 	CorsAllowedOrigins   types.Set    `tfsdk:"cors_allowed_origins"`
@@ -63,6 +64,12 @@ func (r *httpServletCrossOriginPolicyDataSource) Schema(ctx context.Context, req
 	schemaDef := schema.Schema{
 		Description: "Describes a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Cross Origin Policy",
 				Required:    false,
@@ -117,6 +124,7 @@ func (r *httpServletCrossOriginPolicyDataSource) Schema(ctx context.Context, req
 
 // Read a HttpServletCrossOriginPolicyResponse object into the model struct
 func readHttpServletCrossOriginPolicyResponseDataSource(ctx context.Context, r *client.HttpServletCrossOriginPolicyResponse, state *httpServletCrossOriginPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("http-servlet-cross-origin-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

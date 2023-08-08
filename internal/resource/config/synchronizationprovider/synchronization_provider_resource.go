@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -75,10 +76,9 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Synchronization Provider resource. Options are ['replication', 'custom']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"replication", "custom"}...),
 				},
@@ -113,13 +113,14 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *synchronizationProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model synchronizationProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NumUpdateReplayThreads) && model.Type.ValueString() != "replication" {
-		resp.Diagnostics.AddError("Attribute 'num_update_replay_threads' not supported by pingdirectory_synchronization_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_update_replay_threads', the 'type' attribute must be one of ['replication']")
+// Add config validators
+func (r synchronizationProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_update_replay_threads"),
+			path.MatchRoot("type"),
+			[]string{"replication"},
+		),
 	}
 }
 
@@ -181,10 +182,10 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state synchronizationProviderResourceModel
-	if plan.Type.ValueString() == "replication" {
+	if readResponse.ReplicationSynchronizationProviderResponse != nil {
 		readReplicationSynchronizationProviderResponse(ctx, readResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomSynchronizationProviderResponse != nil {
 		readCustomSynchronizationProviderResponse(ctx, readResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
 
@@ -209,10 +210,10 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "replication" {
+		if updateResponse.ReplicationSynchronizationProviderResponse != nil {
 			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomSynchronizationProviderResponse != nil {
 			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -298,10 +299,10 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "replication" {
+		if updateResponse.ReplicationSynchronizationProviderResponse != nil {
 			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomSynchronizationProviderResponse != nil {
 			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

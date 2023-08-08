@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -85,6 +88,7 @@ type keyPairResourceModel struct {
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
+	Type                          types.String `tfsdk:"type"`
 	KeyAlgorithm                  types.String `tfsdk:"key_algorithm"`
 	SelfSignedCertificateValidity types.String `tfsdk:"self_signed_certificate_validity"`
 	SubjectDN                     types.String `tfsdk:"subject_dn"`
@@ -105,6 +109,15 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 	schemaDef := schema.Schema{
 		Description: "Manages a Key Pair.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Key Pair resource. Options are ['key-pair']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("key-pair"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"key-pair"}...),
+				},
+			},
 			"key_algorithm": schema.StringAttribute{
 				Description: "The algorithm name and the length in bits of the key, e.g. RSA_2048.",
 				Optional:    true,
@@ -149,8 +162,13 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -194,6 +212,7 @@ func populateKeyPairUnknownValues(ctx context.Context, model *keyPairResourceMod
 
 // Read a KeyPairResponse object into the model struct
 func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *keyPairResourceModel, expectedValues *keyPairResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("key-pair")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())

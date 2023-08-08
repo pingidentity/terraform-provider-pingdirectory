@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -323,113 +324,137 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"simple", "aggregate", "third-party"}...),
-		}
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *searchEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_entry_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_entry_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+	}
 }
 
-func (r *defaultSearchEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r searchEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsSearchEntryCriteria()
 }
 
-func modifyPlanSearchEntryCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model searchEntryCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NotAllIncludedEntryControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_entry_control' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_entry_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_entry_filter' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_entry_group_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedSearchEntryCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_search_entry_criteria' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_search_entry_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_entry_filter' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_entry_filter' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedSearchEntryCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'none_included_search_entry_criteria' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_search_entry_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_entry_group_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_entry_group_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedEntryControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_entry_control' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_entry_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedEntryBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_entry_base_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_entry_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedEntryControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_entry_control' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_entry_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedSearchEntryCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_search_entry_criteria' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_search_entry_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedEntryControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_entry_control' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_entry_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedEntryGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_entry_group_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_entry_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedEntryFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_entry_filter' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_entry_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedEntryBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_entry_base_dn' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_entry_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedSearchEntryCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_search_entry_criteria' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_search_entry_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
+// Add config validators
+func (r defaultSearchEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsSearchEntryCriteria()
 }
 
 // Add optional fields to create request for simple search-entry-criteria
@@ -865,13 +890,13 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 
 	// Read the existing configuration
 	var state searchEntryCriteriaResourceModel
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleSearchEntryCriteriaResponse != nil {
 		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateSearchEntryCriteriaResponse != nil {
 		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -896,13 +921,13 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchEntryCriteriaResponse != nil {
 			readSimpleSearchEntryCriteriaResponse(ctx, updateResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchEntryCriteriaResponse != nil {
 			readAggregateSearchEntryCriteriaResponse(ctx, updateResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 			readThirdPartySearchEntryCriteriaResponse(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1007,13 +1032,13 @@ func updateSearchEntryCriteria(ctx context.Context, req resource.UpdateRequest, 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchEntryCriteriaResponse != nil {
 			readSimpleSearchEntryCriteriaResponse(ctx, updateResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchEntryCriteriaResponse != nil {
 			readAggregateSearchEntryCriteriaResponse(ctx, updateResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 			readThirdPartySearchEntryCriteriaResponse(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
