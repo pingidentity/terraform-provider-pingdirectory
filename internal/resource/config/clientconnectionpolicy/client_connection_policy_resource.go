@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -146,6 +148,12 @@ func (r *defaultClientConnectionPolicyResource) Schema(ctx context.Context, req 
 }
 
 func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	allowedOperationDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("abandon"), types.StringValue("add"), types.StringValue("bind"), types.StringValue("compare"), types.StringValue("delete"), types.StringValue("extended"), types.StringValue("modify"), types.StringValue("modify-dn"), types.StringValue("search")})
+	resp.Diagnostics.Append(diags...)
+	allowedAuthTypeDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("simple"), types.StringValue("sasl")})
+	resp.Diagnostics.Append(diags...)
+	allowedFilterTypeDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("and"), types.StringValue("or"), types.StringValue("not"), types.StringValue("equality"), types.StringValue("sub-initial"), types.StringValue("sub-any"), types.StringValue("sub-final"), types.StringValue("greater-or-equal"), types.StringValue("less-or-equal"), types.StringValue("present"), types.StringValue("approximate-match"), types.StringValue("extensible-match")})
+	resp.Diagnostics.Append(diags...)
 	schemaDef := schema.Schema{
 		Description: "Manages a Client Connection Policy.",
 		Attributes: map[string]schema.Attribute{
@@ -234,6 +242,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the types of operations that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(allowedOperationDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -287,6 +296,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the types of authentication that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(allowedAuthTypeDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -314,6 +324,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the types of filter components that may be included in search requests from clients associated with this Client Connection Policy which have a non-baseObject scope.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(allowedFilterTypeDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

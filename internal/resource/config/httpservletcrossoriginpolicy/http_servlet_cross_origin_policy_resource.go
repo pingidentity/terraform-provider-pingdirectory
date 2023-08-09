@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -111,6 +113,10 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Schema(ctx context.Context
 }
 
 func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	corsAllowedMethodsDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("GET")})
+	resp.Diagnostics.Append(diags...)
+	corsAllowedHeadersDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("Origin"), types.StringValue("Accept"), types.StringValue("X-Requested-With"), types.StringValue("Content-Type"), types.StringValue("Access-Control-Request-Method"), types.StringValue("Access-Control-Request-Headers"), types.StringValue("Authorization")})
+	resp.Diagnostics.Append(diags...)
 	schemaDef := schema.Schema{
 		Description: "Manages a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
@@ -131,6 +137,7 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Description: "A list of HTTP methods allowed for cross-origin access to resources. i.e. one or more of GET, POST, PUT, DELETE, etc.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(corsAllowedMethodsDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -158,6 +165,7 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Description: "A list of HTTP headers that are supported by the resource and can be specified in a cross-origin request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(corsAllowedHeadersDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

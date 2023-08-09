@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -115,6 +117,8 @@ func (r *defaultRecurringTaskChainResource) Schema(ctx context.Context, req reso
 }
 
 func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	scheduledMonthDefaults, diags := types.SetValue(types.StringType, []attr.Value{types.StringValue("january"), types.StringValue("february"), types.StringValue("march"), types.StringValue("april"), types.StringValue("may"), types.StringValue("june"), types.StringValue("july"), types.StringValue("august"), types.StringValue("september"), types.StringValue("october"), types.StringValue("november"), types.StringValue("december")})
+	resp.Diagnostics.Append(diags...)
 	schemaDef := schema.Schema{
 		Description: "Manages a Recurring Task Chain.",
 		Attributes: map[string]schema.Attribute{
@@ -149,6 +153,7 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The months of the year in which instances of this Recurring Task Chain may be scheduled to start.",
 				Optional:    true,
 				Computed:    true,
+				Default:     setdefault.StaticValue(scheduledMonthDefaults),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
