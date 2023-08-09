@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -295,6 +296,7 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The name of the token claim that contains the subject, i.e. the logged-in user in an access token. This property goes hand-in-hand with the identity-mapper property and tells the Identity Mapper which field to use to look up the user entry on the server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("sub"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -317,7 +319,7 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -330,8 +332,8 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"ping-federate"},
 			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("client_secret_passphrase_provider"),
 				path.MatchRoot("client_secret"),
+				path.MatchRoot("client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

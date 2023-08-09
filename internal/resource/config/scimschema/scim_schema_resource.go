@@ -139,7 +139,7 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "schema_urn"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "schema_urn"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

@@ -460,7 +460,7 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -473,8 +473,8 @@ func configValidatorsRequestCriteria() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"simple"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("excluded_application_name"),
 				path.MatchRoot("included_application_name"),
+				path.MatchRoot("excluded_application_name"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

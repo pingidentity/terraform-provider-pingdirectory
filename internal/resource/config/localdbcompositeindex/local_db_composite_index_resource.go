@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -155,6 +156,7 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Indicates whether the server should load the contents of this index into memory when the backend is being opened.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -163,6 +165,7 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Indicates whether to only prime the internal nodes of the index database, rather than priming both internal and leaf nodes.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -184,7 +187,7 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "backend_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "backend_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

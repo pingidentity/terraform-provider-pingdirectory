@@ -10,7 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -162,6 +164,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Indicates whether to continue to maintain a count of the number of matching entries for an index key even after that count exceeds the index entry limit.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -175,6 +178,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The length of substrings in a substring index.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(6),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -183,6 +187,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "If this option is enabled and this index's backend is configured to prime indexes, then this index will be loaded at startup.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -191,6 +196,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "If this option is enabled and this index's backend is configured to prime indexes using the preload method, then only the internal database nodes (i.e., the database keys but not values) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -208,6 +214,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Indicates whether to maintain a separate equality index for the associated attribute without any filter, in addition to maintaining an index for each equality index filter that is defined. If this is false, then the attribute will not be indexed for equality by itself but only in conjunction with the defined equality index filters.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -229,7 +236,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "attribute", "backend_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute", "backend_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

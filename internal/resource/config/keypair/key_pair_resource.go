@@ -122,6 +122,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "The algorithm name and the length in bits of the key, e.g. RSA_2048.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("RSA_2048"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -138,6 +139,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "The DN that should be used as the subject for the self-signed certificate and certificate signing request. This is not used when importing an existing key-pair.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("cn=Directory Server,O=Ping Identity Key Pair"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -168,7 +170,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

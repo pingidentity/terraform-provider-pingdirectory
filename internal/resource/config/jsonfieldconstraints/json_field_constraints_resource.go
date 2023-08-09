@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -163,6 +164,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -171,6 +173,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the value of the target field may be an array of values rather than a single value. If this property is set to \"required\" or \"optional\", then the constraints defined for this field will be applied to each element of the array.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("prohibited"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -179,6 +182,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the target field may have a value that is the JSON null value as an alternative to a value (or array of values) of the specified value-type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -187,6 +191,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the target field may have a value that is an empty JSON object (i.e., a JSON object with zero fields). This may only be set to true if value-type property is set to object.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -195,6 +200,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether backends that support JSON indexing should maintain an index for values of the target field.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -211,6 +217,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether backends that support database priming should load the contents of the associated JSON index into memory whenever the backend is opened.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -227,6 +234,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the backend should attempt to assign a compact token for each distinct value for the target field in an attempt to reduce the encoded size of the field in JSON objects. These tokens would be assigned prior to using any from the token set used for automatic compaction of some JSON string values.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -282,7 +290,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "json_field", "json_attribute_constraints_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "json_field", "json_attribute_constraints_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

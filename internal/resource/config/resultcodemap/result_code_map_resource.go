@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -126,6 +127,7 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the result code that should be returned if a bind attempt fails because the user's account is locked as a result of too many failed authentication attempts.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(49),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -134,6 +136,7 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the result code that should be returned if a bind attempt fails because the target user entry does not exist in the server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(49),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -142,6 +145,7 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the result code that should be returned if a password-based bind attempt fails because the target user entry does not have a password.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(49),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -150,6 +154,7 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the result code that should be returned if a generic error occurs within the server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(80),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -163,7 +168,7 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

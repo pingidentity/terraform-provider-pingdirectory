@@ -356,7 +356,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -400,8 +400,8 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
 			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 				path.MatchRoot("oauth_client_secret"),
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

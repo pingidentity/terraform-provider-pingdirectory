@@ -836,7 +836,7 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -888,8 +888,8 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"ldap-mapped-scim"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("exclude_ldap_objectclass"),
 				path.MatchRoot("include_ldap_objectclass"),
+				path.MatchRoot("exclude_ldap_objectclass"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

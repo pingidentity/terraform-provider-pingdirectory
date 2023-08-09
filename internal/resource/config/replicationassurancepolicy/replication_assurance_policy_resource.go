@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -130,6 +131,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Description: "Indicates whether this Replication Assurance Policy is enabled for use in the server. If a Replication Assurance Policy is disabled, then no new operations will be associated with it.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -142,6 +144,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies the assurance level used to replicate to local servers. A local server is defined as one with the same value for the location setting in the global configuration.  The local-level must be set to an assurance level at least as strict as the remote-level. In other words, if remote-level is set to \"received-any-remote-location\" or \"received-all-remote-locations\", then local-level must be either \"received-any-server\" or \"processed-all-servers\". If remote-level is \"processed-all-remote-servers\", then local-level must be \"processed-all-servers\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("none"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -150,6 +153,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("none"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -175,7 +179,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

@@ -335,7 +335,7 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				int64planmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

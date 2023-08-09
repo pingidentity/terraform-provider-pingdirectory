@@ -170,7 +170,7 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "id_token_validator_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "id_token_validator_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -183,8 +183,8 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"string-array"},
 			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("any_required_value"),
 				path.MatchRoot("all_required_value"),
+				path.MatchRoot("any_required_value"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

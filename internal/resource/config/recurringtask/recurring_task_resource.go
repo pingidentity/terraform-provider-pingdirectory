@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -680,6 +681,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -715,6 +717,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -723,6 +726,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -731,6 +735,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -745,7 +750,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -793,9 +798,9 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"delay"},
 			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("sleep_duration"),
 				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
 				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
-				path.MatchRoot("sleep_duration"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -803,16 +808,16 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"file-retention"},
 			resourcevalidator.AtLeastOneOf(
 				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_aggregate_file_size"),
 				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
 			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_settings_definition_id"),
 				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(

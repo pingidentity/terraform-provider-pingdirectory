@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -149,6 +150,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the data type for this sub-attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("string"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -157,6 +159,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies whether this sub-attribute is required.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -165,6 +168,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies whether the sub-attribute values are case sensitive.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -173,6 +177,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies whether this attribute may have multiple values.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -190,6 +195,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the circumstances under which the values of the sub-attribute can be written.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("read-write"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -198,6 +204,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the circumstances under which the values of the sub-attribute are returned in response to a request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("by-default"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -220,7 +227,7 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Computed = true
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"resource_type", "scim_attribute_name", "scim_schema_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type", "scim_attribute_name", "scim_schema_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

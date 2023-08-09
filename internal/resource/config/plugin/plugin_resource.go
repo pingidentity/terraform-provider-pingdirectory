@@ -1491,7 +1491,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				int64planmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"resource_type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -1543,8 +1543,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("search_filter_pattern"),
 				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1575,8 +1575,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"ping-one-pass-through-authentication"},
 			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 				path.MatchRoot("oauth_client_secret"),
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
