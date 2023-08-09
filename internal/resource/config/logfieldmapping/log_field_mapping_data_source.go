@@ -119,7 +119,7 @@ func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:    true,
 			},
 			"log_field_timestamp": schema.StringAttribute{
-				Description: " When the `type` value is one of [`access`]: The time that the operation was processed. When the `type` value is one of [`error`]: The time that the log message was generated.",
+				Description: " When the `type` attribute is set to `access`: The time that the operation was processed. When the `type` attribute is set to `error`: The time that the log message was generated.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -131,7 +131,7 @@ func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:    true,
 			},
 			"log_field_startupid": schema.StringAttribute{
-				Description: " When the `type` value is one of [`access`]: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` value is one of [`error`]: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
+				Description: " When the `type` attribute is set to `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` attribute is set to `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -179,7 +179,7 @@ func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:    true,
 			},
 			"log_field_message_id": schema.StringAttribute{
-				Description: " When the `type` value is one of [`access`]: The message ID included in the client request. When the `type` value is one of [`error`]: The numeric value which uniquely identifies the type of message.",
+				Description: " When the `type` attribute is set to `access`: The message ID included in the client request. When the `type` attribute is set to `error`: The numeric value which uniquely identifies the type of message.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -191,7 +191,7 @@ func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:    true,
 			},
 			"log_field_message": schema.StringAttribute{
-				Description: " When the `type` value is one of [`access`]: The diagnostic message for the operation. When the `type` value is one of [`error`]: The text of the log message.",
+				Description: " When the `type` attribute is set to `access`: The diagnostic message for the operation. When the `type` attribute is set to `error`: The text of the log message.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

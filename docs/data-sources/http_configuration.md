@@ -46,7 +46,7 @@ data "pingdirectory_http_configuration" "myHttpConfiguration" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `include_servlet_information_in_error_pages` (Boolean) Indicates whether to expose servlet information in the error page response. Supported in PingDirectory product version 9.3.0.0+.
+- `include_servlet_information_in_error_pages` (Boolean) Supported in PingDirectory product version 9.3.0.0+. Indicates whether to expose servlet information in the error page response.
 - `include_stack_traces_in_error_pages` (Boolean) Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.
 - `type` (String) The type of HTTP Configuration resource. Options are ['http-configuration']
 

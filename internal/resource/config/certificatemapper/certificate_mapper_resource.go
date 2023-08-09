@@ -182,7 +182,7 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				},
 			},
 			"user_base_dn": schema.SetAttribute{
-				Description: " When the `type` value is one of [`fingerprint`]: Specifies the set of base DNs below which to search for users. When the `type` value is one of [`subject-dn-to-user-attribute`, `subject-attribute-to-user-attribute`]: Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry.",
+				Description: " When the `type` attribute is set to one of [`subject-dn-to-user-attribute`, `subject-attribute-to-user-attribute`]: Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry. When the `type` attribute is set to `fingerprint`: Specifies the set of base DNs below which to search for users.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,

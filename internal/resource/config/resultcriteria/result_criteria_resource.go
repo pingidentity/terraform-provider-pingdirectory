@@ -276,7 +276,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"request_criteria": schema.StringAttribute{
-				Description: " When the `type` value is one of [`successful-bind`]: Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria. When the `type` value is one of [`simple`]: Specifies a request criteria object that must match the associated request for operations included in this Simple Result Criteria.",
+				Description: " When the `type` attribute is set to `successful-bind`: Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria. When the `type` attribute is set to `simple`: Specifies a request criteria object that must match the associated request for operations included in this Simple Result Criteria.",
 				Optional:    true,
 			},
 			"result_code_criteria": schema.StringAttribute{

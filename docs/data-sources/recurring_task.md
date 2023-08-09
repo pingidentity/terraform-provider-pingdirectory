@@ -62,7 +62,7 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 - `command_output_file_base_name` (String) The path and base name for a file to which the command output (both standard output and standard error) should be written. This may be left undefined if the command output should not be recorded into a file.
 - `command_path` (String) The absolute path to the command to execute. It must be an absolute path, the corresponding file must exist, and it must be listed in the config/exec-command-whitelist.txt file.
 - `comment` (String) An optional comment to include in a README file within the support data archive.
-- `compress` (Boolean) Indicates whether to compress the data as it is written into the backup.
+- `compress` (Boolean) When the `type` attribute is set to `backup`: Indicates whether to compress the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to compress the LDIF data as it is exported.
 - `data_security_auditor` (Set of String) The set of data security auditors that should be invoked. If no auditors are specified, then all auditors defined in the configuration will be used.
 - `description` (String) A description for this Recurring Task
 - `duration_to_wait_for_search_to_return_entries` (String) The maximum length of time that the server will continue to perform internal searches using the criteria from the ldap-url-for-search-expected-to-return-entries property.
@@ -70,9 +70,9 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 - `email_on_failure` (Set of String) The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_start` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_success` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
-- `encrypt` (Boolean) Indicates whether to encrypt the data as it is written into the backup.
+- `encrypt` (Boolean) When the `type` attribute is set to `backup`: Indicates whether to encrypt the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to encrypt the LDIF data as it exported.
 - `encryption_passphrase_file` (String) The path to a file that contains the passphrase to encrypt the contents of the support data archive.
-- `encryption_settings_definition_id` (String) The ID of an encryption settings definition to use to obtain the backup encryption key.
+- `encryption_settings_definition_id` (String) When the `type` attribute is set to `backup`: The ID of an encryption settings definition to use to obtain the backup encryption key. When the `type` attribute is set to `ldif-export`: The ID of an encryption settings definition to use to obtain the LDIF export encryption key.
 - `exclude_backend_id` (Set of String) The backend ID for a backend to be excluded from the export.
 - `excluded_backend_id` (Set of String) The backend IDs of any backends that should be excluded from the backup. All backends that support backups and are not listed will be included.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Recurring Task. Each configuration property should be given in the form 'name=value'.
@@ -93,10 +93,10 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 - `log_duration` (String) The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.
 - `log_file_head_collection_size` (String) The amount of data to collect from the beginning of each log file included in the support data archive.
 - `log_file_tail_collection_size` (String) The amount of data to collect from the end of each log file included in the support data archive.
-- `max_megabytes_per_second` (Number) The maximum rate, in megabytes per second, at which backups should be written.
+- `max_megabytes_per_second` (Number) When the `type` attribute is set to `backup`: The maximum rate, in megabytes per second, at which backups should be written. When the `type` attribute is set to `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.
 - `output_directory` (String) The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.
 - `profile_directory` (String) The directory in which the generated server profiles will be placed. The files will be named with the pattern "server-profile-{timestamp}.zip", where "{timestamp}" represents the time that the profile was generated.
-- `reason` (String) The reason that the server is being taken out of in lockdown mode.
+- `reason` (String) When the `type` attribute is set to `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode. When the `type` attribute is set to `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.
 - `report_count` (Number) The number of intervals of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat. A value of zero indicates that these kinds of tools should not be used to collect any information.
 - `report_interval_seconds` (Number) The duration (in seconds) between each interval of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat.
 - `retain_aggregate_file_size` (String) The minimum aggregate size of files that will be retained. The size should be specified as an integer followed by a unit that is one of "b" or "bytes", "kb" or "kilobytes", "mb" or "megabytes", "gb" or "gigabytes", or "tb" or "terabytes". For example, a value of "1 gb" indicates that at least one gigabyte of files should be retained.
@@ -117,7 +117,7 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 - `search_interval` (String) The length of time the server should sleep between searches performed using the criteria from the ldap-url-for-search-expected-to-return-entries property.
 - `search_time_limit` (String) The length of time that the server will wait for a response to each internal search performed using the criteria from the ldap-url-for-search-expected-to-return-entries property.
 - `security_level` (String) The security level to use when deciding which information to include in or exclude from the support data archive, and which included data should be obscured or redacted.
-- `sign` (Boolean) Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created.
+- `sign` (Boolean) When the `type` attribute is set to `backup`: Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created. When the `type` attribute is set to `ldif-export`: Indicates whether to cryptographically sign the exported data, which will make it possible to detect whether the LDIF data has been altered since it was exported.
 - `sleep_duration` (String) The length of time to sleep before the task completes.
 - `target_directory` (String) The path to the directory containing the files to examine. The directory must exist.
 - `task_attribute_value` (Set of String) The set of attribute values that should be included in the tasks that are scheduled from this Statically Defined Recurring Task. Each value must be in the form {attribute-type}={value}, where {attribute-type} is the name or OID of an attribute type that is defined in the schema and permitted with the configured set of object classes, and {value} is a value to assign to an attribute with that type. A multivalued attribute can be created by providing multiple name-value pairs with the same name and different values.

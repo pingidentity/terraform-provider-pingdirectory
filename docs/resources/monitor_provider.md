@@ -55,7 +55,7 @@ resource "pingdirectory_default_monitor_provider" "mine" {
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
+- `enabled` (Boolean) When the `type` attribute is set to one of [`memory-usage`, `stack-trace`, `encryption-settings-database-accessibility`, `custom`, `active-operations`, `ssl-context`, `version`, `general`, `disk-space-usage`, `system-info`, `client-connection`, `third-party`]: Indicates whether the Monitor Provider is enabled for use. When the `type` attribute is set to `host-system`: Indicates whether the Host System Monitor Provider is enabled for use.
 - `name` (String) Name of this config object.
 - `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 

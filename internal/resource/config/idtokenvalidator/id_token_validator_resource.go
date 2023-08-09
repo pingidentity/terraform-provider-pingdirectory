@@ -148,7 +148,7 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 				},
 			},
 			"issuer_url": schema.StringAttribute{
-				Description: " When the `type` value is one of [`ping-one`]: Specifies a PingOne base issuer URL. When the `type` value is one of [`openid-connect`]: Specifies the OpenID Connect provider's issuer URL.",
+				Description: " When the `type` attribute is set to `ping-one`: Specifies a PingOne base issuer URL. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider's issuer URL.",
 				Required:    true,
 			},
 			"jwks_endpoint_path": schema.StringAttribute{
@@ -160,7 +160,7 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 				},
 			},
 			"openid_connect_provider": schema.StringAttribute{
-				Description: " When the `type` value is one of [`ping-one`]: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` value is one of [`openid-connect`]: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
+				Description: " When the `type` attribute is set to `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

@@ -275,7 +275,7 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"case_sensitive_validation": schema.BoolAttribute{
-				Description: " When the `type` value is one of [`dictionary`]: Indicates whether this password validator is to treat password characters in a case-sensitive manner. When the `type` value is one of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner.",
+				Description: " When the `type` attribute is set to one of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner. When the `type` attribute is set to `dictionary`: Indicates whether this password validator is to treat password characters in a case-sensitive manner.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -337,7 +337,7 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"test_reversed_password": schema.BoolAttribute{
-				Description: " When the `type` value is one of [`attribute-value`]: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given. When the `type` value is one of [`dictionary`]: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
+				Description: " When the `type` attribute is set to `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given. When the `type` attribute is set to `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -349,7 +349,7 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"character_set": schema.SetAttribute{
-				Description: " When the `type` value is one of [`character-set`]: Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set. When the `type` value is one of [`repeated-characters`]: Specifies a set of characters that should be considered equivalent for the purpose of this password validator. This can be used, for example, to ensure that passwords contain no more than three consecutive digits.",
+				Description: " When the `type` attribute is set to `character-set`: Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set. When the `type` attribute is set to `repeated-characters`: Specifies a set of characters that should be considered equivalent for the purpose of this password validator. This can be used, for example, to ensure that passwords contain no more than three consecutive digits.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

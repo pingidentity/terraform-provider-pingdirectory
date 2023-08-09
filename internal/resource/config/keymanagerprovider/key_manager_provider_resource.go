@@ -186,16 +186,16 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 			},
 			"key_store_pin": schema.StringAttribute{
-				Description: " When the `type` value is one of [`file-based`]: Specifies the PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: Specifies the PIN needed to access the PKCS11 Key Manager Provider.",
+				Description: " When the `type` attribute is set to `file-based`: Specifies the PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: Specifies the PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 				Sensitive:   true,
 			},
 			"key_store_pin_file": schema.StringAttribute{
-				Description: " When the `type` value is one of [`file-based`]: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
+				Description: " When the `type` attribute is set to `file-based`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 			},
 			"key_store_pin_passphrase_provider": schema.StringAttribute{
-				Description: " When the `type` value is one of [`file-based`]: The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
+				Description: " When the `type` attribute is set to `file-based`: The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 			},
 			"private_key_pin": schema.StringAttribute{

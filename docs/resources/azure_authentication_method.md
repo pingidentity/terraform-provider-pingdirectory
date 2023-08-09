@@ -52,11 +52,11 @@ resource "pingdirectory_azure_authentication_method" "myAzureAuthenticationMetho
 
 ### Optional
 
-- `client_id` (String) The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID
+- `client_id` (String) When the `type` attribute is set to one of [`client-secret`, `username-password`]: The client ID to use to authenticate. When the `type` attribute is set to `default`: The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID
 - `client_secret` (String, Sensitive) The client secret to use to authenticate.
 - `description` (String) A description for this Azure Authentication Method
 - `password` (String, Sensitive) The password for the user to authenticate.
-- `tenant_id` (String) The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.
+- `tenant_id` (String) When the `type` attribute is set to one of [`client-secret`, `username-password`]: The tenant ID to use to authenticate. When the `type` attribute is set to `default`: The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.
 - `username` (String) The username for the user to authenticate.
 
 ### Read-Only

@@ -58,7 +58,7 @@ resource "pingdirectory_default_replication_server" "myReplicationServer" {
 - `heartbeat_interval` (String) Specifies the heartbeat interval that the Directory Server will use when communicating with Replication Servers.
 - `je_property` (Set of String) Specifies the database and environment properties for the Berkeley DB Java Edition database for the replication changelog.
 - `listen_on_all_addresses` (Boolean) Indicates whether the Replication Server should listen on all addresses for this host. If set to FALSE, then the Replication Server will listen only to the address resolved from the hostname provided.
-- `missing_changes_alert_threshold_percent` (Number) Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes. Supported in PingDirectory product version 9.3.0.0+.
+- `missing_changes_alert_threshold_percent` (Number) Supported in PingDirectory product version 9.3.0.0+. Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes.
 - `remote_monitor_update_interval` (String) Specifies the duration that topology monitor data will be cached before it is requested again from a remote server.
 - `replication_db_directory` (String) The path where the Replication Server stores all persistent information.
 - `replication_port` (Number) The port on which this Replication Server waits for connections from other Replication Servers or Directory Server instances.
