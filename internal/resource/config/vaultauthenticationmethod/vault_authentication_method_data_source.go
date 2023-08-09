@@ -97,7 +97,7 @@ func (r *vaultAuthenticationMethodDataSource) Schema(ctx context.Context, req da
 				Sensitive:   true,
 			},
 			"login_mechanism_name": schema.StringAttribute{
-				Description: "The name used when enabling the desired AppRole authentication mechanism in the Vault server.",
+				Description: " When the `type` value is one of [`app-role`]: The name used when enabling the desired AppRole authentication mechanism in the Vault server. When the `type` value is one of [`user-pass`]: The name used when enabling the desired UserPass authentication mechanism in the Vault server.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -92,7 +92,7 @@ func (r *attributeSyntaxDataSource) Schema(ctx context.Context, req datasource.S
 				ElementType: types.StringType,
 			},
 			"strict_format": schema.BoolAttribute{
-				Description: "Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.",
+				Description: " When the `type` value is one of [`telephone-number`]: Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax. When the `type` value is one of [`ldap-url`]: Indicates whether values for attributes with this syntax will be required to be in the valid LDAP URL format. If this is set to false, then arbitrary strings will be allowed.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -286,7 +286,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				},
 			},
 			"join_dn_attribute": schema.StringAttribute{
-				Description: "The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry.",
+				Description: " When the `type` value is one of [`reverse-dn-join`]: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry. When the `type` value is one of [`dn-join`]: The attribute whose values are the DNs of the entries to be joined with the search result entry.",
 				Optional:    true,
 			},
 			"join_base_dn_type": schema.StringAttribute{

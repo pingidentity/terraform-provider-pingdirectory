@@ -199,7 +199,7 @@ func (r *resultCriteriaDataSource) Schema(ctx context.Context, req datasource.Sc
 				ElementType: types.StringType,
 			},
 			"request_criteria": schema.StringAttribute{
-				Description: "Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria.",
+				Description: " When the `type` value is one of [`successful-bind`]: Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria. When the `type` value is one of [`simple`]: Specifies a request criteria object that must match the associated request for operations included in this Simple Result Criteria.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

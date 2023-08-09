@@ -317,7 +317,7 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Computed:    true,
 			},
 			"unauthenticated_size_limit": schema.Int64Attribute{
-				Description: "The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -329,7 +329,7 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Computed:    true,
 			},
 			"unauthenticated_time_limit": schema.StringAttribute{
-				Description: "The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -341,7 +341,7 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Computed:    true,
 			},
 			"unauthenticated_idle_time_limit": schema.StringAttribute{
-				Description: "The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -353,7 +353,7 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Computed:    true,
 			},
 			"unauthenticated_lookthrough_limit": schema.Int64Attribute{
-				Description: "The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

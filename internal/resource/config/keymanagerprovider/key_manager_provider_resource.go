@@ -170,7 +170,7 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				},
 			},
 			"pkcs11_max_cache_duration": schema.StringAttribute{
-				Description: "The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed. Supported in PingDirectory product version 9.2.0.1+.",
+				Description: "Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -186,16 +186,16 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 			},
 			"key_store_pin": schema.StringAttribute{
-				Description: "Specifies the PIN needed to access the File Based Key Manager Provider.",
+				Description: " When the `type` value is one of [`file-based`]: Specifies the PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: Specifies the PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 				Sensitive:   true,
 			},
 			"key_store_pin_file": schema.StringAttribute{
-				Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider.",
+				Description: " When the `type` value is one of [`file-based`]: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 			},
 			"key_store_pin_passphrase_provider": schema.StringAttribute{
-				Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider.",
+				Description: " When the `type` value is one of [`file-based`]: The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` value is one of [`pkcs11`]: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.",
 				Optional:    true,
 			},
 			"private_key_pin": schema.StringAttribute{

@@ -125,7 +125,7 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -155,13 +155,13 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Computed:    true,
 			},
 			"extension_class": schema.StringAttribute{
-				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.",
+				Description: " When the `type` value is one of [`third-party`]: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` value is one of [`third-party-enhanced`]: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"extension_argument": schema.SetAttribute{
-				Description: "The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
+				Description: " When the `type` value is one of [`third-party`]: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'. When the `type` value is one of [`third-party-enhanced`]: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -198,7 +198,7 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Computed:    true,
 			},
 			"iteration_count": schema.Int64Attribute{
-				Description: "The number of rounds of cryptographic processing required in the course of encoding each password.",
+				Description: " When the `type` value is one of [`pbkdf2`]: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000. When the `type` value is one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -216,13 +216,13 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Computed:    true,
 			},
 			"salt_length_bytes": schema.Int64Attribute{
-				Description: "Specifies the number of bytes to use for the generated salt.",
+				Description: " When the `type` value is one of [`pbkdf2`]: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8. When the `type` value is one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt. When the `type` value is one of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"derived_key_length_bytes": schema.Int64Attribute{
-				Description: "The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.",
+				Description: " When the `type` value is one of [`pbkdf2`]: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8. When the `type` value is one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -234,7 +234,7 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Computed:    true,
 			},
 			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether the Password Storage Scheme is enabled for use.",
+				Description: " When the `type` value is one of [`base64`]: Indicates whether the Base64 Password Storage Scheme is enabled for use. When the `type` value is one of [`salted-md5`]: Indicates whether the Salted MD5 Password Storage Scheme is enabled for use. When the `type` value is one of [`rc4`]: Indicates whether the RC4 Password Storage Scheme is enabled for use. When the `type` value is one of [`triple-des`]: Indicates whether the Triple DES Password Storage Scheme is enabled for use. When the `type` value is one of [`clear`]: Indicates whether the Clear Password Storage Scheme is enabled for use. When the `type` value is one of [`sha1`]: Indicates whether the SHA1 Password Storage Scheme is enabled for use. When the `type` value is one of [`salted-sha1`]: Indicates whether the Salted SHA1 Password Storage Scheme is enabled for use. When the `type` value is one of [`md5`]: Indicates whether the MD5 Password Storage Scheme is enabled for use. When the `type` value is one of [`salted-sha256`, `argon2d`, `crypt`, `argon2i`, `aes`, `argon2id`, `vault`, `third-party`, `argon2`, `third-party-enhanced`, `pbkdf2`, `salted-sha384`, `aes-256`, `bcrypt`, `blowfish`, `amazon-secrets-manager`, `azure-key-vault`, `conjur`, `salted-sha512`, `scrypt`]: Indicates whether the Password Storage Scheme is enabled for use.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -197,11 +197,11 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				},
 			},
 			"password_generator": schema.StringAttribute{
-				Description: "The password generator that will be used to create the single-use token values to be delivered to the end user.",
+				Description: " When the `type` value is one of [`single-use-tokens`]: The password generator that will be used to create the single-use token values to be delivered to the end user. When the `type` value is one of [`deliver-password-reset-token`]: The password generator that will be used to create the password reset token values to be delivered to the end user. When the `type` value is one of [`deliver-otp`]: The password generator that will be used to create the one-time password values to be delivered to the end user.",
 				Optional:    true,
 			},
 			"default_otp_delivery_mechanism": schema.SetAttribute{
-				Description: "The set of delivery mechanisms that may be used to deliver single-use tokens to users in requests that do not specify one or more preferred delivery mechanisms.",
+				Description: " When the `type` value is one of [`single-use-tokens`]: The set of delivery mechanisms that may be used to deliver single-use tokens to users in requests that do not specify one or more preferred delivery mechanisms. When the `type` value is one of [`deliver-otp`]: The set of delivery mechanisms that may be used to deliver one-time passwords to users in requests that do not specify one or more preferred delivery mechanisms.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -218,7 +218,7 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				},
 			},
 			"identity_mapper": schema.StringAttribute{
-				Description: "Specifies the name of the identity mapper that should be used in conjunction with the password modify extended operation.",
+				Description: " When the `type` value is one of [`password-modify`]: Specifies the name of the identity mapper that should be used in conjunction with the password modify extended operation. When the `type` value is one of [`deliver-otp`]: The identity mapper that should be used to identify the user(s) targeted by the authentication identity contained in the extended request. This will only be used for \"u:\"-style authentication identities.",
 				Optional:    true,
 			},
 			"allow_remotely_provided_certificates": schema.BoolAttribute{

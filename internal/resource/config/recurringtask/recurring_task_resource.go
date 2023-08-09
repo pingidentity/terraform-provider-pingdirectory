@@ -589,7 +589,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"compress": schema.BoolAttribute{
-				Description: "Indicates whether to compress the data as it is written into the backup.",
+				Description: " When the `type` value is one of [`backup`]: Indicates whether to compress the data as it is written into the backup. When the `type` value is one of [`ldif-export`]: Indicates whether to compress the LDIF data as it is exported.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -597,7 +597,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"encrypt": schema.BoolAttribute{
-				Description: "Indicates whether to encrypt the data as it is written into the backup.",
+				Description: " When the `type` value is one of [`backup`]: Indicates whether to encrypt the data as it is written into the backup. When the `type` value is one of [`ldif-export`]: Indicates whether to encrypt the LDIF data as it exported.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -605,11 +605,11 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
-				Description: "The ID of an encryption settings definition to use to obtain the backup encryption key.",
+				Description: " When the `type` value is one of [`backup`]: The ID of an encryption settings definition to use to obtain the backup encryption key. When the `type` value is one of [`ldif-export`]: The ID of an encryption settings definition to use to obtain the LDIF export encryption key.",
 				Optional:    true,
 			},
 			"sign": schema.BoolAttribute{
-				Description: "Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created.",
+				Description: " When the `type` value is one of [`backup`]: Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created. When the `type` value is one of [`ldif-export`]: Indicates whether to cryptographically sign the exported data, which will make it possible to detect whether the LDIF data has been altered since it was exported.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -633,7 +633,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
-				Description: "The maximum rate, in megabytes per second, at which backups should be written.",
+				Description: " When the `type` value is one of [`backup`]: The maximum rate, in megabytes per second, at which backups should be written. When the `type` value is one of [`ldif-export`]: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -641,7 +641,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"reason": schema.StringAttribute{
-				Description: "The reason that the server is being taken out of in lockdown mode.",
+				Description: " When the `type` value is one of [`leave-lockdown-mode`]: The reason that the server is being taken out of in lockdown mode. When the `type` value is one of [`enter-lockdown-mode`]: The reason that the server is being placed in lockdown mode.",
 				Optional:    true,
 			},
 			"profile_directory": schema.StringAttribute{

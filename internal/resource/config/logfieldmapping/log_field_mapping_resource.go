@@ -170,7 +170,7 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				},
 			},
 			"log_field_timestamp": schema.StringAttribute{
-				Description: "The time that the operation was processed.",
+				Description: " When the `type` value is one of [`access`]: The time that the operation was processed. When the `type` value is one of [`error`]: The time that the log message was generated.",
 				Optional:    true,
 			},
 			"log_field_connection_id": schema.StringAttribute{
@@ -178,7 +178,7 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 			},
 			"log_field_startupid": schema.StringAttribute{
-				Description: "The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts.",
+				Description: " When the `type` value is one of [`access`]: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` value is one of [`error`]: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
 				Optional:    true,
 			},
 			"log_field_product_name": schema.StringAttribute{
@@ -210,7 +210,7 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 			},
 			"log_field_message_id": schema.StringAttribute{
-				Description: "The message ID included in the client request.",
+				Description: " When the `type` value is one of [`access`]: The message ID included in the client request. When the `type` value is one of [`error`]: The numeric value which uniquely identifies the type of message.",
 				Optional:    true,
 			},
 			"log_field_result_code": schema.StringAttribute{
@@ -218,7 +218,7 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 			},
 			"log_field_message": schema.StringAttribute{
-				Description: "The diagnostic message for the operation.",
+				Description: " When the `type` value is one of [`access`]: The diagnostic message for the operation. When the `type` value is one of [`error`]: The text of the log message.",
 				Optional:    true,
 			},
 			"log_field_origin": schema.StringAttribute{

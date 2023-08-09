@@ -252,7 +252,7 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -294,13 +294,13 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"encryption_metadata_file": schema.StringAttribute{
-				Description: "The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.",
+				Description: " When the `type` value is one of [`amazon-secrets-manager`]: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. When the `type` value is one of [`azure-key-vault`]: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider. When the `type` value is one of [`file-based`]: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider. When the `type` value is one of [`conjur`]: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider. When the `type` value is one of [`pkcs11`]: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"aws_external_server": schema.StringAttribute{
-				Description: "The external server with information to use when interacting with the Amazon Key Management Service.",
+				Description: " When the `type` value is one of [`amazon-key-management-service`]: The external server with information to use when interacting with the Amazon Key Management Service. When the `type` value is one of [`amazon-secrets-manager`]: The external server with information to use when interacting with the AWS Secrets Manager.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -331,7 +331,7 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"iteration_count": schema.Int64Attribute{
-				Description: "The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

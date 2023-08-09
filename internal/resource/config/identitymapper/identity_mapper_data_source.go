@@ -117,7 +117,7 @@ func (r *identityMapperDataSource) Schema(ctx context.Context, req datasource.Sc
 				ElementType: types.StringType,
 			},
 			"match_attribute": schema.SetAttribute{
-				Description: "Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.",
+				Description: " When the `type` value is one of [`exact-match`]: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper. When the `type` value is one of [`regular-expression`]: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -136,7 +136,7 @@ func (r *identityMapperDataSource) Schema(ctx context.Context, req datasource.Sc
 				Computed:    true,
 			},
 			"match_base_dn": schema.SetAttribute{
-				Description: "Specifies the set of base DNs below which to search for users.",
+				Description: " When the `type` value is one of [`exact-match`]: Specifies the set of base DNs below which to search for users. When the `type` value is one of [`regular-expression`]: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

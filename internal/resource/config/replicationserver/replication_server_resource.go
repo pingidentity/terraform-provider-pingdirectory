@@ -201,7 +201,7 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"missing_changes_alert_threshold_percent": schema.Int64Attribute{
-				Description: "Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{

@@ -184,7 +184,7 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -221,7 +221,7 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 			},
 			"max_cache_duration": schema.StringAttribute{
-				Description: "The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault.",
+				Description: " When the `type` value is one of [`azure-key-vault`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Azure Key Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the Azure service. When the `type` value is one of [`file-based`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from the target file. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the file. When the `type` value is one of [`conjur`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Conjur. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Conjur. When the `type` value is one of [`amazon-secrets-manager`, `vault`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

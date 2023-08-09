@@ -209,7 +209,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				ElementType: types.StringType,
 			},
 			"always_use_permissive_modify": schema.BoolAttribute{
-				Description: "Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -254,7 +254,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				ElementType: types.StringType,
 			},
 			"base_context_path": schema.StringAttribute{
-				Description: "Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.",
+				Description: " When the `type` value is one of [`velocity`]: The context path to use to access all template-based and static content. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` value is one of [`ldap-mapped-scim`]: The context path to use to access the SCIM interface. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` value is one of [`file-server`]: Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` value is one of [`scim2`]: The context path to use to access the SCIM 2.0 interface. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` value is one of [`availability-state`, `prometheus-monitoring`]: Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -362,7 +362,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"debug_enabled": schema.BoolAttribute{
-				Description: "Enables debug logging of the SCIM SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.server.extensions.scim.SCIMHTTPServletExtension.",
+				Description: " When the `type` value is one of [`ldap-mapped-scim`]: Enables debug logging of the SCIM SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.server.extensions.scim.SCIMHTTPServletExtension. When the `type` value is one of [`scim2`]: Enables debug logging of the SCIM 2.0 SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.broker.http.scim2.extension.SCIM2HTTPServletExtension.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -430,13 +430,13 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"mime_types_file": schema.StringAttribute{
-				Description: "Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file.",
+				Description: " When the `type` value is one of [`velocity`]: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file. When the `type` value is one of [`file-server`]: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"default_mime_type": schema.StringAttribute{
-				Description: "Specifies the default value that will be used in the response's Content-Type header that indicates the type of content to return.",
+				Description: " When the `type` value is one of [`velocity`]: Specifies the default value that will be used in the response's Content-Type header that indicates the type of content to return. When the `type` value is one of [`file-server`]: Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -461,7 +461,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				ElementType: types.StringType,
 			},
 			"require_authentication": schema.BoolAttribute{
-				Description: "Require authentication when accessing Velocity templates.",
+				Description: " When the `type` value is one of [`velocity`]: Require authentication when accessing Velocity templates. When the `type` value is one of [`file-server`]: Indicates whether the servlet extension should only accept requests from authenticated clients.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -546,32 +546,32 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"basic_auth_enabled": schema.BoolAttribute{
-				Description: "Enables HTTP Basic authentication, using a username and password. The Identity Mapper specified by the identity-mapper property will be used to map the username to a DN.",
+				Description: " When the `type` value is one of [`ldap-mapped-scim`]: Enables HTTP Basic authentication, using a username and password. When the `type` value is one of [`delegated-admin`, `consent`, `directory-rest-api`]: Enables HTTP Basic authentication, using a username and password. The Identity Mapper specified by the identity-mapper property will be used to map the username to a DN.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"identity_mapper": schema.StringAttribute{
-				Description: "Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names.",
+				Description: " When the `type` value is one of [`delegated-admin`]: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names. When the `type` value is one of [`velocity`]: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries. When the `type` value is one of [`consent`]: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs. When the `type` value is one of [`ldap-mapped-scim`]: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory. When the `type` value is one of [`file-server`]: The identity mapper that will be used to identify the entry with which a username is associated. When the `type` value is one of [`config`]: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names. When the `type` value is one of [`directory-rest-api`]: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"access_token_validator": schema.SetAttribute{
-				Description: "If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Delegated Admin HTTP Servlet Extension.",
+				Description: " When the `type` value is one of [`delegated-admin`]: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Delegated Admin HTTP Servlet Extension. When the `type` value is one of [`consent`]: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Consent HTTP Servlet Extension. When the `type` value is one of [`file-server`]: The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token. When the `type` value is one of [`scim2`]: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this SCIM2 HTTP Servlet Extension. When the `type` value is one of [`directory-rest-api`]: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Directory REST API HTTP Servlet Extension.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"access_token_scope": schema.StringAttribute{
-				Description: "The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension.",
+				Description: " When the `type` value is one of [`delegated-admin`]: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension. When the `type` value is one of [`directory-rest-api`]: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"audience": schema.StringAttribute{
-				Description: "A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.",
+				Description: " When the `type` value is one of [`delegated-admin`]: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization. When the `type` value is one of [`directory-rest-api`]: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -589,7 +589,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"response_header": schema.SetAttribute{
-				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
+				Description: " When the `type` value is one of [`velocity`]: Specifies HTTP header fields and values added to response headers for all template page requests. When the `type` value is one of [`delegated-admin`, `quickstart`, `availability-state`, `prometheus-monitoring`, `consent`, `ldap-mapped-scim`, `groovy-scripted`, `file-server`, `config`, `scim2`, `directory-rest-api`, `third-party`]: Specifies HTTP header fields and values added to response headers for all requests.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -355,7 +355,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"db_directory_permissions": schema.StringAttribute{
-				Description: "Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend.",
+				Description: " When the `type` value is one of [`changelog`]: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend. When the `type` value is one of [`local-db`]: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -363,7 +363,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"db_cache_percent": schema.Int64Attribute{
-				Description: "Specifies the percentage of JVM memory to allocate to the changelog database cache.",
+				Description: " When the `type` value is one of [`changelog`]: Specifies the percentage of JVM memory to allocate to the changelog database cache. When the `type` value is one of [`local-db`]: Specifies the percentage of JVM memory to allocate to the database cache.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -460,7 +460,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"je_property": schema.SetAttribute{
-				Description: "Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend.",
+				Description: " When the `type` value is one of [`changelog`]: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend. When the `type` value is one of [`local-db`]: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -696,7 +696,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"is_private_backend": schema.BoolAttribute{
-				Description: "Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.",
+				Description: " When the `type` value is one of [`ldif`]: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information. When the `type` value is one of [`local-db`]: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -874,7 +874,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 		}
 		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
-			Description: "The base DN that is considered insignificant for the purpose of maintaining the configuration archive. Supported in PingDirectory product version 9.3.0.0+.",
+			Description: "Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
 			Optional:    true,
 			Computed:    true,
 			ElementType: types.StringType,
@@ -883,7 +883,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 		}
 		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
-			Description: "Indicates whether the server should maintain the config archive with new changes to the config backend. Supported in PingDirectory product version 9.3.0.0+.",
+			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.",
 			Optional:    true,
 			Computed:    true,
 			PlanModifiers: []planmodifier.Bool{
@@ -891,7 +891,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 		}
 		schemaDef.Attributes["max_config_archive_count"] = schema.Int64Attribute{
-			Description: "Indicates the maximum number of previous config files to keep as part of maintaining the config archive. Supported in PingDirectory product version 9.3.0.0+.",
+			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
 			Optional:    true,
 			Computed:    true,
 			PlanModifiers: []planmodifier.Int64{
@@ -1116,7 +1116,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 		}
 		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
-			Description: "Specifies the path to the LDIF file containing the data for this backend.",
+			Description: " When the `type` value is one of [`ldif`]: Specifies the path to the LDIF file containing the data for this backend. When the `type` value is one of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend.",
 			Optional:    true,
 			Computed:    true,
 			PlanModifiers: []planmodifier.String{

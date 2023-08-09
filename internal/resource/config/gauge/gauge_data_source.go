@@ -84,13 +84,13 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Computed:    true,
 			},
 			"gauge_data_source": schema.StringAttribute{
-				Description: "Specifies the source of data to use in determining this Indicator Gauge's severity and status.",
+				Description: " When the `type` value is one of [`indicator`]: Specifies the source of data to use in determining this Indicator Gauge's severity and status. When the `type` value is one of [`numeric`]: Specifies the source of data to use in determining this gauge's current severity.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"critical_value": schema.StringAttribute{
-				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.",
+				Description: " When the `type` value is one of [`indicator`]: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical. When the `type` value is one of [`numeric`]: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -102,7 +102,7 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Computed:    true,
 			},
 			"major_value": schema.StringAttribute{
-				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.",
+				Description: " When the `type` value is one of [`indicator`]: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'. When the `type` value is one of [`numeric`]: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -114,7 +114,7 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Computed:    true,
 			},
 			"minor_value": schema.StringAttribute{
-				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'.",
+				Description: " When the `type` value is one of [`indicator`]: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'. When the `type` value is one of [`numeric`]: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -126,7 +126,7 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				Computed:    true,
 			},
 			"warning_value": schema.StringAttribute{
-				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.",
+				Description: " When the `type` value is one of [`indicator`]: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'. When the `type` value is one of [`numeric`]: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

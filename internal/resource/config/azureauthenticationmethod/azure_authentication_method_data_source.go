@@ -70,13 +70,13 @@ func (r *azureAuthenticationMethodDataSource) Schema(ctx context.Context, req da
 				Computed:    true,
 			},
 			"tenant_id": schema.StringAttribute{
-				Description: "The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.",
+				Description: " When the `type` value is one of [`default`]: The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable. When the `type` value is one of [`client-secret`, `username-password`]: The tenant ID to use to authenticate.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"client_id": schema.StringAttribute{
-				Description: "The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID",
+				Description: " When the `type` value is one of [`default`]: The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID When the `type` value is one of [`client-secret`, `username-password`]: The client ID to use to authenticate.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
