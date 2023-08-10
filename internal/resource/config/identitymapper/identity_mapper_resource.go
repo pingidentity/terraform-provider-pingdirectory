@@ -174,10 +174,11 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"match_attribute": schema.SetAttribute{
-				Description: " When the `type` attribute is set to `exact-match`: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper. When the `type` attribute is set to `regular-expression`: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `exact-match`: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper. When the `type` attribute is set to `regular-expression`: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `exact-match`: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.\n  - `regular-expression`: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
@@ -195,10 +196,11 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"match_base_dn": schema.SetAttribute{
-				Description: " When the `type` attribute is set to `exact-match`: Specifies the set of base DNs below which to search for users. When the `type` attribute is set to `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `exact-match`: Specifies the set of base DNs below which to search for users. When the `type` attribute is set to `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `exact-match`: Specifies the set of base DNs below which to search for users.\n  - `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},

@@ -56,9 +56,15 @@ data "pingdirectory_key_manager_provider" "myKeyManagerProvider" {
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Key Manager Provider.
 - `id` (String) The ID of this resource.
 - `key_store_file` (String) Specifies the path to the file that contains the private key information. This may be an absolute path, or a path that is relative to the Directory Server instance root.
-- `key_store_pin` (String, Sensitive) When the `type` attribute is set to `file-based`: Specifies the PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: Specifies the PIN needed to access the PKCS11 Key Manager Provider.
-- `key_store_pin_file` (String) When the `type` attribute is set to `file-based`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the PKCS11 Key Manager Provider.
-- `key_store_pin_passphrase_provider` (String) When the `type` attribute is set to `file-based`: The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider. When the `type` attribute is set to `pkcs11`: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.
+- `key_store_pin` (String, Sensitive) When the `type` attribute is set to:
+  - `file-based`: Specifies the PIN needed to access the File Based Key Manager Provider.
+  - `pkcs11`: Specifies the PIN needed to access the PKCS11 Key Manager Provider.
+- `key_store_pin_file` (String) When the `type` attribute is set to:
+  - `file-based`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Key Manager Provider.
+  - `pkcs11`: Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the PKCS11 Key Manager Provider.
+- `key_store_pin_passphrase_provider` (String) When the `type` attribute is set to:
+  - `file-based`: The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider.
+  - `pkcs11`: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.
 - `key_store_type` (String) Specifies the format for the data in the key store file.
 - `pkcs11_key_store_type` (String) The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.
 - `pkcs11_max_cache_duration` (String) Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.

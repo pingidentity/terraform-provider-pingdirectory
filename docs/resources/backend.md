@@ -63,11 +63,15 @@ resource "pingdirectory_backend" "myBackend" {
 - `composite_index_entry_limit` (Number) Specifies the maximum number of entries that are allowed to match a given composite index key before that particular composite index key is no longer maintained.
 - `compress_entries` (Boolean) Indicates whether the backend should attempt to compress entries before storing them in the database.
 - `db_background_sync_interval` (String) Specifies the interval to use when performing background synchronous writes in the database environment in order to smooth overall write performance and increase data durability. A value of "0 s" will disable background synchronous writes.
-- `db_cache_percent` (Number) When the `type` attribute is set to `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache. When the `type` attribute is set to `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.
+- `db_cache_percent` (Number) When the `type` attribute is set to:
+  - `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache.
+  - `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.
 - `db_checkpointer_wakeup_interval` (String) Specifies the maximum length of time that should pass between checkpoints.
 - `db_cleaner_min_utilization` (Number) Specifies the minimum percentage of "live" data that the database cleaner attempts to keep in database log files.
 - `db_directory` (String) Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.
-- `db_directory_permissions` (String) When the `type` attribute is set to `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend. When the `type` attribute is set to `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.
+- `db_directory_permissions` (String) When the `type` attribute is set to:
+  - `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend.
+  - `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.
 - `db_evictor_critical_percentage` (Number) Specifies the percentage over the configured maximum that the database cache is allowed to grow. It is recommended to set this value slightly above zero when the database is too large to fully cache in memory. In this case, a dedicated background evictor thread is used to perform evictions once the cache fills up reducing the possibility that server threads are blocked.
 - `db_import_cache_percent` (Number) The percentage of JVM memory to allocate to the database cache during import operations.
 - `db_log_file_max` (String) Specifies the maximum size for a database log file.
@@ -91,8 +95,12 @@ resource "pingdirectory_backend" "myBackend" {
 - `import_temp_directory` (String) Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.
 - `import_thread_count` (Number) Specifies the number of threads to use for concurrent processing during an LDIF import.
 - `index_entry_limit` (Number) Specifies the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained.
-- `is_private_backend` (Boolean) When the `type` attribute is set to `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information. When the `type` attribute is set to `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.
-- `je_property` (Set of String) When the `type` attribute is set to `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend. When the `type` attribute is set to `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.
+- `is_private_backend` (Boolean) When the `type` attribute is set to:
+  - `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.
+  - `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.
+- `je_property` (Set of String) When the `type` attribute is set to:
+  - `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend.
+  - `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.
 - `notification_manager` (String) Specifies a notification manager for changes resulting from operations processed through this Backend
 - `num_recent_changes` (Number) Specifies the number of recent LDAP entry changes per replica for which the backend keeps a record to allow replication to recover in the event that the server is abruptly terminated. Increasing this value can lead to an increased peak server modification rate as well as increased replication throughput.
 - `offline_process_database_open_timeout` (String) Specifies a timeout duration which will be used for opening the database environment by an offline process, such as export-ldif.

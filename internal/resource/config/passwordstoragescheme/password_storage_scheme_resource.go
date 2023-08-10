@@ -211,14 +211,16 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				},
 			},
 			"extension_class": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.\n  - `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
+				Optional:            true,
 			},
 			"extension_argument": schema.SetAttribute{
-				Description: " When the `type` attribute is set to `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.\n  - `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
@@ -256,9 +258,10 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				},
 			},
 			"iteration_count": schema.Int64Attribute{
-				Description: " When the `type` attribute is set to one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password. When the `type` attribute is set to `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password. When the `type` attribute is set to `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password.\n  - `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -272,17 +275,19 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 			},
 			"salt_length_bytes": schema.Int64Attribute{
-				Description: " When the `type` attribute is set to one of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt. When the `type` attribute is set to one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt. When the `type` attribute is set to `pbkdf2`: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt. When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt. When the `type` attribute is set to `pbkdf2`: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt.\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt.\n  - `pbkdf2`: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"derived_key_length_bytes": schema.Int64Attribute{
-				Description: " When the `type` attribute is set to one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512. When the `type` attribute is set to `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512. When the `type` attribute is set to `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.\n  - `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -292,8 +297,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 			},
 			"enabled": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to one of [`salted-sha256`, `argon2d`, `crypt`, `argon2i`, `aes`, `argon2id`, `vault`, `third-party`, `argon2`, `third-party-enhanced`, `pbkdf2`, `salted-sha384`, `aes-256`, `bcrypt`, `blowfish`, `amazon-secrets-manager`, `azure-key-vault`, `conjur`, `salted-sha512`, `scrypt`]: Indicates whether the Password Storage Scheme is enabled for use. When the `type` attribute is set to `base64`: Indicates whether the Base64 Password Storage Scheme is enabled for use. When the `type` attribute is set to `salted-md5`: Indicates whether the Salted MD5 Password Storage Scheme is enabled for use. When the `type` attribute is set to `rc4`: Indicates whether the RC4 Password Storage Scheme is enabled for use. When the `type` attribute is set to `triple-des`: Indicates whether the Triple DES Password Storage Scheme is enabled for use. When the `type` attribute is set to `clear`: Indicates whether the Clear Password Storage Scheme is enabled for use. When the `type` attribute is set to `sha1`: Indicates whether the SHA1 Password Storage Scheme is enabled for use. When the `type` attribute is set to `salted-sha1`: Indicates whether the Salted SHA1 Password Storage Scheme is enabled for use. When the `type` attribute is set to `md5`: Indicates whether the MD5 Password Storage Scheme is enabled for use.",
-				Required:    true,
+				Description:         "When the `type` attribute is set to  one of [`salted-sha256`, `argon2d`, `crypt`, `argon2i`, `aes`, `argon2id`, `vault`, `third-party`, `argon2`, `third-party-enhanced`, `pbkdf2`, `salted-sha384`, `aes-256`, `bcrypt`, `blowfish`, `amazon-secrets-manager`, `azure-key-vault`, `conjur`, `salted-sha512`, `scrypt`]: Indicates whether the Password Storage Scheme is enabled for use. When the `type` attribute is set to `base64`: Indicates whether the Base64 Password Storage Scheme is enabled for use. When the `type` attribute is set to `salted-md5`: Indicates whether the Salted MD5 Password Storage Scheme is enabled for use. When the `type` attribute is set to `rc4`: Indicates whether the RC4 Password Storage Scheme is enabled for use. When the `type` attribute is set to `triple-des`: Indicates whether the Triple DES Password Storage Scheme is enabled for use. When the `type` attribute is set to `clear`: Indicates whether the Clear Password Storage Scheme is enabled for use. When the `type` attribute is set to `sha1`: Indicates whether the SHA1 Password Storage Scheme is enabled for use. When the `type` attribute is set to `salted-sha1`: Indicates whether the Salted SHA1 Password Storage Scheme is enabled for use. When the `type` attribute is set to `md5`: Indicates whether the MD5 Password Storage Scheme is enabled for use.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`salted-sha256`, `argon2d`, `crypt`, `argon2i`, `aes`, `argon2id`, `vault`, `third-party`, `argon2`, `third-party-enhanced`, `pbkdf2`, `salted-sha384`, `aes-256`, `bcrypt`, `blowfish`, `amazon-secrets-manager`, `azure-key-vault`, `conjur`, `salted-sha512`, `scrypt`]: Indicates whether the Password Storage Scheme is enabled for use.\n  - `base64`: Indicates whether the Base64 Password Storage Scheme is enabled for use.\n  - `salted-md5`: Indicates whether the Salted MD5 Password Storage Scheme is enabled for use.\n  - `rc4`: Indicates whether the RC4 Password Storage Scheme is enabled for use.\n  - `triple-des`: Indicates whether the Triple DES Password Storage Scheme is enabled for use.\n  - `clear`: Indicates whether the Clear Password Storage Scheme is enabled for use.\n  - `sha1`: Indicates whether the SHA1 Password Storage Scheme is enabled for use.\n  - `salted-sha1`: Indicates whether the Salted SHA1 Password Storage Scheme is enabled for use.\n  - `md5`: Indicates whether the MD5 Password Storage Scheme is enabled for use.",
+				Required:            true,
 			},
 		},
 	}

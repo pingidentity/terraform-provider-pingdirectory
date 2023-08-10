@@ -21,7 +21,9 @@ Manages a Cipher Stream Provider.
 ### Optional
 
 - `aws_access_key_id` (String) The access key ID that will be used if this cipher stream provider will authenticate to the Amazon Key Management Service using an access key rather than an IAM role associated with an EC2 instance.
-- `aws_external_server` (String) When the `type` attribute is set to `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service. When the `type` attribute is set to `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.
+- `aws_external_server` (String) When the `type` attribute is set to:
+  - `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service.
+  - `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.
 - `aws_region_name` (String) The name of the Amazon Web Services region that holds the encryption key. This is optional, and if it is not provided, then the server will attempt to determine the region from the key ARN.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if this cipher stream provider will authenticate to the Amazon Key Management Service using an access key rather than an IAM role associated with an EC2 instance.
 - `azure_authentication_method` (String) The mechanism used to authenticate to the Azure service.
@@ -30,7 +32,12 @@ Manages a Cipher Stream Provider.
 - `description` (String) A description for this Cipher Stream Provider
 - `enabled` (Boolean) Indicates whether this Cipher Stream Provider is enabled for use in the Directory Server.
 - `encrypted_passphrase_file` (String) The path to a file that will hold the encrypted passphrase used by this cipher stream provider.
-- `encryption_metadata_file` (String) When the `type` attribute is set to `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. When the `type` attribute is set to `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider. When the `type` attribute is set to `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider. When the `type` attribute is set to `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider. When the `type` attribute is set to `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.
+- `encryption_metadata_file` (String) When the `type` attribute is set to:
+  - `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.
+  - `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider.
+  - `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider.
+  - `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider.
+  - `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Cipher Stream Provider.
 - `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.

@@ -50,7 +50,9 @@ data "pingdirectory_connection_handler" "myConnectionHandler" {
 
 ### Read-Only
 
-- `accept_backlog` (Number) When the `type` attribute is set to `ldap`: Specifies the maximum number of pending connection attempts that are allowed to queue up in the accept backlog before the server starts rejecting new connection attempts. When the `type` attribute is set to `http`: Specifies the number of concurrent outstanding connection attempts that the connection handler should allow. The default value should be acceptable in most cases, but it may need to be increased in environments that may attempt to establish large numbers of connections simultaneously.
+- `accept_backlog` (Number) When the `type` attribute is set to:
+  - `ldap`: Specifies the maximum number of pending connection attempts that are allowed to queue up in the accept backlog before the server starts rejecting new connection attempts.
+  - `http`: Specifies the number of concurrent outstanding connection attempts that the connection handler should allow. The default value should be acceptable in most cases, but it may need to be increased in environments that may attempt to establish large numbers of connections simultaneously.
 - `allow_ldap_v2` (Boolean) Indicates whether connections from LDAPv2 clients are allowed.
 - `allow_start_tls` (Boolean) Indicates whether clients are allowed to use StartTLS.
 - `allow_tcp_reuse_address` (Boolean) Indicates whether the server should attempt to reuse socket descriptors. This may be useful in environments with a high rate of connection establishment and termination.
@@ -71,29 +73,53 @@ data "pingdirectory_connection_handler" "myConnectionHandler" {
 - `id` (String) The ID of this resource.
 - `idle_time_limit` (String) Specifies the maximum idle time for a connection. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.
 - `keep_stats` (Boolean) Indicates whether to enable statistics collection for this connection handler.
-- `key_manager_provider` (String) When the `type` attribute is set to `jmx`: Specifies the name of the key manager that should be used with this JMX Connection Handler . When the `type` attribute is set to `ldap`: Specifies the name of the key manager that should be used with this LDAP Connection Handler . When the `type` attribute is set to `http`: Specifies the key manager provider that will be used to obtain the certificate to present to HTTPS clients.
+- `key_manager_provider` (String) When the `type` attribute is set to:
+  - `jmx`: Specifies the name of the key manager that should be used with this JMX Connection Handler .
+  - `ldap`: Specifies the name of the key manager that should be used with this LDAP Connection Handler .
+  - `http`: Specifies the key manager provider that will be used to obtain the certificate to present to HTTPS clients.
 - `ldif_directory` (String) Specifies the path to the directory in which the LDIF files should be placed.
-- `listen_address` (Set of String) When the `type` attribute is set to `ldap`: Specifies the address or set of addresses on which this LDAP Connection Handler should listen for connections from LDAP clients. When the `type` attribute is set to `http`: Specifies the address on which to listen for connections from HTTP clients. If no value is defined, the server will listen on all addresses on all interfaces.
-- `listen_port` (Number) When the `type` attribute is set to `jmx`: Specifies the port number on which the JMX Connection Handler will listen for connections from clients. When the `type` attribute is set to `ldap`: Specifies the port number on which the LDAP Connection Handler will listen for connections from clients. When the `type` attribute is set to `http`: Specifies the port number on which the HTTP Connection Handler will listen for connections from clients.
+- `listen_address` (Set of String) When the `type` attribute is set to:
+  - `ldap`: Specifies the address or set of addresses on which this LDAP Connection Handler should listen for connections from LDAP clients.
+  - `http`: Specifies the address on which to listen for connections from HTTP clients. If no value is defined, the server will listen on all addresses on all interfaces.
+- `listen_port` (Number) When the `type` attribute is set to:
+  - `jmx`: Specifies the port number on which the JMX Connection Handler will listen for connections from clients.
+  - `ldap`: Specifies the port number on which the LDAP Connection Handler will listen for connections from clients.
+  - `http`: Specifies the port number on which the HTTP Connection Handler will listen for connections from clients.
 - `low_resources_connection_threshold` (Number) Specifies the number of connections, which if exceeded, places this handler in a low resource state where a different idle time limit is applied on the connections.
 - `low_resources_idle_time_limit` (String) Specifies the maximum idle time for a connection when this handler is in a low resource state as defined by low-resource-connections. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.
 - `max_blocked_write_time_limit` (String) Specifies the maximum length of time that attempts to write data to LDAP clients should be allowed to block.
 - `max_cancel_handlers` (Number) Specifies the maximum number of threads that are used to process cancel and abandon requests from clients.
 - `max_request_size` (String) Specifies the size of the largest LDAP request message that will be allowed by this LDAP Connection handler.
 - `num_accept_handlers` (Number) Specifies the number of threads that are used to accept new client connections, and to perform any initial preparation on those connections that may be needed before the connection can be used to read requests and send responses.
-- `num_request_handlers` (Number) When the `type` attribute is set to `ldap`: Specifies the number of request handlers that are used to read requests from clients. When the `type` attribute is set to `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.
+- `num_request_handlers` (Number) When the `type` attribute is set to:
+  - `ldap`: Specifies the number of request handlers that are used to read requests from clients.
+  - `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.
 - `poll_interval` (String) Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.
 - `response_header` (Set of String) Specifies HTTP header fields and values added to response headers for all requests.
 - `send_rejection_notice` (Boolean) Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.
-- `ssl_cert_nickname` (String) When the `type` attribute is set to `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication. When the `type` attribute is set to `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication. When the `type` attribute is set to `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.
-- `ssl_cipher_suite` (Set of String) When the `type` attribute is set to `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry. When the `type` attribute is set to `http`: Specifies the names of the SSL cipher suites that are allowed for use in SSL communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.
-- `ssl_client_auth_policy` (String) When the `type` attribute is set to `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates. When the `type` attribute is set to `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.
-- `ssl_protocol` (Set of String) When the `type` attribute is set to `ldap`: Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry. When the `type` attribute is set to `http`: Specifies the names of the SSL protocols that are allowed for use in SSL communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
-- `trust_manager_provider` (String) When the `type` attribute is set to `ldap`: Specifies the name of the trust manager that should be used with the LDAP Connection Handler . When the `type` attribute is set to `http`: Specifies the trust manager provider that will be used to validate any certificates presented by HTTPS clients.
+- `ssl_cert_nickname` (String) When the `type` attribute is set to:
+  - `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.
+  - `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication.
+  - `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.
+- `ssl_cipher_suite` (Set of String) When the `type` attribute is set to:
+  - `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.
+  - `http`: Specifies the names of the SSL cipher suites that are allowed for use in SSL communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.
+- `ssl_client_auth_policy` (String) When the `type` attribute is set to:
+  - `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates.
+  - `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.
+- `ssl_protocol` (Set of String) When the `type` attribute is set to:
+  - `ldap`: Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
+  - `http`: Specifies the names of the SSL protocols that are allowed for use in SSL communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
+- `trust_manager_provider` (String) When the `type` attribute is set to:
+  - `ldap`: Specifies the name of the trust manager that should be used with the LDAP Connection Handler .
+  - `http`: Specifies the trust manager provider that will be used to validate any certificates presented by HTTPS clients.
 - `type` (String) The type of Connection Handler resource. Options are ['jmx', 'ldap', 'ldif', 'http']
 - `use_correlation_id_header` (Boolean) If enabled, a correlation ID header will be added to outgoing HTTP responses.
 - `use_forwarded_headers` (Boolean) Indicates whether to use "Forwarded" and "X-Forwarded-*" request headers to override corresponding HTTP request information available during request processing.
-- `use_ssl` (Boolean) When the `type` attribute is set to `jmx`: Indicates whether the JMX Connection Handler should use SSL. When the `type` attribute is set to `ldap`: Indicates whether the LDAP Connection Handler should use SSL. When the `type` attribute is set to `http`: Indicates whether the HTTP Connection Handler should use SSL.
+- `use_ssl` (Boolean) When the `type` attribute is set to:
+  - `jmx`: Indicates whether the JMX Connection Handler should use SSL.
+  - `ldap`: Indicates whether the LDAP Connection Handler should use SSL.
+  - `http`: Indicates whether the HTTP Connection Handler should use SSL.
 - `use_tcp_keep_alive` (Boolean) Indicates whether the LDAP Connection Handler should use TCP keep-alive.
 - `web_application_extension` (Set of String) Specifies information about web applications that will be provided via this connection handler.
 

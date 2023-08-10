@@ -228,9 +228,10 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"alternate_authorization_identity_mapper": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry.\n  - `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -262,16 +263,18 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"server_fqdn": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process. When the `type` attribute is set to `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server. When the `type` attribute is set to `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process. When the `type` attribute is set to `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server. When the `type` attribute is set to `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process.\n  - `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server.\n  - `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"identity_mapper": schema.StringAttribute{
-				Description: " When the `type` attribute is set to one of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities. When the `type` attribute is set to one of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request. When the `type` attribute is set to `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values. When the `type` attribute is set to `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to  one of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities. When the `type` attribute is set to  one of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request. When the `type` attribute is set to `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values. When the `type` attribute is set to `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities.\n  - One of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory.\n  - `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request.\n  - `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values.\n  - `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory.\n  - `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory.\n  - `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
+				Optional:            true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this SASL Mechanism Handler",
@@ -352,9 +355,10 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		}
 		schemaDef.Attributes["realm"] = schema.StringAttribute{
-			Description: " When the `type` attribute is set to `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication. When the `type` attribute is set to `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
-			Optional:    true,
-			Computed:    true,
+			Description:         "When the `type` attribute is set to `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication. When the `type` attribute is set to `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
+			MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication.\n  - `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
+			Optional:            true,
+			Computed:            true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
 			},
@@ -372,8 +376,9 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		}
 		schemaDef.Attributes["certificate_mapper"] = schema.StringAttribute{
-			Description: " When the `type` attribute is set to `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries. When the `type` attribute is set to `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
-			Optional:    true,
+			Description:         "When the `type` attribute is set to `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries. When the `type` attribute is set to `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
+			MarkdownDescription: "When the `type` attribute is set to:\n  - `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries.\n  - `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
+			Optional:            true,
 		}
 		schemaDef.Attributes["yubikey_client_id"] = schema.StringAttribute{
 			Description: "The client ID to include in requests to the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
@@ -438,9 +443,10 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		}
 		schemaDef.Attributes["require_static_password"] = schema.BoolAttribute{
-			Description: " When the `type` attribute is set to `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password. When the `type` attribute is set to `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
-			Optional:    true,
-			Computed:    true,
+			Description:         "When the `type` attribute is set to `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password. When the `type` attribute is set to `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
+			MarkdownDescription: "When the `type` attribute is set to:\n  - `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password.\n  - `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
+			Optional:            true,
+			Computed:            true,
 			PlanModifiers: []planmodifier.Bool{
 				boolplanmodifier.UseStateForUnknown(),
 			},

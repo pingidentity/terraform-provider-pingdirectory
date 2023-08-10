@@ -23,7 +23,9 @@ Manages a Failure Lockout Action.
 - `allow_blocking_delay` (Boolean) Indicates whether to delay the response for authentication attempts even if that delay may block the thread being used to process the attempt.
 - `delay` (String) The length of time to delay the bind response for accounts with too many failed authentication attempts.
 - `description` (String) A description for this Failure Lockout Action
-- `generate_account_status_notification` (Boolean) When the `type` attribute is set to `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout. When the `type` attribute is set to `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.
+- `generate_account_status_notification` (Boolean) When the `type` attribute is set to:
+  - `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.
+  - `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.
 
 ### Read-Only
 

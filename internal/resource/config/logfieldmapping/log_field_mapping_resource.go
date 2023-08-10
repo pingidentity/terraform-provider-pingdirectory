@@ -170,16 +170,18 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				},
 			},
 			"log_field_timestamp": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `access`: The time that the operation was processed. When the `type` attribute is set to `error`: The time that the log message was generated.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `access`: The time that the operation was processed. When the `type` attribute is set to `error`: The time that the log message was generated.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `access`: The time that the operation was processed.\n  - `error`: The time that the log message was generated.",
+				Optional:            true,
 			},
 			"log_field_connection_id": schema.StringAttribute{
 				Description: "The connection ID assigned to the client connection.",
 				Optional:    true,
 			},
 			"log_field_startupid": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` attribute is set to `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` attribute is set to `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts.\n  - `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.",
+				Optional:            true,
 			},
 			"log_field_product_name": schema.StringAttribute{
 				Description: "The name for this Directory Server product, which may be used to identify which product was used to log the message if multiple products log to the same database table.",
@@ -210,16 +212,18 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 			},
 			"log_field_message_id": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `access`: The message ID included in the client request. When the `type` attribute is set to `error`: The numeric value which uniquely identifies the type of message.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `access`: The message ID included in the client request. When the `type` attribute is set to `error`: The numeric value which uniquely identifies the type of message.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `access`: The message ID included in the client request.\n  - `error`: The numeric value which uniquely identifies the type of message.",
+				Optional:            true,
 			},
 			"log_field_result_code": schema.StringAttribute{
 				Description: "The numeric result code for the operation.",
 				Optional:    true,
 			},
 			"log_field_message": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `access`: The diagnostic message for the operation. When the `type` attribute is set to `error`: The text of the log message.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `access`: The diagnostic message for the operation. When the `type` attribute is set to `error`: The text of the log message.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `access`: The diagnostic message for the operation.\n  - `error`: The text of the log message.",
+				Optional:            true,
 			},
 			"log_field_origin": schema.StringAttribute{
 				Description: "The origin for the operation. Values may include \"replication\" (if the operation was received via replication), \"internal\" (if it was an internal operation processed by a server component), or \"external\" (if it was a request from a client).",

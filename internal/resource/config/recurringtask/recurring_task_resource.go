@@ -589,29 +589,33 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"compress": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to `backup`: Indicates whether to compress the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to compress the LDIF data as it is exported.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `backup`: Indicates whether to compress the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to compress the LDIF data as it is exported.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: Indicates whether to compress the data as it is written into the backup.\n  - `ldif-export`: Indicates whether to compress the LDIF data as it is exported.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"encrypt": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to `backup`: Indicates whether to encrypt the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to encrypt the LDIF data as it exported.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `backup`: Indicates whether to encrypt the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to encrypt the LDIF data as it exported.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: Indicates whether to encrypt the data as it is written into the backup.\n  - `ldif-export`: Indicates whether to encrypt the LDIF data as it exported.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `backup`: The ID of an encryption settings definition to use to obtain the backup encryption key. When the `type` attribute is set to `ldif-export`: The ID of an encryption settings definition to use to obtain the LDIF export encryption key.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `backup`: The ID of an encryption settings definition to use to obtain the backup encryption key. When the `type` attribute is set to `ldif-export`: The ID of an encryption settings definition to use to obtain the LDIF export encryption key.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: The ID of an encryption settings definition to use to obtain the backup encryption key.\n  - `ldif-export`: The ID of an encryption settings definition to use to obtain the LDIF export encryption key.",
+				Optional:            true,
 			},
 			"sign": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to `backup`: Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created. When the `type` attribute is set to `ldif-export`: Indicates whether to cryptographically sign the exported data, which will make it possible to detect whether the LDIF data has been altered since it was exported.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `backup`: Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created. When the `type` attribute is set to `ldif-export`: Indicates whether to cryptographically sign the exported data, which will make it possible to detect whether the LDIF data has been altered since it was exported.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: Indicates whether to cryptographically sign backups, which will make it possible to detect whether the backup has been altered since it was created.\n  - `ldif-export`: Indicates whether to cryptographically sign the exported data, which will make it possible to detect whether the LDIF data has been altered since it was exported.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -633,16 +637,18 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				},
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
-				Description: " When the `type` attribute is set to `backup`: The maximum rate, in megabytes per second, at which backups should be written. When the `type` attribute is set to `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `backup`: The maximum rate, in megabytes per second, at which backups should be written. When the `type` attribute is set to `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: The maximum rate, in megabytes per second, at which backups should be written.\n  - `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"reason": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode. When the `type` attribute is set to `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode. When the `type` attribute is set to `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode.\n  - `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.",
+				Optional:            true,
 			},
 			"profile_directory": schema.StringAttribute{
 				Description: "The directory in which the generated server profiles will be placed. The files will be named with the pattern \"server-profile-{timestamp}.zip\", where \"{timestamp}\" represents the time that the profile was generated.",

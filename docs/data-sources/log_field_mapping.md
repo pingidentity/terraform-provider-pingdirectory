@@ -71,8 +71,12 @@ data "pingdirectory_log_field_mapping" "myLogFieldMapping" {
 - `log_field_intermediate_client_request` (String) The contents of the intermediate client request control provided by the client.
 - `log_field_intermediate_client_result` (String) The contents of the intermediate client response control returned to the client.
 - `log_field_matched_dn` (String) The DN of the superior entry closest to the DN specified by the client.
-- `log_field_message` (String) When the `type` attribute is set to `access`: The diagnostic message for the operation. When the `type` attribute is set to `error`: The text of the log message.
-- `log_field_message_id` (String) When the `type` attribute is set to `access`: The message ID included in the client request. When the `type` attribute is set to `error`: The numeric value which uniquely identifies the type of message.
+- `log_field_message` (String) When the `type` attribute is set to:
+  - `access`: The diagnostic message for the operation.
+  - `error`: The text of the log message.
+- `log_field_message_id` (String) When the `type` attribute is set to:
+  - `access`: The message ID included in the client request.
+  - `error`: The numeric value which uniquely identifies the type of message.
 - `log_field_message_id_to_abandon` (String) The message ID of the operation to be abandoned.
 - `log_field_message_type` (String) The type of log message. Message types may include "CONNECT", "DISCONNECT", "FORWARD", "RESULT", "ENTRY", or "REFERENCE".
 - `log_field_new_rdn` (String) The new RDN to use for a modify DN operation.
@@ -98,13 +102,17 @@ data "pingdirectory_log_field_mapping" "myLogFieldMapping" {
 - `log_field_scope` (String) The scope for the search operation.
 - `log_field_severity` (String) The severity for the log message.
 - `log_field_source_address` (String) The address of the client from which the connection was established.
-- `log_field_startupid` (String) When the `type` attribute is set to `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts. When the `type` attribute is set to `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.
+- `log_field_startupid` (String) When the `type` attribute is set to:
+  - `access`: The startup ID for the Directory Server. A different value will be generated each time the server is started, and it may be used to distinguish between operations with the same connection ID and operation ID across server restarts.
+  - `error`: The startup ID for the Directory Server. A different value will be generated each time the server is started.
 - `log_field_target_address` (String) The network address of the Directory Server to which the client connection has been established.
 - `log_field_target_attribute` (String) The name of the attribute targeted by a compare operation.
 - `log_field_target_host` (String) The address of the server to which the request has been forwarded.
 - `log_field_target_port` (String) The network port of the Directory Server to which the client connection has been established, or of the backend server to which the request has been forwarded.
 - `log_field_target_protocol` (String) The protocol used when forwarding the request to a backend server.
-- `log_field_timestamp` (String) When the `type` attribute is set to `access`: The time that the operation was processed. When the `type` attribute is set to `error`: The time that the log message was generated.
+- `log_field_timestamp` (String) When the `type` attribute is set to:
+  - `access`: The time that the operation was processed.
+  - `error`: The time that the log message was generated.
 - `log_field_unindexed` (String) Indicates whether the requested search operation was unindexed.
 - `type` (String) The type of Log Field Mapping resource. Options are ['access', 'error']
 

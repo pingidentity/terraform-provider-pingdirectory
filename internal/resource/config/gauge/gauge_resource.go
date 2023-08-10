@@ -142,13 +142,15 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"gauge_data_source": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `indicator`: Specifies the source of data to use in determining this Indicator Gauge's severity and status. When the `type` attribute is set to `numeric`: Specifies the source of data to use in determining this gauge's current severity.",
-				Required:    true,
+				Description:         "When the `type` attribute is set to `indicator`: Specifies the source of data to use in determining this Indicator Gauge's severity and status. When the `type` attribute is set to `numeric`: Specifies the source of data to use in determining this gauge's current severity.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: Specifies the source of data to use in determining this Indicator Gauge's severity and status.\n  - `numeric`: Specifies the source of data to use in determining this gauge's current severity.",
+				Required:            true,
 			},
 			"critical_value": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -162,9 +164,10 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"major_value": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -178,9 +181,10 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"minor_value": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -194,9 +198,10 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"warning_value": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

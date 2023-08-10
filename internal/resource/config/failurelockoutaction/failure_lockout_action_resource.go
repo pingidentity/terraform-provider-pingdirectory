@@ -132,9 +132,10 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"generate_account_status_notification": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout. When the `type` attribute is set to `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout. When the `type` attribute is set to `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.\n  - `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},

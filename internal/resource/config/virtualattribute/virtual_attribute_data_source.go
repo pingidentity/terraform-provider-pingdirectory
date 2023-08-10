@@ -196,10 +196,11 @@ func (r *virtualAttributeDataSource) Schema(ctx context.Context, req datasource.
 				ElementType: types.StringType,
 			},
 			"join_dn_attribute": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `reverse-dn-join`: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry. When the `type` attribute is set to `dn-join`: The attribute whose values are the DNs of the entries to be joined with the search result entry.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `reverse-dn-join`: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry. When the `type` attribute is set to `dn-join`: The attribute whose values are the DNs of the entries to be joined with the search result entry.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `reverse-dn-join`: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry.\n  - `dn-join`: The attribute whose values are the DNs of the entries to be joined with the search result entry.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"join_base_dn_type": schema.StringAttribute{
 				Description: "Specifies how server should determine the base DN for the internal searches used to identify joined entries.",

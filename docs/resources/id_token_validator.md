@@ -54,7 +54,9 @@ resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
 - `enabled` (Boolean) Indicates whether this ID Token Validator is enabled for use in the Directory Server.
 - `evaluation_order_index` (Number) When multiple ID Token Validators are defined for a single Directory Server, this property determines the order in which the ID Token Validators are consulted. Values of this property must be unique among all ID Token Validators defined within Directory Server but not necessarily contiguous. ID Token Validators with lower values will be evaluated first to determine if they are able to validate the ID token.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used to correlate an ID token subject value to a user entry. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.
-- `issuer_url` (String) When the `type` attribute is set to `ping-one`: Specifies a PingOne base issuer URL. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider's issuer URL.
+- `issuer_url` (String) When the `type` attribute is set to:
+  - `ping-one`: Specifies a PingOne base issuer URL.
+  - `openid-connect`: Specifies the OpenID Connect provider's issuer URL.
 - `name` (String) Name of this config object.
 - `type` (String) The type of ID Token Validator resource. Options are ['ping-one', 'openid-connect']
 
@@ -66,7 +68,9 @@ resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
 - `jwks_cache_duration` (String) How often the ID Token Validator should refresh its cache of JWKS token signing keys.
 - `jwks_endpoint_path` (String) The relative path to the JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming ID token. This path is relative to the base_url property defined for the validator's OpenID Connect provider. If jwks-endpoint-path is specified, the OpenID Connect ID Token Validator will not consult locally stored certificates for validating token signatures.
 - `openid_connect_metadata_cache_duration` (String) How often the PingOne ID Token Validator should refresh its stored cache of OpenID Connect-related metadata.
-- `openid_connect_provider` (String) When the `type` attribute is set to `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.
+- `openid_connect_provider` (String) When the `type` attribute is set to:
+  - `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider.
+  - `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.
 - `signing_certificate` (Set of String) Specifies the locally stored certificates that may be used to validate the signature of an incoming ID token. This property may be specified if a JWKS endpoint should not be used to retrieve public signing keys.
 - `subject_claim_name` (String) The name of the token claim that contains the subject; i.e., the authenticated user.
 

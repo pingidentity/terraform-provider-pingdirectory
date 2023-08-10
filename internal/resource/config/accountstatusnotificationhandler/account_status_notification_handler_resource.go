@@ -323,10 +323,11 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_status_notification_type": schema.SetAttribute{
-				Description: " When the `type` attribute is set to `admin-alert`: The types of account status notifications that should result in administrative alerts. When the `type` attribute is set to `error-log`: Indicates which types of event can trigger an account status notification.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `admin-alert`: The types of account status notifications that should result in administrative alerts. When the `type` attribute is set to `error-log`: Indicates which types of event can trigger an account status notification.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `admin-alert`: The types of account status notifications that should result in administrative alerts.\n  - `error-log`: Indicates which types of event can trigger an account status notification.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},

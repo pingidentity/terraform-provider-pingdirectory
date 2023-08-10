@@ -328,16 +328,18 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"encryption_metadata_file": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. When the `type` attribute is set to `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider. When the `type` attribute is set to `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider. When the `type` attribute is set to `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider. When the `type` attribute is set to `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. When the `type` attribute is set to `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider. When the `type` attribute is set to `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider. When the `type` attribute is set to `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider. When the `type` attribute is set to `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.\n  - `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider.\n  - `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider.\n  - `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider.\n  - `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"aws_external_server": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service. When the `type` attribute is set to `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service. When the `type` attribute is set to `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service.\n  - `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.",
+				Optional:            true,
 			},
 			"aws_access_key_id": schema.StringAttribute{
 				Description: "The access key ID that will be used if this cipher stream provider will authenticate to the Amazon Key Management Service using an access key rather than an IAM role associated with an EC2 instance.",

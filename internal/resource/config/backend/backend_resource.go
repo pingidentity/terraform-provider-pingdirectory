@@ -355,17 +355,19 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"db_directory_permissions": schema.StringAttribute{
-				Description: " When the `type` attribute is set to `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend. When the `type` attribute is set to `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend. When the `type` attribute is set to `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend.\n  - `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"db_cache_percent": schema.Int64Attribute{
-				Description: " When the `type` attribute is set to `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache. When the `type` attribute is set to `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache. When the `type` attribute is set to `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache.\n  - `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -460,10 +462,11 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"je_property": schema.SetAttribute{
-				Description: " When the `type` attribute is set to `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend. When the `type` attribute is set to `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend. When the `type` attribute is set to `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend.\n  - `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
@@ -696,9 +699,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				},
 			},
 			"is_private_backend": schema.BoolAttribute{
-				Description: " When the `type` attribute is set to `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information. When the `type` attribute is set to `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information. When the `type` attribute is set to `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.\n  - `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -1116,9 +1120,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 		}
 		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
-			Description: " When the `type` attribute is set to one of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend. When the `type` attribute is set to `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
-			Optional:    true,
-			Computed:    true,
+			Description:         "When the `type` attribute is set to  one of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend. When the `type` attribute is set to `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
+			MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend.\n  - `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
+			Optional:            true,
+			Computed:            true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
 			},
