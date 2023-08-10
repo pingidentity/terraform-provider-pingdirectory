@@ -170,7 +170,7 @@ func (r *locationResource) CreateLocation(ctx context.Context, req resource.Crea
 
 	addResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp, false)
 		return nil, err
 	}
 
@@ -228,7 +228,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 	readResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp, false)
 		return
 	}
 
@@ -252,7 +252,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 
 		updateResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp, false)
 			return
 		}
 
@@ -277,14 +277,14 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 
 // Read resource information
 func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLocation(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLocation(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultLocationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLocation(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLocation(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state locationResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -296,7 +296,12 @@ func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.
 	readResponse, httpResp, err := apiClient.LocationApi.GetLocation(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			resp.State.RemoveResource(ctx)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp, true)
+			return
+		}
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp, false)
 		return
 	}
 
@@ -347,7 +352,7 @@ func updateLocation(ctx context.Context, req resource.UpdateRequest, resp *resou
 
 		updateResponse, httpResp, err := apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp, false)
 			return
 		}
 
@@ -390,8 +395,8 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
+	if err != nil && httpResp.StatusCode != 404 {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp, false)
 		return
 	}
 }

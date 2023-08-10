@@ -35,7 +35,7 @@ type pingDirectoryError struct {
 }
 
 // Report an HTTP error
-func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response) {
+func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response, isWarning bool) {
 	httpErrorPrinted := false
 	var internalError error
 	if httpResp != nil {
@@ -45,7 +45,11 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 			var pdError pingDirectoryError
 			internalError = json.Unmarshal(body, &pdError)
 			if internalError == nil {
-				diagnostics.AddError(errorSummary, err.Error()+" - Detail: "+pdError.Detail)
+				if isWarning {
+					diagnostics.AddWarning(errorSummary, err.Error()+" - Detail: "+pdError.Detail)
+				} else {
+					diagnostics.AddError(errorSummary, err.Error()+" - Detail: "+pdError.Detail)
+				}
 				httpErrorPrinted = true
 			}
 		}
@@ -54,7 +58,11 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 		if internalError != nil {
 			tflog.Warn(ctx, "Failed to unmarshal HTTP response body: "+internalError.Error())
 		}
-		diagnostics.AddError(errorSummary, err.Error())
+		if isWarning {
+			diagnostics.AddWarning(errorSummary, err.Error())
+		} else {
+			diagnostics.AddError(errorSummary, err.Error())
+		}
 	}
 }
 
