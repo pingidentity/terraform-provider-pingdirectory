@@ -51,54 +51,93 @@ data "pingdirectory_external_server" "myExternalServer" {
 ### Read-Only
 
 - `abandon_on_timeout` (Boolean) Indicates whether to send an abandon request for an operation for which a response timeout is encountered. A request which has timed out on one server may be retried on another server regardless of whether an abandon request is sent, but if the initial attempt is not abandoned then a long-running operation may unnecessarily continue to consume processing resources on the initial server.
-- `authentication_method` (String) The mechanism to use to authenticate to the target server.
+- `authentication_method` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server.
+  - `amazon-aws`: The mechanism to use to authenticate to AWS.
 - `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.
 - `aws_region_name` (String) The name of the AWS region containing the resources that will be accessed.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.
 - `base_url` (String) The base URL of the external server, optionally including port number, for example "https://externalService:9031".
 - `basic_authentication_passphrase_provider` (String) A passphrase provider that provides access to the password to use to authenticate to the HTTP Proxy External Server.
 - `basic_authentication_username` (String) The username to use to authenticate to the HTTP Proxy External Server.
-- `bind_dn` (String) The DN to use to bind to the target LDAP server if simple authentication is required.
+- `bind_dn` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required.
+  - `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.
 - `conjur_account_name` (String) The name of the account with which the desired secrets are associated.
 - `conjur_authentication_method` (String) The mechanism used to authenticate to the Conjur server.
 - `conjur_server_base_uri` (Set of String) The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol ("http" or "https"), the server address (resolvable name or IP address), and the port number. For example, "https://conjur.example.com:8443/".
-- `connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable.
+- `connect_timeout` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable.
+  - `syslog`: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).
+  - `ping-one-http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to PingOne.
+  - `http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to the server.
 - `connection_security` (String) The mechanism to use to secure communication with the directory server.
 - `database_name` (String) Specifies which database to connect to. This is ignored if jdbc-driver-url is specified.
 - `defunct_connection_result_code` (Set of String) Specifies the operation result code values that should cause the associated connection should be considered defunct. If an operation fails with one of these result codes, then it will be terminated and an attempt will be made to establish a new connection in its place.
 - `description` (String) A description for this External Server
 - `health_check_connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.
-- `hostname_verification_method` (String) The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.
+- `hostname_verification_method` (String) When the `type` attribute is set to:
+  - `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.
+  - `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.
+- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.
 - `id` (String) The ID of this resource.
 - `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.
 - `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.
 - `jdbc_driver_url` (String) Specify the complete JDBC URL which will be used instead of the automatic URL format. You must select type 'other' for the jdbc-driver-type.
-- `key_manager_provider` (String) The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.
+- `key_manager_provider` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.
+  - `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.
 - `location` (String) Specifies the location for the LDAP External Server.
-- `max_connection_age` (String) Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections.
+- `max_connection_age` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections.
+  - `syslog`: The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.
 - `max_connections` (Number) The maximum number of concurrent connections to maintain for the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `max_response_size` (String) Specifies the maximum response size that should be supported for messages received from the LDAP external server.
 - `min_expired_connection_disconnect_interval` (String) Specifies the minimum length of time that should pass between connection closures as a result of the connections being established for longer than the maximum connection age. This may help avoid cases in which a large number of connections are closed and re-established in a short period of time because of the maximum connection age.
 - `passphrase_provider` (String) The passphrase provider to use to obtain the login password for the specified user.
-- `password` (String, Sensitive) The login password for the specified user name. Both username and password must be supplied if this attribute is set.
-- `response_timeout` (String) Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.
-- `server_host_name` (String) The host name of the smtp server.
-- `server_port` (Number) The port number where the smtp server listens for requests.
+- `password` (String, Sensitive) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The login password for the specified user.
+  - `smtp`: The login password for the specified user name. Both username and password must be supplied if this attribute is set.
+  - `jdbc`: The login password for the specified user name.
+- `response_timeout` (String) When the `type` attribute is set to:
+  - `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.
+  - `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.
+- `server_host_name` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The host name or IP address of the target LDAP server.
+  - `smtp`: The host name of the smtp server.
+  - `jdbc`: The host name of the database server. This is ignored if jdbc-driver-url is specified.
+  - `syslog`: The address of the syslog server.
+  - `http-proxy`: The host name or IP address of the HTTP Proxy External Server.
+- `server_port` (Number) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The port number on which the server listens for requests.
+  - `smtp`: The port number where the smtp server listens for requests.
+  - `jdbc`: The port number where the database server listens for requests. This is ignored if jdbc-driver-url is specified
+  - `syslog`: The port on which the syslog server accepts connections.
+  - `http-proxy`: The port on which the HTTP Proxy External Server is listening for connections.
 - `smtp_connection_properties` (Set of String) Specifies the connection properties for the smtp server.
 - `smtp_security` (String) This property specifies type of connection security to use when connecting to the outgoing mail server.
 - `smtp_timeout` (String) Specifies the maximum length of time that a connection or attempted connection to a SMTP server may take.
 - `ssl_cert_nickname` (String) The certificate alias within the keystore to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.
 - `transaction_isolation_level` (String) This property specifies the default transaction isolation level for connections to this JDBC External Server.
 - `transport_mechanism` (String) The transport mechanism that should be used when communicating with the syslog server.
-- `trust_manager_provider` (String) The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.
-- `trust_store_file` (String) The path to a file containing the information needed to trust the certificate presented by the Conjur servers.
-- `trust_store_pin` (String, Sensitive) The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
+- `trust_manager_provider` (String) When the `type` attribute is set to:
+  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.
+  - `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.
+  - `ping-one-http`: The trust manager provider to use for HTTPS connection-level security.
+  - `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.
+- `trust_store_file` (String) When the `type` attribute is set to:
+  - `conjur`: The path to a file containing the information needed to trust the certificate presented by the Conjur servers.
+  - `vault`: The path to a file containing the information needed to trust the certificate presented by the Vault servers.
+- `trust_store_pin` (String, Sensitive) When the `type` attribute is set to:
+  - `conjur`: The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
+  - `vault`: The passphrase needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
 - `trust_store_type` (String) The store type for the specified trust store file. The value should likely be one of "JKS", "PKCS12", or "BCFKS".
 - `type` (String) The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']
 - `use_administrative_operation_control` (Boolean) Indicates whether to include the administrative operation request control in requests sent to this server which are intended for administrative operations (e.g., health checking) rather than requests directly from clients.
-- `user_name` (String) The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.
+- `user_name` (String) When the `type` attribute is set to:
+  - `smtp`: The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.
+  - `jdbc`: The name of the login account to use when connecting to the database server.
 - `validation_query` (String) The SQL query that will be used to validate connections to the database before making them available to the Directory Server.
 - `validation_query_timeout` (String) Specifies the amount of time to wait for a response from the database when executing the validation query, if one is set. If the timeout is exceeded, the Directory Server will drop the connection and obtain a new one. A value of zero indicates no timeout.
 - `vault_authentication_method` (String) The mechanism used to authenticate to the Vault server.

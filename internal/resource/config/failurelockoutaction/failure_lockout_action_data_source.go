@@ -80,10 +80,11 @@ func (r *failureLockoutActionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"generate_account_status_notification": schema.BoolAttribute{
-				Description: "Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout. When the `type` attribute is set to `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.\n  - `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Failure Lockout Action",

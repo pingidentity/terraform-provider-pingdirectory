@@ -41,7 +41,9 @@ Manages a Virtual Attribute.
 - `join_attribute` (Set of String) An optional set of the names of the attributes to include with joined entries.
 - `join_base_dn_type` (String) Specifies how server should determine the base DN for the internal searches used to identify joined entries.
 - `join_custom_base_dn` (String) The fixed, administrator-specified base DN for the internal searches used to identify joined entries.
-- `join_dn_attribute` (String) The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry.
+- `join_dn_attribute` (String) When the `type` attribute is set to:
+  - `reverse-dn-join`: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry.
+  - `dn-join`: The attribute whose values are the DNs of the entries to be joined with the search result entry.
 - `join_filter` (String) An optional filter that specifies additional criteria for identifying joined entries. If a join-filter value is specified, then only entries matching that filter (in addition to satisfying the other join criteria) will be joined with the search result entry.
 - `join_match_all` (Boolean) Indicates whether joined entries will be required to have all values for the source attribute, or only at least one of its values.
 - `join_scope` (String) The scope for searches used to identify joined entries.

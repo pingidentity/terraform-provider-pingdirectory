@@ -62,5 +62,7 @@ data "pingdirectory_certificate_mapper" "myCertificateMapper" {
 - `subject_attribute` (String) Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.
 - `subject_attribute_mapping` (Set of String) Specifies a mapping between certificate attributes and user attributes.
 - `type` (String) The type of Certificate Mapper resource. Options are ['subject-equals-dn', 'subject-dn-to-user-attribute', 'groovy-scripted', 'subject-attribute-to-user-attribute', 'fingerprint', 'third-party']
-- `user_base_dn` (Set of String) Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry.
+- `user_base_dn` (Set of String) When the `type` attribute is set to:
+  - One of [`subject-dn-to-user-attribute`, `subject-attribute-to-user-attribute`]: Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry.
+  - `fingerprint`: Specifies the set of base DNs below which to search for users.
 

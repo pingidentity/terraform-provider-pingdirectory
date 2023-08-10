@@ -121,12 +121,14 @@ func azureAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 				},
 			},
 			"tenant_id": schema.StringAttribute{
-				Description: "The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to  one of [`client-secret`, `username-password`]: The tenant ID to use to authenticate. When the `type` attribute is set to `default`: The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`client-secret`, `username-password`]: The tenant ID to use to authenticate.\n  - `default`: The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.",
+				Optional:            true,
 			},
 			"client_id": schema.StringAttribute{
-				Description: "The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to  one of [`client-secret`, `username-password`]: The client ID to use to authenticate. When the `type` attribute is set to `default`: The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`client-secret`, `username-password`]: The client ID to use to authenticate.\n  - `default`: The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID",
+				Optional:            true,
 			},
 			"username": schema.StringAttribute{
 				Description: "The username for the user to authenticate.",

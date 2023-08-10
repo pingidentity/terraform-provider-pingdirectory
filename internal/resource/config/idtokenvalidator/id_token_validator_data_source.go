@@ -91,10 +91,11 @@ func (r *idTokenValidatorDataSource) Schema(ctx context.Context, req datasource.
 				ElementType: types.StringType,
 			},
 			"issuer_url": schema.StringAttribute{
-				Description: "Specifies a PingOne base issuer URL.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `ping-one`: Specifies a PingOne base issuer URL. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider's issuer URL.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one`: Specifies a PingOne base issuer URL.\n  - `openid-connect`: Specifies the OpenID Connect provider's issuer URL.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to the JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming ID token. This path is relative to the base_url property defined for the validator's OpenID Connect provider. If jwks-endpoint-path is specified, the OpenID Connect ID Token Validator will not consult locally stored certificates for validating token signatures.",
@@ -103,10 +104,11 @@ func (r *idTokenValidatorDataSource) Schema(ctx context.Context, req datasource.
 				Computed:    true,
 			},
 			"openid_connect_provider": schema.StringAttribute{
-				Description: "Specifies HTTPS connection settings for the PingOne OpenID Connect provider.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider.\n  - `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"openid_connect_metadata_cache_duration": schema.StringAttribute{
 				Description: "How often the PingOne ID Token Validator should refresh its stored cache of OpenID Connect-related metadata.",

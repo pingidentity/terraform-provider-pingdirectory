@@ -147,7 +147,7 @@ func (r *passphraseProviderDataSource) Schema(ctx context.Context, req datasourc
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -196,10 +196,11 @@ func (r *passphraseProviderDataSource) Schema(ctx context.Context, req datasourc
 				Computed:    true,
 			},
 			"max_cache_duration": schema.StringAttribute{
-				Description: "The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`amazon-secrets-manager`, `vault`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault. When the `type` attribute is set to `azure-key-vault`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Azure Key Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the Azure service. When the `type` attribute is set to `file-based`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from the target file. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the file. When the `type` attribute is set to `conjur`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Conjur. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Conjur.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`amazon-secrets-manager`, `vault`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault.\n  - `azure-key-vault`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Azure Key Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the Azure service.\n  - `file-based`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from the target file. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the file.\n  - `conjur`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Conjur. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Conjur.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"environment_variable": schema.StringAttribute{
 				Description: "The name of the environment variable that is expected to hold the passphrase.",

@@ -51,7 +51,9 @@ data "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
 ### Read-Only
 
 - `aws_access_key_id` (String) The access key ID that will be used if this cipher stream provider will authenticate to the Amazon Key Management Service using an access key rather than an IAM role associated with an EC2 instance.
-- `aws_external_server` (String) The external server with information to use when interacting with the Amazon Key Management Service.
+- `aws_external_server` (String) When the `type` attribute is set to:
+  - `amazon-key-management-service`: The external server with information to use when interacting with the Amazon Key Management Service.
+  - `amazon-secrets-manager`: The external server with information to use when interacting with the AWS Secrets Manager.
 - `aws_region_name` (String) The name of the Amazon Web Services region that holds the encryption key. This is optional, and if it is not provided, then the server will attempt to determine the region from the key ARN.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if this cipher stream provider will authenticate to the Amazon Key Management Service using an access key rather than an IAM role associated with an EC2 instance.
 - `azure_authentication_method` (String) The mechanism used to authenticate to the Azure service.
@@ -60,12 +62,17 @@ data "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
 - `description` (String) A description for this Cipher Stream Provider
 - `enabled` (Boolean) Indicates whether this Cipher Stream Provider is enabled for use in the Directory Server.
 - `encrypted_passphrase_file` (String) The path to a file that will hold the encrypted passphrase used by this cipher stream provider.
-- `encryption_metadata_file` (String) The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.
+- `encryption_metadata_file` (String) When the `type` attribute is set to:
+  - `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.
+  - `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider.
+  - `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider.
+  - `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider.
+  - `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Cipher Stream Provider.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.
+- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.
 - `id` (String) The ID of this resource.
-- `iteration_count` (Number) The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database. Supported in PingDirectory product version 9.3.0.0+.
+- `iteration_count` (Number) Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.
 - `key_store_pin` (String, Sensitive) The clear-text user PIN needed to interact with the PKCS #11 token.
 - `key_store_pin_environment_variable` (String) The name of an environment variable whose value is the user PIN needed to interact with the PKCS #11 token. The environment variable must be defined and must contain a clear-text representation of the PIN.
 - `key_store_pin_file` (String) The path to a file containing the user PIN needed to interact with the PKCS #11 token. The file must exist and must contain exactly one line with a clear-text representation of the PIN.

@@ -185,7 +185,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -223,13 +223,15 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 			},
 			"trust_store_file": schema.StringAttribute{
-				Description: "The path to a file containing the information needed to trust the certificate presented by the Conjur servers.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `conjur`: The path to a file containing the information needed to trust the certificate presented by the Conjur servers. When the `type` attribute is set to `vault`: The path to a file containing the information needed to trust the certificate presented by the Vault servers.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `conjur`: The path to a file containing the information needed to trust the certificate presented by the Conjur servers.\n  - `vault`: The path to a file containing the information needed to trust the certificate presented by the Vault servers.",
+				Optional:            true,
 			},
 			"trust_store_pin": schema.StringAttribute{
-				Description: "The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
-				Optional:    true,
-				Sensitive:   true,
+				Description:         "When the `type` attribute is set to `conjur`: The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents. When the `type` attribute is set to `vault`: The passphrase needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `conjur`: The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.\n  - `vault`: The passphrase needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 			"trust_store_type": schema.StringAttribute{
 				Description: "The store type for the specified trust store file. The value should likely be one of \"JKS\", \"PKCS12\", or \"BCFKS\".",
@@ -244,9 +246,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 			},
 			"hostname_verification_method": schema.StringAttribute{
-				Description: "The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne. When the `type` attribute is set to `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.\n  - `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -268,9 +271,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"response_timeout": schema.StringAttribute{
-				Description: "Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne. When the `type` attribute is set to `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.\n  - `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -316,13 +320,15 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"server_host_name": schema.StringAttribute{
-				Description: "The host name of the smtp server.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The host name or IP address of the target LDAP server. When the `type` attribute is set to `smtp`: The host name of the smtp server. When the `type` attribute is set to `jdbc`: The host name of the database server. This is ignored if jdbc-driver-url is specified. When the `type` attribute is set to `syslog`: The address of the syslog server. When the `type` attribute is set to `http-proxy`: The host name or IP address of the HTTP Proxy External Server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The host name or IP address of the target LDAP server.\n  - `smtp`: The host name of the smtp server.\n  - `jdbc`: The host name of the database server. This is ignored if jdbc-driver-url is specified.\n  - `syslog`: The address of the syslog server.\n  - `http-proxy`: The host name or IP address of the HTTP Proxy External Server.",
+				Optional:            true,
 			},
 			"server_port": schema.Int64Attribute{
-				Description: "The port number where the smtp server listens for requests.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The port number on which the server listens for requests. When the `type` attribute is set to `smtp`: The port number where the smtp server listens for requests. When the `type` attribute is set to `jdbc`: The port number where the database server listens for requests. This is ignored if jdbc-driver-url is specified When the `type` attribute is set to `syslog`: The port on which the syslog server accepts connections. When the `type` attribute is set to `http-proxy`: The port on which the HTTP Proxy External Server is listening for connections.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The port number on which the server listens for requests.\n  - `smtp`: The port number where the smtp server listens for requests.\n  - `jdbc`: The port number where the database server listens for requests. This is ignored if jdbc-driver-url is specified\n  - `syslog`: The port on which the syslog server accepts connections.\n  - `http-proxy`: The port on which the HTTP Proxy External Server is listening for connections.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -361,8 +367,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"bind_dn": schema.StringAttribute{
-				Description: "The DN to use to bind to the target LDAP server if simple authentication is required.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required. When the `type` attribute is set to `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required.\n  - `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.",
+				Optional:            true,
 			},
 			"smtp_security": schema.StringAttribute{
 				Description: "This property specifies type of connection security to use when connecting to the outgoing mail server.",
@@ -373,8 +380,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"user_name": schema.StringAttribute{
-				Description: "The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.",
-				Optional:    true,
+				Description:         "When the `type` attribute is set to `smtp`: The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set. When the `type` attribute is set to `jdbc`: The name of the login account to use when connecting to the database server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `smtp`: The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.\n  - `jdbc`: The name of the login account to use when connecting to the database server.",
+				Optional:            true,
 			},
 			"connection_security": schema.StringAttribute{
 				Description: "The mechanism to use to secure communication with the directory server.",
@@ -385,9 +393,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"authentication_method": schema.StringAttribute{
-				Description: "The mechanism to use to authenticate to the target server.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server. When the `type` attribute is set to `amazon-aws`: The mechanism to use to authenticate to AWS.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server.\n  - `amazon-aws`: The mechanism to use to authenticate to AWS.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -401,9 +410,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"max_connection_age": schema.StringAttribute{
-				Description: "Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections. When the `type` attribute is set to `syslog`: The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections.\n  - `syslog`: The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -417,9 +427,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"connect_timeout": schema.StringAttribute{
-				Description: "Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. When the `type` attribute is set to `syslog`: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption). When the `type` attribute is set to `ping-one-http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to PingOne. When the `type` attribute is set to `http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to the server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable.\n  - `syslog`: Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).\n  - `ping-one-http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to PingOne.\n  - `http`: Specifies the maximum length of time to wait for a connection to be established before aborting a request to the server.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -433,17 +444,19 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"key_manager_provider": schema.StringAttribute{
-				Description: "The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store. When the `type` attribute is set to `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.\n  - `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
-				Description: "The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security. When the `type` attribute is set to `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption. When the `type` attribute is set to `ping-one-http`: The trust manager provider to use for HTTPS connection-level security. When the `type` attribute is set to `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.\n  - `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.\n  - `ping-one-http`: The trust manager provider to use for HTTPS connection-level security.\n  - `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -482,9 +495,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"password": schema.StringAttribute{
-				Description: "The login password for the specified user name. Both username and password must be supplied if this attribute is set.",
-				Optional:    true,
-				Sensitive:   true,
+				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The login password for the specified user. When the `type` attribute is set to `smtp`: The login password for the specified user name. Both username and password must be supplied if this attribute is set. When the `type` attribute is set to `jdbc`: The login password for the specified user name.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The login password for the specified user.\n  - `smtp`: The login password for the specified user name. Both username and password must be supplied if this attribute is set.\n  - `jdbc`: The login password for the specified user name.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 			"passphrase_provider": schema.StringAttribute{
 				Description: "The passphrase provider to use to obtain the login password for the specified user.",

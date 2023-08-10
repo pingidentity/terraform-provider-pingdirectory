@@ -191,8 +191,9 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 			},
 			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether the Monitor Provider is enabled for use.",
-				Required:    true,
+				Description:         "When the `type` attribute is set to  one of [`memory-usage`, `stack-trace`, `encryption-settings-database-accessibility`, `custom`, `active-operations`, `ssl-context`, `version`, `general`, `disk-space-usage`, `system-info`, `client-connection`, `third-party`]: Indicates whether the Monitor Provider is enabled for use. When the `type` attribute is set to `host-system`: Indicates whether the Host System Monitor Provider is enabled for use.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`memory-usage`, `stack-trace`, `encryption-settings-database-accessibility`, `custom`, `active-operations`, `ssl-context`, `version`, `general`, `disk-space-usage`, `system-info`, `client-connection`, `third-party`]: Indicates whether the Monitor Provider is enabled for use.\n  - `host-system`: Indicates whether the Host System Monitor Provider is enabled for use.",
+				Required:            true,
 			},
 		},
 	}

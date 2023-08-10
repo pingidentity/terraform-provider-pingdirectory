@@ -52,7 +52,9 @@ data "pingdirectory_vault_authentication_method" "myVaultAuthenticationMethod" {
 
 - `description` (String) A description for this Vault Authentication Method
 - `id` (String) The ID of this resource.
-- `login_mechanism_name` (String) The name used when enabling the desired AppRole authentication mechanism in the Vault server.
+- `login_mechanism_name` (String) When the `type` attribute is set to:
+  - `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server.
+  - `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.
 - `password` (String, Sensitive) The password for the user to authenticate.
 - `type` (String) The type of Vault Authentication Method resource. Options are ['static-token', 'app-role', 'user-pass']
 - `username` (String) The username for the user to authenticate.

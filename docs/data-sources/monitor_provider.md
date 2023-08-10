@@ -54,7 +54,9 @@ data "pingdirectory_monitor_provider" "myMonitorProvider" {
 - `check_frequency` (String) The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.
 - `description` (String) A description for this Monitor Provider
 - `disk_devices` (Set of String) Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.
-- `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
+- `enabled` (Boolean) When the `type` attribute is set to:
+  - One of [`memory-usage`, `stack-trace`, `encryption-settings-database-accessibility`, `custom`, `active-operations`, `ssl-context`, `version`, `general`, `disk-space-usage`, `system-info`, `client-connection`, `third-party`]: Indicates whether the Monitor Provider is enabled for use.
+  - `host-system`: Indicates whether the Host System Monitor Provider is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Monitor Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Monitor Provider.
 - `id` (String) The ID of this resource.
