@@ -275,7 +275,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_authenticated_message_template": schema.StringAttribute{
-				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -291,7 +291,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_deleted_message_template": schema.StringAttribute{
-				Description: "The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -323,10 +323,11 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_status_notification_type": schema.SetAttribute{
-				Description: "The types of account status notifications that should result in administrative alerts.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `admin-alert`: The types of account status notifications that should result in administrative alerts. When the `type` attribute is set to `error-log`: Indicates which types of event can trigger an account status notification.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `admin-alert`: The types of account status notifications that should result in administrative alerts.\n  - `error-log`: Indicates which types of event can trigger an account status notification.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
@@ -418,7 +419,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_authentication_notification_result_criteria": schema.StringAttribute{
-				Description: "A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -434,7 +435,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"account_deletion_notification_request_criteria": schema.StringAttribute{
-				Description: "A request criteria object that identifies which delete requests should result in account deletion notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Supported in PingDirectory product version 9.3.0.0+. A request criteria object that identifies which delete requests should result in account deletion notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

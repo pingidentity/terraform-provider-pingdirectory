@@ -21,7 +21,9 @@ Manages a Vault Authentication Method.
 ### Optional
 
 - `description` (String) A description for this Vault Authentication Method
-- `login_mechanism_name` (String) The name used when enabling the desired AppRole authentication mechanism in the Vault server.
+- `login_mechanism_name` (String) When the `type` attribute is set to:
+  - `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server.
+  - `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.
 - `password` (String, Sensitive) The password for the user to authenticate.
 - `username` (String) The username for the user to authenticate.
 - `vault_access_token` (String, Sensitive) The static token used to authenticate to the Vault server.

@@ -57,7 +57,9 @@ data "pingdirectory_attribute_syntax" "myAttributeSyntax" {
 - `id` (String) The ID of this resource.
 - `include_attribute_in_compaction` (Set of String) Specifies the specific attributes (which should be associated with this syntax) whose values should be compacted. If one or more include attributes are specified, then only those attributes will have their values compacted. If not set then all attributes will have their values compacted. The exclude-attribute-from-compaction property takes precedence over this property.
 - `require_binary_transfer` (Boolean) Indicates whether values of this attribute are required to have a "binary" transfer option as described in RFC 4522. Attributes with this syntax will generally be referenced with names including ";binary" (e.g., "userCertificate;binary").
-- `strict_format` (Boolean) Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.
+- `strict_format` (Boolean) When the `type` attribute is set to:
+  - `telephone-number`: Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.
+  - `ldap-url`: Indicates whether values for attributes with this syntax will be required to be in the valid LDAP URL format. If this is set to false, then arbitrary strings will be allowed.
 - `strip_syntax_min_upper_bound` (Boolean) Indicates whether the suggested minimum upper bound appended to an attribute's syntax OID in its schema definition Attribute Type Description should be stripped.
 - `type` (String) The type of Attribute Syntax resource. Options are ['attribute-type-description', 'directory-string', 'telephone-number', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'generic', 'json-object', 'user-password', 'boolean', 'hex-string', 'bit-string', 'ldap-url', 'name-and-optional-uid']
 

@@ -92,10 +92,11 @@ func (r *attributeSyntaxDataSource) Schema(ctx context.Context, req datasource.S
 				ElementType: types.StringType,
 			},
 			"strict_format": schema.BoolAttribute{
-				Description: "Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `telephone-number`: Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax. When the `type` attribute is set to `ldap-url`: Indicates whether values for attributes with this syntax will be required to be in the valid LDAP URL format. If this is set to false, then arbitrary strings will be allowed.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `telephone-number`: Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.\n  - `ldap-url`: Indicates whether values for attributes with this syntax will be required to be in the valid LDAP URL format. If this is set to false, then arbitrary strings will be allowed.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"allow_zero_length_values": schema.BoolAttribute{
 				Description: "Indicates whether zero-length (that is, an empty string) values are allowed.",

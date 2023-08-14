@@ -89,7 +89,9 @@ resource "pingdirectory_result_criteria" "myResultCriteria" {
 - `queue_time_value` (String) Specifies the boundary value to use for the time an operation spent on the work queue when determining whether to include that operation in this Simple Result Criteria. This will be ignored if the "queue-time-criteria" property has a value of "any".
 - `referral_returned` (String) Indicates whether operation results which include one or more referral URLs should be included in this Simple Result Criteria. If no value is provided, then whether an operation includes any referral URLs will not be considered when determining whether it matches this Simple Result Criteria.
 - `remote_assurance_level` (Set of String) The local assurance level values that will be allowed to match this Replication Assurance Result Criteria.
-- `request_criteria` (String) Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria.
+- `request_criteria` (String) When the `type` attribute is set to:
+  - `successful-bind`: Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria.
+  - `simple`: Specifies a request criteria object that must match the associated request for operations included in this Simple Result Criteria.
 - `response_delayed_by_assurance` (String) Indicates whether this Replication Assurance Result Criteria should match operations based on whether the response to the client was delayed by assurance processing.
 - `result_code_criteria` (String) Specifies which operation result codes are allowed for operations included in this Simple Result Criteria.
 - `result_code_value` (Set of String) Specifies the operation result code values for results included in this Simple Result Criteria. This will only be taken into account if the "result-code-criteria" property has a value of "selected-result-codes".

@@ -140,9 +140,10 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 				Sensitive:   true,
 			},
 			"login_mechanism_name": schema.StringAttribute{
-				Description: "The name used when enabling the desired AppRole authentication mechanism in the Vault server.",
-				Optional:    true,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server. When the `type` attribute is set to `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server.\n  - `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.",
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

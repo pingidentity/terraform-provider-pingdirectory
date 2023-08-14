@@ -178,7 +178,7 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Twilio service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

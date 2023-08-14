@@ -58,7 +58,7 @@ resource "pingdirectory_default_crypto_manager" "myCryptoManager" {
 - `mac_key_length` (Number) Specifies the key length in bits for the preferred MAC algorithm.
 - `outbound_ssl_cipher_suite` (Set of String) Specifies the names of the TLS cipher suites that will be enabled for outbound connections initiated by the Directory Server.
 - `outbound_ssl_protocol` (Set of String) Specifies the names of the TLS protocols that will be enabled for outbound connections initiated by the Directory Server.
-- `signing_encryption_settings_id` (String) The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used. Supported in PingDirectory product version 9.2.0.0+.
+- `signing_encryption_settings_id` (String) Supported in PingDirectory product version 9.2.0.0+. The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used.
 - `ssl_cert_nickname` (String) Specifies the nickname (also called the alias) of the certificate that the Crypto Manager should use when performing SSL communication.
 - `ssl_cipher_suite` (Set of String) Specifies the names of the TLS cipher suites that are allowed for use in secure communication.
 - `ssl_protocol` (Set of String) Specifies the names of TLS protocols that are allowed for use in secure communication.

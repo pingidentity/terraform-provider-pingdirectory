@@ -177,7 +177,7 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -275,10 +275,11 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"case_sensitive_validation": schema.BoolAttribute{
-				Description: "Indicates whether this password validator should treat password characters in a case-sensitive manner.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to  one of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner. When the `type` attribute is set to `dictionary`: Indicates whether this password validator is to treat password characters in a case-sensitive manner.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner.\n  - `dictionary`: Indicates whether this password validator is to treat password characters in a case-sensitive manner.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"ignore_leading_non_alphabetic_characters": schema.BoolAttribute{
 				Description: "Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the beginning of a proposed password.",
@@ -337,10 +338,11 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"test_reversed_password": schema.BoolAttribute{
-				Description: "Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+				Description:         "When the `type` attribute is set to `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given. When the `type` attribute is set to `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given.\n  - `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 			"min_password_difference": schema.Int64Attribute{
 				Description: "Specifies the minimum difference of new and old password.",
@@ -349,11 +351,12 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"character_set": schema.SetAttribute{
-				Description: "Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `character-set`: Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set. When the `type` attribute is set to `repeated-characters`: Specifies a set of characters that should be considered equivalent for the purpose of this password validator. This can be used, for example, to ensure that passwords contain no more than three consecutive digits.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `character-set`: Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set.\n  - `repeated-characters`: Specifies a set of characters that should be considered equivalent for the purpose of this password validator. This can be used, for example, to ensure that passwords contain no more than three consecutive digits.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+				ElementType:         types.StringType,
 			},
 			"allow_unclassified_characters": schema.BoolAttribute{
 				Description: "Indicates whether this password validator allows passwords to contain characters outside of any of the user-defined character sets.",

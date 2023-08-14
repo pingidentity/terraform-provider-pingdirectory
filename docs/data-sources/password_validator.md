@@ -57,8 +57,12 @@ data "pingdirectory_password_validator" "myPasswordValidator" {
 - `allowed_character_type` (Set of String) Specifies the set of character types that are allowed to be present in passwords.
 - `alternative_password_character_mapping` (Set of String) Provides a set of character substitutions that can be applied to the proposed password when checking to see if it is in the provided dictionary. Each mapping should consist of a single character followed by a colon and a list of the alternative characters that may be used in place of that character.
 - `assumed_password_guesses_per_second` (String) The number of password guesses per second that a potential attacker may be expected to make.
-- `case_sensitive_validation` (Boolean) Indicates whether this password validator should treat password characters in a case-sensitive manner.
-- `character_set` (Set of String) Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set.
+- `case_sensitive_validation` (Boolean) When the `type` attribute is set to:
+  - One of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner.
+  - `dictionary`: Indicates whether this password validator is to treat password characters in a case-sensitive manner.
+- `character_set` (Set of String) When the `type` attribute is set to:
+  - `character-set`: Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set.
+  - `repeated-characters`: Specifies a set of characters that should be considered equivalent for the purpose of this password validator. This can be used, for example, to ensure that passwords contain no more than three consecutive digits.
 - `description` (String) A description for this Password Validator
 - `dictionary_file` (String) Specifies the path to the file containing a list of words that cannot be used as passwords.
 - `disallowed_characters` (String) A set of characters that will not be allowed anywhere in a password.
@@ -67,7 +71,7 @@ data "pingdirectory_password_validator" "myPasswordValidator" {
 - `enabled` (Boolean) Indicates whether the password validator is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Validator.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. Supported in PingDirectory product version 9.2.0.0+.
+- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.
 - `id` (String) The ID of this resource.
 - `ignore_leading_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the beginning of a proposed password.
 - `ignore_trailing_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the end of a proposed password.
@@ -93,7 +97,9 @@ data "pingdirectory_password_validator" "myPasswordValidator" {
 - `strip_diacritical_marks` (Boolean) Indicates whether to strip characters of any diacritical marks (like accents, cedillas, circumflexes, diaereses, tildes, and umlauts) they may contain. Any characters with a diacritical mark would be replaced with a base version
 - `test_attribute_value_substring_of_password` (Boolean) Indicates whether to reject any proposed password in which a value in one of the match attributes in the target user's entry is a substring of that password.
 - `test_password_substring_of_attribute_value` (Boolean) Indicates whether to reject any proposed password that is a substring of a value in one of the match attributes in the target user's entry.
-- `test_reversed_password` (Boolean) Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given.
+- `test_reversed_password` (Boolean) When the `type` attribute is set to:
+  - `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given.
+  - `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.
 - `trust_manager_provider` (String) Specifies which trust manager provider should be used to determine whether to trust the certificate presented by the server when performing HTTPS communication. This may be left undefined if HTTPS communication is not needed, or if the validation service presents a certificate that is trusted by the default JVM configuration (which should be the case for the Pwned Password servers).
 - `type` (String) The type of Password Validator resource. Options are ['character-set', 'similarity-based', 'attribute-value', 'custom', 'repeated-characters', 'dictionary', 'haystack', 'utf-8', 'groovy-scripted', 'pwned-passwords', 'disallowed-characters', 'length-based', 'regular-expression', 'unique-characters', 'third-party']
 - `validator_failure_message` (String) Specifies a message that may be provided to the end user in the event that a proposed password is rejected by this validator. If a value is provided for this property, then it will override any failure message that may have otherwise been generated by the validator.

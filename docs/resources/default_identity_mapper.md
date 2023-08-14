@@ -26,8 +26,12 @@ Manages a Identity Mapper.
 - `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Identity Mapper. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Identity Mapper.
-- `match_attribute` (Set of String) Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.
-- `match_base_dn` (Set of String) Specifies the set of base DNs below which to search for users.
+- `match_attribute` (Set of String) When the `type` attribute is set to:
+  - `exact-match`: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.
+  - `regular-expression`: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.
+- `match_base_dn` (Set of String) When the `type` attribute is set to:
+  - `exact-match`: Specifies the set of base DNs below which to search for users.
+  - `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.
 - `match_filter` (String) An optional filter that mapped users must match.
 - `match_pattern` (String) Specifies the regular expression pattern that is used to identify portions of the ID string that will be replaced.
 - `replace_pattern` (String) Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.

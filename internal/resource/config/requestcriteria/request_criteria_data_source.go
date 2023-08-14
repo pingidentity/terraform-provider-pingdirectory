@@ -140,11 +140,12 @@ func (r *requestCriteriaDataSource) Schema(ctx context.Context, req datasource.S
 				ElementType: types.StringType,
 			},
 			"operation_type": schema.SetAttribute{
-				Description: "The types of operations that may be matched by this Root DSE Request Criteria.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `root-dse`: The types of operations that may be matched by this Root DSE Request Criteria. When the `type` attribute is set to `simple`: Specifies the operation type(s) for operations that should be included in this Simple Request Criteria.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `root-dse`: The types of operations that may be matched by this Root DSE Request Criteria.\n  - `simple`: Specifies the operation type(s) for operations that should be included in this Simple Request Criteria.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+				ElementType:         types.StringType,
 			},
 			"operation_origin": schema.SetAttribute{
 				Description: "Specifies the origin for operations to be included in this Simple Request Criteria. If no values are provided, then the operation origin will not be taken into consideration when determining whether an operation matches this Simple Request Criteria.",

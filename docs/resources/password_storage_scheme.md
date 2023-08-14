@@ -53,7 +53,16 @@ resource "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Password Storage Scheme is enabled for use.
+- `enabled` (Boolean) When the `type` attribute is set to:
+  - One of [`salted-sha256`, `argon2d`, `crypt`, `argon2i`, `aes`, `argon2id`, `vault`, `third-party`, `argon2`, `third-party-enhanced`, `pbkdf2`, `salted-sha384`, `aes-256`, `bcrypt`, `blowfish`, `amazon-secrets-manager`, `azure-key-vault`, `conjur`, `salted-sha512`, `scrypt`]: Indicates whether the Password Storage Scheme is enabled for use.
+  - `base64`: Indicates whether the Base64 Password Storage Scheme is enabled for use.
+  - `salted-md5`: Indicates whether the Salted MD5 Password Storage Scheme is enabled for use.
+  - `rc4`: Indicates whether the RC4 Password Storage Scheme is enabled for use.
+  - `triple-des`: Indicates whether the Triple DES Password Storage Scheme is enabled for use.
+  - `clear`: Indicates whether the Clear Password Storage Scheme is enabled for use.
+  - `sha1`: Indicates whether the SHA1 Password Storage Scheme is enabled for use.
+  - `salted-sha1`: Indicates whether the Salted SHA1 Password Storage Scheme is enabled for use.
+  - `md5`: Indicates whether the MD5 Password Storage Scheme is enabled for use.
 - `name` (String) Name of this config object.
 - `type` (String) The type of Password Storage Scheme resource. Options are ['salted-sha256', 'argon2d', 'crypt', 'argon2i', 'base64', 'salted-md5', 'aes', 'argon2id', 'vault', 'third-party', 'argon2', 'third-party-enhanced', 'pbkdf2', 'rc4', 'salted-sha384', 'triple-des', 'clear', 'aes-256', 'bcrypt', 'blowfish', 'sha1', 'amazon-secrets-manager', 'azure-key-vault', 'conjur', 'salted-sha1', 'salted-sha512', 'scrypt', 'md5']
 
@@ -64,21 +73,32 @@ resource "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
 - `bcrypt_cost_factor` (Number) Specifies the cost factor to use when encoding passwords with Bcrypt. A higher cost factor requires more processing to generate a password, which makes attacks against the password more expensive.
 - `conjur_external_server` (String) An external server definition with information needed to connect and authenticate to the Conjur instance containing user passwords.
 - `default_field` (String) The default name of the field in JSON objects contained in the AWS Secrets Manager service that contains the password for the target user.
-- `derived_key_length_bytes` (Number) The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.
+- `derived_key_length_bytes` (Number) When the `type` attribute is set to:
+  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.
+  - `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.
 - `description` (String) A description for this Password Storage Scheme
 - `digest_algorithm` (String) Specifies the digest algorithm that will be used when encoding passwords.
 - `encryption_settings_definition_id` (String) The identifier for the encryption settings definition that should be used to derive the encryption key to use when encrypting new passwords. If this is not provided, the server's preferred encryption settings definition will be used.
-- `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.
-- `iteration_count` (Number) The number of rounds of cryptographic processing required in the course of encoding each password.
+- `extension_argument` (Set of String) When the `type` attribute is set to:
+  - `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.
+  - `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) When the `type` attribute is set to:
+  - `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.
+  - `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.
+- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.
+- `iteration_count` (Number) When the `type` attribute is set to:
+  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password.
+  - `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.
 - `key_vault_uri` (String) The URI that identifies the Azure Key Vault from which the secret is to be retrieved.
 - `max_password_length` (Number) Specifies the maximum allowed length, in bytes, for passwords encoded with this scheme, which can help mitigate denial of service attacks from clients that attempt to bind with very long passwords.
 - `memory_usage_kb` (Number) The number of kilobytes of memory that must be used in the course of encoding each password.
 - `num_digest_rounds` (Number) Specifies the number of digest rounds to use for the SHA-2 encodings. This will not be used for the legacy or MD5-based encodings.
 - `parallelism_factor` (Number) The number of concurrent threads that will be used in the course of encoding each password.
 - `password_encoding_mechanism` (String) Specifies the mechanism that should be used to encode clear-text passwords for use with this scheme.
-- `salt_length_bytes` (Number) Specifies the number of bytes to use for the generated salt.
+- `salt_length_bytes` (Number) When the `type` attribute is set to:
+  - One of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt.
+  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt.
+  - `pbkdf2`: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8.
 - `scrypt_block_size` (Number) Specifies the block size for the digest that will be used in the course of encoding passwords. Increasing the block size while keeping the CPU/memory cost factor constant will increase the amount of memory required to encode a password, but it also increases the ratio of sequential memory access to random memory access (and sequential memory access is generally faster than random memory access).
 - `scrypt_cpu_memory_cost_factor_exponent` (Number) Specifies the exponent that should be used for the CPU/memory cost factor. The cost factor must be a power of two, so the value of this property represents the power to which two is raised. The CPU/memory cost factor specifies the number of iterations required for encoding the password, and also affects the amount of memory required during processing. A higher cost factor requires more processing and more memory to generate a password, which makes attacks against the password more expensive.
 - `scrypt_parallelization_parameter` (Number) Specifies the number of times that scrypt has to perform the entire encoding process to produce the final result.

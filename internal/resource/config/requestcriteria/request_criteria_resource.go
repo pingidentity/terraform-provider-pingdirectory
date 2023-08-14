@@ -201,10 +201,11 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 				},
 			},
 			"operation_type": schema.SetAttribute{
-				Description: "The types of operations that may be matched by this Root DSE Request Criteria.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
+				Description:         "When the `type` attribute is set to `root-dse`: The types of operations that may be matched by this Root DSE Request Criteria. When the `type` attribute is set to `simple`: Specifies the operation type(s) for operations that should be included in this Simple Request Criteria.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - `root-dse`: The types of operations that may be matched by this Root DSE Request Criteria.\n  - `simple`: Specifies the operation type(s) for operations that should be included in this Simple Request Criteria.",
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
