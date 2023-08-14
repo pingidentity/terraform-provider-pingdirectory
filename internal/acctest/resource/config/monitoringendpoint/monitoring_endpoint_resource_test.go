@@ -69,6 +69,19 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 					"last_updated",
 				},
 			},
+			{
+				// Test plan after removing config on PD
+				PreConfig: func() {
+					testClient := acctest.TestClient()
+					ctx := acctest.TestBasicAuthContext()
+					_, err := testClient.MonitoringEndpointApi.DeleteMonitoringEndpoint(ctx, updatedResourceModel.id).Execute()
+					if err != nil {
+						t.Fatalf("Failed to delete config: %v", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }

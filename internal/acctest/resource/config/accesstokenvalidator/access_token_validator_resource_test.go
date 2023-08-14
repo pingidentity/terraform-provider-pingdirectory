@@ -78,6 +78,19 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 				// Can't verify import state for a sensitive attribute that PD won't return
 				ImportStateVerifyIgnore: []string{"last_updated", "client_secret"},
 			},
+			{
+				// Test plan after removing config on PD
+				PreConfig: func() {
+					testClient := acctest.TestClient()
+					ctx := acctest.TestBasicAuthContext()
+					_, err := testClient.AccessTokenValidatorApi.DeleteAccessTokenValidator(ctx, updatedResourceModel.id).Execute()
+					if err != nil {
+						t.Fatalf("Failed to delete config: %v", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }
