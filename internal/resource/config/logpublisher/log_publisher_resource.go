@@ -9536,14 +9536,14 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 
 // Read resource information
 func (r *logPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state logPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -9555,7 +9555,12 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
+		}
 		return
 	}
 
@@ -9875,7 +9880,7 @@ func (r *logPublisherResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	httpResp, err := r.apiClient.LogPublisherApi.DeleteLogPublisherExecute(r.apiClient.LogPublisherApi.DeleteLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Publisher", err, httpResp)
 		return
 	}

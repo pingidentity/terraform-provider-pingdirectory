@@ -370,14 +370,14 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 
 // Read resource information
 func (r *velocityTemplateLoaderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
+	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultVelocityTemplateLoaderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
+	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state velocityTemplateLoaderResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -389,7 +389,12 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 	readResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
+		}
 		return
 	}
 
@@ -484,7 +489,7 @@ func (r *velocityTemplateLoaderResource) Delete(ctx context.Context, req resourc
 
 	httpResp, err := r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoaderExecute(r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Template Loader", err, httpResp)
 		return
 	}

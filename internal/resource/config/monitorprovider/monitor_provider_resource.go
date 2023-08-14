@@ -955,7 +955,12 @@ func (r *monitorProviderResource) Read(ctx context.Context, req resource.ReadReq
 	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
+		if httpResp.StatusCode == 404 {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
+		}
 		return
 	}
 
@@ -1200,7 +1205,7 @@ func (r *monitorProviderResource) Delete(ctx context.Context, req resource.Delet
 
 	httpResp, err := r.apiClient.MonitorProviderApi.DeleteMonitorProviderExecute(r.apiClient.MonitorProviderApi.DeleteMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitor Provider", err, httpResp)
 		return
 	}

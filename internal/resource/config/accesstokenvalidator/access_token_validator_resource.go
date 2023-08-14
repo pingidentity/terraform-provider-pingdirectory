@@ -1055,14 +1055,14 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 
 // Read resource information
 func (r *accessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultAccessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state accessTokenValidatorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -1074,7 +1074,12 @@ func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
+		}
 		return
 	}
 
@@ -1191,7 +1196,7 @@ func (r *accessTokenValidatorResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.AccessTokenValidatorApi.DeleteAccessTokenValidatorExecute(r.apiClient.AccessTokenValidatorApi.DeleteAccessTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Access Token Validator", err, httpResp)
 		return
 	}

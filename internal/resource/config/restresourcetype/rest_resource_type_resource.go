@@ -893,14 +893,14 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 
 // Read resource information
 func (r *restResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultRestResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state restResourceTypeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -912,7 +912,12 @@ func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	readResponse, httpResp, err := apiClient.RestResourceTypeApi.GetRestResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
+		}
 		return
 	}
 
@@ -1022,7 +1027,7 @@ func (r *restResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.RestResourceTypeApi.DeleteRestResourceTypeExecute(r.apiClient.RestResourceTypeApi.DeleteRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Rest Resource Type", err, httpResp)
 		return
 	}

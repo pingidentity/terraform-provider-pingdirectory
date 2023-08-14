@@ -1948,14 +1948,14 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 
 // Read resource information
 func (r *dataSecurityAuditorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultDataSecurityAuditorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state dataSecurityAuditorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -1967,7 +1967,12 @@ func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp
 	readResponse, httpResp, err := apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
+		}
 		return
 	}
 
@@ -2143,7 +2148,7 @@ func (r *dataSecurityAuditorResource) Delete(ctx context.Context, req resource.D
 
 	httpResp, err := r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditorExecute(r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Data Security Auditor", err, httpResp)
 		return
 	}

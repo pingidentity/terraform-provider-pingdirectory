@@ -3506,14 +3506,14 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 
 // Read resource information
 func (r *externalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+	readExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+	readExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state externalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -3525,7 +3525,12 @@ func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *res
 	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
+		}
 		return
 	}
 
@@ -3720,7 +3725,7 @@ func (r *externalServerResource) Delete(ctx context.Context, req resource.Delete
 
 	httpResp, err := r.apiClient.ExternalServerApi.DeleteExternalServerExecute(r.apiClient.ExternalServerApi.DeleteExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the External Server", err, httpResp)
 		return
 	}

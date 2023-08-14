@@ -943,14 +943,14 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 
 // Read resource information
 func (r *searchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultSearchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state searchEntryCriteriaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -962,7 +962,12 @@ func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp
 	readResponse, httpResp, err := apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
+		}
 		return
 	}
 
@@ -1072,7 +1077,7 @@ func (r *searchEntryCriteriaResource) Delete(ctx context.Context, req resource.D
 
 	httpResp, err := r.apiClient.SearchEntryCriteriaApi.DeleteSearchEntryCriteriaExecute(r.apiClient.SearchEntryCriteriaApi.DeleteSearchEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Search Entry Criteria", err, httpResp)
 		return
 	}

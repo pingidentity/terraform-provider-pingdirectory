@@ -773,14 +773,14 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 
 // Read resource information
 func (r *logFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultLogFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state logFieldBehaviorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -792,7 +792,12 @@ func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *r
 	readResponse, httpResp, err := apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
+		}
 		return
 	}
 
@@ -896,7 +901,7 @@ func (r *logFieldBehaviorResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehaviorExecute(r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Behavior", err, httpResp)
 		return
 	}

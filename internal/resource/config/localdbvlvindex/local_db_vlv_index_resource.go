@@ -375,14 +375,14 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 
 // Read resource information
 func (r *localDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultLocalDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state localDbVlvIndexResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -394,7 +394,12 @@ func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *re
 	readResponse, httpResp, err := apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
+		}
 		return
 	}
 
@@ -489,7 +494,7 @@ func (r *localDbVlvIndexResource) Delete(ctx context.Context, req resource.Delet
 
 	httpResp, err := r.apiClient.LocalDbVlvIndexApi.DeleteLocalDbVlvIndexExecute(r.apiClient.LocalDbVlvIndexApi.DeleteLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Vlv Index", err, httpResp)
 		return
 	}

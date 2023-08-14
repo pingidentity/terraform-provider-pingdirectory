@@ -331,14 +331,14 @@ func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Contex
 
 // Read resource information
 func (r *consentDefinitionLocalizationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultConsentDefinitionLocalizationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state consentDefinitionLocalizationResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -350,7 +350,12 @@ func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadReq
 	readResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
+		}
 		return
 	}
 
@@ -445,7 +450,7 @@ func (r *consentDefinitionLocalizationResource) Delete(ctx context.Context, req 
 
 	httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalizationExecute(r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition Localization", err, httpResp)
 		return
 	}

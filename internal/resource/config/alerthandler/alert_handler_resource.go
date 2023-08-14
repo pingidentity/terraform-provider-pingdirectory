@@ -2164,7 +2164,12 @@ func (r *alertHandlerResource) Read(ctx context.Context, req resource.ReadReques
 	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
+		if httpResp.StatusCode == 404 {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
+		}
 		return
 	}
 
@@ -2420,7 +2425,7 @@ func (r *alertHandlerResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	httpResp, err := r.apiClient.AlertHandlerApi.DeleteAlertHandlerExecute(r.apiClient.AlertHandlerApi.DeleteAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Alert Handler", err, httpResp)
 		return
 	}

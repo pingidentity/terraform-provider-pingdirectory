@@ -454,14 +454,14 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 
 // Read resource information
 func (r *scimAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultScimAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state scimAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -473,7 +473,12 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 	readResponse, httpResp, err := apiClient.ScimAttributeApi.GetScimAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
+		}
 		return
 	}
 
@@ -568,7 +573,7 @@ func (r *scimAttributeResource) Delete(ctx context.Context, req resource.DeleteR
 
 	httpResp, err := r.apiClient.ScimAttributeApi.DeleteScimAttributeExecute(r.apiClient.ScimAttributeApi.DeleteScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Attribute", err, httpResp)
 		return
 	}

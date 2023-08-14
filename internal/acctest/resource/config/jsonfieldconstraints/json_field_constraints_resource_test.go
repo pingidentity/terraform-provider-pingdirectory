@@ -48,6 +48,19 @@ func TestAccJsonFieldConstraints(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.pingdirectory_json_field_constraints_list.list", "ids.0"),
 				),
 			},
+			{
+				// Test plan after removing config on PD
+				PreConfig: func() {
+					testClient := acctest.TestClient()
+					ctx := acctest.TestBasicAuthContext()
+					_, err := testClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraints(ctx, initialResourceModel.jsonField, initialResourceModel.jsonAttributeConstraintsName).Execute()
+					if err != nil {
+						t.Fatalf("Failed to delete config: %v", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }
