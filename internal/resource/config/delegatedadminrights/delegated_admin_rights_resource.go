@@ -328,14 +328,14 @@ func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req re
 
 // Read resource information
 func (r *delegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultDelegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state delegatedAdminRightsResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -347,7 +347,12 @@ func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
+		}
 		return
 	}
 
@@ -441,7 +446,7 @@ func (r *delegatedAdminRightsResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.DelegatedAdminRightsApi.DeleteDelegatedAdminRightsExecute(r.apiClient.DelegatedAdminRightsApi.DeleteDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Rights", err, httpResp)
 		return
 	}

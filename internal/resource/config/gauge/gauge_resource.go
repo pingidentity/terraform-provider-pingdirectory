@@ -812,14 +812,14 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 // Read resource information
 func (r *gaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+	readGauge(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+	readGauge(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state gaugeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -831,7 +831,12 @@ func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	readResponse, httpResp, err := apiClient.GaugeApi.GetGauge(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
+		}
 		return
 	}
 
@@ -935,7 +940,7 @@ func (r *gaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 	httpResp, err := r.apiClient.GaugeApi.DeleteGaugeExecute(r.apiClient.GaugeApi.DeleteGauge(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Gauge", err, httpResp)
 		return
 	}

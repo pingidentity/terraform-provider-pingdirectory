@@ -2280,14 +2280,14 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 
 // Read resource information
 func (r *passwordValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+	readPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultPasswordValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+	readPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state passwordValidatorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -2299,7 +2299,12 @@ func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.PasswordValidatorApi.GetPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
+		}
 		return
 	}
 
@@ -2481,7 +2486,7 @@ func (r *passwordValidatorResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.PasswordValidatorApi.DeletePasswordValidatorExecute(r.apiClient.PasswordValidatorApi.DeletePasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Validator", err, httpResp)
 		return
 	}

@@ -416,14 +416,14 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 
 // Read resource information
 func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultDebugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state debugTargetResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -435,7 +435,12 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 	readResponse, httpResp, err := apiClient.DebugTargetApi.GetDebugTarget(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
+		}
 		return
 	}
 
@@ -530,7 +535,7 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	httpResp, err := r.apiClient.DebugTargetApi.DeleteDebugTargetExecute(r.apiClient.DebugTargetApi.DeleteDebugTarget(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Debug Target", err, httpResp)
 		return
 	}

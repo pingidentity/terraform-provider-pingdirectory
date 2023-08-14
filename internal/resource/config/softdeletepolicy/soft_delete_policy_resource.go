@@ -341,14 +341,14 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 
 // Read resource information
 func (r *softDeletePolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readSoftDeletePolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+	readSoftDeletePolicy(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultSoftDeletePolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readSoftDeletePolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+	readSoftDeletePolicy(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state softDeletePolicyResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -360,7 +360,12 @@ func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *r
 	readResponse, httpResp, err := apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
+		}
 		return
 	}
 
@@ -454,7 +459,7 @@ func (r *softDeletePolicyResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicyExecute(r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Soft Delete Policy", err, httpResp)
 		return
 	}

@@ -834,14 +834,14 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 
 // Read resource information
 func (r *identityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+	readIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+	readIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state identityMapperResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -853,7 +853,12 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
+		}
 		return
 	}
 
@@ -975,7 +980,7 @@ func (r *identityMapperResource) Delete(ctx context.Context, req resource.Delete
 
 	httpResp, err := r.apiClient.IdentityMapperApi.DeleteIdentityMapperExecute(r.apiClient.IdentityMapperApi.DeleteIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Identity Mapper", err, httpResp)
 		return
 	}

@@ -648,14 +648,14 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 
 // Read resource information
 func (r *scimResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultScimResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state scimResourceTypeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -667,7 +667,12 @@ func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	readResponse, httpResp, err := apiClient.ScimResourceTypeApi.GetScimResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
+		}
 		return
 	}
 
@@ -771,7 +776,7 @@ func (r *scimResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.ScimResourceTypeApi.DeleteScimResourceTypeExecute(r.apiClient.ScimResourceTypeApi.DeleteScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Resource Type", err, httpResp)
 		return
 	}

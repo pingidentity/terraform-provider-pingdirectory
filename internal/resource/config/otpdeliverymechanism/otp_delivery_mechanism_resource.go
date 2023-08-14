@@ -805,14 +805,14 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 
 // Read resource information
 func (r *otpDeliveryMechanismResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
+	readOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultOtpDeliveryMechanismResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
+	readOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state otpDeliveryMechanismResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -824,7 +824,12 @@ func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
+		}
 		return
 	}
 
@@ -935,7 +940,7 @@ func (r *otpDeliveryMechanismResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanismExecute(r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Otp Delivery Mechanism", err, httpResp)
 		return
 	}

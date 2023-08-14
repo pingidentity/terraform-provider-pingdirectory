@@ -946,14 +946,14 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 
 // Read resource information
 func (r *clientConnectionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readClientConnectionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+	readClientConnectionPolicy(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultClientConnectionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readClientConnectionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+	readClientConnectionPolicy(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state clientConnectionPolicyResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -965,7 +965,12 @@ func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, r
 	readResponse, httpResp, err := apiClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.PolicyID.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)
+		}
 		return
 	}
 
@@ -1059,7 +1064,7 @@ func (r *clientConnectionPolicyResource) Delete(ctx context.Context, req resourc
 
 	httpResp, err := r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicyExecute(r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PolicyID.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Client Connection Policy", err, httpResp)
 		return
 	}

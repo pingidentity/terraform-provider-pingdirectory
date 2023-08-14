@@ -3015,14 +3015,14 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 
 // Read resource information
 func (r *recurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state recurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -3034,7 +3034,12 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
+		}
 		return
 	}
 
@@ -3198,7 +3203,7 @@ func (r *recurringTaskResource) Delete(ctx context.Context, req resource.DeleteR
 
 	httpResp, err := r.apiClient.RecurringTaskApi.DeleteRecurringTaskExecute(r.apiClient.RecurringTaskApi.DeleteRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task", err, httpResp)
 		return
 	}

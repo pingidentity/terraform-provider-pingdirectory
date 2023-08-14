@@ -34,8 +34,17 @@ type pingDirectoryError struct {
 	Detail  string   `json:"detail"`
 }
 
+// Report an HTTP error as a warning
+func ReportHttpErrorAsWarning(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response) {
+	reportHttpResponse(ctx, diagnostics, errorSummary, err, httpResp, true)
+}
+
 // Report an HTTP error
-func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response, isWarning bool) {
+func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response) {
+	reportHttpResponse(ctx, diagnostics, errorSummary, err, httpResp, false)
+}
+
+func reportHttpResponse(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response, isWarning bool) {
 	httpErrorPrinted := false
 	var internalError error
 	if httpResp != nil {

@@ -823,14 +823,14 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 
 // Read resource information
 func (r *topologyAdminUserResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultTopologyAdminUserResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state topologyAdminUserResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -842,7 +842,12 @@ func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
+		}
 		return
 	}
 
@@ -937,7 +942,7 @@ func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUserExecute(r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Topology Admin User", err, httpResp)
 		return
 	}

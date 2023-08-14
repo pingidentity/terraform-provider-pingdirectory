@@ -299,14 +299,14 @@ func (r *defaultScimSchemaResource) Create(ctx context.Context, req resource.Cre
 
 // Read resource information
 func (r *scimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultScimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readScimSchema(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readScimSchema(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state scimSchemaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -318,7 +318,12 @@ func readScimSchema(ctx context.Context, req resource.ReadRequest, resp *resourc
 	readResponse, httpResp, err := apiClient.ScimSchemaApi.GetScimSchema(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.SchemaURN.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
+		}
 		return
 	}
 
@@ -412,7 +417,7 @@ func (r *scimSchemaResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 	httpResp, err := r.apiClient.ScimSchemaApi.DeleteScimSchemaExecute(r.apiClient.ScimSchemaApi.DeleteScimSchema(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SchemaURN.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Schema", err, httpResp)
 		return
 	}

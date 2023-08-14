@@ -6984,7 +6984,12 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
+		if httpResp.StatusCode == 404 {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
+		}
 		return
 	}
 
@@ -7453,7 +7458,7 @@ func (r *pluginResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	httpResp, err := r.apiClient.PluginApi.DeletePluginExecute(r.apiClient.PluginApi.DeletePlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Plugin", err, httpResp)
 		return
 	}

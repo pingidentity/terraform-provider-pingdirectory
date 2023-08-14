@@ -1139,14 +1139,14 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 
 // Read resource information
 func (r *passphraseProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	readPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultPassphraseProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	readPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state passphraseProviderResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -1158,7 +1158,12 @@ func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp 
 	readResponse, httpResp, err := apiClient.PassphraseProviderApi.GetPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
+		}
 		return
 	}
 
@@ -1299,7 +1304,7 @@ func (r *passphraseProviderResource) Delete(ctx context.Context, req resource.De
 
 	httpResp, err := r.apiClient.PassphraseProviderApi.DeletePassphraseProviderExecute(r.apiClient.PassphraseProviderApi.DeletePassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Passphrase Provider", err, httpResp)
 		return
 	}

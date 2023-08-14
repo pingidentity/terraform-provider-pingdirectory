@@ -3057,7 +3057,12 @@ func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, re
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
+		if httpResp.StatusCode == 404 {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
+		}
 		return
 	}
 
@@ -3305,7 +3310,7 @@ func (r *backendResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	httpResp, err := r.apiClient.BackendApi.DeleteBackendExecute(r.apiClient.BackendApi.DeleteBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Backend", err, httpResp)
 		return
 	}

@@ -293,14 +293,14 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 
 // Read resource information
 func (r *dnMapResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDnMap(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDnMap(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultDnMapResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDnMap(ctx, req, resp, r.apiClient, r.providerConfig)
+	readDnMap(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state dnMapResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -312,7 +312,12 @@ func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	readResponse, httpResp, err := apiClient.DnMapApi.GetDnMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
+		}
 		return
 	}
 
@@ -406,7 +411,7 @@ func (r *dnMapResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 	httpResp, err := r.apiClient.DnMapApi.DeleteDnMapExecute(r.apiClient.DnMapApi.DeleteDnMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Dn Map", err, httpResp)
 		return
 	}

@@ -2767,7 +2767,12 @@ func (r *httpServletExtensionResource) Read(ctx context.Context, req resource.Re
 	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
+		if httpResp.StatusCode == 404 {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
+		}
 		return
 	}
 
@@ -3027,7 +3032,7 @@ func (r *httpServletExtensionResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtensionExecute(r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Http Servlet Extension", err, httpResp)
 		return
 	}

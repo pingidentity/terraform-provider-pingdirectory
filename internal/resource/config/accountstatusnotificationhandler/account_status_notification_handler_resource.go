@@ -1525,14 +1525,14 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 
 // Read resource information
 func (r *accountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	readAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig, false)
 }
 
 func (r *defaultAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	readAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig, true)
 }
 
-func readAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, isDefault bool) {
 	// Get current state
 	var state accountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -1544,7 +1544,12 @@ func readAccountStatusNotificationHandler(ctx context.Context, req resource.Read
 	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
+		if httpResp.StatusCode == 404 && !isDefault {
+			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
+			resp.State.RemoveResource(ctx)
+		} else {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
+		}
 		return
 	}
 
@@ -1672,7 +1677,7 @@ func (r *accountStatusNotificationHandlerResource) Delete(ctx context.Context, r
 
 	httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.DeleteAccountStatusNotificationHandlerExecute(r.apiClient.AccountStatusNotificationHandlerApi.DeleteAccountStatusNotificationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil {
+	if err != nil && httpResp.StatusCode != 404 {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Account Status Notification Handler", err, httpResp)
 		return
 	}
