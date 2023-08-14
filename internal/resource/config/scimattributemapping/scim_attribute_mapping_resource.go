@@ -223,7 +223,7 @@ func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttribu
 	state.Type = types.StringValue("scim-attribute-mapping")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))
+	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, true)
 	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
 	state.LdapAttribute = types.StringValue(r.LdapAttribute)
 	state.Readable = internaltypes.BoolTypeOrNil(r.Readable)

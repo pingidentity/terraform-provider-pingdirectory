@@ -212,7 +212,7 @@ func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexR
 	state.Name = types.StringValue(r.Name)
 	state.MaxBlockSize = internaltypes.Int64TypeOrNil(r.MaxBlockSize)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
+		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

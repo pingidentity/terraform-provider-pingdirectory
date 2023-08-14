@@ -410,7 +410,7 @@ func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *cl
 	state.ApplicationTool = internaltypes.GetStringSet(r.ApplicationTool)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
@@ -425,7 +425,7 @@ func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.Cu
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)
@@ -443,7 +443,7 @@ func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *clien
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)

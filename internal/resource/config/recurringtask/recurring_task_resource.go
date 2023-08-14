@@ -1935,7 +1935,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
 	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
-	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousProfileAge))
+	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_profile_age",
 		expectedValues.RetainPreviousProfileAge, state.RetainPreviousProfileAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1981,7 +1981,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousFullBackupCount = internaltypes.Int64TypeOrNil(r.RetainPreviousFullBackupCount)
-	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousFullBackupAge))
+	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_full_backup_age",
 		expectedValues.RetainPreviousFullBackupAge, state.RetainPreviousFullBackupAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
@@ -2019,7 +2019,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_search_to_return_entries",
 		expectedValues.DurationToWaitForSearchToReturnEntries, state.DurationToWaitForSearchToReturnEntries, diagnostics)
 	state.TaskReturnStateIfTimeoutIsEncountered = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), internaltypes.IsEmptyString(expectedValues.TaskReturnStateIfTimeoutIsEncountered))
+		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
@@ -2065,22 +2065,22 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.IncludeExtensionSource = internaltypes.BoolTypeOrNil(r.IncludeExtensionSource)
 	state.UseSequentialMode = internaltypes.BoolTypeOrNil(r.UseSequentialMode)
 	state.SecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), internaltypes.IsEmptyString(expectedValues.SecurityLevel))
+		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), true)
 	state.JstackCount = internaltypes.Int64TypeOrNil(r.JstackCount)
 	state.ReportCount = internaltypes.Int64TypeOrNil(r.ReportCount)
 	state.ReportIntervalSeconds = internaltypes.Int64TypeOrNil(r.ReportIntervalSeconds)
-	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, internaltypes.IsEmptyString(expectedValues.LogDuration))
+	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("log_duration",
 		expectedValues.LogDuration, state.LogDuration, diagnostics)
-	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileHeadCollectionSize))
+	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, true)
 	config.CheckMismatchedPDFormattedAttributes("log_file_head_collection_size",
 		expectedValues.LogFileHeadCollectionSize, state.LogFileHeadCollectionSize, diagnostics)
-	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileTailCollectionSize))
+	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, true)
 	config.CheckMismatchedPDFormattedAttributes("log_file_tail_collection_size",
 		expectedValues.LogFileTailCollectionSize, state.LogFileTailCollectionSize, diagnostics)
 	state.Comment = internaltypes.StringTypeOrNil(r.Comment, internaltypes.IsEmptyString(expectedValues.Comment))
 	state.RetainPreviousSupportDataArchiveCount = internaltypes.Int64TypeOrNil(r.RetainPreviousSupportDataArchiveCount)
-	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousSupportDataArchiveAge))
+	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_support_data_archive_age",
 		expectedValues.RetainPreviousSupportDataArchiveAge, state.RetainPreviousSupportDataArchiveAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2108,7 +2108,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousLDIFExportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousLDIFExportCount)
-	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousLDIFExportAge))
+	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_ldif_export_age",
 		expectedValues.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
@@ -2152,7 +2152,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.Backend = internaltypes.GetStringSet(r.Backend)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.RetainPreviousReportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousReportCount)
-	state.RetainPreviousReportAge = internaltypes.StringTypeOrNil(r.RetainPreviousReportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousReportAge))
+	state.RetainPreviousReportAge = internaltypes.StringTypeOrNil(r.RetainPreviousReportAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_report_age",
 		expectedValues.RetainPreviousReportAge, state.RetainPreviousReportAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2176,13 +2176,13 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.CommandArguments = internaltypes.StringTypeOrNil(r.CommandArguments, internaltypes.IsEmptyString(expectedValues.CommandArguments))
 	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, internaltypes.IsEmptyString(expectedValues.CommandOutputFileBaseName))
 	state.RetainPreviousOutputFileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousOutputFileCount)
-	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousOutputFileAge))
+	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, true)
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_output_file_age",
 		expectedValues.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, diagnostics)
 	state.LogCommandOutput = internaltypes.BoolTypeOrNil(r.LogCommandOutput)
 	state.TaskCompletionStateForNonzeroExitCode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), internaltypes.IsEmptyString(expectedValues.TaskCompletionStateForNonzeroExitCode))
-	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, internaltypes.IsEmptyString(expectedValues.WorkingDirectory))
+		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), true)
+	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)

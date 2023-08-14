@@ -199,9 +199,9 @@ func readSoftDeletePolicyResponse(ctx context.Context, r *client.SoftDeletePolic
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteConnectionCriteria))
-	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteRequestCriteria))
-	state.SoftDeleteRetentionTime = internaltypes.StringTypeOrNil(r.SoftDeleteRetentionTime, internaltypes.IsEmptyString(expectedValues.SoftDeleteRetentionTime))
+	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, true)
+	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, true)
+	state.SoftDeleteRetentionTime = internaltypes.StringTypeOrNil(r.SoftDeleteRetentionTime, true)
 	config.CheckMismatchedPDFormattedAttributes("soft_delete_retention_time",
 		expectedValues.SoftDeleteRetentionTime, state.SoftDeleteRetentionTime, diagnostics)
 	state.SoftDeleteRetainNumberOfEntries = internaltypes.Int64TypeOrNil(r.SoftDeleteRetainNumberOfEntries)

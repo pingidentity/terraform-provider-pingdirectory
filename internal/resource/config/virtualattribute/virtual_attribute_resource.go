@@ -1649,7 +1649,7 @@ func readMirrorVirtualAttributeResponse(ctx context.Context, r *client.MirrorVir
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
 	state.SourceEntryDNAttribute = internaltypes.StringTypeOrNil(r.SourceEntryDNAttribute, internaltypes.IsEmptyString(expectedValues.SourceEntryDNAttribute))
 	state.SourceEntryDNMap = internaltypes.StringTypeOrNil(r.SourceEntryDNMap, internaltypes.IsEmptyString(expectedValues.SourceEntryDNMap))
@@ -1664,7 +1664,7 @@ func readMirrorVirtualAttributeResponse(ctx context.Context, r *client.MirrorVir
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -1676,7 +1676,7 @@ func readMirrorVirtualAttributeResponseDefault(ctx context.Context, r *client.Mi
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
 	state.SourceEntryDNAttribute = internaltypes.StringTypeOrNil(r.SourceEntryDNAttribute, internaltypes.IsEmptyString(expectedValues.SourceEntryDNAttribute))
 	state.SourceEntryDNMap = internaltypes.StringTypeOrNil(r.SourceEntryDNMap, internaltypes.IsEmptyString(expectedValues.SourceEntryDNMap))
@@ -1691,7 +1691,7 @@ func readMirrorVirtualAttributeResponseDefault(ctx context.Context, r *client.Mi
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1703,7 +1703,7 @@ func readEntryChecksumVirtualAttributeResponseDefault(ctx context.Context, r *cl
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.ExcludeOperationalAttributes = internaltypes.BoolTypeOrNil(r.ExcludeOperationalAttributes)
 	state.ExcludedAttribute = internaltypes.GetStringSet(r.ExcludedAttribute)
@@ -1716,7 +1716,7 @@ func readEntryChecksumVirtualAttributeResponseDefault(ctx context.Context, r *cl
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1728,7 +1728,7 @@ func readMemberOfServerGroupVirtualAttributeResponseDefault(ctx context.Context,
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1739,7 +1739,7 @@ func readMemberOfServerGroupVirtualAttributeResponseDefault(ctx context.Context,
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1759,11 +1759,11 @@ func readConstructedVirtualAttributeResponse(ctx context.Context, r *client.Cons
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -1783,11 +1783,11 @@ func readConstructedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1799,12 +1799,12 @@ func readIsMemberOfVirtualAttributeResponse(ctx context.Context, r *client.IsMem
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.DirectMembershipsOnly = internaltypes.BoolTypeOrNil(r.DirectMembershipsOnly)
 	state.IncludedGroupFilter = internaltypes.StringTypeOrNil(r.IncludedGroupFilter, internaltypes.IsEmptyString(expectedValues.IncludedGroupFilter))
 	state.RewriteSearchFilters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeRewriteSearchFiltersProp(r.RewriteSearchFilters), internaltypes.IsEmptyString(expectedValues.RewriteSearchFilters))
+		client.StringPointerEnumvirtualAttributeRewriteSearchFiltersProp(r.RewriteSearchFilters), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -1814,7 +1814,7 @@ func readIsMemberOfVirtualAttributeResponse(ctx context.Context, r *client.IsMem
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -1826,12 +1826,12 @@ func readIsMemberOfVirtualAttributeResponseDefault(ctx context.Context, r *clien
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.DirectMembershipsOnly = internaltypes.BoolTypeOrNil(r.DirectMembershipsOnly)
 	state.IncludedGroupFilter = internaltypes.StringTypeOrNil(r.IncludedGroupFilter, internaltypes.IsEmptyString(expectedValues.IncludedGroupFilter))
 	state.RewriteSearchFilters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeRewriteSearchFiltersProp(r.RewriteSearchFilters), internaltypes.IsEmptyString(expectedValues.RewriteSearchFilters))
+		client.StringPointerEnumvirtualAttributeRewriteSearchFiltersProp(r.RewriteSearchFilters), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -1841,7 +1841,7 @@ func readIsMemberOfVirtualAttributeResponseDefault(ctx context.Context, r *clien
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1860,11 +1860,11 @@ func readCustomVirtualAttributeResponseDefault(ctx context.Context, r *client.Cu
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1876,7 +1876,7 @@ func readNumSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1887,7 +1887,7 @@ func readNumSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1902,7 +1902,7 @@ func readReverseDnJoinVirtualAttributeResponse(ctx context.Context, r *client.Re
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -1914,11 +1914,11 @@ func readReverseDnJoinVirtualAttributeResponse(ctx context.Context, r *client.Re
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -1933,7 +1933,7 @@ func readReverseDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *cl
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -1945,11 +1945,11 @@ func readReverseDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *cl
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -1970,11 +1970,11 @@ func readIdentifyReferencesVirtualAttributeResponse(ctx context.Context, r *clie
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -1995,11 +1995,11 @@ func readIdentifyReferencesVirtualAttributeResponseDefault(ctx context.Context, 
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2019,11 +2019,11 @@ func readUserDefinedVirtualAttributeResponse(ctx context.Context, r *client.User
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2043,11 +2043,11 @@ func readUserDefinedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2059,7 +2059,7 @@ func readCurrentTimeVirtualAttributeResponseDefault(ctx context.Context, r *clie
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.ReturnUtcTime = internaltypes.BoolTypeOrNil(r.ReturnUtcTime)
 	state.IncludeMilliseconds = internaltypes.BoolTypeOrNil(r.IncludeMilliseconds)
@@ -2072,7 +2072,7 @@ func readCurrentTimeVirtualAttributeResponseDefault(ctx context.Context, r *clie
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2093,7 +2093,7 @@ func readShortUniqueIdVirtualAttributeResponseDefault(ctx context.Context, r *cl
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2105,7 +2105,7 @@ func readEntryDnVirtualAttributeResponse(ctx context.Context, r *client.EntryDnV
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2116,7 +2116,7 @@ func readEntryDnVirtualAttributeResponse(ctx context.Context, r *client.EntryDnV
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2128,7 +2128,7 @@ func readEntryDnVirtualAttributeResponseDefault(ctx context.Context, r *client.E
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2139,7 +2139,7 @@ func readEntryDnVirtualAttributeResponseDefault(ctx context.Context, r *client.E
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2151,7 +2151,7 @@ func readHasSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2162,7 +2162,7 @@ func readHasSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2179,7 +2179,7 @@ func readEqualityJoinVirtualAttributeResponse(ctx context.Context, r *client.Equ
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -2191,11 +2191,11 @@ func readEqualityJoinVirtualAttributeResponse(ctx context.Context, r *client.Equ
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2212,7 +2212,7 @@ func readEqualityJoinVirtualAttributeResponseDefault(ctx context.Context, r *cli
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -2224,11 +2224,11 @@ func readEqualityJoinVirtualAttributeResponseDefault(ctx context.Context, r *cli
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2249,11 +2249,11 @@ func readGroovyScriptedVirtualAttributeResponse(ctx context.Context, r *client.G
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2274,11 +2274,11 @@ func readGroovyScriptedVirtualAttributeResponseDefault(ctx context.Context, r *c
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2290,7 +2290,7 @@ func readInstanceNameVirtualAttributeResponseDefault(ctx context.Context, r *cli
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2301,7 +2301,7 @@ func readInstanceNameVirtualAttributeResponseDefault(ctx context.Context, r *cli
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2324,7 +2324,7 @@ func readMemberVirtualAttributeResponse(ctx context.Context, r *client.MemberVir
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AllowRetrievingMembership = types.BoolValue(r.AllowRetrievingMembership)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
@@ -2337,7 +2337,7 @@ func readMemberVirtualAttributeResponse(ctx context.Context, r *client.MemberVir
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
 }
@@ -2348,7 +2348,7 @@ func readMemberVirtualAttributeResponseDefault(ctx context.Context, r *client.Me
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AllowRetrievingMembership = types.BoolValue(r.AllowRetrievingMembership)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
@@ -2361,7 +2361,7 @@ func readMemberVirtualAttributeResponseDefault(ctx context.Context, r *client.Me
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
 }
@@ -2406,7 +2406,7 @@ func readSubschemaSubentryVirtualAttributeResponseDefault(ctx context.Context, r
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2417,7 +2417,7 @@ func readSubschemaSubentryVirtualAttributeResponseDefault(ctx context.Context, r
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2432,7 +2432,7 @@ func readDnJoinVirtualAttributeResponse(ctx context.Context, r *client.DnJoinVir
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -2444,11 +2444,11 @@ func readDnJoinVirtualAttributeResponse(ctx context.Context, r *client.DnJoinVir
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2463,7 +2463,7 @@ func readDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.Dn
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
 	state.JoinScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), internaltypes.IsEmptyString(expectedValues.JoinScope))
+		client.StringPointerEnumvirtualAttributeJoinScopeProp(r.JoinScope), true)
 	state.JoinSizeLimit = internaltypes.Int64TypeOrNil(r.JoinSizeLimit)
 	state.JoinFilter = internaltypes.StringTypeOrNil(r.JoinFilter, internaltypes.IsEmptyString(expectedValues.JoinFilter))
 	state.JoinAttribute = internaltypes.GetStringSet(r.JoinAttribute)
@@ -2475,11 +2475,11 @@ func readDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.Dn
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)
@@ -2500,11 +2500,11 @@ func readThirdPartyVirtualAttributeResponse(ctx context.Context, r *client.Third
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValues(ctx, state)
@@ -2525,11 +2525,11 @@ func readThirdPartyVirtualAttributeResponseDefault(ctx context.Context, r *clien
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), true)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleVirtualAttributeMergeBehavior))
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVirtualAttributeUnknownValuesDefault(ctx, state)

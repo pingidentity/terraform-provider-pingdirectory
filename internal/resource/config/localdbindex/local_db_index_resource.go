@@ -297,7 +297,7 @@ func readLocalDbIndexResponse(ctx context.Context, r *client.LocalDbIndexRespons
 	state.EqualityIndexFilter = internaltypes.GetStringSet(r.EqualityIndexFilter)
 	state.MaintainEqualityIndexWithoutFilter = internaltypes.BoolTypeOrNil(r.MaintainEqualityIndexWithoutFilter)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
+		client.StringPointerEnumlocalDbIndexCacheModeProp(r.CacheMode), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

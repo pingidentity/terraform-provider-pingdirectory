@@ -1053,7 +1053,7 @@ func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequ
 	state.IncludedSearchScope = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaIncludedSearchScopeProp(r.IncludedSearchScope))
 	state.UsingAdministrativeSessionWorkerThread = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrequestCriteriaUsingAdministrativeSessionWorkerThreadProp(r.UsingAdministrativeSessionWorkerThread), internaltypes.IsEmptyString(expectedValues.UsingAdministrativeSessionWorkerThread))
+		client.StringPointerEnumrequestCriteriaUsingAdministrativeSessionWorkerThreadProp(r.UsingAdministrativeSessionWorkerThread), true)
 	state.IncludedApplicationName = internaltypes.GetStringSet(r.IncludedApplicationName)
 	state.ExcludedApplicationName = internaltypes.GetStringSet(r.ExcludedApplicationName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

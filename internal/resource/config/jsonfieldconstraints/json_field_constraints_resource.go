@@ -381,14 +381,14 @@ func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldCo
 	state.ValueType = types.StringValue(r.ValueType.String())
 	state.IsRequired = internaltypes.BoolTypeOrNil(r.IsRequired)
 	state.IsArray = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumjsonFieldConstraintsIsArrayProp(r.IsArray), internaltypes.IsEmptyString(expectedValues.IsArray))
+		client.StringPointerEnumjsonFieldConstraintsIsArrayProp(r.IsArray), true)
 	state.AllowNullValue = internaltypes.BoolTypeOrNil(r.AllowNullValue)
 	state.AllowEmptyObject = internaltypes.BoolTypeOrNil(r.AllowEmptyObject)
 	state.IndexValues = internaltypes.BoolTypeOrNil(r.IndexValues)
 	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)
 	state.PrimeIndex = internaltypes.BoolTypeOrNil(r.PrimeIndex)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumjsonFieldConstraintsCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
+		client.StringPointerEnumjsonFieldConstraintsCacheModeProp(r.CacheMode), true)
 	state.TokenizeValues = internaltypes.BoolTypeOrNil(r.TokenizeValues)
 	state.AllowedValue = internaltypes.GetStringSet(r.AllowedValue)
 	state.AllowedValueRegularExpression = internaltypes.GetStringSet(r.AllowedValueRegularExpression)

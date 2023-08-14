@@ -933,11 +933,11 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 	state.IncludedProtocol = internaltypes.GetStringSet(r.IncludedProtocol)
 	state.ExcludedProtocol = internaltypes.GetStringSet(r.ExcludedProtocol)
 	state.CommunicationSecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionCriteriaCommunicationSecurityLevelProp(r.CommunicationSecurityLevel), internaltypes.IsEmptyString(expectedValues.CommunicationSecurityLevel))
+		client.StringPointerEnumconnectionCriteriaCommunicationSecurityLevelProp(r.CommunicationSecurityLevel), true)
 	state.UserAuthType = internaltypes.GetStringSet(
 		client.StringSliceEnumconnectionCriteriaUserAuthTypeProp(r.UserAuthType))
 	state.AuthenticationSecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionCriteriaAuthenticationSecurityLevelProp(r.AuthenticationSecurityLevel), internaltypes.IsEmptyString(expectedValues.AuthenticationSecurityLevel))
+		client.StringPointerEnumconnectionCriteriaAuthenticationSecurityLevelProp(r.AuthenticationSecurityLevel), true)
 	state.IncludedUserSASLMechanism = internaltypes.GetStringSet(r.IncludedUserSASLMechanism)
 	state.ExcludedUserSASLMechanism = internaltypes.GetStringSet(r.ExcludedUserSASLMechanism)
 	state.IncludedUserBaseDN = internaltypes.GetStringSet(r.IncludedUserBaseDN)

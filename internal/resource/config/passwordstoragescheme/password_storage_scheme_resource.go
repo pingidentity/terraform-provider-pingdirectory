@@ -737,7 +737,7 @@ func readCryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Crypt
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PasswordEncodingMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), internaltypes.IsEmptyString(expectedValues.PasswordEncodingMechanism))
+		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), true)
 	state.NumDigestRounds = internaltypes.Int64TypeOrNil(r.NumDigestRounds)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -873,7 +873,7 @@ func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkd
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), internaltypes.IsEmptyString(expectedValues.DigestAlgorithm))
+		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), true)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
@@ -995,7 +995,7 @@ func readAzureKeyVaultPasswordStorageSchemeResponse(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

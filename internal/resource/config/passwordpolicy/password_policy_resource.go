@@ -817,80 +817,80 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.RequireSecurePasswordChanges = internaltypes.BoolTypeOrNil(r.RequireSecurePasswordChanges)
 	state.AccountStatusNotificationHandler = internaltypes.GetStringSet(r.AccountStatusNotificationHandler)
 	state.StateUpdateFailurePolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyStateUpdateFailurePolicyProp(r.StateUpdateFailurePolicy), internaltypes.IsEmptyString(expectedValues.StateUpdateFailurePolicy))
+		client.StringPointerEnumpasswordPolicyStateUpdateFailurePolicyProp(r.StateUpdateFailurePolicy), true)
 	state.EnableDebug = internaltypes.BoolTypeOrNil(r.EnableDebug)
 	state.PasswordAttribute = types.StringValue(r.PasswordAttribute)
 	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
 	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
 	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
 	state.AllowPreEncodedPasswords = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), internaltypes.IsEmptyString(expectedValues.AllowPreEncodedPasswords))
+		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), true)
 	state.PasswordValidator = internaltypes.GetStringSet(r.PasswordValidator)
 	state.BindPasswordValidator = internaltypes.GetStringSet(r.BindPasswordValidator)
-	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, internaltypes.IsEmptyString(expectedValues.MinimumBindPasswordValidationFrequency))
+	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, true)
 	config.CheckMismatchedPDFormattedAttributes("minimum_bind_password_validation_frequency",
 		expectedValues.MinimumBindPasswordValidationFrequency, state.MinimumBindPasswordValidationFrequency, diagnostics)
 	state.BindPasswordValidationFailureAction = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyBindPasswordValidationFailureActionProp(r.BindPasswordValidationFailureAction), internaltypes.IsEmptyString(expectedValues.BindPasswordValidationFailureAction))
+		client.StringPointerEnumpasswordPolicyBindPasswordValidationFailureActionProp(r.BindPasswordValidationFailureAction), true)
 	state.PasswordGenerator = internaltypes.StringTypeOrNil(r.PasswordGenerator, internaltypes.IsEmptyString(expectedValues.PasswordGenerator))
 	state.PasswordHistoryCount = internaltypes.Int64TypeOrNil(r.PasswordHistoryCount)
-	state.PasswordHistoryDuration = internaltypes.StringTypeOrNil(r.PasswordHistoryDuration, internaltypes.IsEmptyString(expectedValues.PasswordHistoryDuration))
+	state.PasswordHistoryDuration = internaltypes.StringTypeOrNil(r.PasswordHistoryDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("password_history_duration",
 		expectedValues.PasswordHistoryDuration, state.PasswordHistoryDuration, diagnostics)
-	state.MinPasswordAge = internaltypes.StringTypeOrNil(r.MinPasswordAge, internaltypes.IsEmptyString(expectedValues.MinPasswordAge))
+	state.MinPasswordAge = internaltypes.StringTypeOrNil(r.MinPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("min_password_age",
 		expectedValues.MinPasswordAge, state.MinPasswordAge, diagnostics)
-	state.MaxPasswordAge = internaltypes.StringTypeOrNil(r.MaxPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordAge))
+	state.MaxPasswordAge = internaltypes.StringTypeOrNil(r.MaxPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_password_age",
 		expectedValues.MaxPasswordAge, state.MaxPasswordAge, diagnostics)
-	state.PasswordExpirationWarningInterval = internaltypes.StringTypeOrNil(r.PasswordExpirationWarningInterval, internaltypes.IsEmptyString(expectedValues.PasswordExpirationWarningInterval))
+	state.PasswordExpirationWarningInterval = internaltypes.StringTypeOrNil(r.PasswordExpirationWarningInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("password_expiration_warning_interval",
 		expectedValues.PasswordExpirationWarningInterval, state.PasswordExpirationWarningInterval, diagnostics)
 	state.ExpirePasswordsWithoutWarning = internaltypes.BoolTypeOrNil(r.ExpirePasswordsWithoutWarning)
 	state.ReturnPasswordExpirationControls = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyReturnPasswordExpirationControlsProp(r.ReturnPasswordExpirationControls), internaltypes.IsEmptyString(expectedValues.ReturnPasswordExpirationControls))
+		client.StringPointerEnumpasswordPolicyReturnPasswordExpirationControlsProp(r.ReturnPasswordExpirationControls), true)
 	state.AllowExpiredPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowExpiredPasswordChanges)
 	state.GraceLoginCount = internaltypes.Int64TypeOrNil(r.GraceLoginCount)
 	state.RequireChangeByTime = internaltypes.StringTypeOrNil(r.RequireChangeByTime, internaltypes.IsEmptyString(expectedValues.RequireChangeByTime))
 	state.LockoutFailureCount = internaltypes.Int64TypeOrNil(r.LockoutFailureCount)
-	state.LockoutDuration = internaltypes.StringTypeOrNil(r.LockoutDuration, internaltypes.IsEmptyString(expectedValues.LockoutDuration))
+	state.LockoutDuration = internaltypes.StringTypeOrNil(r.LockoutDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("lockout_duration",
 		expectedValues.LockoutDuration, state.LockoutDuration, diagnostics)
-	state.LockoutFailureExpirationInterval = internaltypes.StringTypeOrNil(r.LockoutFailureExpirationInterval, internaltypes.IsEmptyString(expectedValues.LockoutFailureExpirationInterval))
+	state.LockoutFailureExpirationInterval = internaltypes.StringTypeOrNil(r.LockoutFailureExpirationInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("lockout_failure_expiration_interval",
 		expectedValues.LockoutFailureExpirationInterval, state.LockoutFailureExpirationInterval, diagnostics)
 	state.IgnoreDuplicatePasswordFailures = internaltypes.BoolTypeOrNil(r.IgnoreDuplicatePasswordFailures)
-	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, internaltypes.IsEmptyString(expectedValues.FailureLockoutAction))
-	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, internaltypes.IsEmptyString(expectedValues.IdleLockoutInterval))
+	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, true)
+	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("idle_lockout_interval",
 		expectedValues.IdleLockoutInterval, state.IdleLockoutInterval, diagnostics)
 	state.AllowUserPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowUserPasswordChanges)
 	state.PasswordChangeRequiresCurrentPassword = internaltypes.BoolTypeOrNil(r.PasswordChangeRequiresCurrentPassword)
 	state.PasswordRetirementBehavior = internaltypes.GetStringSet(
 		client.StringSliceEnumpasswordPolicyPasswordRetirementBehaviorProp(r.PasswordRetirementBehavior))
-	state.MaxRetiredPasswordAge = internaltypes.StringTypeOrNil(r.MaxRetiredPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxRetiredPasswordAge))
+	state.MaxRetiredPasswordAge = internaltypes.StringTypeOrNil(r.MaxRetiredPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_retired_password_age",
 		expectedValues.MaxRetiredPasswordAge, state.MaxRetiredPasswordAge, diagnostics)
 	state.AllowedPasswordResetTokenUseCondition = internaltypes.GetStringSet(
 		client.StringSliceEnumpasswordPolicyAllowedPasswordResetTokenUseConditionProp(r.AllowedPasswordResetTokenUseCondition))
 	state.ForceChangeOnAdd = internaltypes.BoolTypeOrNil(r.ForceChangeOnAdd)
 	state.ForceChangeOnReset = internaltypes.BoolTypeOrNil(r.ForceChangeOnReset)
-	state.MaxPasswordResetAge = internaltypes.StringTypeOrNil(r.MaxPasswordResetAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordResetAge))
+	state.MaxPasswordResetAge = internaltypes.StringTypeOrNil(r.MaxPasswordResetAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_password_reset_age",
 		expectedValues.MaxPasswordResetAge, state.MaxPasswordResetAge, diagnostics)
 	state.SkipValidationForAdministrators = internaltypes.BoolTypeOrNil(r.SkipValidationForAdministrators)
 	state.MaximumRecentLoginHistorySuccessfulAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationCount)
-	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration))
+	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_successful_authentication_duration",
 		expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, diagnostics)
 	state.MaximumRecentLoginHistoryFailedAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationCount)
-	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration))
+	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_failed_authentication_duration",
 		expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, diagnostics)
 	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), internaltypes.IsEmptyString(expectedValues.RecentLoginHistorySimilarAttemptBehavior))
+		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), true)
 	state.LastLoginIPAddressAttribute = internaltypes.StringTypeOrNil(r.LastLoginIPAddressAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginIPAddressAttribute))
-	state.LastLoginTimeAttribute = internaltypes.StringTypeOrNil(r.LastLoginTimeAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginTimeAttribute))
+	state.LastLoginTimeAttribute = internaltypes.StringTypeOrNil(r.LastLoginTimeAttribute, true)
 	state.LastLoginTimeFormat = internaltypes.StringTypeOrNil(r.LastLoginTimeFormat, internaltypes.IsEmptyString(expectedValues.LastLoginTimeFormat))
 	state.PreviousLastLoginTimeFormat = internaltypes.GetStringSet(r.PreviousLastLoginTimeFormat)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

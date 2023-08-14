@@ -219,9 +219,9 @@ func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityT
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
-	state.MimeType = internaltypes.StringTypeOrNil(r.MimeType, internaltypes.IsEmptyString(expectedValues.MimeType))
+	state.MimeType = internaltypes.StringTypeOrNil(r.MimeType, true)
 	state.TemplateSuffix = internaltypes.StringTypeOrNil(r.TemplateSuffix, internaltypes.IsEmptyString(expectedValues.TemplateSuffix))
-	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, internaltypes.IsEmptyString(expectedValues.TemplateDirectory))
+	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

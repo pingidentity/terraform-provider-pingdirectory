@@ -245,7 +245,7 @@ func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.Del
 	state.AdminPermission = internaltypes.GetStringSet(
 		client.StringSliceEnumdelegatedAdminResourceRightsAdminPermissionProp(r.AdminPermission))
 	state.AdminScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminResourceRightsAdminScopeProp(r.AdminScope), internaltypes.IsEmptyString(expectedValues.AdminScope))
+		client.StringPointerEnumdelegatedAdminResourceRightsAdminScopeProp(r.AdminScope), true)
 	state.ResourceSubtree = internaltypes.GetStringSet(r.ResourceSubtree)
 	state.ResourcesInGroup = internaltypes.GetStringSet(r.ResourcesInGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

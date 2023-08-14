@@ -213,7 +213,7 @@ func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdM
 	state.Hostname = types.StringValue(r.Hostname)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.ConnectionType = types.StringValue(r.ConnectionType.String())
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.AdditionalTags = internaltypes.GetStringSet(r.AdditionalTags)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

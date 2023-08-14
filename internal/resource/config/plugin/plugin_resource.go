@@ -3740,7 +3740,7 @@ func readLastAccessTimePluginResponseDefault(ctx context.Context, r *client.Last
 	state.ResourceType = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, internaltypes.IsEmptyString(expectedValues.MaxUpdateFrequency))
+	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, true)
 	config.CheckMismatchedPDFormattedAttributes("max_update_frequency",
 		expectedValues.MaxUpdateFrequency, state.MaxUpdateFrequency, diagnostics)
 	state.OperationType = internaltypes.GetStringSet(
@@ -3771,18 +3771,18 @@ func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.Stat
 	state.ServerInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginServerInfoProp(r.ServerInfo), internaltypes.IsEmptyString(expectedValues.ServerInfo))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.GenerateCollectorFiles = internaltypes.BoolTypeOrNil(r.GenerateCollectorFiles)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
@@ -3946,10 +3946,10 @@ func readPeriodicGcPluginResponse(ctx context.Context, r *client.PeriodicGcPlugi
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginInvokeGCDayOfWeekProp(r.InvokeGCDayOfWeek))
 	state.InvokeGCTimeUtc = internaltypes.GetStringSet(r.InvokeGCTimeUtc)
-	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, internaltypes.IsEmptyString(expectedValues.DelayAfterAlert))
+	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_after_alert",
 		expectedValues.DelayAfterAlert, state.DelayAfterAlert, diagnostics)
-	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, internaltypes.IsEmptyString(expectedValues.DelayPostGC))
+	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_post_gc",
 		expectedValues.DelayPostGC, state.DelayPostGC, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3969,10 +3969,10 @@ func readPeriodicGcPluginResponseDefault(ctx context.Context, r *client.Periodic
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginInvokeGCDayOfWeekProp(r.InvokeGCDayOfWeek))
 	state.InvokeGCTimeUtc = internaltypes.GetStringSet(r.InvokeGCTimeUtc)
-	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, internaltypes.IsEmptyString(expectedValues.DelayAfterAlert))
+	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_after_alert",
 		expectedValues.DelayAfterAlert, state.DelayAfterAlert, diagnostics)
-	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, internaltypes.IsEmptyString(expectedValues.DelayPostGC))
+	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_post_gc",
 		expectedValues.DelayPostGC, state.DelayPostGC, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3992,7 +3992,7 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4023,7 +4023,7 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4092,7 +4092,7 @@ func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutd
 	state.Filter = internaltypes.GetStringSet(filterValues)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.OutputFile = types.StringValue(r.OutputFile)
-	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, internaltypes.IsEmptyString(expectedValues.PreviousFileExtension))
+	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -4115,7 +4115,7 @@ func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.Sear
 	state.Filter = internaltypes.GetStringSet(filterValues)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.OutputFile = types.StringValue(r.OutputFile)
-	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, internaltypes.IsEmptyString(expectedValues.PreviousFileExtension))
+	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -4145,15 +4145,15 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.HistogramOpType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHistogramOpTypeProp(r.HistogramOpType))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), internaltypes.IsEmptyString(expectedValues.GaugeInfo))
+		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), internaltypes.IsEmptyString(expectedValues.LogFileFormat))
+		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
@@ -4161,13 +4161,13 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
@@ -4200,15 +4200,15 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 	state.HistogramOpType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHistogramOpTypeProp(r.HistogramOpType))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), internaltypes.IsEmptyString(expectedValues.GaugeInfo))
+		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), internaltypes.IsEmptyString(expectedValues.LogFileFormat))
+		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
@@ -4216,13 +4216,13 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
@@ -4241,7 +4241,7 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
 	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, internaltypes.IsEmptyString(expectedValues.CustomDatetimeFormat))
-	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, internaltypes.IsEmptyString(expectedValues.CustomTimezone))
+	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, true)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4280,7 +4280,7 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
 	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, internaltypes.IsEmptyString(expectedValues.CustomDatetimeFormat))
-	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, internaltypes.IsEmptyString(expectedValues.CustomTimezone))
+	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, true)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4425,7 +4425,7 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
@@ -4454,7 +4454,7 @@ func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
@@ -4516,7 +4516,7 @@ func readMonitorHistoryPluginResponseDefault(ctx context.Context, r *client.Moni
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.RetainFilesSparselyByAge = internaltypes.BoolTypeOrNil(r.RetainFilesSparselyByAge)
 	state.Sanitize = internaltypes.BoolTypeOrNil(r.Sanitize)
@@ -4603,17 +4603,17 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
+	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, true)
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
-	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, internaltypes.IsEmptyString(expectedValues.SessionTimeout))
+	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("session_timeout",
 		expectedValues.SessionTimeout, state.SessionTimeout, diagnostics)
-	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, internaltypes.IsEmptyString(expectedValues.ConnectRetryMaxWait))
+	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_retry_max_wait",
 		expectedValues.ConnectRetryMaxWait, state.ConnectRetryMaxWait, diagnostics)
-	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, internaltypes.IsEmptyString(expectedValues.PingInterval))
+	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("ping_interval",
 		expectedValues.PingInterval, state.PingInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4628,17 +4628,17 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
+	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, true)
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
-	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, internaltypes.IsEmptyString(expectedValues.SessionTimeout))
+	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("session_timeout",
 		expectedValues.SessionTimeout, state.SessionTimeout, diagnostics)
-	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, internaltypes.IsEmptyString(expectedValues.ConnectRetryMaxWait))
+	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_retry_max_wait",
 		expectedValues.ConnectRetryMaxWait, state.ConnectRetryMaxWait, diagnostics)
-	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, internaltypes.IsEmptyString(expectedValues.PingInterval))
+	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("ping_interval",
 		expectedValues.PingInterval, state.PingInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4701,7 +4701,7 @@ func readProfilerPluginResponseDefault(ctx context.Context, r *client.ProfilerPl
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.EnableProfilingOnStartup = types.BoolValue(r.EnableProfilingOnStartup)
 	state.ProfileAction = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginProfileActionProp(r.ProfileAction), internaltypes.IsEmptyString(expectedValues.ProfileAction))
+		client.StringPointerEnumpluginProfileActionProp(r.ProfileAction), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -4769,25 +4769,25 @@ func readComposedAttributePluginResponse(ctx context.Context, r *client.Composed
 	state.AttributeType = internaltypes.GetStringSet(attributeTypeValues)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.MultipleValuePatternBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), internaltypes.IsEmptyString(expectedValues.MultipleValuePatternBehavior))
+		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), true)
 	state.MultiValuedAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultiValuedAttributeBehavior))
+		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), true)
 	state.TargetAttributeExistsDuringInitialPopulationBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), internaltypes.IsEmptyString(expectedValues.TargetAttributeExistsDuringInitialPopulationBehavior))
+		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), true)
 	state.UpdateSourceAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateSourceAttributeBehavior))
+		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), true)
 	state.SourceAttributeRemovalBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), internaltypes.IsEmptyString(expectedValues.SourceAttributeRemovalBehavior))
+		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), true)
 	state.UpdateTargetAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateTargetAttributeBehavior))
+		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), true)
 	state.IncludeBaseDN = internaltypes.GetStringSet(r.IncludeBaseDN)
 	state.ExcludeBaseDN = internaltypes.GetStringSet(r.ExcludeBaseDN)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ExcludeFilter = internaltypes.GetStringSet(r.ExcludeFilter)
 	state.UpdatedEntryNewlyMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNewlyMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), true)
 	state.UpdatedEntryNoLongerMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNoLongerMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -4806,25 +4806,25 @@ func readComposedAttributePluginResponseDefault(ctx context.Context, r *client.C
 	state.AttributeType = internaltypes.GetStringSet(attributeTypeValues)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.MultipleValuePatternBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), internaltypes.IsEmptyString(expectedValues.MultipleValuePatternBehavior))
+		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), true)
 	state.MultiValuedAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultiValuedAttributeBehavior))
+		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), true)
 	state.TargetAttributeExistsDuringInitialPopulationBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), internaltypes.IsEmptyString(expectedValues.TargetAttributeExistsDuringInitialPopulationBehavior))
+		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), true)
 	state.UpdateSourceAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateSourceAttributeBehavior))
+		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), true)
 	state.SourceAttributeRemovalBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), internaltypes.IsEmptyString(expectedValues.SourceAttributeRemovalBehavior))
+		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), true)
 	state.UpdateTargetAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateTargetAttributeBehavior))
+		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), true)
 	state.IncludeBaseDN = internaltypes.GetStringSet(r.IncludeBaseDN)
 	state.ExcludeBaseDN = internaltypes.GetStringSet(r.ExcludeBaseDN)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ExcludeFilter = internaltypes.GetStringSet(r.ExcludeFilter)
 	state.UpdatedEntryNewlyMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNewlyMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), true)
 	state.UpdatedEntryNoLongerMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNoLongerMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -5069,8 +5069,8 @@ func readReferentialIntegrityPluginResponse(ctx context.Context, r *client.Refer
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -5089,8 +5089,8 @@ func readReferentialIntegrityPluginResponseDefault(ctx context.Context, r *clien
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -5109,7 +5109,7 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), true)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}
@@ -5134,7 +5134,7 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), true)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}

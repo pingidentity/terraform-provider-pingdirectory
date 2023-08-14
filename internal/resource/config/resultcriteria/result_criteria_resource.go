@@ -1358,45 +1358,45 @@ func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResul
 	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.ResultCodeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), internaltypes.IsEmptyString(expectedValues.ResultCodeCriteria))
+		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), true)
 	state.ResultCodeValue = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaResultCodeValueProp(r.ResultCodeValue))
 	state.ProcessingTimeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaProcessingTimeCriteriaProp(r.ProcessingTimeCriteria), internaltypes.IsEmptyString(expectedValues.ProcessingTimeCriteria))
-	state.ProcessingTimeValue = internaltypes.StringTypeOrNil(r.ProcessingTimeValue, internaltypes.IsEmptyString(expectedValues.ProcessingTimeValue))
+		client.StringPointerEnumresultCriteriaProcessingTimeCriteriaProp(r.ProcessingTimeCriteria), true)
+	state.ProcessingTimeValue = internaltypes.StringTypeOrNil(r.ProcessingTimeValue, true)
 	config.CheckMismatchedPDFormattedAttributes("processing_time_value",
 		expectedValues.ProcessingTimeValue, state.ProcessingTimeValue, diagnostics)
 	state.QueueTimeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaQueueTimeCriteriaProp(r.QueueTimeCriteria), internaltypes.IsEmptyString(expectedValues.QueueTimeCriteria))
-	state.QueueTimeValue = internaltypes.StringTypeOrNil(r.QueueTimeValue, internaltypes.IsEmptyString(expectedValues.QueueTimeValue))
+		client.StringPointerEnumresultCriteriaQueueTimeCriteriaProp(r.QueueTimeCriteria), true)
+	state.QueueTimeValue = internaltypes.StringTypeOrNil(r.QueueTimeValue, true)
 	config.CheckMismatchedPDFormattedAttributes("queue_time_value",
 		expectedValues.QueueTimeValue, state.QueueTimeValue, diagnostics)
 	state.ReferralReturned = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaReferralReturnedProp(r.ReferralReturned), internaltypes.IsEmptyString(expectedValues.ReferralReturned))
+		client.StringPointerEnumresultCriteriaReferralReturnedProp(r.ReferralReturned), true)
 	state.AllIncludedResponseControl = internaltypes.GetStringSet(r.AllIncludedResponseControl)
 	state.AnyIncludedResponseControl = internaltypes.GetStringSet(r.AnyIncludedResponseControl)
 	state.NotAllIncludedResponseControl = internaltypes.GetStringSet(r.NotAllIncludedResponseControl)
 	state.NoneIncludedResponseControl = internaltypes.GetStringSet(r.NoneIncludedResponseControl)
 	state.UsedAlternateAuthzid = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaUsedAlternateAuthzidProp(r.UsedAlternateAuthzid), internaltypes.IsEmptyString(expectedValues.UsedAlternateAuthzid))
+		client.StringPointerEnumresultCriteriaUsedAlternateAuthzidProp(r.UsedAlternateAuthzid), true)
 	state.UsedAnyPrivilege = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaUsedAnyPrivilegeProp(r.UsedAnyPrivilege), internaltypes.IsEmptyString(expectedValues.UsedAnyPrivilege))
+		client.StringPointerEnumresultCriteriaUsedAnyPrivilegeProp(r.UsedAnyPrivilege), true)
 	state.UsedPrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaUsedPrivilegeProp(r.UsedPrivilege))
 	state.MissingAnyPrivilege = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaMissingAnyPrivilegeProp(r.MissingAnyPrivilege), internaltypes.IsEmptyString(expectedValues.MissingAnyPrivilege))
+		client.StringPointerEnumresultCriteriaMissingAnyPrivilegeProp(r.MissingAnyPrivilege), true)
 	state.MissingPrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaMissingPrivilegeProp(r.MissingPrivilege))
 	state.RetiredPasswordUsedForBind = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaRetiredPasswordUsedForBindProp(r.RetiredPasswordUsedForBind), internaltypes.IsEmptyString(expectedValues.RetiredPasswordUsedForBind))
+		client.StringPointerEnumresultCriteriaRetiredPasswordUsedForBindProp(r.RetiredPasswordUsedForBind), true)
 	state.SearchEntryReturnedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchEntryReturnedCriteriaProp(r.SearchEntryReturnedCriteria), internaltypes.IsEmptyString(expectedValues.SearchEntryReturnedCriteria))
+		client.StringPointerEnumresultCriteriaSearchEntryReturnedCriteriaProp(r.SearchEntryReturnedCriteria), true)
 	state.SearchEntryReturnedCount = internaltypes.Int64TypeOrNil(r.SearchEntryReturnedCount)
 	state.SearchReferenceReturnedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchReferenceReturnedCriteriaProp(r.SearchReferenceReturnedCriteria), internaltypes.IsEmptyString(expectedValues.SearchReferenceReturnedCriteria))
+		client.StringPointerEnumresultCriteriaSearchReferenceReturnedCriteriaProp(r.SearchReferenceReturnedCriteria), true)
 	state.SearchReferenceReturnedCount = internaltypes.Int64TypeOrNil(r.SearchReferenceReturnedCount)
 	state.SearchIndexedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchIndexedCriteriaProp(r.SearchIndexedCriteria), internaltypes.IsEmptyString(expectedValues.SearchIndexedCriteria))
+		client.StringPointerEnumresultCriteriaSearchIndexedCriteriaProp(r.SearchIndexedCriteria), true)
 	state.IncludedAuthzUserBaseDN = internaltypes.GetStringSet(r.IncludedAuthzUserBaseDN)
 	state.ExcludedAuthzUserBaseDN = internaltypes.GetStringSet(r.ExcludedAuthzUserBaseDN)
 	state.AllIncludedAuthzUserGroupDN = internaltypes.GetStringSet(r.AllIncludedAuthzUserGroupDN)
@@ -1432,16 +1432,16 @@ func readReplicationAssuranceResultCriteriaResponse(ctx context.Context, r *clie
 	state.RemoteAssuranceLevel = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaRemoteAssuranceLevelProp(r.RemoteAssuranceLevel))
 	state.AssuranceTimeoutCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceTimeoutCriteriaProp(r.AssuranceTimeoutCriteria), internaltypes.IsEmptyString(expectedValues.AssuranceTimeoutCriteria))
-	state.AssuranceTimeoutValue = internaltypes.StringTypeOrNil(r.AssuranceTimeoutValue, internaltypes.IsEmptyString(expectedValues.AssuranceTimeoutValue))
+		client.StringPointerEnumresultCriteriaAssuranceTimeoutCriteriaProp(r.AssuranceTimeoutCriteria), true)
+	state.AssuranceTimeoutValue = internaltypes.StringTypeOrNil(r.AssuranceTimeoutValue, true)
 	config.CheckMismatchedPDFormattedAttributes("assurance_timeout_value",
 		expectedValues.AssuranceTimeoutValue, state.AssuranceTimeoutValue, diagnostics)
 	state.ResponseDelayedByAssurance = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaResponseDelayedByAssuranceProp(r.ResponseDelayedByAssurance), internaltypes.IsEmptyString(expectedValues.ResponseDelayedByAssurance))
+		client.StringPointerEnumresultCriteriaResponseDelayedByAssuranceProp(r.ResponseDelayedByAssurance), true)
 	state.AssuranceBehaviorAlteredByControl = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceBehaviorAlteredByControlProp(r.AssuranceBehaviorAlteredByControl), internaltypes.IsEmptyString(expectedValues.AssuranceBehaviorAlteredByControl))
+		client.StringPointerEnumresultCriteriaAssuranceBehaviorAlteredByControlProp(r.AssuranceBehaviorAlteredByControl), true)
 	state.AssuranceSatisfied = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceSatisfiedProp(r.AssuranceSatisfied), internaltypes.IsEmptyString(expectedValues.AssuranceSatisfied))
+		client.StringPointerEnumresultCriteriaAssuranceSatisfiedProp(r.AssuranceSatisfied), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateResultCriteriaUnknownValues(ctx, state)

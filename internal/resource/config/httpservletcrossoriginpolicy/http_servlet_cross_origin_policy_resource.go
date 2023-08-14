@@ -248,7 +248,7 @@ func readHttpServletCrossOriginPolicyResponse(ctx context.Context, r *client.Htt
 	state.CorsAllowedOrigins = internaltypes.GetStringSet(r.CorsAllowedOrigins)
 	state.CorsExposedHeaders = internaltypes.GetStringSet(r.CorsExposedHeaders)
 	state.CorsAllowedHeaders = internaltypes.GetStringSet(r.CorsAllowedHeaders)
-	state.CorsPreflightMaxAge = internaltypes.StringTypeOrNil(r.CorsPreflightMaxAge, internaltypes.IsEmptyString(expectedValues.CorsPreflightMaxAge))
+	state.CorsPreflightMaxAge = internaltypes.StringTypeOrNil(r.CorsPreflightMaxAge, true)
 	config.CheckMismatchedPDFormattedAttributes("cors_preflight_max_age",
 		expectedValues.CorsPreflightMaxAge, state.CorsPreflightMaxAge, diagnostics)
 	state.CorsAllowCredentials = internaltypes.BoolTypeOrNil(r.CorsAllowCredentials)

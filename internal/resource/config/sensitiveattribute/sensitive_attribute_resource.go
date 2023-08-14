@@ -262,15 +262,15 @@ func readSensitiveAttributeResponse(ctx context.Context, r *client.SensitiveAttr
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.IncludeDefaultSensitiveOperationalAttributes = internaltypes.BoolTypeOrNil(r.IncludeDefaultSensitiveOperationalAttributes)
 	state.AllowInReturnedEntries = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInReturnedEntriesProp(r.AllowInReturnedEntries), internaltypes.IsEmptyString(expectedValues.AllowInReturnedEntries))
+		client.StringPointerEnumsensitiveAttributeAllowInReturnedEntriesProp(r.AllowInReturnedEntries), true)
 	state.AllowInFilter = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInFilterProp(r.AllowInFilter), internaltypes.IsEmptyString(expectedValues.AllowInFilter))
+		client.StringPointerEnumsensitiveAttributeAllowInFilterProp(r.AllowInFilter), true)
 	state.AllowInAdd = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInAddProp(r.AllowInAdd), internaltypes.IsEmptyString(expectedValues.AllowInAdd))
+		client.StringPointerEnumsensitiveAttributeAllowInAddProp(r.AllowInAdd), true)
 	state.AllowInCompare = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInCompareProp(r.AllowInCompare), internaltypes.IsEmptyString(expectedValues.AllowInCompare))
+		client.StringPointerEnumsensitiveAttributeAllowInCompareProp(r.AllowInCompare), true)
 	state.AllowInModify = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInModifyProp(r.AllowInModify), internaltypes.IsEmptyString(expectedValues.AllowInModify))
+		client.StringPointerEnumsensitiveAttributeAllowInModifyProp(r.AllowInModify), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

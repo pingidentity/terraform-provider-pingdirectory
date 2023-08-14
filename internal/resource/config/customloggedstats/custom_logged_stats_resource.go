@@ -328,7 +328,7 @@ func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedSt
 	state.RegexReplacement = internaltypes.StringTypeOrNil(r.RegexReplacement, internaltypes.IsEmptyString(expectedValues.RegexReplacement))
 	state.DivideValueBy = internaltypes.StringTypeOrNil(r.DivideValueBy, internaltypes.IsEmptyString(expectedValues.DivideValueBy))
 	state.DivideValueByAttribute = internaltypes.StringTypeOrNil(r.DivideValueByAttribute, internaltypes.IsEmptyString(expectedValues.DivideValueByAttribute))
-	state.DecimalFormat = internaltypes.StringTypeOrNil(r.DecimalFormat, internaltypes.IsEmptyString(expectedValues.DecimalFormat))
+	state.DecimalFormat = internaltypes.StringTypeOrNil(r.DecimalFormat, true)
 	state.NonZeroImpliesNotIdle = internaltypes.BoolTypeOrNil(r.NonZeroImpliesNotIdle)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }

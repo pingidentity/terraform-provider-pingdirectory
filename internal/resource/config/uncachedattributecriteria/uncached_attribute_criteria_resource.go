@@ -344,7 +344,7 @@ func readSimpleUncachedAttributeCriteriaResponse(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.MinValueCount = internaltypes.Int64TypeOrNil(r.MinValueCount)
-	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, internaltypes.IsEmptyString(expectedValues.MinTotalValueSize))
+	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, true)
 	config.CheckMismatchedPDFormattedAttributes("min_total_value_size",
 		expectedValues.MinTotalValueSize, state.MinTotalValueSize, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

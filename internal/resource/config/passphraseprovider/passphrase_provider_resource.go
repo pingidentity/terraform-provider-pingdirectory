@@ -532,7 +532,7 @@ func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
 	state.SecretVersionID = internaltypes.StringTypeOrNil(r.SecretVersionID, internaltypes.IsEmptyString(expectedValues.SecretVersionID))
 	state.SecretVersionStage = internaltypes.StringTypeOrNil(r.SecretVersionStage, internaltypes.IsEmptyString(expectedValues.SecretVersionStage))
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -559,9 +559,9 @@ func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.SecretName = types.StringValue(r.SecretName)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -576,7 +576,7 @@ func readFileBasedPassphraseProviderResponse(ctx context.Context, r *client.File
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -592,7 +592,7 @@ func readConjurPassphraseProviderResponse(ctx context.Context, r *client.ConjurP
 	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -609,7 +609,7 @@ func readVaultPassphraseProviderResponse(ctx context.Context, r *client.VaultPas
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.VaultSecretPath = types.StringValue(r.VaultSecretPath)
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

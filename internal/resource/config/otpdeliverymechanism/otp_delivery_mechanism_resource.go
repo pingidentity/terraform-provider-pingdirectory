@@ -493,7 +493,7 @@ func readTwilioOtpDeliveryMechanismResponse(ctx context.Context, r *client.Twili
 	state.Type = types.StringValue("twilio")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.PhoneNumberAttributeType = types.StringValue(r.PhoneNumberAttributeType)

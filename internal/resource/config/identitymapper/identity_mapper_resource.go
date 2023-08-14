@@ -462,7 +462,7 @@ func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, internaltypes.IsEmptyString(expectedValues.MatchFilter))
 	state.MatchPattern = types.StringValue(r.MatchPattern)
-	state.ReplacePattern = internaltypes.StringTypeOrNil(r.ReplacePattern, internaltypes.IsEmptyString(expectedValues.ReplacePattern))
+	state.ReplacePattern = internaltypes.StringTypeOrNil(r.ReplacePattern, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

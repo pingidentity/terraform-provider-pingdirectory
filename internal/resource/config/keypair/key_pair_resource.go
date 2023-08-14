@@ -218,11 +218,11 @@ func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())
-	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, internaltypes.IsEmptyString(expectedValues.SelfSignedCertificateValidity))
+	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, true)
 	config.CheckMismatchedPDFormattedAttributes("self_signed_certificate_validity",
 		expectedValues.SelfSignedCertificateValidity, state.SelfSignedCertificateValidity, diagnostics)
-	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, internaltypes.IsEmptyString(expectedValues.SubjectDN))
-	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, internaltypes.IsEmptyString(expectedValues.CertificateChain))
+	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, true)
+	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateKeyPairUnknownValues(ctx, state)
 }

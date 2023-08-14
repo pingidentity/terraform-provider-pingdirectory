@@ -5878,13 +5878,13 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherSyslogJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -5907,7 +5907,7 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -5929,7 +5929,7 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -5945,7 +5945,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -5954,11 +5954,11 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -5981,7 +5981,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -5997,7 +5997,7 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6014,12 +6014,12 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.MinIncludedPhaseTimeNanos = internaltypes.Int64TypeOrNil(r.MinIncludedPhaseTimeNanos)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
@@ -6032,7 +6032,7 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6047,7 +6047,7 @@ func readThirdPartyHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6102,7 +6102,7 @@ func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.Adm
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6118,15 +6118,15 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
@@ -6153,7 +6153,7 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6173,7 +6173,7 @@ func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6207,7 +6207,7 @@ func readJdbcBasedAccessLogPublisherResponse(ctx context.Context, r *client.Jdbc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6223,24 +6223,24 @@ func readCommonLogFileHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6255,7 +6255,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
@@ -6264,7 +6264,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6279,22 +6279,22 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), internaltypes.IsEmptyString(expectedValues.SyslogSeverity))
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6352,7 +6352,7 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 	state.SearchReferenceCriteria = internaltypes.StringTypeOrNil(r.SearchReferenceCriteria, internaltypes.IsEmptyString(expectedValues.SearchReferenceCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6368,24 +6368,24 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherFileBasedJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherFileBasedJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -6408,7 +6408,7 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6424,22 +6424,22 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.DefaultDebugLevel = types.StringValue(r.DefaultDebugLevel.String())
 	state.DefaultDebugCategory = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultDebugCategoryProp(r.DefaultDebugCategory))
@@ -6450,7 +6450,7 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6466,7 +6466,7 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6478,22 +6478,22 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6511,7 +6511,7 @@ func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6524,8 +6524,8 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
@@ -6560,7 +6560,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -6573,7 +6573,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6589,7 +6589,7 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6602,33 +6602,33 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6644,7 +6644,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6655,11 +6655,11 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.LogAssuranceCompleted = internaltypes.BoolTypeOrNil(r.LogAssuranceCompleted)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
@@ -6701,7 +6701,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6722,7 +6722,7 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6732,11 +6732,11 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.DebugACIEnabled = internaltypes.BoolTypeOrNil(r.DebugACIEnabled)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6755,7 +6755,7 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6768,8 +6768,8 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
 	state.LogResults = internaltypes.BoolTypeOrNil(r.LogResults)
@@ -6779,16 +6779,16 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
@@ -6796,7 +6796,7 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6828,7 +6828,7 @@ func readThirdPartyAccessLogPublisherResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6845,7 +6845,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6859,7 +6859,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
@@ -6867,15 +6867,15 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.ExcludeAttribute = internaltypes.GetStringSet(r.ExcludeAttribute)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
 	state.LogIntermediateResponses = internaltypes.BoolTypeOrNil(r.LogIntermediateResponses)
 	state.SuppressReplicationOperations = internaltypes.BoolTypeOrNil(r.SuppressReplicationOperations)
@@ -6885,7 +6885,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6901,18 +6901,18 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
@@ -6927,7 +6927,7 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6944,7 +6944,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6952,11 +6952,11 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6979,7 +6979,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -6996,7 +6996,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -7004,11 +7004,11 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -7017,7 +7017,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7030,8 +7030,8 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
@@ -7075,7 +7075,7 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7107,7 +7107,7 @@ func readGroovyScriptedAccessLogPublisherResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7123,7 +7123,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -7132,11 +7132,11 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -7145,7 +7145,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7157,11 +7157,11 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherConsoleJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherConsoleJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -7183,7 +7183,7 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 	state.ResultCriteria = internaltypes.StringTypeOrNil(r.ResultCriteria, internaltypes.IsEmptyString(expectedValues.ResultCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7195,7 +7195,7 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
 	state.LogResults = internaltypes.BoolTypeOrNil(r.LogResults)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
@@ -7204,23 +7204,23 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7233,7 +7233,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
@@ -7274,7 +7274,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.SearchReferenceCriteria = internaltypes.StringTypeOrNil(r.SearchReferenceCriteria, internaltypes.IsEmptyString(expectedValues.SearchReferenceCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7290,19 +7290,19 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
@@ -7348,7 +7348,7 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7366,7 +7366,7 @@ func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7382,18 +7382,18 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
@@ -7404,16 +7404,16 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
@@ -7421,7 +7421,7 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7436,9 +7436,9 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), internaltypes.IsEmptyString(expectedValues.SyslogSeverity))
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
+		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
@@ -7449,7 +7449,7 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }
@@ -7464,7 +7464,7 @@ func readGroovyScriptedHttpOperationLogPublisherResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogPublisherUnknownValues(ctx, state)
 }

@@ -314,11 +314,11 @@ func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTask
 	state.ScheduledDayOfTheMonth = internaltypes.GetStringSet(
 		client.StringSliceEnumrecurringTaskChainScheduledDayOfTheMonthProp(r.ScheduledDayOfTheMonth))
 	state.ScheduledTimeOfDay = internaltypes.GetStringSet(r.ScheduledTimeOfDay)
-	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, internaltypes.IsEmptyString(expectedValues.TimeZone))
+	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, true)
 	state.InterruptedByShutdownBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), internaltypes.IsEmptyString(expectedValues.InterruptedByShutdownBehavior))
+		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), true)
 	state.ServerOfflineAtStartTimeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainServerOfflineAtStartTimeBehaviorProp(r.ServerOfflineAtStartTimeBehavior), internaltypes.IsEmptyString(expectedValues.ServerOfflineAtStartTimeBehavior))
+		client.StringPointerEnumrecurringTaskChainServerOfflineAtStartTimeBehaviorProp(r.ServerOfflineAtStartTimeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

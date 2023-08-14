@@ -528,26 +528,26 @@ func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeRes
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
-	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, internaltypes.IsEmptyString(expectedValues.CriticalValue))
-	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, internaltypes.IsEmptyString(expectedValues.MajorValue))
-	state.MinorValue = internaltypes.StringTypeOrNil(r.MinorValue, internaltypes.IsEmptyString(expectedValues.MinorValue))
-	state.WarningValue = internaltypes.StringTypeOrNil(r.WarningValue, internaltypes.IsEmptyString(expectedValues.WarningValue))
+	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, true)
+	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, true)
+	state.MinorValue = internaltypes.StringTypeOrNil(r.MinorValue, true)
+	state.WarningValue = internaltypes.StringTypeOrNil(r.WarningValue, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OverrideSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
+		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), true)
 	state.AlertLevel = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
 	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), true)
 	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -584,19 +584,19 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OverrideSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
+		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), true)
 	state.AlertLevel = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
 	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), true)
 	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

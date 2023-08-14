@@ -481,11 +481,11 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx cont
 	state.CheckFrequency = types.StringValue(r.CheckFrequency)
 	config.CheckMismatchedPDFormattedAttributes("check_frequency",
 		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
-	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, internaltypes.IsEmptyString(expectedValues.ProlongedOutageDuration))
+	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("prolonged_outage_duration",
 		expectedValues.ProlongedOutageDuration, state.ProlongedOutageDuration, diagnostics)
 	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), internaltypes.IsEmptyString(expectedValues.ProlongedOutageBehavior))
+		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -500,11 +500,11 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(c
 	state.CheckFrequency = types.StringValue(r.CheckFrequency)
 	config.CheckMismatchedPDFormattedAttributes("check_frequency",
 		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
-	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, internaltypes.IsEmptyString(expectedValues.ProlongedOutageDuration))
+	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("prolonged_outage_duration",
 		expectedValues.ProlongedOutageDuration, state.ProlongedOutageDuration, diagnostics)
 	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), internaltypes.IsEmptyString(expectedValues.ProlongedOutageBehavior))
+		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

@@ -235,7 +235,7 @@ func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCom
 	state.PrimeIndex = internaltypes.BoolTypeOrNil(r.PrimeIndex)
 	state.PrimeInternalNodesOnly = internaltypes.BoolTypeOrNil(r.PrimeInternalNodesOnly)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbCompositeIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
+		client.StringPointerEnumlocalDbCompositeIndexCacheModeProp(r.CacheMode), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

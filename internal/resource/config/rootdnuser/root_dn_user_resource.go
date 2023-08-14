@@ -637,7 +637,7 @@ func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, s
 	state.AllowedAuthenticationIPAddress = internaltypes.GetStringSet(r.AllowedAuthenticationIPAddress)
 	state.PreferredOTPDeliveryMechanism = internaltypes.GetStringSet(r.PreferredOTPDeliveryMechanism)
 	state.IsProxyable = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrootDnUserIsProxyableProp(r.IsProxyable), internaltypes.IsEmptyString(expectedValues.IsProxyable))
+		client.StringPointerEnumrootDnUserIsProxyableProp(r.IsProxyable), true)
 	state.IsProxyableByDN = internaltypes.GetStringSet(r.IsProxyableByDN)
 	state.IsProxyableByGroup = internaltypes.GetStringSet(r.IsProxyableByGroup)
 	state.IsProxyableByURL = internaltypes.GetStringSet(r.IsProxyableByURL)

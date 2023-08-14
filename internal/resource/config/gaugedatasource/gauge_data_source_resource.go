@@ -349,9 +349,9 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
 	state.MonitorAttribute = types.StringValue(r.MonitorAttribute)
 	state.IncludeFilter = internaltypes.StringTypeOrNil(r.IncludeFilter, internaltypes.IsEmptyString(expectedValues.IncludeFilter))
-	state.ResourceAttribute = internaltypes.StringTypeOrNil(r.ResourceAttribute, internaltypes.IsEmptyString(expectedValues.ResourceAttribute))
+	state.ResourceAttribute = internaltypes.StringTypeOrNil(r.ResourceAttribute, true)
 	state.ResourceType = internaltypes.StringTypeOrNil(r.ResourceType, internaltypes.IsEmptyString(expectedValues.ResourceType))
-	state.MinimumUpdateInterval = internaltypes.StringTypeOrNil(r.MinimumUpdateInterval, internaltypes.IsEmptyString(expectedValues.MinimumUpdateInterval))
+	state.MinimumUpdateInterval = internaltypes.StringTypeOrNil(r.MinimumUpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -363,7 +363,7 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DataOrientation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeDataSourceDataOrientationProp(r.DataOrientation), internaltypes.IsEmptyString(expectedValues.DataOrientation))
+		client.StringPointerEnumgaugeDataSourceDataOrientationProp(r.DataOrientation), true)
 	state.StatisticType = types.StringValue(r.StatisticType.String())
 	state.DivideValueBy = internaltypes.Float64TypeOrNil(r.DivideValueBy)
 	state.DivideValueByAttribute = internaltypes.StringTypeOrNil(r.DivideValueByAttribute, internaltypes.IsEmptyString(expectedValues.DivideValueByAttribute))
@@ -373,9 +373,9 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
 	state.MonitorAttribute = types.StringValue(r.MonitorAttribute)
 	state.IncludeFilter = internaltypes.StringTypeOrNil(r.IncludeFilter, internaltypes.IsEmptyString(expectedValues.IncludeFilter))
-	state.ResourceAttribute = internaltypes.StringTypeOrNil(r.ResourceAttribute, internaltypes.IsEmptyString(expectedValues.ResourceAttribute))
+	state.ResourceAttribute = internaltypes.StringTypeOrNil(r.ResourceAttribute, true)
 	state.ResourceType = internaltypes.StringTypeOrNil(r.ResourceType, internaltypes.IsEmptyString(expectedValues.ResourceType))
-	state.MinimumUpdateInterval = internaltypes.StringTypeOrNil(r.MinimumUpdateInterval, internaltypes.IsEmptyString(expectedValues.MinimumUpdateInterval))
+	state.MinimumUpdateInterval = internaltypes.StringTypeOrNil(r.MinimumUpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
