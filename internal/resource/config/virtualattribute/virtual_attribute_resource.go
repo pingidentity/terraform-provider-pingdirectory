@@ -471,7 +471,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "replication-state-detail", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"}...),
 		}

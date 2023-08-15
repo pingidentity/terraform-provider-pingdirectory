@@ -83,6 +83,9 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"password", "certificate"}...),
 				},

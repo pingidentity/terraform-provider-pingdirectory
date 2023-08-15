@@ -317,7 +317,9 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})

@@ -304,7 +304,9 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"cancel", "validate-totp-password", "replace-certificate", "get-connection-id", "multi-update", "notification-subscription", "password-modify", "custom", "collect-support-data", "export-reversible-passwords", "batched-transactions", "get-changelog-batch", "get-supported-otp-delivery-mechanisms", "single-use-tokens", "generate-password", "who-am-i", "start-tls", "deliver-password-reset-token", "password-policy-state", "get-password-quality-requirements", "deliver-otp", "third-party"}...),
 		}

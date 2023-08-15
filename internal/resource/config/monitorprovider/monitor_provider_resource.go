@@ -202,7 +202,9 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"memory-usage", "stack-trace", "encryption-settings-database-accessibility", "custom", "active-operations", "ssl-context", "version", "host-system", "general", "disk-space-usage", "system-info", "client-connection", "third-party"}...),
 		}

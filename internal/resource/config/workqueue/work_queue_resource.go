@@ -86,6 +86,9 @@ func (r *workQueueResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"high-throughput"}...),
 				},

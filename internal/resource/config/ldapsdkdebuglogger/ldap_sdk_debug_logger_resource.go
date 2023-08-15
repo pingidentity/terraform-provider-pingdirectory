@@ -97,6 +97,9 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ldap-sdk-debug-logger"}...),
 				},

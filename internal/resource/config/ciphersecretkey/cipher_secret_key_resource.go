@@ -84,6 +84,9 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"cipher-secret-key"}...),
 				},

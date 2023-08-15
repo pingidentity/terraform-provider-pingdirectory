@@ -363,7 +363,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"output", "smtp", "jmx", "groovy-scripted", "custom", "snmp", "twilio", "error-log", "snmp-sub-agent", "exec", "third-party"}...),
 		}

@@ -760,7 +760,9 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"}...),
 		}

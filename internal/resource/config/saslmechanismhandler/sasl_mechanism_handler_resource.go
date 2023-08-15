@@ -291,7 +291,9 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "external", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "anonymous", "cram-md5", "oauth-bearer", "unboundid-certificate-plus-password", "gssapi", "third-party"}...),
 		}

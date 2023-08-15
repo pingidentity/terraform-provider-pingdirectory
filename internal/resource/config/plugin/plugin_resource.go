@@ -1344,7 +1344,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
 		}

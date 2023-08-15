@@ -665,7 +665,9 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"delegated-admin", "quickstart", "availability-state", "prometheus-monitoring", "velocity", "consent", "ldap-mapped-scim", "groovy-scripted", "file-server", "config", "scim2", "directory-rest-api", "third-party"}...),
 		}

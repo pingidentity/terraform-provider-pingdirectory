@@ -76,6 +76,9 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"alarm-manager"}...),
 				},

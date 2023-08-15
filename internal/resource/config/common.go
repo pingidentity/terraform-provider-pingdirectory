@@ -59,6 +59,9 @@ func AddCommonResourceSchema(s *schema.Schema, addNameAttribute bool) {
 		Computed:    true,
 		Required:    false,
 		Optional:    false,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 	}
 	// If name is required (for instantiable config objects) then set it as Required and
 	// require replace when changing.

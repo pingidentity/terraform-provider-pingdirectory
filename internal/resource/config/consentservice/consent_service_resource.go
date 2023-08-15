@@ -84,6 +84,9 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"consent-service"}...),
 				},

@@ -84,6 +84,9 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ldap", "http"}...),
 				},
