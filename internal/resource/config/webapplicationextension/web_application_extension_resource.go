@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -206,84 +205,52 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["sso_enabled"] = schema.BoolAttribute{
 			Description: "Indicates that SSO login into the Administrative Console is enabled.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["oidc_client_id"] = schema.StringAttribute{
 			Description: "The client ID to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_client_secret"] = schema.StringAttribute{
 			Description: "The client secret to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["oidc_client_secret_passphrase_provider"] = schema.StringAttribute{
 			Description: "A passphrase provider that may be used to obtain the client secret to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_issuer_url"] = schema.StringAttribute{
 			Description: "The issuer URL of the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the truststore file used by this application to evaluate OIDC provider certificates. If this field is left blank, the default JVM trust store will be used.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the OIDC trust store file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with OIDC providers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_strict_hostname_verification"] = schema.BoolAttribute{
 			Description: "Controls whether or not hostname verification is performed, which checks if the hostname of the OIDC provider matches the name(s) stored inside the certificate it provides. This property should only be set to false for testing purposes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["oidc_trust_all"] = schema.BoolAttribute{
 			Description: "Controls whether or not this application will always trust any certificate that is presented to it, regardless of its contents. This property should only be set to true for testing purposes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldap_server"] = schema.StringAttribute{
 			Description: "The LDAP URL used to connect to the managed server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the truststore file, which is used by this application to establish trust of managed servers.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the trust store file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with managed LDAP servers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["log_file"] = schema.StringAttribute{
 			Description: "The path to the log file for the web application.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["complexity"] = schema.StringAttribute{
 			Description: "Specifies the maximum complexity level for managed configuration elements.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

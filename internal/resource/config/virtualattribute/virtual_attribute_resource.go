@@ -481,40 +481,19 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["sequence_number_attribute"] = schema.StringAttribute{
 			Description: "Specifies the name or OID of the attribute which contains the sequence number from which unique identifiers are generated. The attribute should have Integer syntax or a String syntax permitting integer values. If this property is modified then the filter property should be updated accordingly so that only entries containing the sequence number attribute are eligible to have a value generated for this virtual attribute.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["return_utc_time"] = schema.BoolAttribute{
 			Description: "Indicates whether to return current time in UTC.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["include_milliseconds"] = schema.BoolAttribute{
 			Description: "Indicates whether the current time includes millisecond precision.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["exclude_operational_attributes"] = schema.BoolAttribute{
 			Description: "Indicates whether all operational attributes should be excluded from the generated checksum.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["excluded_attribute"] = schema.SetAttribute{
 			Description: "Specifies the attributes that should be excluded from the checksum calculation.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

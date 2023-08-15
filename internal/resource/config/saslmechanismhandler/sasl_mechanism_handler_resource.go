@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -293,145 +292,81 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["kdc_address"] = schema.StringAttribute{
 			Description: "Specifies the address of the KDC that is to be used for Kerberos processing.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["keytab"] = schema.StringAttribute{
 			Description: "Specifies the keytab file that should be used for Kerberos processing.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["allow_null_server_fqdn"] = schema.BoolAttribute{
 			Description: "Specifies whether or not to allow a null value for the server-fqdn.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allowed_quality_of_protection"] = schema.SetAttribute{
 			Description: "Specifies the supported quality of protection (QoP) levels that clients will be permitted to request when performing GSSAPI authentication.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["kerberos_service_principal"] = schema.StringAttribute{
 			Description: "Specifies the Kerberos service principal that the Directory Server will use to identify itself to the KDC.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["gssapi_role"] = schema.StringAttribute{
 			Description: "Specifies the role that should be declared for the server in the generated JAAS configuration file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["jaas_config_file"] = schema.StringAttribute{
 			Description: "Specifies the path to a JAAS (Java Authentication and Authorization Service) configuration file that provides the information that the JVM should use for Kerberos processing.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["enable_debug"] = schema.BoolAttribute{
 			Description: "Indicates whether to enable debugging for the Java GSSAPI provider. Debug information will be written to standard output, which should be captured in the server.out log file.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["realm"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication. When the `type` attribute is set to `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication.\n  - `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
-			Optional:            true,
 		}
 		schemaDef.Attributes["certificate_validation_policy"] = schema.StringAttribute{
 			Description: "Indicates whether to attempt to validate the peer certificate against a certificate held in the user's entry.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["certificate_attribute"] = schema.StringAttribute{
 			Description: "Specifies the name of the attribute to hold user certificates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["certificate_mapper"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries. When the `type` attribute is set to `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries.\n  - `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
-			Optional:            true,
 		}
 		schemaDef.Attributes["yubikey_client_id"] = schema.StringAttribute{
 			Description: "The client ID to include in requests to the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["yubikey_api_key"] = schema.StringAttribute{
 			Description: "The API key needed to verify signatures generated by the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["yubikey_api_key_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider to use to obtain the API key needed to verify signatures generated by the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["yubikey_validation_server_base_url"] = schema.SetAttribute{
 			Description: "The base URL of the validation server to use to verify one-time passwords. You should only need to change the value if you wish to use your own validation server instead of using one of the Yubico servers. The server must use the YubiKey Validation Protocol version 2.0.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
 			Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["shared_secret_attribute_type"] = schema.StringAttribute{
 			Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["key_manager_provider"] = schema.StringAttribute{
 			Description: "Specifies which key manager provider should be used to obtain a client certificate to present to the validation server when performing HTTPS communication. This may be left undefined if communication will not be secured with HTTPS, or if there is no need to present a client certificate to the validation service.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_manager_provider"] = schema.StringAttribute{
 			Description: "Specifies which trust manager provider should be used to determine whether to trust the certificate presented by the server when performing HTTPS communication. This may be left undefined if HTTPS communication is not needed, or if the validation service presents a certificate that is trusted by the default JVM configuration (which should be the case for the validation servers that Yubico provides, but may not be the case if an alternate validation server is configured).",
-			Optional:    true,
 		}
 		schemaDef.Attributes["time_interval_duration"] = schema.StringAttribute{
 			Description: "The duration of the time interval used for TOTP processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["adjacent_intervals_to_check"] = schema.Int64Attribute{
 			Description: "The number of adjacent time intervals (both before and after the current time) that should be checked when performing authentication.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["require_static_password"] = schema.BoolAttribute{
 			Description:         "When the `type` attribute is set to `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password. When the `type` attribute is set to `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password.\n  - `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["prevent_totp_reuse"] = schema.BoolAttribute{
 			Description: "Indicates whether to prevent clients from re-using TOTP passwords.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

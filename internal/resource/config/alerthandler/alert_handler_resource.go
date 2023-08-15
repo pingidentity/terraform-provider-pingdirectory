@@ -369,19 +369,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

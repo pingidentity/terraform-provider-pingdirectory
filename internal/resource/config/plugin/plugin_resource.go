@@ -1330,165 +1330,78 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["profile_sample_interval"] = schema.StringAttribute{
 			Description: "Specifies the sample interval in milliseconds to be used when capturing profiling information in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies the name or OID of an attribute type which may be updated in a modify or modify DN operation without causing the modifiersName and modifyTimestamp values to be updated for that entry.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["profile_directory"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory where profile information is to be written. This path may be either an absolute path or a path that is relative to the root of the Directory Server instance.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["enable_profiling_on_startup"] = schema.BoolAttribute{
 			Description: "Indicates whether the profiler plug-in is to start collecting data automatically when the Directory Server is started.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["profile_action"] = schema.StringAttribute{
 			Description: "Specifies the action that should be taken by the profiler.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_user_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of the password storage schemes to be used for encoding passwords contained in attributes with the user password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy is to be used to govern them.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_auth_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of password storage schemes that to be used for encoding passwords contained in attributes with the auth password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy should be used to govern them.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["retain_files_sparsely_by_age"] = schema.BoolAttribute{
 			Description: "Retain some older files to give greater perspective on how monitoring information has changed over time.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["sanitize"] = schema.BoolAttribute{
 			Description: "Server monitoring data can include a small amount of personally identifiable information in the form of LDAP DNs and search filters. Setting this property to true will redact this information from the monitor files. This should only be used when necessary, as it reduces the information available in the archive and can increase the time to find the source of support issues.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["encryption_settings_definition_id"] = schema.StringAttribute{
 			Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["changelog_password_encryption_key"] = schema.StringAttribute{
 			Description: "A passphrase that may be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["histogram_category_boundary"] = schema.SetAttribute{
 			Description: "Specifies the boundary values that will be used to separate the processing times into categories. Values should be specified as durations, and all values must be greater than zero.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["include_queue_time"] = schema.BoolAttribute{
 			Description: "Indicates whether operation processing times should include the time spent waiting on the work queue. This will only be available if the work queue is configured to monitor the queue time.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["separate_monitor_entry_per_tracked_application"] = schema.BoolAttribute{
 			Description: "When enabled, separate monitor entries will be included for each application defined in the Global Configuration's tracked-application property.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_password_encryption_key_passphrase_provider"] = schema.StringAttribute{
 			Description: "A passphrase provider that may be used to obtain the passphrase that will be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["sample_interval"] = schema.StringAttribute{
 			Description: "The duration between statistics collections. Setting this value too small can have an impact on performance. This value should be a multiple of collection-interval.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldap_info"] = schema.StringAttribute{
 			Description: "Specifies the level of detail to include about the LDAP connection handlers.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["server_info"] = schema.StringAttribute{
 			Description: "Specifies whether statistics related to resource utilization such as JVM memory and CPU/Network/Disk utilization.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["generate_collector_files"] = schema.BoolAttribute{
 			Description: "Indicates whether this plugin should store metric samples on disk for use by the Data Metrics Server. If the Stats Collector Plugin is only being used to collect metrics for one or more StatsD Monitoring Endpoints, then this can be set to false to prevent unnecessary I/O.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_update_frequency"] = schema.StringAttribute{
 			Description: "Specifies the maximum frequency with which last access time values should be written for an entry. This may help limit the rate of internal write operations processed in the server.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["operation_type"] = schema.SetAttribute{
 			Description: "Specifies the types of operations that should result in access time updates.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["invoke_for_failed_binds"] = schema.BoolAttribute{
 			Description: "Indicates whether to update the last access time for an entry targeted by a bind operation if the bind is unsuccessful.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_search_result_entries_to_update"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of entries that should be updated in a search operation. Only search result entries actually returned to the client may have their last access time updated, but because a single search operation may return a very large number of entries, the plugin will only update entries if no more than a specified number of entries are updated.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type"})
 	}

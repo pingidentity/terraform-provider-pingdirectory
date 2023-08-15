@@ -306,27 +306,15 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["default_password_policy"] = schema.StringAttribute{
 			Description: "The default password policy that should be used when generating and validating passwords if the request does not specify an alternate policy. If this is not provided, then this Generate Password Extended Operation Handler will use the default password policy defined in the global configuration.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["default_password_generator"] = schema.StringAttribute{
 			Description: "The default password generator that will be used if the selected password policy is not configured with a password generator.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_passwords_per_request"] = schema.Int64Attribute{
 			Description: "The maximum number of passwords that may be generated and returned to the client for a single request.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["maximum_validation_attempts_per_password"] = schema.Int64Attribute{
 			Description: "The maximum number of attempts that the server may use to generate a password that passes validation.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

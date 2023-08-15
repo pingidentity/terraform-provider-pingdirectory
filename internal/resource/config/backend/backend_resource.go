@@ -742,425 +742,190 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that will be used to store queued samples.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["metrics_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that contains metric definitions.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["sample_flush_interval"] = schema.StringAttribute{
 			Description: "Period when samples are flushed to disk.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["retention_policy"] = schema.SetAttribute{
 			Description: "The retention policy to use for the Metrics Backend .",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["alarm_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the maximum length of time that information about raised alarms should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_alarms"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of alarms that should be retained. If more alarms than this configured maximum are generated within the alarm retention time, then the oldest alarms will be purged to achieve this maximum. Only alarms at normal severity will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["alert_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the maximum length of time that information about generated alerts should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_alerts"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of alerts that should be retained. If more alerts than this configured maximum are generated within the alert retention time, then the oldest alerts will be purged to achieve this maximum.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["disabled_alert_type"] = schema.SetAttribute{
 			Description: "Specifies the names of the alert types that should not be added to the backend. This can be used to suppress high volume alerts that might trigger hitting the max-alerts limit sooner than desired. Disabled alert types will not be sent out over persistent searches on this backend.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["task_backing_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the backing file for storing information about the tasks configured in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_initial_task_log_messages_to_retain"] = schema.Int64Attribute{
 			Description: "The maximum number of log messages to retain in each task entry from the beginning of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_final_task_log_messages_to_retain"] = schema.Int64Attribute{
 			Description: "The maximum number of log messages to retain in each task entry from the end of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["task_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the length of time that task entries should be retained after processing on the associated task has been completed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["notification_sender_address"] = schema.StringAttribute{
 			Description: "Specifies the email address to use as the sender address (that is, the \"From:\" address) for notification mail messages generated when a task completes execution.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["insignificant_config_archive_attribute"] = schema.SetAttribute{
 			Description: "The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_config_archive_count"] = schema.Int64Attribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_peer_polling_interval"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_entry_update_timeout"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for an update operation (add, delete, modify and modify-dn) on an entry to be applied on all servers in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_search_timeout"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for a search operation to complete. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data. Search requests that take longer than this timeout will be canceled and considered failures.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_write_batch_size"] = schema.Int64Attribute{
 			Description: "Specifies the number of changelog entries written in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_purge_batch_size"] = schema.Int64Attribute{
 			Description: "Specifies the number of changelog entries purged in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_write_queue_capacity"] = schema.Int64Attribute{
 			Description: "Specifies the capacity of the changelog write queue in number of changes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["index_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["index_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values \"*\" and \"+\".",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_maximum_age"] = schema.StringAttribute{
 			Description: "Changes are guaranteed to be maintained in the changelog database for at least this duration. Setting target-database-size can allow additional changes to be maintained up to the configured size on disk.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["target_database_size"] = schema.StringAttribute{
 			Description: "The changelog database is allowed to grow up to this size on disk even if changes are older than the configured changelog-maximum-age.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["changelog_entry_include_base_dn"] = schema.SetAttribute{
 			Description: "The base DNs for branches in the data for which to record changes in the changelog.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_exclude_base_dn"] = schema.SetAttribute{
 			Description: "The base DNs for branches in the data for which no changelog records should be generated.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_include_filter"] = schema.SetAttribute{
 			Description: "A filter that indicates which changelog entries should actually be stored in the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_exclude_filter"] = schema.SetAttribute{
 			Description: "A filter that indicates which changelog entries should be excluded from the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types will be included in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be excluded in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_deleted_entry_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be included in a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_deleted_entry_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be excluded from a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_include_key_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types will be included in a changelog entry on every change.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_max_before_after_values"] = schema.Int64Attribute{
 			Description: "This controls whether all attribute values for a modified attribute (even those values that have not changed) will be included in the changelog entry. If the number of attribute values does not exceed this limit, then all values for the modified attribute will be included in the changelog entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["write_lastmod_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether values of creatorsName, createTimestamp, modifiersName and modifyTimestamp attributes will be written to changelog entries.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["use_reversible_form"] = schema.BoolAttribute{
 			Description: "Specifies whether the changelog should provide enough information to be able to revert the changes if desired.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["include_virtual_attributes"] = schema.SetAttribute{
 			Description: "Specifies the changelog entry elements (if any) in which virtual attributes should be included.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["apply_access_controls_to_changelog_entry_contents"] = schema.BoolAttribute{
 			Description: "Indicates whether the contents of changelog entries should be subject to access control and sensitive attribute evaluation such that the contents of attributes like changes, deletedEntryAttrs, ds-changelog-entry-key-attr-values, ds-changelog-before-values, and ds-changelog-after-values may be altered based on attributes the user can see in the target entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["report_excluded_changelog_attributes"] = schema.StringAttribute{
 			Description: "Indicates whether changelog entries that have been altered by applying access controls should include additional information about any attributes that may have been removed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["soft_delete_entry_included_operation"] = schema.SetAttribute{
 			Description: "Specifies which operations performed on soft-deleted entries will appear in the changelog.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to  one of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend. When the `type` attribute is set to `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend.\n  - `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the file that stores the trust information.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the key store file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_pin"] = schema.StringAttribute{
 			Description: "Specifies the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["trust_store_pin_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["backup_directory"] = schema.SetAttribute{
 			Description: "Specifies the path to a backup directory containing one or more backups for a particular backend.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["schema_entry_dn"] = schema.SetAttribute{
 			Description: "Defines the base DNs of the subtrees in which the schema information is published in addition to the value included in the base-dn property.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["show_all_attributes"] = schema.BoolAttribute{
 			Description: "Indicates whether to treat all attributes in the schema entry as if they were user attributes regardless of their configuration.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["read_only_schema_file"] = schema.SetAttribute{
 			Description: "Specifies the name of a file (which must exist in the config/schema directory) containing schema elements that should be considered read-only. Any schema definitions contained in read-only files cannot be altered by external clients.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["backup_file_permissions"] = schema.StringAttribute{
 			Description: "Specifies the permissions that should be applied to files and directories created by a backup of the backend.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "backend_id"})
 	}
@@ -1189,11 +954,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")

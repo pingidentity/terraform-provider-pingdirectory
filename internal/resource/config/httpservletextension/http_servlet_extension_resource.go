@@ -655,171 +655,74 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["map_access_tokens_to_local_users"] = schema.StringAttribute{
 			Description: "Indicates whether the SCIM2 servlet should attempt to map the presented access token to a local user.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_page_size"] = schema.Int64Attribute{
 			Description: "The maximum number of entries to be returned in one page of search results.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["schemas_endpoint_objectclass"] = schema.SetAttribute{
 			Description: "The list of object classes which will be returned by the schemas endpoint.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_operational_attribute"] = schema.SetAttribute{
 			Description: "A set of operational attributes that will be returned with entries by default.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["reject_expansion_attribute"] = schema.SetAttribute{
 			Description: "A set of attributes which the client is not allowed to provide for the expand query parameters. This should be used for attributes that could either have a large number of values or that reference entries that are very large like groups.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["always_use_permissive_modify"] = schema.BoolAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allowed_control"] = schema.SetAttribute{
 			Description: "Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["swagger_enabled"] = schema.BoolAttribute{
 			Description: "Indicates whether the SCIM2 HTTP Servlet Extension will generate a Swagger specification document.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["bearer_token_auth_enabled"] = schema.BoolAttribute{
 			Description: "Enables HTTP bearer token authentication.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_context_path"] = schema.StringAttribute{
 			Description: "The path below the base context path by which static, non-template content such as images, CSS, and Javascript files are accessible.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_content_directory"] = schema.StringAttribute{
 			Description: "Specifies the base directory in which static, non-template content such as images, CSS, and Javascript files are stored on the filesystem.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_custom_directory"] = schema.StringAttribute{
 			Description: "Specifies the base directory in which custom static, non-template content such as images, CSS, and Javascript files are stored on the filesystem. Files in this directory will override those with the same name in the directory specified by the static-content-directory property.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["template_directory"] = schema.SetAttribute{
 			Description: "Specifies an ordered list of directories in which to search for the template files.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_request_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether the HTTP request will be exposed to templates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_session_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether the HTTP session will be exposed to templates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_server_context"] = schema.BoolAttribute{
 			Description: "Specifies whether a server context will be exposed under context key 'ubid_server' for all template contexts.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allow_context_override"] = schema.BoolAttribute{
 			Description: "Indicates whether context providers may override existing context objects with new values.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["character_encoding"] = schema.StringAttribute{
 			Description: "Specifies the value that will be used for all responses' Content-Type headers' charset parameter that indicates the character encoding of the document.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_response_header"] = schema.SetAttribute{
 			Description: "Specifies HTTP header fields and values added to response headers for static content requests such as images and scripts.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["access_token_scope"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension. When the `type` attribute is set to `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension.\n  - `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
-			Optional:            true,
 		}
 		schemaDef.Attributes["audience"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization. When the `type` attribute is set to `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.\n  - `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
-			Optional:            true,
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

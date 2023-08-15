@@ -212,61 +212,35 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["low_space_warning_size_threshold"] = schema.StringAttribute{
 			Description: "Specifies the low space warning threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["low_space_warning_percent_threshold"] = schema.Int64Attribute{
 			Description: "Specifies the low space warning threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["low_space_error_size_threshold"] = schema.StringAttribute{
 			Description: "Specifies the low space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["low_space_error_percent_threshold"] = schema.Int64Attribute{
 			Description: "Specifies the low space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["out_of_space_error_size_threshold"] = schema.StringAttribute{
 			Description: "Specifies the out of space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["out_of_space_error_percent_threshold"] = schema.Int64Attribute{
 			Description: "Specifies the out of space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["alert_frequency"] = schema.StringAttribute{
 			Description: "Specifies the length of time between administrative alerts generated in response to lack of usable disk space. Administrative alerts will be generated whenever the amount of usable space drops below any threshold, and they will also be generated at regular intervals as long as the amount of usable space remains below the threshold value. A value of zero indicates that alerts should only be generated when the amount of usable space drops below a configured threshold.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["disk_devices"] = schema.SetAttribute{
 			Description: "Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["network_devices"] = schema.SetAttribute{
 			Description: "Specifies which network interfaces to monitor for I/O activity. Should be the device name as displayed by netstat -i.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["system_utilization_monitor_log_directory"] = schema.StringAttribute{
 			Description: "Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
