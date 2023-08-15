@@ -175,18 +175,10 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 			"deployment_descriptor_file": schema.StringAttribute{
 				Description: "Specifies the path to the deployment descriptor file when used with document-root-directory.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the path to the directory that may be used to store temporary files such as extracted WAR files and compiled JSP files.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"init_parameter": schema.SetAttribute{
 				Description: "Specifies an initialization parameter to pass into the web application during startup.",
@@ -268,10 +260,6 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		schemaDef.Attributes["ldap_server"] = schema.StringAttribute{
 			Description: "The LDAP URL used to connect to the managed server.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the truststore file, which is used by this application to establish trust of managed servers.",
@@ -288,10 +276,6 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		schemaDef.Attributes["log_file"] = schema.StringAttribute{
 			Description: "The path to the log file for the web application.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["complexity"] = schema.StringAttribute{
 			Description: "Specifies the maximum complexity level for managed configuration elements.",
@@ -468,19 +452,19 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.OidcTrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcTrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OidcTrustStorePinPassphraseProvider))
 	state.OidcStrictHostnameVerification = internaltypes.BoolTypeOrNil(r.OidcStrictHostnameVerification)
 	state.OidcTrustAll = internaltypes.BoolTypeOrNil(r.OidcTrustAll)
-	state.LdapServer = internaltypes.StringTypeOrNil(r.LdapServer, true)
+	state.LdapServer = internaltypes.StringTypeOrNil(r.LdapServer, internaltypes.IsEmptyString(expectedValues.LdapServer))
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
 	state.Complexity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
 	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, internaltypes.IsEmptyString(expectedValues.DocumentRootDirectory))
-	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, true)
-	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, internaltypes.IsEmptyString(expectedValues.DeploymentDescriptorFile))
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
@@ -495,8 +479,8 @@ func readGenericWebApplicationExtensionResponse(ctx context.Context, r *client.G
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
 	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, internaltypes.IsEmptyString(expectedValues.DocumentRootDirectory))
-	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, true)
-	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, internaltypes.IsEmptyString(expectedValues.DeploymentDescriptorFile))
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -510,8 +494,8 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
 	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, internaltypes.IsEmptyString(expectedValues.DocumentRootDirectory))
-	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, true)
-	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, internaltypes.IsEmptyString(expectedValues.DeploymentDescriptorFile))
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)

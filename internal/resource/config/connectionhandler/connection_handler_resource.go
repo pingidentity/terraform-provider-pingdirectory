@@ -241,10 +241,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description:         "When the `type` attribute is set to `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication. When the `type` attribute is set to `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication. When the `type` attribute is set to `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.\n  - `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication.\n  - `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `jmx`: Specifies the name of the key manager that should be used with this JMX Connection Handler . When the `type` attribute is set to `ldap`: Specifies the name of the key manager that should be used with this LDAP Connection Handler . When the `type` attribute is set to `http`: Specifies the key manager provider that will be used to obtain the certificate to present to HTTPS clients.",
@@ -1077,7 +1073,7 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 	state.Name = types.StringValue(r.Id)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, true)
+	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1096,7 +1092,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.AllowStartTLS = internaltypes.BoolTypeOrNil(r.AllowStartTLS)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, true)
+	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
 	state.AllowLDAPV2 = internaltypes.BoolTypeOrNil(r.AllowLDAPV2)
@@ -1160,7 +1156,7 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.ListenAddress = internaltypes.GetStringSet(listenAddressValues)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, true)
+	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.HttpServletExtension = internaltypes.GetStringSet(r.HttpServletExtension)
 	state.WebApplicationExtension = internaltypes.GetStringSet(r.WebApplicationExtension)
 	state.HttpOperationLogPublisher = internaltypes.GetStringSet(r.HttpOperationLogPublisher)

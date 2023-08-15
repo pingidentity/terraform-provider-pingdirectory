@@ -206,10 +206,6 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"twilio_account_sid": schema.StringAttribute{
 				Description: "The unique identifier assigned to the Twilio account that will be used.",
@@ -1317,7 +1313,7 @@ func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHa
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)
@@ -1341,7 +1337,7 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)

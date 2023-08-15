@@ -193,10 +193,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_category": schema.StringAttribute{
 				Description: "Specifies which attribute category this attribute belongs to.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"display_order_index": schema.Int64Attribute{
 				Description: "This property determines a display order for attributes within a given attribute category. Attributes are ordered within their category based on this index from least to greatest.",
@@ -214,10 +210,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_presentation": schema.StringAttribute{
 				Description: "Indicates how the attribute is presented to the user of the app.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"date_time_format": schema.StringAttribute{
 				Description: "Specifies the format string that is used to present a date and/or time value to the user of the app. This property only applies to LDAP attribute types whose LDAP syntax is GeneralizedTime and is ignored if the attribute type has any other syntax.",
@@ -448,11 +440,11 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 	state.DisplayName = types.StringValue(r.DisplayName)
 	state.Mutability = types.StringValue(r.Mutability.String())
 	state.MultiValued = types.BoolValue(r.MultiValued)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, true)
+	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
 	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), true)
+		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateDelegatedAdminAttributeUnknownValues(ctx, state)
@@ -469,11 +461,11 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 	state.DisplayName = types.StringValue(r.DisplayName)
 	state.Mutability = types.StringValue(r.Mutability.String())
 	state.MultiValued = types.BoolValue(r.MultiValued)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, true)
+	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
 	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), true)
+		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateDelegatedAdminAttributeUnknownValues(ctx, state)
@@ -489,11 +481,11 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 	state.Mutability = types.StringValue(r.Mutability.String())
 	state.MultiValued = types.BoolValue(r.MultiValued)
 	state.IncludeInSummary = types.BoolValue(r.IncludeInSummary)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, true)
+	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
 	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), true)
+		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateDelegatedAdminAttributeUnknownValues(ctx, state)

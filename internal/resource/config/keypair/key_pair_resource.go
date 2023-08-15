@@ -155,11 +155,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"private_key": schema.StringAttribute{
 				Description: "The base64-encoded private key that is encrypted using the preferred encryption settings definition.",
 				Optional:    true,
-				Computed:    true,
 				Sensitive:   true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

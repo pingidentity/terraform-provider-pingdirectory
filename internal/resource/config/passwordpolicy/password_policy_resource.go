@@ -410,10 +410,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"failure_lockout_action": schema.StringAttribute{
 				Description: "The action that the server should take for authentication attempts that target a user with more than the configured number of outstanding authentication failures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"idle_lockout_interval": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that an account may remain idle (that is, the associated user does not authenticate to the server) before that user is locked out.",
@@ -505,34 +501,18 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"maximum_recent_login_history_successful_authentication_count": schema.Int64Attribute{
 				Description: "The maximum number of successful authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_successful_authentication_duration": schema.StringAttribute{
 				Description: "The maximum age of successful authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_failed_authentication_count": schema.Int64Attribute{
 				Description: "The maximum number of failed authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_failed_authentication_duration": schema.StringAttribute{
 				Description: "The maximum age of failed authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"recent_login_history_similar_attempt_behavior": schema.StringAttribute{
 				Description: "The behavior that the server will exhibit when multiple similar authentication attempts (with the same values for the successful, authentication-method, client-ip-address, and failure-reason fields) are processed for an account.",
@@ -863,7 +843,7 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	config.CheckMismatchedPDFormattedAttributes("lockout_failure_expiration_interval",
 		expectedValues.LockoutFailureExpirationInterval, state.LockoutFailureExpirationInterval, diagnostics)
 	state.IgnoreDuplicatePasswordFailures = internaltypes.BoolTypeOrNil(r.IgnoreDuplicatePasswordFailures)
-	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, true)
+	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, internaltypes.IsEmptyString(expectedValues.FailureLockoutAction))
 	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("idle_lockout_interval",
 		expectedValues.IdleLockoutInterval, state.IdleLockoutInterval, diagnostics)
@@ -883,11 +863,11 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 		expectedValues.MaxPasswordResetAge, state.MaxPasswordResetAge, diagnostics)
 	state.SkipValidationForAdministrators = internaltypes.BoolTypeOrNil(r.SkipValidationForAdministrators)
 	state.MaximumRecentLoginHistorySuccessfulAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationCount)
-	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, true)
+	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration))
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_successful_authentication_duration",
 		expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, diagnostics)
 	state.MaximumRecentLoginHistoryFailedAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationCount)
-	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, true)
+	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration))
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_failed_authentication_duration",
 		expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, diagnostics)
 	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(

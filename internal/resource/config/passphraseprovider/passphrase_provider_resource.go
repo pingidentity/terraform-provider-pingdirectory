@@ -186,10 +186,6 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
@@ -561,7 +557,7 @@ func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.SecretName = types.StringValue(r.SecretName)
 	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",

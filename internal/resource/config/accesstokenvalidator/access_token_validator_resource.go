@@ -176,18 +176,10 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"encryption_key_pair": schema.StringAttribute{
 				Description: "The public-private key pair that is used to encrypt the JWT payload. If specified, the JWT Access Token Validator will use the private key to decrypt the JWT payload, and the public key must be exported to the Authorization Server that is issuing access tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_key_encryption_algorithm": schema.SetAttribute{
 				Description: "Specifies an allow list of JWT key encryption algorithms that will be accepted by the JWT Access Token Validator. This setting is only used if encryption-key-pair is set.",
@@ -255,10 +247,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"access_token_manager_id": schema.StringAttribute{
 				Description: "The Access Token Manager instance ID to specify when calling the PingFederate introspection endpoint. If this property is set the include-aud-parameter property is ignored.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"endpoint_cache_refresh": schema.StringAttribute{
 				Description: "How often the Access Token Validator should refresh its stored value of the PingFederate server's token introspection endpoint.",
@@ -280,18 +268,10 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"authorization_server": schema.StringAttribute{
 				Description: "Specifies the external server that will be used to aid in validating access tokens. In most cases this will be the Authorization Server that minted the token.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description: "Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subject_claim_name": schema.StringAttribute{
 				Description: "The name of the token claim that contains the subject, i.e. the logged-in user in an access token. This property goes hand-in-hand with the identity-mapper property and tells the Identity Mapper which field to use to look up the user entry on the server.",
@@ -653,13 +633,13 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.ClientID = types.StringValue(r.ClientID)
 	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ClientSecretPassphraseProvider))
 	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
-	state.AccessTokenManagerID = internaltypes.StringTypeOrNil(r.AccessTokenManagerID, true)
+	state.AccessTokenManagerID = internaltypes.StringTypeOrNil(r.AccessTokenManagerID, internaltypes.IsEmptyString(expectedValues.AccessTokenManagerID))
 	state.EndpointCacheRefresh = internaltypes.StringTypeOrNil(r.EndpointCacheRefresh, true)
 	config.CheckMismatchedPDFormattedAttributes("endpoint_cache_refresh",
 		expectedValues.EndpointCacheRefresh, state.EndpointCacheRefresh, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, true)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -675,8 +655,8 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
-	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, true)
-	state.EncryptionKeyPair = internaltypes.StringTypeOrNil(r.EncryptionKeyPair, true)
+	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, internaltypes.IsEmptyString(expectedValues.JwksEndpointPath))
+	state.EncryptionKeyPair = internaltypes.StringTypeOrNil(r.EncryptionKeyPair, internaltypes.IsEmptyString(expectedValues.EncryptionKeyPair))
 	state.AllowedKeyEncryptionAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessTokenValidatorAllowedKeyEncryptionAlgorithmProp(r.AllowedKeyEncryptionAlgorithm))
 	state.AllowedContentEncryptionAlgorithm = internaltypes.GetStringSet(
@@ -687,8 +667,8 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, true)
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, true)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, true)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -704,7 +684,7 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, true)
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, true)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -719,7 +699,7 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)

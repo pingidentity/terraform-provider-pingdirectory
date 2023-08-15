@@ -244,18 +244,10 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 			"connection_criteria": schema.StringAttribute{
 				Description: "A set of criteria that client connections must satisfy before they will be allowed to request the associated extended operations.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"request_criteria": schema.StringAttribute{
 				Description: "A set of criteria that the extended requests must satisfy before they will be processed by the server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"shared_secret_attribute_type": schema.StringAttribute{
 				Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
@@ -315,10 +307,6 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		schemaDef.Attributes["default_password_policy"] = schema.StringAttribute{
 			Description: "The default password policy that should be used when generating and validating passwords if the request does not specify an alternate policy. If this is not provided, then this Generate Password Extended Operation Handler will use the default password policy defined in the global configuration.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_password_generator"] = schema.StringAttribute{
 			Description: "The default password generator that will be used if the selected password policy is not configured with a password generator.",
@@ -672,8 +660,8 @@ func readReplaceCertificateExtendedOperationHandlerResponse(ctx context.Context,
 	state.AllowRemotelyProvidedCertificates = internaltypes.BoolTypeOrNil(r.AllowRemotelyProvidedCertificates)
 	state.AllowedOperation = internaltypes.GetStringSet(
 		client.StringSliceEnumextendedOperationHandlerAllowedOperationProp(r.AllowedOperation))
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -688,8 +676,8 @@ func readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx context.C
 	state.AllowRemotelyProvidedCertificates = internaltypes.BoolTypeOrNil(r.AllowRemotelyProvidedCertificates)
 	state.AllowedOperation = internaltypes.GetStringSet(
 		client.StringSliceEnumextendedOperationHandlerAllowedOperationProp(r.AllowedOperation))
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -866,7 +854,7 @@ func readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx context.Con
 	state.Type = types.StringValue("generate-password")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, true)
+	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, internaltypes.IsEmptyString(expectedValues.DefaultPasswordPolicy))
 	state.DefaultPasswordGenerator = types.StringValue(r.DefaultPasswordGenerator)
 	state.MaximumPasswordsPerRequest = internaltypes.Int64TypeOrNil(r.MaximumPasswordsPerRequest)
 	state.MaximumValidationAttemptsPerPassword = internaltypes.Int64TypeOrNil(r.MaximumValidationAttemptsPerPassword)

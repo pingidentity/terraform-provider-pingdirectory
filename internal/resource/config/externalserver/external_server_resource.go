@@ -187,10 +187,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"conjur_server_base_uri": schema.SetAttribute{
 				Description: "The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol (\"http\" or \"https\"), the server address (resolvable name or IP address), and the port number. For example, \"https://conjur.example.com:8443/\".",
@@ -265,10 +261,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The certificate alias within the keystore to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"response_timeout": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne. When the `type` attribute is set to `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
@@ -282,18 +274,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"basic_authentication_username": schema.StringAttribute{
 				Description: "The username to use to authenticate to the HTTP Proxy External Server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"basic_authentication_passphrase_provider": schema.StringAttribute{
 				Description: "A passphrase provider that provides access to the password to use to authenticate to the HTTP Proxy External Server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
@@ -404,10 +388,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"health_check_connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_connection_age": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections. When the `type` attribute is set to `syslog`: The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
@@ -447,10 +427,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store. When the `type` attribute is set to `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.\n  - `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security. When the `type` attribute is set to `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption. When the `type` attribute is set to `ping-one-http`: The trust manager provider to use for HTTPS connection-level security. When the `type` attribute is set to `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
@@ -2026,7 +2002,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2041,7 +2017,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2067,7 +2043,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2082,7 +2058,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2107,7 +2083,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2122,7 +2098,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2192,7 +2168,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2207,7 +2183,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2226,8 +2202,8 @@ func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProx
 	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
-	state.BasicAuthenticationUsername = internaltypes.StringTypeOrNil(r.BasicAuthenticationUsername, true)
-	state.BasicAuthenticationPassphraseProvider = internaltypes.StringTypeOrNil(r.BasicAuthenticationPassphraseProvider, true)
+	state.BasicAuthenticationUsername = internaltypes.StringTypeOrNil(r.BasicAuthenticationUsername, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationUsername))
+	state.BasicAuthenticationPassphraseProvider = internaltypes.StringTypeOrNil(r.BasicAuthenticationPassphraseProvider, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateExternalServerUnknownValues(ctx, state)
@@ -2247,7 +2223,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2262,7 +2238,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2287,7 +2263,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2302,7 +2278,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2327,7 +2303,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2342,7 +2318,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2381,9 +2357,9 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), true)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, true)
+	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_timeout",
 		expectedValues.ConnectTimeout, state.ConnectTimeout, diagnostics)
@@ -2408,7 +2384,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
-	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, true)
+	state.HealthCheckConnectTimeout = internaltypes.StringTypeOrNil(r.HealthCheckConnectTimeout, internaltypes.IsEmptyString(expectedValues.HealthCheckConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("health_check_connect_timeout",
 		expectedValues.HealthCheckConnectTimeout, state.HealthCheckConnectTimeout, diagnostics)
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
@@ -2423,7 +2399,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
@@ -2455,7 +2431,7 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 	state.Type = types.StringValue("amazon-aws")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), true)
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))

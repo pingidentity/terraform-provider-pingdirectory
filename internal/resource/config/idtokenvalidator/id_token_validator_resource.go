@@ -155,10 +155,6 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to the JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming ID token. This path is relative to the base_url property defined for the validator's OpenID Connect provider. If jwks-endpoint-path is specified, the OpenID Connect ID Token Validator will not consult locally stored certificates for validating token signatures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"openid_connect_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
@@ -377,7 +373,7 @@ func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.Op
 		client.StringSliceEnumidTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
 	state.OpenIDConnectProvider = internaltypes.StringTypeOrNil(r.OpenIDConnectProvider, true)
-	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, true)
+	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, internaltypes.IsEmptyString(expectedValues.JwksEndpointPath))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)

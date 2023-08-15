@@ -147,10 +147,6 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL over TCP is to be used for connection-level security.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"additional_tags": schema.SetAttribute{
 				Description: "Specifies any optional additional tags to include in StatsD messages. Any additional tags will be appended to the end of each StatsD message, separated by commas. Tags should be written in a [key]:[value] format (\"host:server1\", for example).",
@@ -216,7 +212,7 @@ func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdM
 	state.Hostname = types.StringValue(r.Hostname)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.ConnectionType = types.StringValue(r.ConnectionType.String())
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
 	state.AdditionalTags = internaltypes.GetStringSet(r.AdditionalTags)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

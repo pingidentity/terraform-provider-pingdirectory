@@ -677,10 +677,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"min_included_phase_time_nanos": schema.Int64Attribute{
 				Description: "The minimum length of time in nanoseconds that an operation phase should take before it is included in a log message.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"time_interval": schema.StringAttribute{
 				Description: "Specifies the interval at which to check whether the log files need to be rotated.",
@@ -917,19 +913,11 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher.\n  - `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.\n  - `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher.\n  - `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.\n  - `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher.\n  - `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"syslog_message_application_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The application name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The application name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The application name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The application name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `syslog-json-audit`: The application name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher.\n  - `syslog-text-error`: The application name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.\n  - `syslog-text-access`: The application name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher.\n  - `syslog-json-http-operation`: The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.\n  - `syslog-json-access`: The application name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher.\n  - `syslog-json-error`: The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -5880,8 +5868,8 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
@@ -6282,8 +6270,8 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
@@ -6526,8 +6514,8 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
@@ -6770,8 +6758,8 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
 	state.LogResults = internaltypes.BoolTypeOrNil(r.LogResults)
@@ -7032,8 +7020,8 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
@@ -7439,8 +7427,8 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
-	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, true)
-	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, true)
+	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
+	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)

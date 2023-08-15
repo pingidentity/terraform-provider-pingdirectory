@@ -181,10 +181,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"aws_external_server": schema.StringAttribute{
 				Description: "The external server with information to use when interacting with the AWS Secrets Manager service.",
@@ -997,7 +993,7 @@ func readAzureKeyVaultPasswordStorageSchemeResponse(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

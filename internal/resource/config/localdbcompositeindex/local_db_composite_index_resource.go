@@ -173,10 +173,6 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 			"cache_mode": schema.StringAttribute{
 				Description: "The behavior that the server should exhibit when storing information from this index in the database cache.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -238,7 +234,7 @@ func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCom
 	state.PrimeIndex = internaltypes.BoolTypeOrNil(r.PrimeIndex)
 	state.PrimeInternalNodesOnly = internaltypes.BoolTypeOrNil(r.PrimeInternalNodesOnly)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbCompositeIndexCacheModeProp(r.CacheMode), true)
+		client.StringPointerEnumlocalDbCompositeIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

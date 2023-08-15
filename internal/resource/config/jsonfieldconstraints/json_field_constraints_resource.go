@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -208,10 +207,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that may contain a particular value for the target field before the server will stop maintaining the index for that value.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_index": schema.BoolAttribute{
 				Description: "Indicates whether backends that support database priming should load the contents of the associated JSON index into memory whenever the backend is opened.",
@@ -225,10 +220,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"tokenize_values": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to assign a compact token for each distinct value for the target field in an attempt to reduce the encoded size of the field in JSON objects. These tokens would be assigned prior to using any from the token set used for automatic compaction of some JSON string values.",
@@ -391,7 +382,7 @@ func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldCo
 	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)
 	state.PrimeIndex = internaltypes.BoolTypeOrNil(r.PrimeIndex)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumjsonFieldConstraintsCacheModeProp(r.CacheMode), true)
+		client.StringPointerEnumjsonFieldConstraintsCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.TokenizeValues = internaltypes.BoolTypeOrNil(r.TokenizeValues)
 	state.AllowedValue = internaltypes.GetStringSet(r.AllowedValue)
 	state.AllowedValueRegularExpression = internaltypes.GetStringSet(r.AllowedValueRegularExpression)

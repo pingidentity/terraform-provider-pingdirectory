@@ -225,18 +225,10 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_configuration_file": schema.StringAttribute{
 				Description: "The path to the file to use to configure the security provider that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_store_pin": schema.StringAttribute{
 				Description: "The clear-text user PIN needed to interact with the PKCS #11 token.",
@@ -294,10 +286,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
@@ -919,7 +907,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.SecretName = types.StringValue(r.SecretName)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
@@ -975,8 +963,8 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, true)
-	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, true)
+	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
+	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
 	state.KeyStorePinEnvironmentVariable = internaltypes.StringTypeOrNil(r.KeyStorePinEnvironmentVariable, internaltypes.IsEmptyString(expectedValues.KeyStorePinEnvironmentVariable))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, true)

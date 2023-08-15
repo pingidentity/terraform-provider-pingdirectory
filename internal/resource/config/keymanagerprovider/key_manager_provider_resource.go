@@ -148,18 +148,10 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_configuration_file": schema.StringAttribute{
 				Description: "The path to the file to use to configure the security provider that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_key_store_type": schema.StringAttribute{
 				Description: "The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.",
@@ -483,8 +475,8 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, true)
-	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, true)
+	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
+	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, true)
 	state.Pkcs11MaxCacheDuration = internaltypes.StringTypeOrNil(r.Pkcs11MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("pkcs11_max_cache_duration",

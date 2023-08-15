@@ -397,10 +397,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"entity_tag_ldap_attribute": schema.StringAttribute{
 				Description: "Specifies the LDAP attribute whose value should be used as the entity tag value to enable SCIM resource versioning support.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to create temporary files containing SCIM request data.",
@@ -488,10 +484,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `velocity`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file. When the `type` attribute is set to `file-server`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `velocity`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file.\n  - `file-server`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_mime_type": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `velocity`: Specifies the default value that will be used in the response's Content-Type header that indicates the type of content to return. When the `type` attribute is set to `file-server`: Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
@@ -613,10 +605,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `delegated-admin`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `velocity`: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries. When the `type` attribute is set to `consent`: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs. When the `type` attribute is set to `ldap-mapped-scim`: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory. When the `type` attribute is set to `file-server`: The identity mapper that will be used to identify the entry with which a username is associated. When the `type` attribute is set to `config`: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `directory-rest-api`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names.\n  - `velocity`: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries.\n  - `consent`: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs.\n  - `ldap-mapped-scim`: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory.\n  - `file-server`: The identity mapper that will be used to identify the entry with which a username is associated.\n  - `config`: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names.\n  - `directory-rest-api`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_token_validator": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `delegated-admin`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Delegated Admin HTTP Servlet Extension. When the `type` attribute is set to `consent`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Consent HTTP Servlet Extension. When the `type` attribute is set to `file-server`: The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token. When the `type` attribute is set to `scim2`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this SCIM2 HTTP Servlet Extension. When the `type` attribute is set to `directory-rest-api`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Directory REST API HTTP Servlet Extension.",
@@ -635,10 +623,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"cross_origin_policy": schema.StringAttribute{
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"response_header": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to  one of [`delegated-admin`, `quickstart`, `availability-state`, `prometheus-monitoring`, `consent`, `ldap-mapped-scim`, `groovy-scripted`, `file-server`, `config`, `scim2`, `directory-rest-api`, `third-party`]: Specifies HTTP header fields and values added to response headers for all requests. When the `type` attribute is set to `velocity`: Specifies HTTP header fields and values added to response headers for all template page requests.",
@@ -653,10 +637,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -835,19 +815,11 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			Description:         "When the `type` attribute is set to `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension. When the `type` attribute is set to `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension.\n  - `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
 			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["audience"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization. When the `type` attribute is set to `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.\n  - `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
 			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -1730,14 +1702,14 @@ func readDelegatedAdminHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
-	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, true)
-	state.Audience = internaltypes.StringTypeOrNil(r.Audience, true)
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, internaltypes.IsEmptyString(expectedValues.AccessTokenScope))
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, internaltypes.IsEmptyString(expectedValues.Audience))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1749,9 +1721,9 @@ func readQuickstartHttpServletExtensionResponse(ctx context.Context, r *client.Q
 	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.StringTypeOrNil(r.Server, internaltypes.IsEmptyString(expectedValues.Server))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -1763,9 +1735,9 @@ func readQuickstartHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.StringTypeOrNil(r.Server, internaltypes.IsEmptyString(expectedValues.Server))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1783,9 +1755,9 @@ func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *c
 	state.IncludeResponseBody = internaltypes.BoolTypeOrNil(r.IncludeResponseBody)
 	state.AdditionalResponseContents = internaltypes.StringTypeOrNil(r.AdditionalResponseContents, internaltypes.IsEmptyString(expectedValues.AdditionalResponseContents))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -1803,9 +1775,9 @@ func readAvailabilityStateHttpServletExtensionResponseDefault(ctx context.Contex
 	state.IncludeResponseBody = internaltypes.BoolTypeOrNil(r.IncludeResponseBody)
 	state.AdditionalResponseContents = internaltypes.StringTypeOrNil(r.AdditionalResponseContents, internaltypes.IsEmptyString(expectedValues.AdditionalResponseContents))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1824,9 +1796,9 @@ func readPrometheusMonitoringHttpServletExtensionResponse(ctx context.Context, r
 	state.IncludeMonitorAttributeNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorAttributeNameLabel)
 	state.LabelNameValuePair = internaltypes.GetStringSet(r.LabelNameValuePair)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -1845,9 +1817,9 @@ func readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx context.Con
 	state.IncludeMonitorAttributeNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorAttributeNameLabel)
 	state.LabelNameValuePair = internaltypes.GetStringSet(r.LabelNameValuePair)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1866,16 +1838,16 @@ func readVelocityHttpServletExtensionResponseDefault(ctx context.Context, r *cli
 	state.ExposeSessionAttributes = internaltypes.BoolTypeOrNil(r.ExposeSessionAttributes)
 	state.ExposeServerContext = internaltypes.BoolTypeOrNil(r.ExposeServerContext)
 	state.AllowContextOverride = internaltypes.BoolTypeOrNil(r.AllowContextOverride)
-	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, true)
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
 	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
 	state.CharacterEncoding = internaltypes.StringTypeOrNil(r.CharacterEncoding, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.StaticResponseHeader = internaltypes.GetStringSet(r.StaticResponseHeader)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1887,12 +1859,12 @@ func readConsentHttpServletExtensionResponseDefault(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.BearerTokenAuthEnabled = internaltypes.BoolTypeOrNil(r.BearerTokenAuthEnabled)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1904,13 +1876,13 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, true)
 	state.IncludeLDAPObjectclass = internaltypes.GetStringSet(r.IncludeLDAPObjectclass)
 	state.ExcludeLDAPObjectclass = internaltypes.GetStringSet(r.ExcludeLDAPObjectclass)
 	state.IncludeLDAPBaseDN = internaltypes.GetStringSet(r.IncludeLDAPBaseDN)
 	state.ExcludeLDAPBaseDN = internaltypes.GetStringSet(r.ExcludeLDAPBaseDN)
-	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, true)
+	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, internaltypes.IsEmptyString(expectedValues.EntityTagLDAPAttribute))
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.TemporaryDirectory = types.StringValue(r.TemporaryDirectory)
 	state.TemporaryDirectoryPermissions = types.StringValue(r.TemporaryDirectoryPermissions)
@@ -1926,9 +1898,9 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 		client.StringSliceEnumhttpServletExtensionDebugTypeProp(r.DebugType))
 	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -1940,13 +1912,13 @@ func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.Name = types.StringValue(r.Id)
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, true)
 	state.IncludeLDAPObjectclass = internaltypes.GetStringSet(r.IncludeLDAPObjectclass)
 	state.ExcludeLDAPObjectclass = internaltypes.GetStringSet(r.ExcludeLDAPObjectclass)
 	state.IncludeLDAPBaseDN = internaltypes.GetStringSet(r.IncludeLDAPBaseDN)
 	state.ExcludeLDAPBaseDN = internaltypes.GetStringSet(r.ExcludeLDAPBaseDN)
-	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, true)
+	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, internaltypes.IsEmptyString(expectedValues.EntityTagLDAPAttribute))
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.TemporaryDirectory = types.StringValue(r.TemporaryDirectory)
 	state.TemporaryDirectoryPermissions = types.StringValue(r.TemporaryDirectoryPermissions)
@@ -1962,9 +1934,9 @@ func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, 
 		client.StringSliceEnumhttpServletExtensionDebugTypeProp(r.DebugType))
 	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -1977,9 +1949,9 @@ func readGroovyScriptedHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -1992,9 +1964,9 @@ func readGroovyScriptedHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -2008,7 +1980,7 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
 	state.IndexFile = internaltypes.GetStringSet(r.IndexFile)
-	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, true)
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
 	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
 	state.AllowedAuthenticationType = internaltypes.GetStringSet(
@@ -2017,11 +1989,11 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireFileServletAccessPrivilege = internaltypes.BoolTypeOrNil(r.RequireFileServletAccessPrivilege)
 	state.RequireGroup = internaltypes.GetStringSet(r.RequireGroup)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -2035,7 +2007,7 @@ func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
 	state.IndexFile = internaltypes.GetStringSet(r.IndexFile)
-	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, true)
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
 	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
 	state.AllowedAuthenticationType = internaltypes.GetStringSet(
@@ -2044,11 +2016,11 @@ func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireFileServletAccessPrivilege = internaltypes.BoolTypeOrNil(r.RequireFileServletAccessPrivilege)
 	state.RequireGroup = internaltypes.GetStringSet(r.RequireGroup)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -2058,11 +2030,11 @@ func readConfigHttpServletExtensionResponseDefault(ctx context.Context, r *clien
 	state.Type = types.StringValue("config")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -2083,9 +2055,9 @@ func readScim2HttpServletExtensionResponseDefault(ctx context.Context, r *client
 	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
 	state.SwaggerEnabled = internaltypes.BoolTypeOrNil(r.SwaggerEnabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -2096,10 +2068,10 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
-	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, true)
-	state.Audience = internaltypes.StringTypeOrNil(r.Audience, true)
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, internaltypes.IsEmptyString(expectedValues.AccessTokenScope))
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, internaltypes.IsEmptyString(expectedValues.Audience))
 	state.MaxPageSize = internaltypes.Int64TypeOrNil(r.MaxPageSize)
 	state.SchemasEndpointObjectclass = internaltypes.GetStringSet(r.SchemasEndpointObjectclass)
 	state.DefaultOperationalAttribute = internaltypes.GetStringSet(r.DefaultOperationalAttribute)
@@ -2108,9 +2080,9 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 	state.AllowedControl = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionAllowedControlProp(r.AllowedControl))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }
@@ -2123,9 +2095,9 @@ func readThirdPartyHttpServletExtensionResponse(ctx context.Context, r *client.T
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValues(ctx, state)
 }
@@ -2138,9 +2110,9 @@ func readThirdPartyHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
 }

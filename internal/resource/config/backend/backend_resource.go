@@ -482,42 +482,22 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"id2entry_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dn2id_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2children_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2children database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its immediate children. This index may be used when performing searches with a single-level scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2subtree_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dn2uri_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_method": schema.SetAttribute{
 				Description: "Specifies the method that should be used to prime caches with data for this backend.",
@@ -597,18 +577,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"id2children_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2children system index (which keeps track of the immediate children for an entry, to assist in otherwise unindexed searches with a single-level scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2subtree_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2subtree system index (which keeps track of all descendants below an entry, to assist in otherwise unindexed searches with a whole-subtree or subordinate subtree scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"import_temp_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.",
@@ -865,10 +837,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["notification_sender_address"] = schema.StringAttribute{
 			Description: "Specifies the email address to use as the sender address (that is, the \"From:\" address) for notification mail messages generated when a task completes execution.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["insignificant_config_archive_attribute"] = schema.SetAttribute{
 			Description: "The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.",
@@ -977,10 +945,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["target_database_size"] = schema.StringAttribute{
 			Description: "The changelog database is allowed to grow up to this size on disk even if changes are older than the configured changelog-maximum-age.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_include_base_dn"] = schema.SetAttribute{
 			Description: "The base DNs for branches in the data for which to record changes in the changelog.",
@@ -1141,10 +1105,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the key store file.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_pin"] = schema.StringAttribute{
 			Description: "Specifies the clear-text PIN needed to access the Trust Store Backend.",
@@ -1229,11 +1189,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
@@ -2252,7 +2212,7 @@ func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustSt
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2299,7 +2259,7 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 	state.ChangelogMaximumAge = types.StringValue(r.ChangelogMaximumAge)
 	config.CheckMismatchedPDFormattedAttributes("changelog_maximum_age",
 		expectedValues.ChangelogMaximumAge, state.ChangelogMaximumAge, diagnostics)
-	state.TargetDatabaseSize = internaltypes.StringTypeOrNil(r.TargetDatabaseSize, true)
+	state.TargetDatabaseSize = internaltypes.StringTypeOrNil(r.TargetDatabaseSize, internaltypes.IsEmptyString(expectedValues.TargetDatabaseSize))
 	config.CheckMismatchedPDFormattedAttributes("target_database_size",
 		expectedValues.TargetDatabaseSize, state.TargetDatabaseSize, diagnostics)
 	state.ChangelogEntryIncludeBaseDN = internaltypes.GetStringSet(r.ChangelogEntryIncludeBaseDN)
@@ -2383,15 +2343,15 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.DefaultCacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), true)
 	state.Id2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), true)
+		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), internaltypes.IsEmptyString(expectedValues.Id2entryCacheMode))
 	state.Dn2idCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), true)
+		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2idCacheMode))
 	state.Id2childrenCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), true)
+		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), internaltypes.IsEmptyString(expectedValues.Id2childrenCacheMode))
 	state.Id2subtreeCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), true)
+		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), internaltypes.IsEmptyString(expectedValues.Id2subtreeCacheMode))
 	state.Dn2uriCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), true)
+		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2uriCacheMode))
 	state.PrimeMethod = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
 	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
@@ -2471,15 +2431,15 @@ func readLocalDbBackendResponseDefault(ctx context.Context, r *client.LocalDbBac
 	state.DefaultCacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), true)
 	state.Id2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), true)
+		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), internaltypes.IsEmptyString(expectedValues.Id2entryCacheMode))
 	state.Dn2idCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), true)
+		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2idCacheMode))
 	state.Id2childrenCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), true)
+		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), internaltypes.IsEmptyString(expectedValues.Id2childrenCacheMode))
 	state.Id2subtreeCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), true)
+		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), internaltypes.IsEmptyString(expectedValues.Id2subtreeCacheMode))
 	state.Dn2uriCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), true)
+		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2uriCacheMode))
 	state.PrimeMethod = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
 	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
@@ -2565,7 +2525,7 @@ func readTaskBackendResponseDefault(ctx context.Context, r *client.TaskBackendRe
 	state.TaskRetentionTime = internaltypes.StringTypeOrNil(r.TaskRetentionTime, true)
 	config.CheckMismatchedPDFormattedAttributes("task_retention_time",
 		expectedValues.TaskRetentionTime, state.TaskRetentionTime, diagnostics)
-	state.NotificationSenderAddress = internaltypes.StringTypeOrNil(r.NotificationSenderAddress, true)
+	state.NotificationSenderAddress = internaltypes.StringTypeOrNil(r.NotificationSenderAddress, internaltypes.IsEmptyString(expectedValues.NotificationSenderAddress))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)

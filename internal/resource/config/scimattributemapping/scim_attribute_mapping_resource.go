@@ -134,10 +134,6 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 			"correlated_ldap_data_view": schema.StringAttribute{
 				Description: "The Correlated LDAP Data View that persists the mapped SCIM Resource Type attribute(s).",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"scim_resource_type_attribute": schema.StringAttribute{
 				Description: "The attribute path of SCIM Resource Type attributes to be mapped.",
@@ -226,7 +222,7 @@ func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttribu
 	state.Type = types.StringValue("scim-attribute-mapping")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, true)
+	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))
 	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
 	state.LdapAttribute = types.StringValue(r.LdapAttribute)
 	state.Readable = internaltypes.BoolTypeOrNil(r.Readable)

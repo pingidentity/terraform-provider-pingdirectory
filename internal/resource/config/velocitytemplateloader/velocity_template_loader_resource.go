@@ -157,10 +157,6 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			"mime_type": schema.StringAttribute{
 				Description: "Specifies a the value that will be used in the response's Content-Type header that indicates the type of content to return.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"template_suffix": schema.StringAttribute{
 				Description: "Specifies the suffix to append to the requested resource name when searching for the template file with which to form a response.",
@@ -169,10 +165,6 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			"template_directory": schema.StringAttribute{
 				Description: "Specifies the directory in which to search for the template files.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -222,9 +214,9 @@ func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityT
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
-	state.MimeType = internaltypes.StringTypeOrNil(r.MimeType, true)
+	state.MimeType = internaltypes.StringTypeOrNil(r.MimeType, internaltypes.IsEmptyString(expectedValues.MimeType))
 	state.TemplateSuffix = internaltypes.StringTypeOrNil(r.TemplateSuffix, internaltypes.IsEmptyString(expectedValues.TemplateSuffix))
-	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, true)
+	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, internaltypes.IsEmptyString(expectedValues.TemplateDirectory))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

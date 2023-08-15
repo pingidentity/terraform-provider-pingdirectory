@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -126,34 +125,18 @@ func softDeletePolicySchema(ctx context.Context, req resource.SchemaRequest, res
 			"auto_soft_delete_connection_criteria": schema.StringAttribute{
 				Description: "Connection criteria used to automatically identify a delete operation for processing as a soft delete request.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"auto_soft_delete_request_criteria": schema.StringAttribute{
 				Description: "Request criteria used to automatically identify a delete operation for processing as a soft delete request.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"soft_delete_retention_time": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that soft delete entries are retained before they are eligible to purged automatically.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"soft_delete_retain_number_of_entries": schema.Int64Attribute{
 				Description: "Specifies the number of soft deleted entries to retain before the oldest entries are purged.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -202,9 +185,9 @@ func readSoftDeletePolicyResponse(ctx context.Context, r *client.SoftDeletePolic
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, true)
-	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, true)
-	state.SoftDeleteRetentionTime = internaltypes.StringTypeOrNil(r.SoftDeleteRetentionTime, true)
+	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteConnectionCriteria))
+	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteRequestCriteria))
+	state.SoftDeleteRetentionTime = internaltypes.StringTypeOrNil(r.SoftDeleteRetentionTime, internaltypes.IsEmptyString(expectedValues.SoftDeleteRetentionTime))
 	config.CheckMismatchedPDFormattedAttributes("soft_delete_retention_time",
 		expectedValues.SoftDeleteRetentionTime, state.SoftDeleteRetentionTime, diagnostics)
 	state.SoftDeleteRetainNumberOfEntries = internaltypes.Int64TypeOrNil(r.SoftDeleteRetainNumberOfEntries)

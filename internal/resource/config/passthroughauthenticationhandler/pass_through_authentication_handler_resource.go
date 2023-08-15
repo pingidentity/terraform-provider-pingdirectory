@@ -213,10 +213,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 			"search_base_dn": schema.StringAttribute{
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -298,10 +294,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_mapping_local_attribute": schema.SetAttribute{
 				Description: "The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.",
@@ -754,7 +746,7 @@ func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r 
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.UserMappingLocalAttribute = internaltypes.GetStringSet(r.UserMappingLocalAttribute)
 	state.UserMappingRemoteJSONField = internaltypes.GetStringSet(r.UserMappingRemoteJSONField)
 	state.AdditionalUserMappingSCIMFilter = internaltypes.StringTypeOrNil(r.AdditionalUserMappingSCIMFilter, internaltypes.IsEmptyString(expectedValues.AdditionalUserMappingSCIMFilter))
@@ -775,7 +767,7 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 	state.ServerAccessMode = types.StringValue(r.ServerAccessMode.String())
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)

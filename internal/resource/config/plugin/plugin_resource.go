@@ -577,10 +577,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_request_control": schema.SetAttribute{
 				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
@@ -765,10 +761,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"search_base_dn": schema.StringAttribute{
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -793,10 +785,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"custom_timezone": schema.StringAttribute{
 				Description: "Specifies the time zone to use when generating a date string using the configured custom-datetime-format value. The provided value must be accepted by java.util.TimeZone.getTimeZone.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"expiration_offset": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `purge-expired-data`: The duration to wait after the value specified in datetime-attribute (and optionally datetime-json-field) before purging the data. When the `type` attribute is set to `clean-up-inactive-pingfederate-persistent-sessions`: Sessions whose last activity timestamp is older than this offset will be removed.",
@@ -982,10 +970,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"previous_file_extension": schema.StringAttribute{
 				Description: "An extension that should be appended to the name of an existing output file rather than deleting it. If a file already exists with the full previous file name, then it will be deleted before the current file is renamed to become the previous file.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"api_url": schema.StringAttribute{
 				Description: "Specifies the API endpoint for the PingOne web service.",
@@ -1015,10 +999,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the PingOne service. When the `type` attribute is set to `pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to an alternate server. When the `type` attribute is set to `pluggable-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
@@ -1153,10 +1133,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"peer_server_priority_index": schema.Int64Attribute{
 				Description: "In a replicated environment, this determines the order in which peer servers should attempt to purge data.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
@@ -3994,7 +3970,7 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4025,7 +4001,7 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4094,7 +4070,7 @@ func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutd
 	state.Filter = internaltypes.GetStringSet(filterValues)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.OutputFile = types.StringValue(r.OutputFile)
-	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, true)
+	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, internaltypes.IsEmptyString(expectedValues.PreviousFileExtension))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -4117,7 +4093,7 @@ func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.Sear
 	state.Filter = internaltypes.GetStringSet(filterValues)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.OutputFile = types.StringValue(r.OutputFile)
-	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, true)
+	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, internaltypes.IsEmptyString(expectedValues.PreviousFileExtension))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -4243,7 +4219,7 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
 	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, internaltypes.IsEmptyString(expectedValues.CustomDatetimeFormat))
-	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, true)
+	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, internaltypes.IsEmptyString(expectedValues.CustomTimezone))
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4282,7 +4258,7 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
 	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, internaltypes.IsEmptyString(expectedValues.CustomDatetimeFormat))
-	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, true)
+	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, internaltypes.IsEmptyString(expectedValues.CustomTimezone))
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4427,7 +4403,7 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
@@ -4456,7 +4432,7 @@ func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
@@ -4605,7 +4581,7 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, true)
+	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
@@ -4630,7 +4606,7 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, true)
+	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)

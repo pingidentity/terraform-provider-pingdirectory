@@ -155,10 +155,6 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"substring_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies, for substring indexes, the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained. Setting a large limit can dramatically increase the database size on disk and have a big impact on server performance if the indexed attribute is modified frequently. When a very large limit is required, creating a dedicated composite index with an index-filter-pattern of (attr=*?*) will give the best balance between search and update performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maintain_match_count_for_keys_exceeding_entry_limit": schema.BoolAttribute{
 				Description: "Indicates whether to continue to maintain a count of the number of matching entries for an index key even after that count exceeds the index entry limit.",
@@ -222,10 +218,6 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index. This controls how much database cache memory can be consumed by this index.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -300,7 +292,7 @@ func readLocalDbIndexResponse(ctx context.Context, r *client.LocalDbIndexRespons
 	state.EqualityIndexFilter = internaltypes.GetStringSet(r.EqualityIndexFilter)
 	state.MaintainEqualityIndexWithoutFilter = internaltypes.BoolTypeOrNil(r.MaintainEqualityIndexWithoutFilter)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbIndexCacheModeProp(r.CacheMode), true)
+		client.StringPointerEnumlocalDbIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

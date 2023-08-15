@@ -190,10 +190,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"replace_pattern": schema.StringAttribute{
 				Description: "Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `exact-match`: Specifies the set of base DNs below which to search for users. When the `type` attribute is set to `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
@@ -464,7 +460,7 @@ func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, internaltypes.IsEmptyString(expectedValues.MatchFilter))
 	state.MatchPattern = types.StringValue(r.MatchPattern)
-	state.ReplacePattern = internaltypes.StringTypeOrNil(r.ReplacePattern, true)
+	state.ReplacePattern = internaltypes.StringTypeOrNil(r.ReplacePattern, internaltypes.IsEmptyString(expectedValues.ReplacePattern))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

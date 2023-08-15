@@ -231,10 +231,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry.\n  - `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_required_scope": schema.SetAttribute{
 				Description: "The set of OAuth scopes that will all be required for any access tokens that will be allowed for authentication.",
@@ -266,10 +262,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process. When the `type` attribute is set to `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server. When the `type` attribute is set to `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process.\n  - `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server.\n  - `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities. When the `type` attribute is set to  one of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request. When the `type` attribute is set to `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values. When the `type` attribute is set to `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
@@ -302,18 +294,10 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["kdc_address"] = schema.StringAttribute{
 			Description: "Specifies the address of the KDC that is to be used for Kerberos processing.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["keytab"] = schema.StringAttribute{
 			Description: "Specifies the keytab file that should be used for Kerberos processing.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allow_null_server_fqdn"] = schema.BoolAttribute{
 			Description: "Specifies whether or not to allow a null value for the server-fqdn.",
@@ -339,10 +323,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["gssapi_role"] = schema.StringAttribute{
 			Description: "Specifies the role that should be declared for the server in the generated JAAS configuration file.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["jaas_config_file"] = schema.StringAttribute{
 			Description: "Specifies the path to a JAAS (Java Authentication and Authorization Service) configuration file that provides the information that the JVM should use for Kerberos processing.",
@@ -360,10 +340,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			Description:         "When the `type` attribute is set to `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication. When the `type` attribute is set to `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication.\n  - `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
 			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["certificate_validation_policy"] = schema.StringAttribute{
 			Description: "Indicates whether to attempt to validate the peer certificate against a certificate held in the user's entry.",
@@ -407,10 +383,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
 			Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
 			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["shared_secret_attribute_type"] = schema.StringAttribute{
 			Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
@@ -885,7 +857,7 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, internaltypes.IsEmptyString(expectedValues.YubikeyClientID))
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.YubikeyAPIKeyPassphraseProvider))
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.RequireStaticPassword = internaltypes.BoolTypeOrNil(r.RequireStaticPassword)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
@@ -915,9 +887,9 @@ func readDigestMd5SaslMechanismHandlerResponseDefault(ctx context.Context, r *cl
 	state.Type = types.StringValue("digest-md5")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Realm = internaltypes.StringTypeOrNil(r.Realm, true)
+	state.Realm = internaltypes.StringTypeOrNil(r.Realm, internaltypes.IsEmptyString(expectedValues.Realm))
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1011,10 +983,10 @@ func readOauthBearerSaslMechanismHandlerResponse(ctx context.Context, r *client.
 	state.RequireBothAccessTokenAndIDToken = internaltypes.BoolTypeOrNil(r.RequireBothAccessTokenAndIDToken)
 	state.ValidateAccessTokenWhenIDTokenIsAlsoProvided = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), true)
-	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, true)
+	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
 	state.AllRequiredScope = internaltypes.GetStringSet(r.AllRequiredScope)
 	state.AnyRequiredScope = internaltypes.GetStringSet(r.AnyRequiredScope)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1031,10 +1003,10 @@ func readOauthBearerSaslMechanismHandlerResponseDefault(ctx context.Context, r *
 	state.RequireBothAccessTokenAndIDToken = internaltypes.BoolTypeOrNil(r.RequireBothAccessTokenAndIDToken)
 	state.ValidateAccessTokenWhenIDTokenIsAlsoProvided = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), true)
-	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, true)
+	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
 	state.AllRequiredScope = internaltypes.GetStringSet(r.AllRequiredScope)
 	state.AnyRequiredScope = internaltypes.GetStringSet(r.AnyRequiredScope)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1058,18 +1030,18 @@ func readGssapiSaslMechanismHandlerResponseDefault(ctx context.Context, r *clien
 	state.Type = types.StringValue("gssapi")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Realm = internaltypes.StringTypeOrNil(r.Realm, true)
-	state.KdcAddress = internaltypes.StringTypeOrNil(r.KdcAddress, true)
-	state.Keytab = internaltypes.StringTypeOrNil(r.Keytab, true)
+	state.Realm = internaltypes.StringTypeOrNil(r.Realm, internaltypes.IsEmptyString(expectedValues.Realm))
+	state.KdcAddress = internaltypes.StringTypeOrNil(r.KdcAddress, internaltypes.IsEmptyString(expectedValues.KdcAddress))
+	state.Keytab = internaltypes.StringTypeOrNil(r.Keytab, internaltypes.IsEmptyString(expectedValues.Keytab))
 	state.AllowNullServerFqdn = internaltypes.BoolTypeOrNil(r.AllowNullServerFqdn)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
 	state.AllowedQualityOfProtection = internaltypes.GetStringSet(
 		client.StringSliceEnumsaslMechanismHandlerAllowedQualityOfProtectionProp(r.AllowedQualityOfProtection))
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, true)
+	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
 	state.KerberosServicePrincipal = internaltypes.StringTypeOrNil(r.KerberosServicePrincipal, internaltypes.IsEmptyString(expectedValues.KerberosServicePrincipal))
 	state.GssapiRole = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsaslMechanismHandlerGssapiRoleProp(r.GssapiRole), true)
+		client.StringPointerEnumsaslMechanismHandlerGssapiRoleProp(r.GssapiRole), internaltypes.IsEmptyString(expectedValues.GssapiRole))
 	state.JaasConfigFile = internaltypes.StringTypeOrNil(r.JaasConfigFile, internaltypes.IsEmptyString(expectedValues.JaasConfigFile))
 	state.EnableDebug = internaltypes.BoolTypeOrNil(r.EnableDebug)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

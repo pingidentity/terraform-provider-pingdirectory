@@ -189,10 +189,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 			"time_zone": schema.StringAttribute{
 				Description: "The time zone that will be used to interpret the scheduled-time-of-day values. If no value is provided, then the JVM's default time zone will be used.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"interrupted_by_shutdown_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if it is shut down or abnormally terminated while an instance of this Recurring Task Chain is running.",
@@ -317,7 +313,7 @@ func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTask
 	state.ScheduledDayOfTheMonth = internaltypes.GetStringSet(
 		client.StringSliceEnumrecurringTaskChainScheduledDayOfTheMonthProp(r.ScheduledDayOfTheMonth))
 	state.ScheduledTimeOfDay = internaltypes.GetStringSet(r.ScheduledTimeOfDay)
-	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, true)
+	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, internaltypes.IsEmptyString(expectedValues.TimeZone))
 	state.InterruptedByShutdownBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), true)
 	state.ServerOfflineAtStartTimeBehavior = internaltypes.StringTypeOrNil(

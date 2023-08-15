@@ -165,10 +165,6 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -215,7 +211,7 @@ func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexR
 	state.Name = types.StringValue(r.Name)
 	state.MaxBlockSize = internaltypes.Int64TypeOrNil(r.MaxBlockSize)
 	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), true)
+		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 

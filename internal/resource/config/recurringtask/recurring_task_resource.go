@@ -249,18 +249,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_output_file_count": schema.Int64Attribute{
 				Description: "The minimum number of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_output_file_age": schema.StringAttribute{
 				Description: "The minimum age of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_command_output": schema.BoolAttribute{
 				Description: "Indicates whether the command's output (both standard output and standard error) should be recorded in the server's error log.",
@@ -281,10 +273,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"working_directory": schema.StringAttribute{
 				Description: "The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_output_directory": schema.StringAttribute{
 				Description: "The base directory below which generated reports will be written. Each invocation of the audit-data-security task will create a new subdirectory below this base directory whose name is a timestamp indicating when the report was generated.",
@@ -324,18 +312,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_report_count": schema.Int64Attribute{
 				Description: "The minimum number of previous reports that should be preserved after a new report is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_report_age": schema.StringAttribute{
 				Description: "The minimum age of previous reports that should be preserved after a new report completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ldif_directory": schema.StringAttribute{
 				Description: "The directory in which LDIF export files will be placed. The directory must already exist.",
@@ -390,18 +370,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_ldif_export_count": schema.Int64Attribute{
 				Description: "The minimum number of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_ldif_export_age": schema.StringAttribute{
 				Description: "The minimum age of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_binary_files": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.",
@@ -462,26 +434,14 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"log_duration": schema.StringAttribute{
 				Description: "The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_head_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the beginning of each log file included in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_tail_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the end of each log file included in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"comment": schema.StringAttribute{
 				Description: "An optional comment to include in a README file within the support data archive.",
@@ -490,18 +450,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_support_data_archive_count": schema.Int64Attribute{
 				Description: "The minimum number of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_support_data_archive_age": schema.StringAttribute{
 				Description: "The minimum age of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"task_java_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class that provides the logic for the task to be invoked.",
@@ -623,27 +575,15 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_full_backup_count": schema.Int64Attribute{
 				Description: "The minimum number of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_full_backup_age": schema.StringAttribute{
 				Description: "The minimum age of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to `backup`: The maximum rate, in megabytes per second, at which backups should be written. When the `type` attribute is set to `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: The maximum rate, in megabytes per second, at which backups should be written.\n  - `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"reason": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode. When the `type` attribute is set to `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.",
@@ -666,18 +606,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_profile_count": schema.Int64Attribute{
 				Description: "The minimum number of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_profile_age": schema.StringAttribute{
 				Description: "The minimum age of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -1937,7 +1869,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
 	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
-	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, true)
+	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousProfileAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_profile_age",
 		expectedValues.RetainPreviousProfileAge, state.RetainPreviousProfileAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1983,7 +1915,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousFullBackupCount = internaltypes.Int64TypeOrNil(r.RetainPreviousFullBackupCount)
-	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, true)
+	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousFullBackupAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_full_backup_age",
 		expectedValues.RetainPreviousFullBackupAge, state.RetainPreviousFullBackupAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
@@ -2071,18 +2003,18 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.JstackCount = internaltypes.Int64TypeOrNil(r.JstackCount)
 	state.ReportCount = internaltypes.Int64TypeOrNil(r.ReportCount)
 	state.ReportIntervalSeconds = internaltypes.Int64TypeOrNil(r.ReportIntervalSeconds)
-	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, true)
+	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, internaltypes.IsEmptyString(expectedValues.LogDuration))
 	config.CheckMismatchedPDFormattedAttributes("log_duration",
 		expectedValues.LogDuration, state.LogDuration, diagnostics)
-	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, true)
+	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileHeadCollectionSize))
 	config.CheckMismatchedPDFormattedAttributes("log_file_head_collection_size",
 		expectedValues.LogFileHeadCollectionSize, state.LogFileHeadCollectionSize, diagnostics)
-	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, true)
+	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileTailCollectionSize))
 	config.CheckMismatchedPDFormattedAttributes("log_file_tail_collection_size",
 		expectedValues.LogFileTailCollectionSize, state.LogFileTailCollectionSize, diagnostics)
 	state.Comment = internaltypes.StringTypeOrNil(r.Comment, internaltypes.IsEmptyString(expectedValues.Comment))
 	state.RetainPreviousSupportDataArchiveCount = internaltypes.Int64TypeOrNil(r.RetainPreviousSupportDataArchiveCount)
-	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, true)
+	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousSupportDataArchiveAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_support_data_archive_age",
 		expectedValues.RetainPreviousSupportDataArchiveAge, state.RetainPreviousSupportDataArchiveAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2110,7 +2042,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousLDIFExportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousLDIFExportCount)
-	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, true)
+	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousLDIFExportAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_ldif_export_age",
 		expectedValues.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
@@ -2154,7 +2086,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.Backend = internaltypes.GetStringSet(r.Backend)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.RetainPreviousReportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousReportCount)
-	state.RetainPreviousReportAge = internaltypes.StringTypeOrNil(r.RetainPreviousReportAge, true)
+	state.RetainPreviousReportAge = internaltypes.StringTypeOrNil(r.RetainPreviousReportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousReportAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_report_age",
 		expectedValues.RetainPreviousReportAge, state.RetainPreviousReportAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2178,13 +2110,13 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.CommandArguments = internaltypes.StringTypeOrNil(r.CommandArguments, internaltypes.IsEmptyString(expectedValues.CommandArguments))
 	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, internaltypes.IsEmptyString(expectedValues.CommandOutputFileBaseName))
 	state.RetainPreviousOutputFileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousOutputFileCount)
-	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, true)
+	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousOutputFileAge))
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_output_file_age",
 		expectedValues.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, diagnostics)
 	state.LogCommandOutput = internaltypes.BoolTypeOrNil(r.LogCommandOutput)
 	state.TaskCompletionStateForNonzeroExitCode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), true)
-	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, true)
+	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, internaltypes.IsEmptyString(expectedValues.WorkingDirectory))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)

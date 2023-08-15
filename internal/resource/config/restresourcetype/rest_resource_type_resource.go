@@ -143,18 +143,10 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"password_attribute_category": schema.StringAttribute{
 				Description: "Specifies which attribute category the password belongs to.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_display_order_index": schema.Int64Attribute{
 				Description: "This property determines the display order for the password within its attribute category. Attributes are ordered within their category based on this index from least to greatest.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this REST Resource Type",
@@ -205,18 +197,10 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"relative_dn_from_parent_resource": schema.StringAttribute{
 				Description: "Specifies a template for a relative DN from the parent resource which identifies the parent entry for a new resource of this type. If this property is not specified then new resources are created immediately below the parent resource or parent DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"create_rdn_attribute_type": schema.StringAttribute{
 				Description: "Specifies the name or OID of the LDAP attribute type to be used as the RDN of new resources.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"post_create_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",
@@ -552,7 +536,7 @@ func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestRes
 	state.Type = types.StringValue("user")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.PasswordAttributeCategory = internaltypes.StringTypeOrNil(r.PasswordAttributeCategory, true)
+	state.PasswordAttributeCategory = internaltypes.StringTypeOrNil(r.PasswordAttributeCategory, internaltypes.IsEmptyString(expectedValues.PasswordAttributeCategory))
 	state.PasswordDisplayOrderIndex = internaltypes.Int64TypeOrNil(r.PasswordDisplayOrderIndex)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -563,8 +547,8 @@ func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestRes
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
 	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, true)
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, true)
+	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
+	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
 	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
 	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
 	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
@@ -591,8 +575,8 @@ func readGenericRestResourceTypeResponse(ctx context.Context, r *client.GenericR
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
 	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, true)
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, true)
+	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
+	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
 	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
 	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
 	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
@@ -621,8 +605,8 @@ func readGroupRestResourceTypeResponse(ctx context.Context, r *client.GroupRestR
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
 	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, true)
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, true)
+	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
+	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
 	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
 	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
 	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
