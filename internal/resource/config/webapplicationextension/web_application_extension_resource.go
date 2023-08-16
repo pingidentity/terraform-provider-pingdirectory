@@ -400,11 +400,44 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, model *defaultWebApplicationExtensionResourceModel) {
+	if model.OidcClientSecretPassphraseProvider.IsUnknown() || model.OidcClientSecretPassphraseProvider.IsNull() {
+		model.OidcClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.OidcTrustStoreFile.IsUnknown() || model.OidcTrustStoreFile.IsNull() {
+		model.OidcTrustStoreFile = types.StringValue("")
+	}
+	if model.OidcClientSecret.IsUnknown() || model.OidcClientSecret.IsNull() {
+		model.OidcClientSecret = types.StringValue("")
+	}
 	if model.Complexity.IsUnknown() || model.Complexity.IsNull() {
 		model.Complexity = types.StringValue("")
 	}
-	if model.OidcClientSecret.IsUnknown() {
-		model.OidcClientSecret = types.StringNull()
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.LdapServer.IsUnknown() || model.LdapServer.IsNull() {
+		model.LdapServer = types.StringValue("")
+	}
+	if model.OidcIssuerURL.IsUnknown() || model.OidcIssuerURL.IsNull() {
+		model.OidcIssuerURL = types.StringValue("")
+	}
+	if model.OidcTrustStoreType.IsUnknown() || model.OidcTrustStoreType.IsNull() {
+		model.OidcTrustStoreType = types.StringValue("")
+	}
+	if model.OidcClientID.IsUnknown() || model.OidcClientID.IsNull() {
+		model.OidcClientID = types.StringValue("")
+	}
+	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
+		model.TrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.OidcTrustStorePinPassphraseProvider.IsUnknown() || model.OidcTrustStorePinPassphraseProvider.IsNull() {
+		model.OidcTrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 

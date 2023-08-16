@@ -612,11 +612,32 @@ func populateExtendedOperationHandlerUnknownValuesDefault(ctx context.Context, m
 	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
 		model.PasswordResetTokenValidityDuration = types.StringValue("")
 	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
 	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
 		model.SharedSecretAttributeType = types.StringValue("")
 	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
 	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
 		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.PasswordGenerator.IsUnknown() || model.PasswordGenerator.IsNull() {
+		model.PasswordGenerator = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.DefaultPasswordPolicy.IsUnknown() || model.DefaultPasswordPolicy.IsNull() {
+		model.DefaultPasswordPolicy = types.StringValue("")
+	}
+	if model.DefaultPasswordGenerator.IsUnknown() || model.DefaultPasswordGenerator.IsNull() {
+		model.DefaultPasswordGenerator = types.StringValue("")
 	}
 }
 

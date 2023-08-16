@@ -1638,20 +1638,62 @@ func populateVirtualAttributeUnknownValuesDefault(ctx context.Context, model *de
 	if model.ReferencedByAttribute.IsUnknown() || model.ReferencedByAttribute.IsNull() {
 		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IncludedGroupFilter.IsUnknown() || model.IncludedGroupFilter.IsNull() {
+		model.IncludedGroupFilter = types.StringValue("")
+	}
 	if model.JoinScope.IsUnknown() || model.JoinScope.IsNull() {
 		model.JoinScope = types.StringValue("")
 	}
 	if model.ConflictBehavior.IsUnknown() || model.ConflictBehavior.IsNull() {
 		model.ConflictBehavior = types.StringValue("")
 	}
-	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
-		model.AttributeType = types.StringValue("")
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.SourceEntryDNMap.IsUnknown() || model.SourceEntryDNMap.IsNull() {
+		model.SourceEntryDNMap = types.StringValue("")
 	}
 	if model.RewriteSearchFilters.IsUnknown() || model.RewriteSearchFilters.IsNull() {
 		model.RewriteSearchFilters = types.StringValue("")
 	}
+	if model.JoinDNAttribute.IsUnknown() || model.JoinDNAttribute.IsNull() {
+		model.JoinDNAttribute = types.StringValue("")
+	}
+	if model.SourceEntryDNAttribute.IsUnknown() || model.SourceEntryDNAttribute.IsNull() {
+		model.SourceEntryDNAttribute = types.StringValue("")
+	}
+	if model.SourceAttribute.IsUnknown() || model.SourceAttribute.IsNull() {
+		model.SourceAttribute = types.StringValue("")
+	}
+	if model.SequenceNumberAttribute.IsUnknown() || model.SequenceNumberAttribute.IsNull() {
+		model.SequenceNumberAttribute = types.StringValue("")
+	}
+	if model.JoinTargetAttribute.IsUnknown() || model.JoinTargetAttribute.IsNull() {
+		model.JoinTargetAttribute = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+	if model.JoinCustomBaseDN.IsUnknown() || model.JoinCustomBaseDN.IsNull() {
+		model.JoinCustomBaseDN = types.StringValue("")
+	}
+	if model.JoinBaseDNType.IsUnknown() || model.JoinBaseDNType.IsNull() {
+		model.JoinBaseDNType = types.StringValue("")
+	}
+	if model.JoinSourceAttribute.IsUnknown() || model.JoinSourceAttribute.IsNull() {
+		model.JoinSourceAttribute = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
 	if model.MultipleVirtualAttributeMergeBehavior.IsUnknown() || model.MultipleVirtualAttributeMergeBehavior.IsNull() {
 		model.MultipleVirtualAttributeMergeBehavior = types.StringValue("")
+	}
+	if model.JoinFilter.IsUnknown() || model.JoinFilter.IsNull() {
+		model.JoinFilter = types.StringValue("")
 	}
 }
 

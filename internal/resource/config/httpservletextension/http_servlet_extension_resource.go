@@ -1619,32 +1619,65 @@ func populateHttpServletExtensionUnknownValuesDefault(ctx context.Context, model
 	if model.StaticResponseHeader.IsUnknown() || model.StaticResponseHeader.IsNull() {
 		model.StaticResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
-		model.BaseContextPath = types.StringValue("")
-	}
 	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
 		model.ResourceMappingFile = types.StringValue("")
-	}
-	if model.MapAccessTokensToLocalUsers.IsUnknown() || model.MapAccessTokensToLocalUsers.IsNull() {
-		model.MapAccessTokensToLocalUsers = types.StringValue("")
 	}
 	if model.StaticContextPath.IsUnknown() || model.StaticContextPath.IsNull() {
 		model.StaticContextPath = types.StringValue("")
 	}
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server = types.StringValue("")
+	}
 	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
 		model.DefaultMIMEType = types.StringValue("")
 	}
-	if model.CharacterEncoding.IsUnknown() || model.CharacterEncoding.IsNull() {
-		model.CharacterEncoding = types.StringValue("")
+	if model.Audience.IsUnknown() || model.Audience.IsNull() {
+		model.Audience = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.OAuthTokenHandler.IsUnknown() || model.OAuthTokenHandler.IsNull() {
+		model.OAuthTokenHandler = types.StringValue("")
 	}
 	if model.StaticContentDirectory.IsUnknown() || model.StaticContentDirectory.IsNull() {
 		model.StaticContentDirectory = types.StringValue("")
 	}
+	if model.MimeTypesFile.IsUnknown() || model.MimeTypesFile.IsNull() {
+		model.MimeTypesFile = types.StringValue("")
+	}
 	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
 		model.TemporaryDirectory = types.StringValue("")
 	}
+	if model.AccessTokenScope.IsUnknown() || model.AccessTokenScope.IsNull() {
+		model.AccessTokenScope = types.StringValue("")
+	}
+	if model.EntityTagLDAPAttribute.IsUnknown() || model.EntityTagLDAPAttribute.IsNull() {
+		model.EntityTagLDAPAttribute = types.StringValue("")
+	}
+	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
+		model.BaseContextPath = types.StringValue("")
+	}
+	if model.MapAccessTokensToLocalUsers.IsUnknown() || model.MapAccessTokensToLocalUsers.IsNull() {
+		model.MapAccessTokensToLocalUsers = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.DocumentRootDirectory.IsUnknown() || model.DocumentRootDirectory.IsNull() {
+		model.DocumentRootDirectory = types.StringValue("")
+	}
+	if model.CharacterEncoding.IsUnknown() || model.CharacterEncoding.IsNull() {
+		model.CharacterEncoding = types.StringValue("")
+	}
+	if model.AdditionalResponseContents.IsUnknown() || model.AdditionalResponseContents.IsNull() {
+		model.AdditionalResponseContents = types.StringValue("")
+	}
 	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
 		model.TemporaryDirectoryPermissions = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 	if model.StaticCustomDirectory.IsUnknown() || model.StaticCustomDirectory.IsNull() {
 		model.StaticCustomDirectory = types.StringValue("")

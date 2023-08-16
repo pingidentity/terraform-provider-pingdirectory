@@ -1101,26 +1101,53 @@ func populateAlertHandlerUnknownValuesDefault(ctx context.Context, model *defaul
 	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+	if model.TwilioAccountSID.IsUnknown() || model.TwilioAccountSID.IsNull() {
+		model.TwilioAccountSID = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
 	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
 		model.MessageSubject = types.StringValue("")
 	}
-	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
-		model.LongMessageBehavior = types.StringValue("")
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 	if model.OutputFormat.IsUnknown() || model.OutputFormat.IsNull() {
 		model.OutputFormat = types.StringValue("")
 	}
-	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
-		model.CommunityName = types.StringValue("")
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
 	}
 	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
 		model.OutputLocation = types.StringValue("")
 	}
+	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
+		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
+	}
+	if model.TwilioAuthToken.IsUnknown() || model.TwilioAuthToken.IsNull() {
+		model.TwilioAuthToken = types.StringValue("")
+	}
+	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
+		model.LongMessageBehavior = types.StringValue("")
+	}
+	if model.Command.IsUnknown() || model.Command.IsNull() {
+		model.Command = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
+		model.CommunityName = types.StringValue("")
+	}
+	if model.IncludeMonitorDataFilter.IsUnknown() || model.IncludeMonitorDataFilter.IsNull() {
+		model.IncludeMonitorDataFilter = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
 	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
 		model.MessageBody = types.StringValue("")
-	}
-	if model.TwilioAuthToken.IsUnknown() {
-		model.TwilioAuthToken = types.StringNull()
 	}
 }
 

@@ -955,11 +955,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
@@ -1941,11 +1941,20 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	if model.DbBackgroundSyncInterval.IsUnknown() || model.DbBackgroundSyncInterval.IsNull() {
 		model.DbBackgroundSyncInterval = types.StringValue("")
 	}
+	if model.TrustStorePinFile.IsUnknown() || model.TrustStorePinFile.IsNull() {
+		model.TrustStorePinFile = types.StringValue("")
+	}
+	if model.Dn2uriCacheMode.IsUnknown() || model.Dn2uriCacheMode.IsNull() {
+		model.Dn2uriCacheMode = types.StringValue("")
+	}
 	if model.BackupFilePermissions.IsUnknown() || model.BackupFilePermissions.IsNull() {
 		model.BackupFilePermissions = types.StringValue("")
 	}
 	if model.SingleWriterLockBehavior.IsUnknown() || model.SingleWriterLockBehavior.IsNull() {
 		model.SingleWriterLockBehavior = types.StringValue("")
+	}
+	if model.Id2entryCacheMode.IsUnknown() || model.Id2entryCacheMode.IsNull() {
+		model.Id2entryCacheMode = types.StringValue("")
 	}
 	if model.ReportExcludedChangelogAttributes.IsUnknown() || model.ReportExcludedChangelogAttributes.IsNull() {
 		model.ReportExcludedChangelogAttributes = types.StringValue("")
@@ -1959,6 +1968,9 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	if model.TaskRetentionTime.IsUnknown() || model.TaskRetentionTime.IsNull() {
 		model.TaskRetentionTime = types.StringValue("")
 	}
+	if model.Id2subtreeCacheMode.IsUnknown() || model.Id2subtreeCacheMode.IsNull() {
+		model.Id2subtreeCacheMode = types.StringValue("")
+	}
 	if model.MetricsDir.IsUnknown() || model.MetricsDir.IsNull() {
 		model.MetricsDir = types.StringValue("")
 	}
@@ -1967,6 +1979,9 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	}
 	if model.DefaultCacheMode.IsUnknown() || model.DefaultCacheMode.IsNull() {
 		model.DefaultCacheMode = types.StringValue("")
+	}
+	if model.UncachedAttributeCriteria.IsUnknown() || model.UncachedAttributeCriteria.IsNull() {
+		model.UncachedAttributeCriteria = types.StringValue("")
 	}
 	if model.ImportTempDirectory.IsUnknown() || model.ImportTempDirectory.IsNull() {
 		model.ImportTempDirectory = types.StringValue("")
@@ -1986,8 +2001,14 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	if model.AlarmRetentionTime.IsUnknown() || model.AlarmRetentionTime.IsNull() {
 		model.AlarmRetentionTime = types.StringValue("")
 	}
+	if model.TrustStorePin.IsUnknown() || model.TrustStorePin.IsNull() {
+		model.TrustStorePin = types.StringValue("")
+	}
 	if model.PrimeTimeLimit.IsUnknown() || model.PrimeTimeLimit.IsNull() {
 		model.PrimeTimeLimit = types.StringValue("")
+	}
+	if model.TaskBackingFile.IsUnknown() || model.TaskBackingFile.IsNull() {
+		model.TaskBackingFile = types.StringValue("")
 	}
 	if model.LdifFile.IsUnknown() || model.LdifFile.IsNull() {
 		model.LdifFile = types.StringValue("")
@@ -1998,8 +2019,14 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	if model.StorageDir.IsUnknown() || model.StorageDir.IsNull() {
 		model.StorageDir = types.StringValue("")
 	}
+	if model.TargetDatabaseSize.IsUnknown() || model.TargetDatabaseSize.IsNull() {
+		model.TargetDatabaseSize = types.StringValue("")
+	}
 	if model.DbDirectoryPermissions.IsUnknown() || model.DbDirectoryPermissions.IsNull() {
 		model.DbDirectoryPermissions = types.StringValue("")
+	}
+	if model.ChangelogMaximumAge.IsUnknown() || model.ChangelogMaximumAge.IsNull() {
+		model.ChangelogMaximumAge = types.StringValue("")
 	}
 	if model.DbLogFileMax.IsUnknown() || model.DbLogFileMax.IsNull() {
 		model.DbLogFileMax = types.StringValue("")
@@ -2007,17 +2034,32 @@ func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBack
 	if model.AlertRetentionTime.IsUnknown() || model.AlertRetentionTime.IsNull() {
 		model.AlertRetentionTime = types.StringValue("")
 	}
+	if model.Dn2idCacheMode.IsUnknown() || model.Dn2idCacheMode.IsNull() {
+		model.Dn2idCacheMode = types.StringValue("")
+	}
 	if model.UncachedId2entryCacheMode.IsUnknown() || model.UncachedId2entryCacheMode.IsNull() {
 		model.UncachedId2entryCacheMode = types.StringValue("")
+	}
+	if model.Id2childrenCacheMode.IsUnknown() || model.Id2childrenCacheMode.IsNull() {
+		model.Id2childrenCacheMode = types.StringValue("")
 	}
 	if model.OfflineProcessDatabaseOpenTimeout.IsUnknown() || model.OfflineProcessDatabaseOpenTimeout.IsNull() {
 		model.OfflineProcessDatabaseOpenTimeout = types.StringValue("")
 	}
+	if model.NotificationSenderAddress.IsUnknown() || model.NotificationSenderAddress.IsNull() {
+		model.NotificationSenderAddress = types.StringValue("")
+	}
+	if model.UncachedEntryCriteria.IsUnknown() || model.UncachedEntryCriteria.IsNull() {
+		model.UncachedEntryCriteria = types.StringValue("")
+	}
+	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
+		model.TrustStorePinPassphraseProvider = types.StringValue("")
+	}
 	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
 		model.TrustStoreFile = types.StringValue("")
 	}
-	if model.TrustStorePin.IsUnknown() {
-		model.TrustStorePin = types.StringNull()
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 

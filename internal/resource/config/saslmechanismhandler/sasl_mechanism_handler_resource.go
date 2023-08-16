@@ -746,20 +746,71 @@ func populateSaslMechanismHandlerUnknownValuesDefault(ctx context.Context, model
 	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
 		model.TimeIntervalDuration = types.StringValue("")
 	}
-	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
-		model.OtpValidityDuration = types.StringValue("")
+	if model.YubikeyAPIKey.IsUnknown() || model.YubikeyAPIKey.IsNull() {
+		model.YubikeyAPIKey = types.StringValue("")
 	}
-	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
-		model.SharedSecretAttributeType = types.StringValue("")
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
 	}
-	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
-		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
+	if model.AlternateAuthorizationIdentityMapper.IsUnknown() || model.AlternateAuthorizationIdentityMapper.IsNull() {
+		model.AlternateAuthorizationIdentityMapper = types.StringValue("")
+	}
+	if model.GssapiRole.IsUnknown() || model.GssapiRole.IsNull() {
+		model.GssapiRole = types.StringValue("")
+	}
+	if model.CertificateValidationPolicy.IsUnknown() || model.CertificateValidationPolicy.IsNull() {
+		model.CertificateValidationPolicy = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.ServerFqdn.IsUnknown() || model.ServerFqdn.IsNull() {
+		model.ServerFqdn = types.StringValue("")
+	}
+	if model.KdcAddress.IsUnknown() || model.KdcAddress.IsNull() {
+		model.KdcAddress = types.StringValue("")
+	}
+	if model.JaasConfigFile.IsUnknown() || model.JaasConfigFile.IsNull() {
+		model.JaasConfigFile = types.StringValue("")
 	}
 	if model.CertificateAttribute.IsUnknown() || model.CertificateAttribute.IsNull() {
 		model.CertificateAttribute = types.StringValue("")
 	}
-	if model.YubikeyAPIKey.IsUnknown() {
-		model.YubikeyAPIKey = types.StringNull()
+	if model.YubikeyClientID.IsUnknown() || model.YubikeyClientID.IsNull() {
+		model.YubikeyClientID = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
+		model.OtpValidityDuration = types.StringValue("")
+	}
+	if model.KerberosServicePrincipal.IsUnknown() || model.KerberosServicePrincipal.IsNull() {
+		model.KerberosServicePrincipal = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.CertificateMapper.IsUnknown() || model.CertificateMapper.IsNull() {
+		model.CertificateMapper = types.StringValue("")
+	}
+	if model.Keytab.IsUnknown() || model.Keytab.IsNull() {
+		model.Keytab = types.StringValue("")
+	}
+	if model.YubikeyAPIKeyPassphraseProvider.IsUnknown() || model.YubikeyAPIKeyPassphraseProvider.IsNull() {
+		model.YubikeyAPIKeyPassphraseProvider = types.StringValue("")
+	}
+	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
+	}
+	if model.Realm.IsUnknown() || model.Realm.IsNull() {
+		model.Realm = types.StringValue("")
 	}
 }
 

@@ -444,11 +444,23 @@ func populateMonitorProviderUnknownValuesDefault(ctx context.Context, model *def
 	if model.ProlongedOutageBehavior.IsUnknown() || model.ProlongedOutageBehavior.IsNull() {
 		model.ProlongedOutageBehavior = types.StringValue("")
 	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
 	if model.ProlongedOutageDuration.IsUnknown() || model.ProlongedOutageDuration.IsNull() {
 		model.ProlongedOutageDuration = types.StringValue("")
 	}
+	if model.LowSpaceWarningSizeThreshold.IsUnknown() || model.LowSpaceWarningSizeThreshold.IsNull() {
+		model.LowSpaceWarningSizeThreshold = types.StringValue("")
+	}
+	if model.LowSpaceErrorSizeThreshold.IsUnknown() || model.LowSpaceErrorSizeThreshold.IsNull() {
+		model.LowSpaceErrorSizeThreshold = types.StringValue("")
+	}
 	if model.SystemUtilizationMonitorLogDirectory.IsUnknown() || model.SystemUtilizationMonitorLogDirectory.IsNull() {
 		model.SystemUtilizationMonitorLogDirectory = types.StringValue("")
+	}
+	if model.OutOfSpaceErrorSizeThreshold.IsUnknown() || model.OutOfSpaceErrorSizeThreshold.IsNull() {
+		model.OutOfSpaceErrorSizeThreshold = types.StringValue("")
 	}
 }
 

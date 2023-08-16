@@ -1454,22 +1454,6 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1481,7 +1465,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1496,8 +1480,24 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -3718,44 +3718,47 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
 		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
-		model.ServerAccessMode = types.StringValue("")
-	}
 	if model.ConnectRetryMaxWait.IsUnknown() || model.ConnectRetryMaxWait.IsNull() {
 		model.ConnectRetryMaxWait = types.StringValue("")
 	}
-	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
-		model.StatusSummaryInfo = types.StringValue("")
+	if model.UpdateLocalPasswordDN.IsUnknown() || model.UpdateLocalPasswordDN.IsNull() {
+		model.UpdateLocalPasswordDN = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
 	}
 	if model.HistogramFormat.IsUnknown() || model.HistogramFormat.IsNull() {
 		model.HistogramFormat = types.StringValue("")
 	}
+	if model.LdapInfo.IsUnknown() || model.LdapInfo.IsNull() {
+		model.LdapInfo = types.StringValue("")
+	}
 	if model.PerApplicationLDAPStats.IsUnknown() || model.PerApplicationLDAPStats.IsNull() {
 		model.PerApplicationLDAPStats = types.StringValue("")
+	}
+	if model.Delay.IsUnknown() || model.Delay.IsNull() {
+		model.Delay = types.StringValue("")
 	}
 	if model.UpdateTargetAttributeBehavior.IsUnknown() || model.UpdateTargetAttributeBehavior.IsNull() {
 		model.UpdateTargetAttributeBehavior = types.StringValue("")
 	}
-	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
-		model.LogFile = types.StringValue("")
-	}
 	if model.EntryCacheInfo.IsUnknown() || model.EntryCacheInfo.IsNull() {
 		model.EntryCacheInfo = types.StringValue("")
 	}
-	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
-		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	if model.OAuthClientSecret.IsUnknown() || model.OAuthClientSecret.IsNull() {
+		model.OAuthClientSecret = types.StringValue("")
 	}
-	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
-		model.LogFilePermissions = types.StringValue("")
+	if model.OAuthClientSecretPassphraseProvider.IsUnknown() || model.OAuthClientSecretPassphraseProvider.IsNull() {
+		model.OAuthClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.PurgeBehavior.IsUnknown() || model.PurgeBehavior.IsNull() {
+		model.PurgeBehavior = types.StringValue("")
 	}
 	if model.SessionTimeout.IsUnknown() || model.SessionTimeout.IsNull() {
 		model.SessionTimeout = types.StringValue("")
 	}
-	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
-		model.MultipleValuePatternBehavior = types.StringValue("")
-	}
-	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
-		model.GaugeInfo = types.StringValue("")
+	if model.BindDNPattern.IsUnknown() || model.BindDNPattern.IsNull() {
+		model.BindDNPattern = types.StringValue("")
 	}
 	if model.CollectionInterval.IsUnknown() || model.CollectionInterval.IsNull() {
 		model.CollectionInterval = types.StringValue("")
@@ -3775,14 +3778,14 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 	if model.MultipleAttributeBehavior.IsUnknown() || model.MultipleAttributeBehavior.IsNull() {
 		model.MultipleAttributeBehavior = types.StringValue("")
 	}
-	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
-		model.LogFileFormat = types.StringValue("")
-	}
 	if model.AgentxAddress.IsUnknown() || model.AgentxAddress.IsNull() {
 		model.AgentxAddress = types.StringValue("")
 	}
 	if model.SourceAttributeRemovalBehavior.IsUnknown() || model.SourceAttributeRemovalBehavior.IsNull() {
 		model.SourceAttributeRemovalBehavior = types.StringValue("")
+	}
+	if model.AuthURL.IsUnknown() || model.AuthURL.IsNull() {
+		model.AuthURL = types.StringValue("")
 	}
 	if model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsNull() {
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("")
@@ -3790,29 +3793,20 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 	if model.LogInterval.IsUnknown() || model.LogInterval.IsNull() {
 		model.LogInterval = types.StringValue("")
 	}
-	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
-		model.DatetimeFormat = types.StringValue("")
-	}
-	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
-		model.MultiValuedAttributeBehavior = types.StringValue("")
-	}
-	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
-		model.UpdateInterval = types.StringValue("")
-	}
-	if model.ProfileAction.IsUnknown() || model.ProfileAction.IsNull() {
-		model.ProfileAction = types.StringValue("")
-	}
 	if model.DelayAfterAlert.IsUnknown() || model.DelayAfterAlert.IsNull() {
 		model.DelayAfterAlert = types.StringValue("")
 	}
 	if model.DelayPostGC.IsUnknown() || model.DelayPostGC.IsNull() {
 		model.DelayPostGC = types.StringValue("")
 	}
-	if model.MaxUpdateFrequency.IsUnknown() || model.MaxUpdateFrequency.IsNull() {
-		model.MaxUpdateFrequency = types.StringValue("")
+	if model.EnvironmentID.IsUnknown() || model.EnvironmentID.IsNull() {
+		model.EnvironmentID = types.StringValue("")
 	}
 	if model.PingInterval.IsUnknown() || model.PingInterval.IsNull() {
 		model.PingInterval = types.StringValue("")
+	}
+	if model.ChangelogPasswordEncryptionKey.IsUnknown() || model.ChangelogPasswordEncryptionKey.IsNull() {
+		model.ChangelogPasswordEncryptionKey = types.StringValue("")
 	}
 	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
 		model.LoggingErrorBehavior = types.StringValue("")
@@ -3823,14 +3817,140 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 	if model.ReplicationInfo.IsUnknown() || model.ReplicationInfo.IsNull() {
 		model.ReplicationInfo = types.StringValue("")
 	}
+	if model.AdditionalUserMappingSCIMFilter.IsUnknown() || model.AdditionalUserMappingSCIMFilter.IsNull() {
+		model.AdditionalUserMappingSCIMFilter = types.StringValue("")
+	}
 	if model.PollingInterval.IsUnknown() || model.PollingInterval.IsNull() {
 		model.PollingInterval = types.StringValue("")
 	}
-	if model.OAuthClientSecret.IsUnknown() {
-		model.OAuthClientSecret = types.StringNull()
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
-	if model.ChangelogPasswordEncryptionKey.IsUnknown() {
-		model.ChangelogPasswordEncryptionKey = types.StringNull()
+	if model.PassThroughAuthenticationHandler.IsUnknown() || model.PassThroughAuthenticationHandler.IsNull() {
+		model.PassThroughAuthenticationHandler = types.StringValue("")
+	}
+	if model.CustomDatetimeFormat.IsUnknown() || model.CustomDatetimeFormat.IsNull() {
+		model.CustomDatetimeFormat = types.StringValue("")
+	}
+	if model.ProfileSampleInterval.IsUnknown() || model.ProfileSampleInterval.IsNull() {
+		model.ProfileSampleInterval = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
+	}
+	if model.ServerInfo.IsUnknown() || model.ServerInfo.IsNull() {
+		model.ServerInfo = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
+		model.StatusSummaryInfo = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.SourceAttribute.IsUnknown() || model.SourceAttribute.IsNull() {
+		model.SourceAttribute = types.StringValue("")
+	}
+	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
+		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.ApiURL.IsUnknown() || model.ApiURL.IsNull() {
+		model.ApiURL = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.DatetimeJSONField.IsUnknown() || model.DatetimeJSONField.IsNull() {
+		model.DatetimeJSONField = types.StringValue("")
+	}
+	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
+		model.MultipleValuePatternBehavior = types.StringValue("")
+	}
+	if model.CustomTimezone.IsUnknown() || model.CustomTimezone.IsNull() {
+		model.CustomTimezone = types.StringValue("")
+	}
+	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
+		model.GaugeInfo = types.StringValue("")
+	}
+	if model.OutputFile.IsUnknown() || model.OutputFile.IsNull() {
+		model.OutputFile = types.StringValue("")
+	}
+	if model.DatetimeAttribute.IsUnknown() || model.DatetimeAttribute.IsNull() {
+		model.DatetimeAttribute = types.StringValue("")
+	}
+	if model.ChangelogPasswordEncryptionKeyPassphraseProvider.IsUnknown() || model.ChangelogPasswordEncryptionKeyPassphraseProvider.IsNull() {
+		model.ChangelogPasswordEncryptionKeyPassphraseProvider = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
+		model.LogFileFormat = types.StringValue("")
+	}
+	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
+		model.DatetimeFormat = types.StringValue("")
+	}
+	if model.ProfileDirectory.IsUnknown() || model.ProfileDirectory.IsNull() {
+		model.ProfileDirectory = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
+		model.MultiValuedAttributeBehavior = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.ProfileAction.IsUnknown() || model.ProfileAction.IsNull() {
+		model.ProfileAction = types.StringValue("")
+	}
+	if model.MaxUpdateFrequency.IsUnknown() || model.MaxUpdateFrequency.IsNull() {
+		model.MaxUpdateFrequency = types.StringValue("")
+	}
+	if model.PreviousFileExtension.IsUnknown() || model.PreviousFileExtension.IsNull() {
+		model.PreviousFileExtension = types.StringValue("")
+	}
+	if model.Scope.IsUnknown() || model.Scope.IsNull() {
+		model.Scope = types.StringValue("")
+	}
+	if model.SourceDN.IsUnknown() || model.SourceDN.IsNull() {
+		model.SourceDN = types.StringValue("")
+	}
+	if model.FilterSuffix.IsUnknown() || model.FilterSuffix.IsNull() {
+		model.FilterSuffix = types.StringValue("")
+	}
+	if model.TargetDN.IsUnknown() || model.TargetDN.IsNull() {
+		model.TargetDN = types.StringValue("")
+	}
+	if model.ExpirationOffset.IsUnknown() || model.ExpirationOffset.IsNull() {
+		model.ExpirationOffset = types.StringValue("")
+	}
+	if model.TargetAttribute.IsUnknown() || model.TargetAttribute.IsNull() {
+		model.TargetAttribute = types.StringValue("")
+	}
+	if model.OAuthClientID.IsUnknown() || model.OAuthClientID.IsNull() {
+		model.OAuthClientID = types.StringValue("")
+	}
+	if model.FilterPrefix.IsUnknown() || model.FilterPrefix.IsNull() {
+		model.FilterPrefix = types.StringValue("")
+	}
+	if model.ContextName.IsUnknown() || model.ContextName.IsNull() {
+		model.ContextName = types.StringValue("")
 	}
 }
 
