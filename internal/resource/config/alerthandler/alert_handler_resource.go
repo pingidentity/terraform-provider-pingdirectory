@@ -1102,7 +1102,7 @@ func readOutputAlertHandlerResponseDefault(ctx context.Context, r *client.Output
 		client.StringPointerEnumalertHandlerOutputLocationProp(r.OutputLocation), true)
 	state.OutputFormat = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumalertHandlerOutputFormatProp(r.OutputFormat), true)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1148,8 +1148,8 @@ func readSmtpAlertHandlerResponseDefault(ctx context.Context, r *client.SmtpAler
 	state.RecipientAddress = internaltypes.GetStringSet(r.RecipientAddress)
 	state.MessageSubject = types.StringValue(r.MessageSubject)
 	state.MessageBody = types.StringValue(r.MessageBody)
-	state.IncludeMonitorDataFilter = internaltypes.StringTypeOrNil(r.IncludeMonitorDataFilter, internaltypes.IsEmptyString(expectedValues.IncludeMonitorDataFilter))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludeMonitorDataFilter = internaltypes.StringTypeOrNil(r.IncludeMonitorDataFilter, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1185,7 +1185,7 @@ func readJmxAlertHandlerResponseDefault(ctx context.Context, r *client.JmxAlertH
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1224,7 +1224,7 @@ func readGroovyScriptedAlertHandlerResponseDefault(ctx context.Context, r *clien
 	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1242,7 +1242,7 @@ func readCustomAlertHandlerResponseDefault(ctx context.Context, r *client.Custom
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1285,7 +1285,7 @@ func readSnmpAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpAler
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.CommunityName = types.StringValue(r.CommunityName)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1327,13 +1327,13 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
-	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
+	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, true)
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)
 	state.RecipientPhoneNumber = internaltypes.GetStringSet(r.RecipientPhoneNumber)
 	state.LongMessageBehavior = types.StringValue(r.LongMessageBehavior.String())
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1368,7 +1368,7 @@ func readErrorLogAlertHandlerResponseDefault(ctx context.Context, r *client.Erro
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1405,7 +1405,7 @@ func readSnmpSubAgentAlertHandlerResponseDefault(ctx context.Context, r *client.
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1443,7 +1443,7 @@ func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAler
 	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1482,7 +1482,7 @@ func readThirdPartyAlertHandlerResponseDefault(ctx context.Context, r *client.Th
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
