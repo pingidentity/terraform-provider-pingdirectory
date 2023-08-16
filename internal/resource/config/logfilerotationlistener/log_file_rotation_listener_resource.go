@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -257,8 +258,8 @@ func addOptionalThirdPartyLogFileRotationListenerFields(ctx context.Context, add
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateLogFileRotationListenerUnknownValues(ctx context.Context, model *logFileRotationListenerResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

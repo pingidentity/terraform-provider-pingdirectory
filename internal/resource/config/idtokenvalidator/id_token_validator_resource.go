@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -331,11 +332,14 @@ func addOptionalOpenidConnectIdTokenValidatorFields(ctx context.Context, addRequ
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenValidatorResourceModel) {
-	if model.SigningCertificate.ElementType(ctx) == nil {
-		model.SigningCertificate = types.SetNull(types.StringType)
+	if model.SigningCertificate.IsUnknown() || model.SigningCertificate.IsNull() {
+		model.SigningCertificate, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
-		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedSigningAlgorithm.IsUnknown() || model.AllowedSigningAlgorithm.IsNull() {
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.OpenIDConnectMetadataCacheDuration.IsUnknown() || model.OpenIDConnectMetadataCacheDuration.IsNull() {
+		model.OpenIDConnectMetadataCacheDuration = types.StringValue("")
 	}
 }
 

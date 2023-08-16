@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -431,8 +432,14 @@ func addOptionalThirdPartyKeyManagerProviderFields(ctx context.Context, addReque
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyManagerProviderResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
+	}
+	if model.Pkcs11MaxCacheDuration.IsUnknown() || model.Pkcs11MaxCacheDuration.IsNull() {
+		model.Pkcs11MaxCacheDuration = types.StringValue("")
 	}
 	if model.KeyStorePin.IsUnknown() {
 		model.KeyStorePin = types.StringNull()

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -385,20 +386,20 @@ func addOptionalThirdPartyVelocityContextProviderFields(ctx context.Context, add
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateVelocityContextProviderUnknownValues(ctx context.Context, model *velocityContextProviderResourceModel) {
-	if model.RequestTool.ElementType(ctx) == nil {
-		model.RequestTool = types.SetNull(types.StringType)
+	if model.RequestTool.IsUnknown() || model.RequestTool.IsNull() {
+		model.RequestTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ApplicationTool.ElementType(ctx) == nil {
-		model.ApplicationTool = types.SetNull(types.StringType)
+	if model.ApplicationTool.IsUnknown() || model.ApplicationTool.IsNull() {
+		model.ApplicationTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SessionTool.ElementType(ctx) == nil {
-		model.SessionTool = types.SetNull(types.StringType)
+	if model.SessionTool.IsUnknown() || model.SessionTool.IsNull() {
+		model.SessionTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpMethod.ElementType(ctx) == nil {
-		model.HttpMethod = types.SetNull(types.StringType)
+	if model.HttpMethod.IsUnknown() || model.HttpMethod.IsNull() {
+		model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

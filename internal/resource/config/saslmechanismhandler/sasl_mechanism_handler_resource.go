@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -696,45 +697,66 @@ func addOptionalThirdPartySaslMechanismHandlerFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateSaslMechanismHandlerUnknownValues(ctx context.Context, model *saslMechanismHandlerResourceModel) {
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyRequiredScope.ElementType(ctx) == nil {
-		model.AnyRequiredScope = types.SetNull(types.StringType)
+	if model.AnyRequiredScope.IsUnknown() || model.AnyRequiredScope.IsNull() {
+		model.AnyRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredScope.ElementType(ctx) == nil {
-		model.AllRequiredScope = types.SetNull(types.StringType)
+	if model.AllRequiredScope.IsUnknown() || model.AllRequiredScope.IsNull() {
+		model.AllRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
+		model.OtpValidityDuration = types.StringValue("")
+	}
+	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateSaslMechanismHandlerUnknownValuesDefault(ctx context.Context, model *defaultSaslMechanismHandlerResourceModel) {
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyRequiredScope.ElementType(ctx) == nil {
-		model.AnyRequiredScope = types.SetNull(types.StringType)
+	if model.AnyRequiredScope.IsUnknown() || model.AnyRequiredScope.IsNull() {
+		model.AnyRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedQualityOfProtection.ElementType(ctx) == nil {
-		model.AllowedQualityOfProtection = types.SetNull(types.StringType)
+	if model.AllowedQualityOfProtection.IsUnknown() || model.AllowedQualityOfProtection.IsNull() {
+		model.AllowedQualityOfProtection, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredScope.ElementType(ctx) == nil {
-		model.AllRequiredScope = types.SetNull(types.StringType)
+	if model.AllRequiredScope.IsUnknown() || model.AllRequiredScope.IsNull() {
+		model.AllRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.YubikeyValidationServerBaseURL.ElementType(ctx) == nil {
-		model.YubikeyValidationServerBaseURL = types.SetNull(types.StringType)
+	if model.YubikeyValidationServerBaseURL.IsUnknown() || model.YubikeyValidationServerBaseURL.IsNull() {
+		model.YubikeyValidationServerBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
+		model.OtpValidityDuration = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
+	}
+	if model.CertificateAttribute.IsUnknown() || model.CertificateAttribute.IsNull() {
+		model.CertificateAttribute = types.StringValue("")
 	}
 	if model.YubikeyAPIKey.IsUnknown() {
 		model.YubikeyAPIKey = types.StringNull()

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -202,11 +203,11 @@ func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resourc
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateAttributeSyntaxUnknownValues(ctx context.Context, model *attributeSyntaxResourceModel) {
-	if model.ExcludeAttributeFromCompaction.ElementType(ctx) == nil {
-		model.ExcludeAttributeFromCompaction = types.SetNull(types.StringType)
+	if model.ExcludeAttributeFromCompaction.IsUnknown() || model.ExcludeAttributeFromCompaction.IsNull() {
+		model.ExcludeAttributeFromCompaction, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttributeInCompaction.ElementType(ctx) == nil {
-		model.IncludeAttributeInCompaction = types.SetNull(types.StringType)
+	if model.IncludeAttributeInCompaction.IsUnknown() || model.IncludeAttributeInCompaction.IsNull() {
+		model.IncludeAttributeInCompaction, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

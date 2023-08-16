@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1034,35 +1035,62 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateConnectionHandlerUnknownValues(ctx context.Context, model *connectionHandlerResourceModel) {
-	if model.SslCipherSuite.ElementType(ctx) == nil {
-		model.SslCipherSuite = types.SetNull(types.StringType)
+	if model.SslCipherSuite.IsUnknown() || model.SslCipherSuite.IsNull() {
+		model.SslCipherSuite, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SslProtocol.ElementType(ctx) == nil {
-		model.SslProtocol = types.SetNull(types.StringType)
+	if model.SslProtocol.IsUnknown() || model.SslProtocol.IsNull() {
+		model.SslProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ResponseHeader.ElementType(ctx) == nil {
-		model.ResponseHeader = types.SetNull(types.StringType)
+	if model.ResponseHeader.IsUnknown() || model.ResponseHeader.IsNull() {
+		model.ResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedClient.ElementType(ctx) == nil {
-		model.AllowedClient = types.SetNull(types.StringType)
+	if model.AllowedClient.IsUnknown() || model.AllowedClient.IsNull() {
+		model.AllowedClient, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.WebApplicationExtension.ElementType(ctx) == nil {
-		model.WebApplicationExtension = types.SetNull(types.StringType)
+	if model.WebApplicationExtension.IsUnknown() || model.WebApplicationExtension.IsNull() {
+		model.WebApplicationExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpServletExtension.ElementType(ctx) == nil {
-		model.HttpServletExtension = types.SetNull(types.StringType)
+	if model.HttpServletExtension.IsUnknown() || model.HttpServletExtension.IsNull() {
+		model.HttpServletExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ListenAddress.ElementType(ctx) == nil {
-		model.ListenAddress = types.SetNull(types.StringType)
+	if model.ListenAddress.IsUnknown() || model.ListenAddress.IsNull() {
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CorrelationIDRequestHeader.ElementType(ctx) == nil {
-		model.CorrelationIDRequestHeader = types.SetNull(types.StringType)
+	if model.CorrelationIDRequestHeader.IsUnknown() || model.CorrelationIDRequestHeader.IsNull() {
+		model.CorrelationIDRequestHeader, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpOperationLogPublisher.ElementType(ctx) == nil {
-		model.HttpOperationLogPublisher = types.SetNull(types.StringType)
+	if model.HttpOperationLogPublisher.IsUnknown() || model.HttpOperationLogPublisher.IsNull() {
+		model.HttpOperationLogPublisher, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DeniedClient.ElementType(ctx) == nil {
-		model.DeniedClient = types.SetNull(types.StringType)
+	if model.DeniedClient.IsUnknown() || model.DeniedClient.IsNull() {
+		model.DeniedClient, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CorrelationIDResponseHeader.IsUnknown() || model.CorrelationIDResponseHeader.IsNull() {
+		model.CorrelationIDResponseHeader = types.StringValue("")
+	}
+	if model.LowResourcesIdleTimeLimit.IsUnknown() || model.LowResourcesIdleTimeLimit.IsNull() {
+		model.LowResourcesIdleTimeLimit = types.StringValue("")
+	}
+	if model.FailedBindResponseDelay.IsUnknown() || model.FailedBindResponseDelay.IsNull() {
+		model.FailedBindResponseDelay = types.StringValue("")
+	}
+	if model.MaxBlockedWriteTimeLimit.IsUnknown() || model.MaxBlockedWriteTimeLimit.IsNull() {
+		model.MaxBlockedWriteTimeLimit = types.StringValue("")
+	}
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.PollInterval.IsUnknown() || model.PollInterval.IsNull() {
+		model.PollInterval = types.StringValue("")
+	}
+	if model.MaxRequestSize.IsUnknown() || model.MaxRequestSize.IsNull() {
+		model.MaxRequestSize = types.StringValue("")
+	}
+	if model.SslClientAuthPolicy.IsUnknown() || model.SslClientAuthPolicy.IsNull() {
+		model.SslClientAuthPolicy = types.StringValue("")
+	}
+	if model.IdleTimeLimit.IsUnknown() || model.IdleTimeLimit.IsNull() {
+		model.IdleTimeLimit = types.StringValue("")
 	}
 }
 

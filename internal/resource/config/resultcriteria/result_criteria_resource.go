@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1255,83 +1256,137 @@ func addOptionalThirdPartyResultCriteriaFields(ctx context.Context, addRequest *
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateResultCriteriaUnknownValues(ctx context.Context, model *resultCriteriaResourceModel) {
-	if model.NoneIncludedResponseControl.ElementType(ctx) == nil {
-		model.NoneIncludedResponseControl = types.SetNull(types.StringType)
+	if model.NoneIncludedResponseControl.IsUnknown() || model.NoneIncludedResponseControl.IsNull() {
+		model.NoneIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedResultCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedResultCriteria.IsUnknown() || model.NotAllIncludedResultCriteria.IsNull() {
+		model.NotAllIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedAuthzUserGroupDN.IsUnknown() || model.AnyIncludedAuthzUserGroupDN.IsNull() {
+		model.AnyIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LocalAssuranceLevel.ElementType(ctx) == nil {
-		model.LocalAssuranceLevel = types.SetNull(types.StringType)
+	if model.LocalAssuranceLevel.IsUnknown() || model.LocalAssuranceLevel.IsNull() {
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserGroupDN.ElementType(ctx) == nil {
-		model.ExcludedUserGroupDN = types.SetNull(types.StringType)
+	if model.ExcludedUserGroupDN.IsUnknown() || model.ExcludedUserGroupDN.IsNull() {
+		model.ExcludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedResponseControl.ElementType(ctx) == nil {
-		model.AllIncludedResponseControl = types.SetNull(types.StringType)
+	if model.AllIncludedResponseControl.IsUnknown() || model.AllIncludedResponseControl.IsNull() {
+		model.AllIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedAuthzUserGroupDN.IsUnknown() || model.NotAllIncludedAuthzUserGroupDN.IsNull() {
+		model.NotAllIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ResultCodeValue.ElementType(ctx) == nil {
-		model.ResultCodeValue = types.SetNull(types.StringType)
+	if model.ResultCodeValue.IsUnknown() || model.ResultCodeValue.IsNull() {
+		model.ResultCodeValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedResultCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedResultCriteria.IsUnknown() || model.AnyIncludedResultCriteria.IsNull() {
+		model.AnyIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedResponseControl.ElementType(ctx) == nil {
-		model.NotAllIncludedResponseControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedResponseControl.IsUnknown() || model.NotAllIncludedResponseControl.IsNull() {
+		model.NotAllIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedAuthzUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedAuthzUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedAuthzUserBaseDN.IsUnknown() || model.IncludedAuthzUserBaseDN.IsNull() {
+		model.IncludedAuthzUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedUserBaseDN.IsUnknown() || model.ExcludedUserBaseDN.IsNull() {
+		model.ExcludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserFilter.ElementType(ctx) == nil {
-		model.ExcludedUserFilter = types.SetNull(types.StringType)
+	if model.ExcludedUserFilter.IsUnknown() || model.ExcludedUserFilter.IsNull() {
+		model.ExcludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedAuthzUserGroupDN.IsUnknown() || model.AllIncludedAuthzUserGroupDN.IsNull() {
+		model.AllIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserGroupDN.ElementType(ctx) == nil {
-		model.IncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.IncludedUserGroupDN.IsUnknown() || model.IncludedUserGroupDN.IsNull() {
+		model.IncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserFilter.ElementType(ctx) == nil {
-		model.IncludedUserFilter = types.SetNull(types.StringType)
+	if model.IncludedUserFilter.IsUnknown() || model.IncludedUserFilter.IsNull() {
+		model.IncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedResultCriteria.ElementType(ctx) == nil {
-		model.AllIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedResultCriteria.IsUnknown() || model.AllIncludedResultCriteria.IsNull() {
+		model.AllIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedUserBaseDN.IsUnknown() || model.IncludedUserBaseDN.IsNull() {
+		model.IncludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedAuthzUserGroupDN.IsUnknown() || model.NoneIncludedAuthzUserGroupDN.IsNull() {
+		model.NoneIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UsedPrivilege.ElementType(ctx) == nil {
-		model.UsedPrivilege = types.SetNull(types.StringType)
+	if model.UsedPrivilege.IsUnknown() || model.UsedPrivilege.IsNull() {
+		model.UsedPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedResultCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedResultCriteria.IsUnknown() || model.NoneIncludedResultCriteria.IsNull() {
+		model.NoneIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedResponseControl.ElementType(ctx) == nil {
-		model.AnyIncludedResponseControl = types.SetNull(types.StringType)
+	if model.AnyIncludedResponseControl.IsUnknown() || model.AnyIncludedResponseControl.IsNull() {
+		model.AnyIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedAuthzUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedAuthzUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedAuthzUserBaseDN.IsUnknown() || model.ExcludedAuthzUserBaseDN.IsNull() {
+		model.ExcludedAuthzUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MissingPrivilege.ElementType(ctx) == nil {
-		model.MissingPrivilege = types.SetNull(types.StringType)
+	if model.MissingPrivilege.IsUnknown() || model.MissingPrivilege.IsNull() {
+		model.MissingPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RemoteAssuranceLevel.ElementType(ctx) == nil {
-		model.RemoteAssuranceLevel = types.SetNull(types.StringType)
+	if model.RemoteAssuranceLevel.IsUnknown() || model.RemoteAssuranceLevel.IsNull() {
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ResultCodeCriteria.IsUnknown() || model.ResultCodeCriteria.IsNull() {
+		model.ResultCodeCriteria = types.StringValue("")
+	}
+	if model.ReferralReturned.IsUnknown() || model.ReferralReturned.IsNull() {
+		model.ReferralReturned = types.StringValue("")
+	}
+	if model.SearchIndexedCriteria.IsUnknown() || model.SearchIndexedCriteria.IsNull() {
+		model.SearchIndexedCriteria = types.StringValue("")
+	}
+	if model.AssuranceTimeoutValue.IsUnknown() || model.AssuranceTimeoutValue.IsNull() {
+		model.AssuranceTimeoutValue = types.StringValue("")
+	}
+	if model.QueueTimeCriteria.IsUnknown() || model.QueueTimeCriteria.IsNull() {
+		model.QueueTimeCriteria = types.StringValue("")
+	}
+	if model.UsedAlternateAuthzid.IsUnknown() || model.UsedAlternateAuthzid.IsNull() {
+		model.UsedAlternateAuthzid = types.StringValue("")
+	}
+	if model.AssuranceBehaviorAlteredByControl.IsUnknown() || model.AssuranceBehaviorAlteredByControl.IsNull() {
+		model.AssuranceBehaviorAlteredByControl = types.StringValue("")
+	}
+	if model.ProcessingTimeValue.IsUnknown() || model.ProcessingTimeValue.IsNull() {
+		model.ProcessingTimeValue = types.StringValue("")
+	}
+	if model.QueueTimeValue.IsUnknown() || model.QueueTimeValue.IsNull() {
+		model.QueueTimeValue = types.StringValue("")
+	}
+	if model.SearchEntryReturnedCriteria.IsUnknown() || model.SearchEntryReturnedCriteria.IsNull() {
+		model.SearchEntryReturnedCriteria = types.StringValue("")
+	}
+	if model.AssuranceTimeoutCriteria.IsUnknown() || model.AssuranceTimeoutCriteria.IsNull() {
+		model.AssuranceTimeoutCriteria = types.StringValue("")
+	}
+	if model.ProcessingTimeCriteria.IsUnknown() || model.ProcessingTimeCriteria.IsNull() {
+		model.ProcessingTimeCriteria = types.StringValue("")
+	}
+	if model.SearchReferenceReturnedCriteria.IsUnknown() || model.SearchReferenceReturnedCriteria.IsNull() {
+		model.SearchReferenceReturnedCriteria = types.StringValue("")
+	}
+	if model.UsedAnyPrivilege.IsUnknown() || model.UsedAnyPrivilege.IsNull() {
+		model.UsedAnyPrivilege = types.StringValue("")
+	}
+	if model.AssuranceSatisfied.IsUnknown() || model.AssuranceSatisfied.IsNull() {
+		model.AssuranceSatisfied = types.StringValue("")
+	}
+	if model.RetiredPasswordUsedForBind.IsUnknown() || model.RetiredPasswordUsedForBind.IsNull() {
+		model.RetiredPasswordUsedForBind = types.StringValue("")
+	}
+	if model.MissingAnyPrivilege.IsUnknown() || model.MissingAnyPrivilege.IsNull() {
+		model.MissingAnyPrivilege = types.StringValue("")
+	}
+	if model.ResponseDelayedByAssurance.IsUnknown() || model.ResponseDelayedByAssurance.IsNull() {
+		model.ResponseDelayedByAssurance = types.StringValue("")
 	}
 }
 

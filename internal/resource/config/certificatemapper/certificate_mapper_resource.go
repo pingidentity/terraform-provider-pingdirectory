@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -361,17 +362,23 @@ func addOptionalThirdPartyCertificateMapperFields(ctx context.Context, addReques
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateCertificateMapperUnknownValues(ctx context.Context, model *certificateMapperResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SubjectAttributeMapping.ElementType(ctx) == nil {
-		model.SubjectAttributeMapping = types.SetNull(types.StringType)
+	if model.SubjectAttributeMapping.IsUnknown() || model.SubjectAttributeMapping.IsNull() {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserBaseDN.ElementType(ctx) == nil {
-		model.UserBaseDN = types.SetNull(types.StringType)
+	if model.UserBaseDN.IsUnknown() || model.UserBaseDN.IsNull() {
+		model.UserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.SubjectAttribute.IsUnknown() || model.SubjectAttribute.IsNull() {
+		model.SubjectAttribute = types.StringValue("")
+	}
+	if model.FingerprintAttribute.IsUnknown() || model.FingerprintAttribute.IsNull() {
+		model.FingerprintAttribute = types.StringValue("")
 	}
 }
 

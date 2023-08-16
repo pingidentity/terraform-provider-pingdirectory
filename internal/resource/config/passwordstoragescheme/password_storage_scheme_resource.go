@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -696,8 +697,14 @@ func addOptionalScryptPasswordStorageSchemeFields(ctx context.Context, addReques
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePasswordStorageSchemeUnknownValues(ctx context.Context, model *passwordStorageSchemeResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.PasswordEncodingMechanism.IsUnknown() || model.PasswordEncodingMechanism.IsNull() {
+		model.PasswordEncodingMechanism = types.StringValue("")
+	}
+	if model.DigestAlgorithm.IsUnknown() || model.DigestAlgorithm.IsNull() {
+		model.DigestAlgorithm = types.StringValue("")
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -409,21 +410,45 @@ func addOptionalThirdPartyMonitorProviderFields(ctx context.Context, addRequest 
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateMonitorProviderUnknownValues(ctx context.Context, model *monitorProviderResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CheckFrequency.IsUnknown() || model.CheckFrequency.IsNull() {
+		model.CheckFrequency = types.StringValue("")
+	}
+	if model.ProlongedOutageBehavior.IsUnknown() || model.ProlongedOutageBehavior.IsNull() {
+		model.ProlongedOutageBehavior = types.StringValue("")
+	}
+	if model.ProlongedOutageDuration.IsUnknown() || model.ProlongedOutageDuration.IsNull() {
+		model.ProlongedOutageDuration = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateMonitorProviderUnknownValuesDefault(ctx context.Context, model *defaultMonitorProviderResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DiskDevices.ElementType(ctx) == nil {
-		model.DiskDevices = types.SetNull(types.StringType)
+	if model.DiskDevices.IsUnknown() || model.DiskDevices.IsNull() {
+		model.DiskDevices, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NetworkDevices.ElementType(ctx) == nil {
-		model.NetworkDevices = types.SetNull(types.StringType)
+	if model.NetworkDevices.IsUnknown() || model.NetworkDevices.IsNull() {
+		model.NetworkDevices, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CheckFrequency.IsUnknown() || model.CheckFrequency.IsNull() {
+		model.CheckFrequency = types.StringValue("")
+	}
+	if model.AlertFrequency.IsUnknown() || model.AlertFrequency.IsNull() {
+		model.AlertFrequency = types.StringValue("")
+	}
+	if model.ProlongedOutageBehavior.IsUnknown() || model.ProlongedOutageBehavior.IsNull() {
+		model.ProlongedOutageBehavior = types.StringValue("")
+	}
+	if model.ProlongedOutageDuration.IsUnknown() || model.ProlongedOutageDuration.IsNull() {
+		model.ProlongedOutageDuration = types.StringValue("")
+	}
+	if model.SystemUtilizationMonitorLogDirectory.IsUnknown() || model.SystemUtilizationMonitorLogDirectory.IsNull() {
+		model.SystemUtilizationMonitorLogDirectory = types.StringValue("")
 	}
 }
 

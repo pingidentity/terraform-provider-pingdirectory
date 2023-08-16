@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -223,8 +224,8 @@ func addOptionalSizeLimitLogRotationPolicyFields(ctx context.Context, addRequest
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateLogRotationPolicyUnknownValues(ctx context.Context, model *logRotationPolicyResourceModel) {
-	if model.TimeOfDay.ElementType(ctx) == nil {
-		model.TimeOfDay = types.SetNull(types.StringType)
+	if model.TimeOfDay.IsUnknown() || model.TimeOfDay.IsNull() {
+		model.TimeOfDay, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

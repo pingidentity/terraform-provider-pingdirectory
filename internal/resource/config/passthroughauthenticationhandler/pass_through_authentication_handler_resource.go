@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -710,26 +711,35 @@ func addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx context.Con
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SubordinatePassThroughAuthenticationHandler.ElementType(ctx) == nil {
-		model.SubordinatePassThroughAuthenticationHandler = types.SetNull(types.StringType)
+	if model.SubordinatePassThroughAuthenticationHandler.IsUnknown() || model.SubordinatePassThroughAuthenticationHandler.IsNull() {
+		model.SubordinatePassThroughAuthenticationHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ContinueOnFailureType.ElementType(ctx) == nil {
-		model.ContinueOnFailureType = types.SetNull(types.StringType)
+	if model.ContinueOnFailureType.IsUnknown() || model.ContinueOnFailureType.IsNull() {
+		model.ContinueOnFailureType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MaximumAllowedNonlocalResponseTime.IsUnknown() || model.MaximumAllowedNonlocalResponseTime.IsNull() {
+		model.MaximumAllowedNonlocalResponseTime = types.StringValue("")
+	}
+	if model.MaximumAllowedLocalResponseTime.IsUnknown() || model.MaximumAllowedLocalResponseTime.IsNull() {
+		model.MaximumAllowedLocalResponseTime = types.StringValue("")
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
 	}
 	if model.OAuthClientSecret.IsUnknown() {
 		model.OAuthClientSecret = types.StringNull()

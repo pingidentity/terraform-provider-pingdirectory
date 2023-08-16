@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -5786,77 +5787,122 @@ func addOptionalGroovyScriptedHttpOperationLogPublisherFields(ctx context.Contex
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateLogPublisherUnknownValues(ctx context.Context, model *logPublisherResourceModel) {
-	if model.IdTokenValidatorMessageType.ElementType(ctx) == nil {
-		model.IdTokenValidatorMessageType = types.SetNull(types.StringType)
+	if model.IdTokenValidatorMessageType.IsUnknown() || model.IdTokenValidatorMessageType.IsNull() {
+		model.IdTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedResponseHeaderName.ElementType(ctx) == nil {
-		model.SuppressedResponseHeaderName = types.SetNull(types.StringType)
+	if model.SuppressedResponseHeaderName.IsUnknown() || model.SuppressedResponseHeaderName.IsNull() {
+		model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultDebugCategory.ElementType(ctx) == nil {
-		model.DefaultDebugCategory = types.SetNull(types.StringType)
+	if model.DefaultDebugCategory.IsUnknown() || model.DefaultDebugCategory.IsNull() {
+		model.DefaultDebugCategory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScimMessageType.ElementType(ctx) == nil {
-		model.ScimMessageType = types.SetNull(types.StringType)
+	if model.ScimMessageType.IsUnknown() || model.ScimMessageType.IsNull() {
+		model.ScimMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedRequestHeaderName.ElementType(ctx) == nil {
-		model.SuppressedRequestHeaderName = types.SetNull(types.StringType)
+	if model.SuppressedRequestHeaderName.IsUnknown() || model.SuppressedRequestHeaderName.IsNull() {
+		model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludePathPattern.ElementType(ctx) == nil {
-		model.IncludePathPattern = types.SetNull(types.StringType)
+	if model.IncludePathPattern.IsUnknown() || model.IncludePathPattern.IsNull() {
+		model.IncludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeAttribute.ElementType(ctx) == nil {
-		model.ExcludeAttribute = types.SetNull(types.StringType)
+	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
+		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpMessageType.ElementType(ctx) == nil {
-		model.HttpMessageType = types.SetNull(types.StringType)
+	if model.HttpMessageType.IsUnknown() || model.HttpMessageType.IsNull() {
+		model.HttpMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultSeverity.ElementType(ctx) == nil {
-		model.DefaultSeverity = types.SetNull(types.StringType)
+	if model.DefaultSeverity.IsUnknown() || model.DefaultSeverity.IsNull() {
+		model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludePathPattern.ElementType(ctx) == nil {
-		model.ExcludePathPattern = types.SetNull(types.StringType)
+	if model.ExcludePathPattern.IsUnknown() || model.ExcludePathPattern.IsNull() {
+		model.ExcludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidatorMessageType.ElementType(ctx) == nil {
-		model.AccessTokenValidatorMessageType = types.SetNull(types.StringType)
+	if model.AccessTokenValidatorMessageType.IsUnknown() || model.AccessTokenValidatorMessageType.IsNull() {
+		model.AccessTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionMessageType.ElementType(ctx) == nil {
-		model.ExtensionMessageType = types.SetNull(types.StringType)
+	if model.ExtensionMessageType.IsUnknown() || model.ExtensionMessageType.IsNull() {
+		model.ExtensionMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedRequestParameterName.ElementType(ctx) == nil {
-		model.SuppressedRequestParameterName = types.SetNull(types.StringType)
+	if model.SuppressedRequestParameterName.IsUnknown() || model.SuppressedRequestParameterName.IsNull() {
+		model.SuppressedRequestParameterName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ConsentMessageType.ElementType(ctx) == nil {
-		model.ConsentMessageType = types.SetNull(types.StringType)
+	if model.ConsentMessageType.IsUnknown() || model.ConsentMessageType.IsNull() {
+		model.ConsentMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OverrideSeverity.ElementType(ctx) == nil {
-		model.OverrideSeverity = types.SetNull(types.StringType)
+	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
+		model.OverrideSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DirectoryRESTAPIMessageType.ElementType(ctx) == nil {
-		model.DirectoryRESTAPIMessageType = types.SetNull(types.StringType)
+	if model.DirectoryRESTAPIMessageType.IsUnknown() || model.DirectoryRESTAPIMessageType.IsNull() {
+		model.DirectoryRESTAPIMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ObscureAttribute.ElementType(ctx) == nil {
-		model.ObscureAttribute = types.SetNull(types.StringType)
+	if model.ObscureAttribute.IsUnknown() || model.ObscureAttribute.IsNull() {
+		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SyslogExternalServer.ElementType(ctx) == nil {
-		model.SyslogExternalServer = types.SetNull(types.StringType)
+	if model.SyslogExternalServer.IsUnknown() || model.SyslogExternalServer.IsNull() {
+		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugMessageType.ElementType(ctx) == nil {
-		model.DebugMessageType = types.SetNull(types.StringType)
+	if model.DebugMessageType.IsUnknown() || model.DebugMessageType.IsNull() {
+		model.DebugMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.LogRequestParameters.IsUnknown() || model.LogRequestParameters.IsNull() {
+		model.LogRequestParameters = types.StringValue("")
+	}
+	if model.SyslogFacility.IsUnknown() || model.SyslogFacility.IsNull() {
+		model.SyslogFacility = types.StringValue("")
+	}
+	if model.SyslogSeverity.IsUnknown() || model.SyslogSeverity.IsNull() {
+		model.SyslogSeverity = types.StringValue("")
+	}
+	if model.TimeInterval.IsUnknown() || model.TimeInterval.IsNull() {
+		model.TimeInterval = types.StringValue("")
+	}
+	if model.SoftDeleteEntryAuditBehavior.IsUnknown() || model.SoftDeleteEntryAuditBehavior.IsNull() {
+		model.SoftDeleteEntryAuditBehavior = types.StringValue("")
+	}
+	if model.CompressionMechanism.IsUnknown() || model.CompressionMechanism.IsNull() {
+		model.CompressionMechanism = types.StringValue("")
+	}
+	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
+		model.OutputLocation = types.StringValue("")
+	}
+	if model.LogTableName.IsUnknown() || model.LogTableName.IsNull() {
+		model.LogTableName = types.StringValue("")
+	}
+	if model.BufferSize.IsUnknown() || model.BufferSize.IsNull() {
+		model.BufferSize = types.StringValue("")
+	}
+	if model.LogResponseHeaders.IsUnknown() || model.LogResponseHeaders.IsNull() {
+		model.LogResponseHeaders = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.DefaultDebugLevel.IsUnknown() || model.DefaultDebugLevel.IsNull() {
+		model.DefaultDebugLevel = types.StringValue("")
+	}
+	if model.TimestampPrecision.IsUnknown() || model.TimestampPrecision.IsNull() {
+		model.TimestampPrecision = types.StringValue("")
+	}
+	if model.LogRequestHeaders.IsUnknown() || model.LogRequestHeaders.IsNull() {
+		model.LogRequestHeaders = types.StringValue("")
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -3404,101 +3405,200 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCDayOfWeek.ElementType(ctx) == nil {
-		model.InvokeGCDayOfWeek = types.SetNull(types.StringType)
+	if model.InvokeGCDayOfWeek.IsUnknown() || model.InvokeGCDayOfWeek.IsNull() {
+		model.InvokeGCDayOfWeek, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IgnoredPasswordPolicyStateErrorCondition.ElementType(ctx) == nil {
-		model.IgnoredPasswordPolicyStateErrorCondition = types.SetNull(types.StringType)
+	if model.IgnoredPasswordPolicyStateErrorCondition.IsUnknown() || model.IgnoredPasswordPolicyStateErrorCondition.IsNull() {
+		model.IgnoredPasswordPolicyStateErrorCondition, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPApplication.ElementType(ctx) == nil {
-		model.IncludedLDAPApplication = types.SetNull(types.StringType)
+	if model.IncludedLDAPApplication.IsUnknown() || model.IncludedLDAPApplication.IsNull() {
+		model.IncludedLDAPApplication, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLocalEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedLocalEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedLocalEntryBaseDN.IsUnknown() || model.IncludedLocalEntryBaseDN.IsNull() {
+		model.IncludedLocalEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferralBaseURL.ElementType(ctx) == nil {
-		model.ReferralBaseURL = types.SetNull(types.StringType)
+	if model.ReferralBaseURL.IsUnknown() || model.ReferralBaseURL.IsNull() {
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeFilter.ElementType(ctx) == nil {
-		model.ExcludeFilter = types.SetNull(types.StringType)
+	if model.ExcludeFilter.IsUnknown() || model.ExcludeFilter.IsNull() {
+		model.ExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttribute.ElementType(ctx) == nil {
-		model.IncludeAttribute = types.SetNull(types.StringType)
+	if model.IncludeAttribute.IsUnknown() || model.IncludeAttribute.IsNull() {
+		model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AttributeType.ElementType(ctx) == nil {
-		model.AttributeType = types.SetNull(types.StringType)
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPStat.ElementType(ctx) == nil {
-		model.IncludedLDAPStat = types.SetNull(types.StringType)
+	if model.IncludedLDAPStat.IsUnknown() || model.IncludedLDAPStat.IsNull() {
+		model.IncludedLDAPStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedResourceStat.ElementType(ctx) == nil {
-		model.IncludedResourceStat = types.SetNull(types.StringType)
+	if model.IncludedResourceStat.IsUnknown() || model.IncludedResourceStat.IsNull() {
+		model.IncludedResourceStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeBaseDN.ElementType(ctx) == nil {
-		model.IncludeBaseDN = types.SetNull(types.StringType)
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedRequestControl.ElementType(ctx) == nil {
-		model.AllowedRequestControl = types.SetNull(types.StringType)
+	if model.AllowedRequestControl.IsUnknown() || model.AllowedRequestControl.IsNull() {
+		model.AllowedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
-		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
+	if model.InvokeGCTimeUtc.IsUnknown() || model.InvokeGCTimeUtc.IsNull() {
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PluginType.ElementType(ctx) == nil {
-		model.PluginType = types.SetNull(types.StringType)
+	if model.PluginType.IsUnknown() || model.PluginType.IsNull() {
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramOpType.ElementType(ctx) == nil {
-		model.HistogramOpType = types.SetNull(types.StringType)
+	if model.HistogramOpType.IsUnknown() || model.HistogramOpType.IsNull() {
+		model.HistogramOpType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MapAttribute.ElementType(ctx) == nil {
-		model.MapAttribute = types.SetNull(types.StringType)
+	if model.MapAttribute.IsUnknown() || model.MapAttribute.IsNull() {
+		model.MapAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Type.ElementType(ctx) == nil {
-		model.Type = types.SetNull(types.StringType)
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBaseDN.ElementType(ctx) == nil {
-		model.ExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeBaseDN.IsUnknown() || model.ExcludeBaseDN.IsNull() {
+		model.ExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HostInfo.ElementType(ctx) == nil {
-		model.HostInfo = types.SetNull(types.StringType)
+	if model.HostInfo.IsUnknown() || model.HostInfo.IsNull() {
+		model.HostInfo, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
+	}
+	if model.ConnectRetryMaxWait.IsUnknown() || model.ConnectRetryMaxWait.IsNull() {
+		model.ConnectRetryMaxWait = types.StringValue("")
+	}
+	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
+		model.StatusSummaryInfo = types.StringValue("")
+	}
+	if model.HistogramFormat.IsUnknown() || model.HistogramFormat.IsNull() {
+		model.HistogramFormat = types.StringValue("")
+	}
+	if model.PerApplicationLDAPStats.IsUnknown() || model.PerApplicationLDAPStats.IsNull() {
+		model.PerApplicationLDAPStats = types.StringValue("")
+	}
+	if model.UpdateTargetAttributeBehavior.IsUnknown() || model.UpdateTargetAttributeBehavior.IsNull() {
+		model.UpdateTargetAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.EntryCacheInfo.IsUnknown() || model.EntryCacheInfo.IsNull() {
+		model.EntryCacheInfo = types.StringValue("")
+	}
+	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
+		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.SessionTimeout.IsUnknown() || model.SessionTimeout.IsNull() {
+		model.SessionTimeout = types.StringValue("")
+	}
+	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
+		model.MultipleValuePatternBehavior = types.StringValue("")
+	}
+	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
+		model.GaugeInfo = types.StringValue("")
+	}
+	if model.CollectionInterval.IsUnknown() || model.CollectionInterval.IsNull() {
+		model.CollectionInterval = types.StringValue("")
+	}
+	if model.LdapChangelogInfo.IsUnknown() || model.LdapChangelogInfo.IsNull() {
+		model.LdapChangelogInfo = types.StringValue("")
+	}
+	if model.LocalDBBackendInfo.IsUnknown() || model.LocalDBBackendInfo.IsNull() {
+		model.LocalDBBackendInfo = types.StringValue("")
+	}
+	if model.TargetAttributeExistsDuringInitialPopulationBehavior.IsUnknown() || model.TargetAttributeExistsDuringInitialPopulationBehavior.IsNull() {
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.MultipleAttributeBehavior.IsUnknown() || model.MultipleAttributeBehavior.IsNull() {
+		model.MultipleAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
+		model.LogFileFormat = types.StringValue("")
+	}
+	if model.AgentxAddress.IsUnknown() || model.AgentxAddress.IsNull() {
+		model.AgentxAddress = types.StringValue("")
+	}
+	if model.SourceAttributeRemovalBehavior.IsUnknown() || model.SourceAttributeRemovalBehavior.IsNull() {
+		model.SourceAttributeRemovalBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.LogInterval.IsUnknown() || model.LogInterval.IsNull() {
+		model.LogInterval = types.StringValue("")
+	}
+	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
+		model.DatetimeFormat = types.StringValue("")
+	}
+	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
+		model.MultiValuedAttributeBehavior = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.DelayAfterAlert.IsUnknown() || model.DelayAfterAlert.IsNull() {
+		model.DelayAfterAlert = types.StringValue("")
+	}
+	if model.DelayPostGC.IsUnknown() || model.DelayPostGC.IsNull() {
+		model.DelayPostGC = types.StringValue("")
+	}
+	if model.PingInterval.IsUnknown() || model.PingInterval.IsNull() {
+		model.PingInterval = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.ReplicationInfo.IsUnknown() || model.ReplicationInfo.IsNull() {
+		model.ReplicationInfo = types.StringValue("")
+	}
+	if model.PollingInterval.IsUnknown() || model.PollingInterval.IsNull() {
+		model.PollingInterval = types.StringValue("")
 	}
 	if model.OAuthClientSecret.IsUnknown() {
 		model.OAuthClientSecret = types.StringNull()
@@ -3507,116 +3607,224 @@ func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPluginResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCDayOfWeek.ElementType(ctx) == nil {
-		model.InvokeGCDayOfWeek = types.SetNull(types.StringType)
+	if model.InvokeGCDayOfWeek.IsUnknown() || model.InvokeGCDayOfWeek.IsNull() {
+		model.InvokeGCDayOfWeek, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IgnoredPasswordPolicyStateErrorCondition.ElementType(ctx) == nil {
-		model.IgnoredPasswordPolicyStateErrorCondition = types.SetNull(types.StringType)
+	if model.IgnoredPasswordPolicyStateErrorCondition.IsUnknown() || model.IgnoredPasswordPolicyStateErrorCondition.IsNull() {
+		model.IgnoredPasswordPolicyStateErrorCondition, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPApplication.ElementType(ctx) == nil {
-		model.IncludedLDAPApplication = types.SetNull(types.StringType)
+	if model.IncludedLDAPApplication.IsUnknown() || model.IncludedLDAPApplication.IsNull() {
+		model.IncludedLDAPApplication, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLocalEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedLocalEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedLocalEntryBaseDN.IsUnknown() || model.IncludedLocalEntryBaseDN.IsNull() {
+		model.IncludedLocalEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferralBaseURL.ElementType(ctx) == nil {
-		model.ReferralBaseURL = types.SetNull(types.StringType)
+	if model.ReferralBaseURL.IsUnknown() || model.ReferralBaseURL.IsNull() {
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeFilter.ElementType(ctx) == nil {
-		model.ExcludeFilter = types.SetNull(types.StringType)
+	if model.ExcludeFilter.IsUnknown() || model.ExcludeFilter.IsNull() {
+		model.ExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttribute.ElementType(ctx) == nil {
-		model.IncludeAttribute = types.SetNull(types.StringType)
+	if model.IncludeAttribute.IsUnknown() || model.IncludeAttribute.IsNull() {
+		model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultAuthPasswordStorageScheme.ElementType(ctx) == nil {
-		model.DefaultAuthPasswordStorageScheme = types.SetNull(types.StringType)
+	if model.DefaultAuthPasswordStorageScheme.IsUnknown() || model.DefaultAuthPasswordStorageScheme.IsNull() {
+		model.DefaultAuthPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramCategoryBoundary.ElementType(ctx) == nil {
-		model.HistogramCategoryBoundary = types.SetNull(types.StringType)
+	if model.HistogramCategoryBoundary.IsUnknown() || model.HistogramCategoryBoundary.IsNull() {
+		model.HistogramCategoryBoundary, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AttributeType.ElementType(ctx) == nil {
-		model.AttributeType = types.SetNull(types.StringType)
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPStat.ElementType(ctx) == nil {
-		model.IncludedLDAPStat = types.SetNull(types.StringType)
+	if model.IncludedLDAPStat.IsUnknown() || model.IncludedLDAPStat.IsNull() {
+		model.IncludedLDAPStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedResourceStat.ElementType(ctx) == nil {
-		model.IncludedResourceStat = types.SetNull(types.StringType)
+	if model.IncludedResourceStat.IsUnknown() || model.IncludedResourceStat.IsNull() {
+		model.IncludedResourceStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeBaseDN.ElementType(ctx) == nil {
-		model.IncludeBaseDN = types.SetNull(types.StringType)
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedRequestControl.ElementType(ctx) == nil {
-		model.AllowedRequestControl = types.SetNull(types.StringType)
+	if model.AllowedRequestControl.IsUnknown() || model.AllowedRequestControl.IsNull() {
+		model.AllowedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
-		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
+	if model.InvokeGCTimeUtc.IsUnknown() || model.InvokeGCTimeUtc.IsNull() {
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PluginType.ElementType(ctx) == nil {
-		model.PluginType = types.SetNull(types.StringType)
+	if model.PluginType.IsUnknown() || model.PluginType.IsNull() {
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramOpType.ElementType(ctx) == nil {
-		model.HistogramOpType = types.SetNull(types.StringType)
+	if model.HistogramOpType.IsUnknown() || model.HistogramOpType.IsNull() {
+		model.HistogramOpType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MapAttribute.ElementType(ctx) == nil {
-		model.MapAttribute = types.SetNull(types.StringType)
+	if model.MapAttribute.IsUnknown() || model.MapAttribute.IsNull() {
+		model.MapAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeAttribute.ElementType(ctx) == nil {
-		model.ExcludeAttribute = types.SetNull(types.StringType)
+	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
+		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Type.ElementType(ctx) == nil {
-		model.Type = types.SetNull(types.StringType)
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBaseDN.ElementType(ctx) == nil {
-		model.ExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeBaseDN.IsUnknown() || model.ExcludeBaseDN.IsNull() {
+		model.ExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultUserPasswordStorageScheme.ElementType(ctx) == nil {
-		model.DefaultUserPasswordStorageScheme = types.SetNull(types.StringType)
+	if model.DefaultUserPasswordStorageScheme.IsUnknown() || model.DefaultUserPasswordStorageScheme.IsNull() {
+		model.DefaultUserPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationType.ElementType(ctx) == nil {
-		model.OperationType = types.SetNull(types.StringType)
+	if model.OperationType.IsUnknown() || model.OperationType.IsNull() {
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HostInfo.ElementType(ctx) == nil {
-		model.HostInfo = types.SetNull(types.StringType)
+	if model.HostInfo.IsUnknown() || model.HostInfo.IsNull() {
+		model.HostInfo, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
+	}
+	if model.ConnectRetryMaxWait.IsUnknown() || model.ConnectRetryMaxWait.IsNull() {
+		model.ConnectRetryMaxWait = types.StringValue("")
+	}
+	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
+		model.StatusSummaryInfo = types.StringValue("")
+	}
+	if model.HistogramFormat.IsUnknown() || model.HistogramFormat.IsNull() {
+		model.HistogramFormat = types.StringValue("")
+	}
+	if model.PerApplicationLDAPStats.IsUnknown() || model.PerApplicationLDAPStats.IsNull() {
+		model.PerApplicationLDAPStats = types.StringValue("")
+	}
+	if model.UpdateTargetAttributeBehavior.IsUnknown() || model.UpdateTargetAttributeBehavior.IsNull() {
+		model.UpdateTargetAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.EntryCacheInfo.IsUnknown() || model.EntryCacheInfo.IsNull() {
+		model.EntryCacheInfo = types.StringValue("")
+	}
+	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
+		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.SessionTimeout.IsUnknown() || model.SessionTimeout.IsNull() {
+		model.SessionTimeout = types.StringValue("")
+	}
+	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
+		model.MultipleValuePatternBehavior = types.StringValue("")
+	}
+	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
+		model.GaugeInfo = types.StringValue("")
+	}
+	if model.CollectionInterval.IsUnknown() || model.CollectionInterval.IsNull() {
+		model.CollectionInterval = types.StringValue("")
+	}
+	if model.LdapChangelogInfo.IsUnknown() || model.LdapChangelogInfo.IsNull() {
+		model.LdapChangelogInfo = types.StringValue("")
+	}
+	if model.LocalDBBackendInfo.IsUnknown() || model.LocalDBBackendInfo.IsNull() {
+		model.LocalDBBackendInfo = types.StringValue("")
+	}
+	if model.TargetAttributeExistsDuringInitialPopulationBehavior.IsUnknown() || model.TargetAttributeExistsDuringInitialPopulationBehavior.IsNull() {
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.MultipleAttributeBehavior.IsUnknown() || model.MultipleAttributeBehavior.IsNull() {
+		model.MultipleAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
+		model.LogFileFormat = types.StringValue("")
+	}
+	if model.AgentxAddress.IsUnknown() || model.AgentxAddress.IsNull() {
+		model.AgentxAddress = types.StringValue("")
+	}
+	if model.SourceAttributeRemovalBehavior.IsUnknown() || model.SourceAttributeRemovalBehavior.IsNull() {
+		model.SourceAttributeRemovalBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.LogInterval.IsUnknown() || model.LogInterval.IsNull() {
+		model.LogInterval = types.StringValue("")
+	}
+	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
+		model.DatetimeFormat = types.StringValue("")
+	}
+	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
+		model.MultiValuedAttributeBehavior = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.ProfileAction.IsUnknown() || model.ProfileAction.IsNull() {
+		model.ProfileAction = types.StringValue("")
+	}
+	if model.DelayAfterAlert.IsUnknown() || model.DelayAfterAlert.IsNull() {
+		model.DelayAfterAlert = types.StringValue("")
+	}
+	if model.DelayPostGC.IsUnknown() || model.DelayPostGC.IsNull() {
+		model.DelayPostGC = types.StringValue("")
+	}
+	if model.MaxUpdateFrequency.IsUnknown() || model.MaxUpdateFrequency.IsNull() {
+		model.MaxUpdateFrequency = types.StringValue("")
+	}
+	if model.PingInterval.IsUnknown() || model.PingInterval.IsNull() {
+		model.PingInterval = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.SampleInterval.IsUnknown() || model.SampleInterval.IsNull() {
+		model.SampleInterval = types.StringValue("")
+	}
+	if model.ReplicationInfo.IsUnknown() || model.ReplicationInfo.IsNull() {
+		model.ReplicationInfo = types.StringValue("")
+	}
+	if model.PollingInterval.IsUnknown() || model.PollingInterval.IsNull() {
+		model.PollingInterval = types.StringValue("")
 	}
 	if model.OAuthClientSecret.IsUnknown() {
 		model.OAuthClientSecret = types.StringNull()

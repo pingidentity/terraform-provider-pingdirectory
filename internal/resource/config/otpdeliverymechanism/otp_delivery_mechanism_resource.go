@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -475,11 +476,20 @@ func addOptionalThirdPartyOtpDeliveryMechanismFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateOtpDeliveryMechanismUnknownValues(ctx context.Context, model *otpDeliveryMechanismResourceModel) {
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.PhoneNumberAttributeType.IsUnknown() || model.PhoneNumberAttributeType.IsNull() {
+		model.PhoneNumberAttributeType = types.StringValue("")
+	}
+	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
+		model.EmailAddressAttributeType = types.StringValue("")
 	}
 	if model.TwilioAuthToken.IsUnknown() {
 		model.TwilioAuthToken = types.StringNull()

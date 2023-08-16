@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1823,41 +1824,59 @@ func addOptionalThirdPartyRecurringTaskFields(ctx context.Context, addRequest *c
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTaskResourceModel) {
-	if model.IncludedBackendID.ElementType(ctx) == nil {
-		model.IncludedBackendID = types.SetNull(types.StringType)
+	if model.IncludedBackendID.IsUnknown() || model.IncludedBackendID.IsNull() {
+		model.IncludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Backend.ElementType(ctx) == nil {
-		model.Backend = types.SetNull(types.StringType)
+	if model.Backend.IsUnknown() || model.Backend.IsNull() {
+		model.Backend, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludePath.ElementType(ctx) == nil {
-		model.IncludePath = types.SetNull(types.StringType)
+	if model.IncludePath.IsUnknown() || model.IncludePath.IsNull() {
+		model.IncludePath, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LdapURLForSearchExpectedToReturnEntries.ElementType(ctx) == nil {
-		model.LdapURLForSearchExpectedToReturnEntries = types.SetNull(types.StringType)
+	if model.LdapURLForSearchExpectedToReturnEntries.IsUnknown() || model.LdapURLForSearchExpectedToReturnEntries.IsNull() {
+		model.LdapURLForSearchExpectedToReturnEntries, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TaskAttributeValue.ElementType(ctx) == nil {
-		model.TaskAttributeValue = types.SetNull(types.StringType)
+	if model.TaskAttributeValue.IsUnknown() || model.TaskAttributeValue.IsNull() {
+		model.TaskAttributeValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BackendID.ElementType(ctx) == nil {
-		model.BackendID = types.SetNull(types.StringType)
+	if model.BackendID.IsUnknown() || model.BackendID.IsNull() {
+		model.BackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DataSecurityAuditor.ElementType(ctx) == nil {
-		model.DataSecurityAuditor = types.SetNull(types.StringType)
+	if model.DataSecurityAuditor.IsUnknown() || model.DataSecurityAuditor.IsNull() {
+		model.DataSecurityAuditor, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBackendID.ElementType(ctx) == nil {
-		model.ExcludeBackendID = types.SetNull(types.StringType)
+	if model.ExcludeBackendID.IsUnknown() || model.ExcludeBackendID.IsNull() {
+		model.ExcludeBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedBackendID.ElementType(ctx) == nil {
-		model.ExcludedBackendID = types.SetNull(types.StringType)
+	if model.ExcludedBackendID.IsUnknown() || model.ExcludedBackendID.IsNull() {
+		model.ExcludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TaskObjectClass.ElementType(ctx) == nil {
-		model.TaskObjectClass = types.SetNull(types.StringType)
+	if model.TaskObjectClass.IsUnknown() || model.TaskObjectClass.IsNull() {
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.BaseOutputDirectory.IsUnknown() || model.BaseOutputDirectory.IsNull() {
+		model.BaseOutputDirectory = types.StringValue("")
+	}
+	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
+		model.BackupDirectory = types.StringValue("")
+	}
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.SecurityLevel.IsUnknown() || model.SecurityLevel.IsNull() {
+		model.SecurityLevel = types.StringValue("")
+	}
+	if model.TaskCompletionStateForNonzeroExitCode.IsUnknown() || model.TaskCompletionStateForNonzeroExitCode.IsNull() {
+		model.TaskCompletionStateForNonzeroExitCode = types.StringValue("")
+	}
+	if model.TaskReturnStateIfTimeoutIsEncountered.IsUnknown() || model.TaskReturnStateIfTimeoutIsEncountered.IsNull() {
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("")
 	}
 }
 

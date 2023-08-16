@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1942,20 +1943,65 @@ func addOptionalVaultExternalServerFields(ctx context.Context, addRequest *clien
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateExternalServerUnknownValues(ctx context.Context, model *externalServerResourceModel) {
-	if model.VaultServerBaseURI.ElementType(ctx) == nil {
-		model.VaultServerBaseURI = types.SetNull(types.StringType)
+	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ConjurServerBaseURI.ElementType(ctx) == nil {
-		model.ConjurServerBaseURI = types.SetNull(types.StringType)
+	if model.ConjurServerBaseURI.IsUnknown() || model.ConjurServerBaseURI.IsNull() {
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefunctConnectionResultCode.ElementType(ctx) == nil {
-		model.DefunctConnectionResultCode = types.SetNull(types.StringType)
+	if model.DefunctConnectionResultCode.IsUnknown() || model.DefunctConnectionResultCode.IsNull() {
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SmtpConnectionProperties.ElementType(ctx) == nil {
-		model.SmtpConnectionProperties = types.SetNull(types.StringType)
+	if model.SmtpConnectionProperties.IsUnknown() || model.SmtpConnectionProperties.IsNull() {
+		model.SmtpConnectionProperties, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JdbcConnectionProperties.ElementType(ctx) == nil {
-		model.JdbcConnectionProperties = types.SetNull(types.StringType)
+	if model.JdbcConnectionProperties.IsUnknown() || model.JdbcConnectionProperties.IsNull() {
+		model.JdbcConnectionProperties, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ConnectTimeout.IsUnknown() || model.ConnectTimeout.IsNull() {
+		model.ConnectTimeout = types.StringValue("")
+	}
+	if model.MaxResponseSize.IsUnknown() || model.MaxResponseSize.IsNull() {
+		model.MaxResponseSize = types.StringValue("")
+	}
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.HostnameVerificationMethod.IsUnknown() || model.HostnameVerificationMethod.IsNull() {
+		model.HostnameVerificationMethod = types.StringValue("")
+	}
+	if model.ValidationQueryTimeout.IsUnknown() || model.ValidationQueryTimeout.IsNull() {
+		model.ValidationQueryTimeout = types.StringValue("")
+	}
+	if model.SmtpSecurity.IsUnknown() || model.SmtpSecurity.IsNull() {
+		model.SmtpSecurity = types.StringValue("")
+	}
+	if model.AuthenticationMethod.IsUnknown() || model.AuthenticationMethod.IsNull() {
+		model.AuthenticationMethod = types.StringValue("")
+	}
+	if model.VerifyCredentialsMethod.IsUnknown() || model.VerifyCredentialsMethod.IsNull() {
+		model.VerifyCredentialsMethod = types.StringValue("")
+	}
+	if model.TransactionIsolationLevel.IsUnknown() || model.TransactionIsolationLevel.IsNull() {
+		model.TransactionIsolationLevel = types.StringValue("")
+	}
+	if model.ConnectionSecurity.IsUnknown() || model.ConnectionSecurity.IsNull() {
+		model.ConnectionSecurity = types.StringValue("")
+	}
+	if model.ResponseTimeout.IsUnknown() || model.ResponseTimeout.IsNull() {
+		model.ResponseTimeout = types.StringValue("")
+	}
+	if model.SmtpTimeout.IsUnknown() || model.SmtpTimeout.IsNull() {
+		model.SmtpTimeout = types.StringValue("")
+	}
+	if model.MinExpiredConnectionDisconnectInterval.IsUnknown() || model.MinExpiredConnectionDisconnectInterval.IsNull() {
+		model.MinExpiredConnectionDisconnectInterval = types.StringValue("")
+	}
+	if model.MaxConnectionAge.IsUnknown() || model.MaxConnectionAge.IsNull() {
+		model.MaxConnectionAge = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()

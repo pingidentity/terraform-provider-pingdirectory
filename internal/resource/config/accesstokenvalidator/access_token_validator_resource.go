@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -605,20 +606,32 @@ func addOptionalThirdPartyAccessTokenValidatorFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *accessTokenValidatorResourceModel) {
-	if model.AllowedKeyEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedKeyEncryptionAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedKeyEncryptionAlgorithm.IsUnknown() || model.AllowedKeyEncryptionAlgorithm.IsNull() {
+		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SigningCertificate.ElementType(ctx) == nil {
-		model.SigningCertificate = types.SetNull(types.StringType)
+	if model.SigningCertificate.IsUnknown() || model.SigningCertificate.IsNull() {
+		model.SigningCertificate, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
-		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedSigningAlgorithm.IsUnknown() || model.AllowedSigningAlgorithm.IsNull() {
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedContentEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedContentEncryptionAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedContentEncryptionAlgorithm.IsUnknown() || model.AllowedContentEncryptionAlgorithm.IsNull() {
+		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
+		model.ClockSkewGracePeriod = types.StringValue("")
+	}
+	if model.EndpointCacheRefresh.IsUnknown() || model.EndpointCacheRefresh.IsNull() {
+		model.EndpointCacheRefresh = types.StringValue("")
+	}
+	if model.ClientIDClaimName.IsUnknown() || model.ClientIDClaimName.IsNull() {
+		model.ClientIDClaimName = types.StringValue("")
+	}
+	if model.ScopeClaimName.IsUnknown() || model.ScopeClaimName.IsNull() {
+		model.ScopeClaimName = types.StringValue("")
 	}
 	if model.ClientSecret.IsUnknown() {
 		model.ClientSecret = types.StringNull()

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -424,17 +425,26 @@ func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateServerInstanceUnknownValues(ctx context.Context, model *serverInstanceResourceModel) {
-	if model.ReplicationDomainServerID.ElementType(ctx) == nil {
-		model.ReplicationDomainServerID = types.SetNull(types.Int64Type)
+	if model.ReplicationDomainServerID.IsUnknown() || model.ReplicationDomainServerID.IsNull() {
+		model.ReplicationDomainServerID, _ = types.SetValue(types.Int64Type, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LoadBalancingAlgorithmName.ElementType(ctx) == nil {
-		model.LoadBalancingAlgorithmName = types.SetNull(types.StringType)
+	if model.LoadBalancingAlgorithmName.IsUnknown() || model.LoadBalancingAlgorithmName.IsNull() {
+		model.LoadBalancingAlgorithmName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MemberOfServerGroup.ElementType(ctx) == nil {
-		model.MemberOfServerGroup = types.SetNull(types.StringType)
+	if model.MemberOfServerGroup.IsUnknown() || model.MemberOfServerGroup.IsNull() {
+		model.MemberOfServerGroup, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.PreferredSecurity.IsUnknown() || model.PreferredSecurity.IsNull() {
+		model.PreferredSecurity = types.StringValue("")
+	}
+	if model.ServerInstanceType.IsUnknown() || model.ServerInstanceType.IsNull() {
+		model.ServerInstanceType = types.StringValue("")
+	}
+	if model.ClusterName.IsUnknown() || model.ClusterName.IsNull() {
+		model.ClusterName = types.StringValue("")
 	}
 }
 

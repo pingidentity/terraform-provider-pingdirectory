@@ -400,6 +400,9 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, model *defaultWebApplicationExtensionResourceModel) {
+	if model.Complexity.IsUnknown() || model.Complexity.IsNull() {
+		model.Complexity = types.StringValue("")
+	}
 	if model.OidcClientSecret.IsUnknown() {
 		model.OidcClientSecret = types.StringNull()
 	}

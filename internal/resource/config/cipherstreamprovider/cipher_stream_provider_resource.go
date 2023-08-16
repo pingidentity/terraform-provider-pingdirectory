@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -848,11 +849,26 @@ func addOptionalThirdPartyCipherStreamProviderFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateCipherStreamProviderUnknownValues(ctx context.Context, model *cipherStreamProviderResourceModel) {
-	if model.VaultServerBaseURI.ElementType(ctx) == nil {
-		model.VaultServerBaseURI = types.SetNull(types.StringType)
+	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.VaultEncryptionMetadataFile.IsUnknown() || model.VaultEncryptionMetadataFile.IsNull() {
+		model.VaultEncryptionMetadataFile = types.StringValue("")
+	}
+	if model.EncryptedPassphraseFile.IsUnknown() || model.EncryptedPassphraseFile.IsNull() {
+		model.EncryptedPassphraseFile = types.StringValue("")
+	}
+	if model.EncryptionMetadataFile.IsUnknown() || model.EncryptionMetadataFile.IsNull() {
+		model.EncryptionMetadataFile = types.StringValue("")
+	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 	if model.AwsSecretAccessKey.IsUnknown() {
 		model.AwsSecretAccessKey = types.StringNull()

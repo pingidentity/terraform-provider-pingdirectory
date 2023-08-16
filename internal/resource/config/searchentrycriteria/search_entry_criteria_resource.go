@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -584,62 +585,62 @@ func addOptionalThirdPartySearchEntryCriteriaFields(ctx context.Context, addRequ
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *searchEntryCriteriaResourceModel) {
-	if model.AllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedEntryGroupDN.IsUnknown() || model.AllIncludedEntryGroupDN.IsNull() {
+		model.AllIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedEntryBaseDN.ElementType(ctx) == nil {
-		model.ExcludedEntryBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedEntryBaseDN.IsUnknown() || model.ExcludedEntryBaseDN.IsNull() {
+		model.ExcludedEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedSearchEntryCriteria.IsUnknown() || model.AnyIncludedSearchEntryCriteria.IsNull() {
+		model.AnyIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AnyIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryFilter.IsUnknown() || model.AnyIncludedEntryFilter.IsNull() {
+		model.AnyIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedEntryControl.ElementType(ctx) == nil {
-		model.AllIncludedEntryControl = types.SetNull(types.StringType)
+	if model.AllIncludedEntryControl.IsUnknown() || model.AllIncludedEntryControl.IsNull() {
+		model.AllIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedEntryBaseDN.IsUnknown() || model.IncludedEntryBaseDN.IsNull() {
+		model.IncludedEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedSearchEntryCriteria.IsUnknown() || model.NoneIncludedSearchEntryCriteria.IsNull() {
+		model.NoneIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryControl.ElementType(ctx) == nil {
-		model.AnyIncludedEntryControl = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryControl.IsUnknown() || model.AnyIncludedEntryControl.IsNull() {
+		model.AnyIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedSearchEntryCriteria.IsUnknown() || model.AllIncludedSearchEntryCriteria.IsNull() {
+		model.AllIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AllIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.AllIncludedEntryFilter.IsUnknown() || model.AllIncludedEntryFilter.IsNull() {
+		model.AllIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NoneIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryFilter.IsUnknown() || model.NoneIncludedEntryFilter.IsNull() {
+		model.NoneIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryControl.ElementType(ctx) == nil {
-		model.NoneIncludedEntryControl = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryControl.IsUnknown() || model.NoneIncludedEntryControl.IsNull() {
+		model.NoneIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryGroupDN.IsUnknown() || model.NotAllIncludedEntryGroupDN.IsNull() {
+		model.NotAllIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryControl.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryControl.IsUnknown() || model.NotAllIncludedEntryControl.IsNull() {
+		model.NotAllIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryFilter.IsUnknown() || model.NotAllIncludedEntryFilter.IsNull() {
+		model.NotAllIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryGroupDN.IsUnknown() || model.AnyIncludedEntryGroupDN.IsNull() {
+		model.AnyIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedSearchEntryCriteria.IsUnknown() || model.NotAllIncludedSearchEntryCriteria.IsNull() {
+		model.NotAllIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryGroupDN.IsUnknown() || model.NoneIncludedEntryGroupDN.IsNull() {
+		model.NoneIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

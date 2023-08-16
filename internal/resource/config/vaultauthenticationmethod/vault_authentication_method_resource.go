@@ -255,6 +255,9 @@ func addOptionalUserPassVaultAuthenticationMethodFields(ctx context.Context, add
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateVaultAuthenticationMethodUnknownValues(ctx context.Context, model *vaultAuthenticationMethodResourceModel) {
+	if model.LoginMechanismName.IsUnknown() || model.LoginMechanismName.IsNull() {
+		model.LoginMechanismName = types.StringValue("")
+	}
 	if model.VaultAccessToken.IsUnknown() {
 		model.VaultAccessToken = types.StringNull()
 	}

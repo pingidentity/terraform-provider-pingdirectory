@@ -341,6 +341,16 @@ func addOptionalNumericGaugeDataSourceFields(ctx context.Context, addRequest *cl
 	return nil
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateGaugeDataSourceUnknownValues(ctx context.Context, model *gaugeDataSourceResourceModel) {
+	if model.StatisticType.IsUnknown() || model.StatisticType.IsNull() {
+		model.StatisticType = types.StringValue("")
+	}
+	if model.DataOrientation.IsUnknown() || model.DataOrientation.IsNull() {
+		model.DataOrientation = types.StringValue("")
+	}
+}
+
 // Read a IndicatorGaugeDataSourceResponse object into the model struct
 func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.IndicatorGaugeDataSourceResponse, state *gaugeDataSourceResourceModel, expectedValues *gaugeDataSourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
@@ -357,6 +367,7 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateGaugeDataSourceUnknownValues(ctx, state)
 }
 
 // Read a NumericGaugeDataSourceResponse object into the model struct
@@ -381,6 +392,7 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateGaugeDataSourceUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

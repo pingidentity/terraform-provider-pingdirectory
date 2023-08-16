@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -387,11 +388,11 @@ func addOptionalLdapMappingScimResourceTypeFields(ctx context.Context, addReques
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateScimResourceTypeUnknownValues(ctx context.Context, model *scimResourceTypeResourceModel) {
-	if model.RequiredSchemaExtension.ElementType(ctx) == nil {
-		model.RequiredSchemaExtension = types.SetNull(types.StringType)
+	if model.RequiredSchemaExtension.IsUnknown() || model.RequiredSchemaExtension.IsNull() {
+		model.RequiredSchemaExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OptionalSchemaExtension.ElementType(ctx) == nil {
-		model.OptionalSchemaExtension = types.SetNull(types.StringType)
+	if model.OptionalSchemaExtension.IsUnknown() || model.OptionalSchemaExtension.IsNull() {
+		model.OptionalSchemaExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

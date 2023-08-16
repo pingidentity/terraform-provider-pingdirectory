@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -837,89 +838,95 @@ func addOptionalThirdPartyConnectionCriteriaFields(ctx context.Context, addReque
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connectionCriteriaResourceModel) {
-	if model.ExcludedClientAddress.ElementType(ctx) == nil {
-		model.ExcludedClientAddress = types.SetNull(types.StringType)
+	if model.ExcludedClientAddress.IsUnknown() || model.ExcludedClientAddress.IsNull() {
+		model.ExcludedClientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedClientAddress.ElementType(ctx) == nil {
-		model.IncludedClientAddress = types.SetNull(types.StringType)
+	if model.IncludedClientAddress.IsUnknown() || model.IncludedClientAddress.IsNull() {
+		model.IncludedClientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.AllIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.AllIncludedUserPrivilege.IsUnknown() || model.AllIncludedUserPrivilege.IsNull() {
+		model.AllIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedUserFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserFilter.IsUnknown() || model.NotAllIncludedUserFilter.IsNull() {
+		model.NotAllIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedUserGroupDN.IsUnknown() || model.AllIncludedUserGroupDN.IsNull() {
+		model.AllIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserSASLMechanism.ElementType(ctx) == nil {
-		model.ExcludedUserSASLMechanism = types.SetNull(types.StringType)
+	if model.ExcludedUserSASLMechanism.IsUnknown() || model.ExcludedUserSASLMechanism.IsNull() {
+		model.ExcludedUserSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedConnectionCriteria.IsUnknown() || model.AnyIncludedConnectionCriteria.IsNull() {
+		model.AnyIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedConnectionHandler.ElementType(ctx) == nil {
-		model.ExcludedConnectionHandler = types.SetNull(types.StringType)
+	if model.ExcludedConnectionHandler.IsUnknown() || model.ExcludedConnectionHandler.IsNull() {
+		model.ExcludedConnectionHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedConnectionCriteria.IsUnknown() || model.NotAllIncludedConnectionCriteria.IsNull() {
+		model.NotAllIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserFilter.ElementType(ctx) == nil {
-		model.AllIncludedUserFilter = types.SetNull(types.StringType)
+	if model.AllIncludedUserFilter.IsUnknown() || model.AllIncludedUserFilter.IsNull() {
+		model.AllIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.NoneIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.NoneIncludedUserPrivilege.IsUnknown() || model.NoneIncludedUserPrivilege.IsNull() {
+		model.NoneIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.NotAllIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserPrivilege.IsUnknown() || model.NotAllIncludedUserPrivilege.IsNull() {
+		model.NotAllIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedUserBaseDN.IsUnknown() || model.ExcludedUserBaseDN.IsNull() {
+		model.ExcludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserGroupDN.IsUnknown() || model.NotAllIncludedUserGroupDN.IsNull() {
+		model.NotAllIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedProtocol.ElementType(ctx) == nil {
-		model.IncludedProtocol = types.SetNull(types.StringType)
+	if model.IncludedProtocol.IsUnknown() || model.IncludedProtocol.IsNull() {
+		model.IncludedProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.AnyIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.AnyIncludedUserPrivilege.IsUnknown() || model.AnyIncludedUserPrivilege.IsNull() {
+		model.AnyIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedUserGroupDN.IsUnknown() || model.AnyIncludedUserGroupDN.IsNull() {
+		model.AnyIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserAuthType.ElementType(ctx) == nil {
-		model.UserAuthType = types.SetNull(types.StringType)
+	if model.UserAuthType.IsUnknown() || model.UserAuthType.IsNull() {
+		model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserSASLMechanism.ElementType(ctx) == nil {
-		model.IncludedUserSASLMechanism = types.SetNull(types.StringType)
+	if model.IncludedUserSASLMechanism.IsUnknown() || model.IncludedUserSASLMechanism.IsNull() {
+		model.IncludedUserSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedConnectionHandler.ElementType(ctx) == nil {
-		model.IncludedConnectionHandler = types.SetNull(types.StringType)
+	if model.IncludedConnectionHandler.IsUnknown() || model.IncludedConnectionHandler.IsNull() {
+		model.IncludedConnectionHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedUserBaseDN.IsUnknown() || model.IncludedUserBaseDN.IsNull() {
+		model.IncludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserFilter.ElementType(ctx) == nil {
-		model.NoneIncludedUserFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedUserFilter.IsUnknown() || model.NoneIncludedUserFilter.IsNull() {
+		model.NoneIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.AllIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedConnectionCriteria.IsUnknown() || model.AllIncludedConnectionCriteria.IsNull() {
+		model.AllIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedProtocol.ElementType(ctx) == nil {
-		model.ExcludedProtocol = types.SetNull(types.StringType)
+	if model.ExcludedProtocol.IsUnknown() || model.ExcludedProtocol.IsNull() {
+		model.ExcludedProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserFilter.ElementType(ctx) == nil {
-		model.AnyIncludedUserFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedUserFilter.IsUnknown() || model.AnyIncludedUserFilter.IsNull() {
+		model.AnyIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedConnectionCriteria.IsUnknown() || model.NoneIncludedConnectionCriteria.IsNull() {
+		model.NoneIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedUserGroupDN.IsUnknown() || model.NoneIncludedUserGroupDN.IsNull() {
+		model.NoneIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CommunicationSecurityLevel.IsUnknown() || model.CommunicationSecurityLevel.IsNull() {
+		model.CommunicationSecurityLevel = types.StringValue("")
+	}
+	if model.AuthenticationSecurityLevel.IsUnknown() || model.AuthenticationSecurityLevel.IsNull() {
+		model.AuthenticationSecurityLevel = types.StringValue("")
 	}
 }
 

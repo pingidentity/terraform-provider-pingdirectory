@@ -180,6 +180,9 @@ func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Cont
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateInterServerAuthenticationInfoUnknownValues(ctx context.Context, model *interServerAuthenticationInfoResourceModel) {
+	if model.AuthenticationType.IsUnknown() || model.AuthenticationType.IsNull() {
+		model.AuthenticationType = types.StringValue("")
+	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
 	}

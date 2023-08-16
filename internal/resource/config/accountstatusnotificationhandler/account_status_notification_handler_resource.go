@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -858,26 +859,26 @@ func addOptionalThirdPartyAccountStatusNotificationHandlerFields(ctx context.Con
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, model *accountStatusNotificationHandlerResourceModel) {
-	if model.MessageTemplateFile.ElementType(ctx) == nil {
-		model.MessageTemplateFile = types.SetNull(types.StringType)
+	if model.MessageTemplateFile.IsUnknown() || model.MessageTemplateFile.IsNull() {
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MessageSubject.ElementType(ctx) == nil {
-		model.MessageSubject = types.SetNull(types.StringType)
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.EmailAddressAttributeType.ElementType(ctx) == nil {
-		model.EmailAddressAttributeType = types.SetNull(types.StringType)
+	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
+		model.EmailAddressAttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccountStatusNotificationType.ElementType(ctx) == nil {
-		model.AccountStatusNotificationType = types.SetNull(types.StringType)
+	if model.AccountStatusNotificationType.IsUnknown() || model.AccountStatusNotificationType.IsNull() {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

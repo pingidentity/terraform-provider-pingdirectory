@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1792,105 +1793,228 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateBackendUnknownValues(ctx context.Context, model *backendResourceModel) {
-	if model.JeProperty.ElementType(ctx) == nil {
-		model.JeProperty = types.SetNull(types.StringType)
+	if model.JeProperty.IsUnknown() || model.JeProperty.IsNull() {
+		model.JeProperty, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CompactCommonParentDN.ElementType(ctx) == nil {
-		model.CompactCommonParentDN = types.SetNull(types.StringType)
+	if model.CompactCommonParentDN.IsUnknown() || model.CompactCommonParentDN.IsNull() {
+		model.CompactCommonParentDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrimeInternalNodesOnly.ElementType(ctx) == nil {
-		model.SystemIndexToPrimeInternalNodesOnly = types.SetNull(types.StringType)
+	if model.SystemIndexToPrimeInternalNodesOnly.IsUnknown() || model.SystemIndexToPrimeInternalNodesOnly.IsNull() {
+		model.SystemIndexToPrimeInternalNodesOnly, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PrimeMethod.ElementType(ctx) == nil {
-		model.PrimeMethod = types.SetNull(types.StringType)
+	if model.PrimeMethod.IsUnknown() || model.PrimeMethod.IsNull() {
+		model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrime.ElementType(ctx) == nil {
-		model.SystemIndexToPrime = types.SetNull(types.StringType)
+	if model.SystemIndexToPrime.IsUnknown() || model.SystemIndexToPrime.IsNull() {
+		model.SystemIndexToPrime, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DbDirectory.IsUnknown() || model.DbDirectory.IsNull() {
+		model.DbDirectory = types.StringValue("")
+	}
+	if model.DbBackgroundSyncInterval.IsUnknown() || model.DbBackgroundSyncInterval.IsNull() {
+		model.DbBackgroundSyncInterval = types.StringValue("")
+	}
+	if model.PrimeTimeLimit.IsUnknown() || model.PrimeTimeLimit.IsNull() {
+		model.PrimeTimeLimit = types.StringValue("")
+	}
+	if model.SingleWriterLockBehavior.IsUnknown() || model.SingleWriterLockBehavior.IsNull() {
+		model.SingleWriterLockBehavior = types.StringValue("")
+	}
+	if model.DbCheckpointerWakeupInterval.IsUnknown() || model.DbCheckpointerWakeupInterval.IsNull() {
+		model.DbCheckpointerWakeupInterval = types.StringValue("")
+	}
+	if model.ExternalTxnDefaultBackendLockBehavior.IsUnknown() || model.ExternalTxnDefaultBackendLockBehavior.IsNull() {
+		model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("")
+	}
+	if model.DbDirectoryPermissions.IsUnknown() || model.DbDirectoryPermissions.IsNull() {
+		model.DbDirectoryPermissions = types.StringValue("")
+	}
+	if model.WritabilityMode.IsUnknown() || model.WritabilityMode.IsNull() {
+		model.WritabilityMode = types.StringValue("")
+	}
+	if model.DefaultCacheMode.IsUnknown() || model.DefaultCacheMode.IsNull() {
+		model.DefaultCacheMode = types.StringValue("")
+	}
+	if model.DbLogFileMax.IsUnknown() || model.DbLogFileMax.IsNull() {
+		model.DbLogFileMax = types.StringValue("")
+	}
+	if model.ImportTempDirectory.IsUnknown() || model.ImportTempDirectory.IsNull() {
+		model.ImportTempDirectory = types.StringValue("")
+	}
+	if model.UncachedId2entryCacheMode.IsUnknown() || model.UncachedId2entryCacheMode.IsNull() {
+		model.UncachedId2entryCacheMode = types.StringValue("")
+	}
+	if model.OfflineProcessDatabaseOpenTimeout.IsUnknown() || model.OfflineProcessDatabaseOpenTimeout.IsNull() {
+		model.OfflineProcessDatabaseOpenTimeout = types.StringValue("")
+	}
+	if model.DbLoggingLevel.IsUnknown() || model.DbLoggingLevel.IsNull() {
+		model.DbLoggingLevel = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBackendResourceModel) {
-	if model.InsignificantConfigArchiveBaseDN.ElementType(ctx) == nil {
-		model.InsignificantConfigArchiveBaseDN = types.SetNull(types.StringType)
+	if model.InsignificantConfigArchiveBaseDN.IsUnknown() || model.InsignificantConfigArchiveBaseDN.IsNull() {
+		model.InsignificantConfigArchiveBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryIncludeFilter.ElementType(ctx) == nil {
-		model.ChangelogEntryIncludeFilter = types.SetNull(types.StringType)
+	if model.ChangelogEntryIncludeFilter.IsUnknown() || model.ChangelogEntryIncludeFilter.IsNull() {
+		model.ChangelogEntryIncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeVirtualAttributes.ElementType(ctx) == nil {
-		model.IncludeVirtualAttributes = types.SetNull(types.StringType)
+	if model.IncludeVirtualAttributes.IsUnknown() || model.IncludeVirtualAttributes.IsNull() {
+		model.IncludeVirtualAttributes, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrime.ElementType(ctx) == nil {
-		model.SystemIndexToPrime = types.SetNull(types.StringType)
+	if model.SystemIndexToPrime.IsUnknown() || model.SystemIndexToPrime.IsNull() {
+		model.SystemIndexToPrime, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReadOnlySchemaFile.ElementType(ctx) == nil {
-		model.ReadOnlySchemaFile = types.SetNull(types.StringType)
+	if model.ReadOnlySchemaFile.IsUnknown() || model.ReadOnlySchemaFile.IsNull() {
+		model.ReadOnlySchemaFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryExcludeFilter.ElementType(ctx) == nil {
-		model.ChangelogEntryExcludeFilter = types.SetNull(types.StringType)
+	if model.ChangelogEntryExcludeFilter.IsUnknown() || model.ChangelogEntryExcludeFilter.IsNull() {
+		model.ChangelogEntryExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BackupDirectory.ElementType(ctx) == nil {
-		model.BackupDirectory = types.SetNull(types.StringType)
+	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
+		model.BackupDirectory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SchemaEntryDN.ElementType(ctx) == nil {
-		model.SchemaEntryDN = types.SetNull(types.StringType)
+	if model.SchemaEntryDN.IsUnknown() || model.SchemaEntryDN.IsNull() {
+		model.SchemaEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexExcludeAttribute.ElementType(ctx) == nil {
-		model.IndexExcludeAttribute = types.SetNull(types.StringType)
+	if model.IndexExcludeAttribute.IsUnknown() || model.IndexExcludeAttribute.IsNull() {
+		model.IndexExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogExcludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogExcludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogExcludeAttribute.IsUnknown() || model.ChangelogExcludeAttribute.IsNull() {
+		model.ChangelogExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogIncludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogIncludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogIncludeAttribute.IsUnknown() || model.ChangelogIncludeAttribute.IsNull() {
+		model.ChangelogIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SoftDeleteEntryIncludedOperation.ElementType(ctx) == nil {
-		model.SoftDeleteEntryIncludedOperation = types.SetNull(types.StringType)
+	if model.SoftDeleteEntryIncludedOperation.IsUnknown() || model.SoftDeleteEntryIncludedOperation.IsNull() {
+		model.SoftDeleteEntryIncludedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DisabledAlertType.ElementType(ctx) == nil {
-		model.DisabledAlertType = types.SetNull(types.StringType)
+	if model.DisabledAlertType.IsUnknown() || model.DisabledAlertType.IsNull() {
+		model.DisabledAlertType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryIncludeBaseDN.ElementType(ctx) == nil {
-		model.ChangelogEntryIncludeBaseDN = types.SetNull(types.StringType)
+	if model.ChangelogEntryIncludeBaseDN.IsUnknown() || model.ChangelogEntryIncludeBaseDN.IsNull() {
+		model.ChangelogEntryIncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogIncludeKeyAttribute.ElementType(ctx) == nil {
-		model.ChangelogIncludeKeyAttribute = types.SetNull(types.StringType)
+	if model.ChangelogIncludeKeyAttribute.IsUnknown() || model.ChangelogIncludeKeyAttribute.IsNull() {
+		model.ChangelogIncludeKeyAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CompactCommonParentDN.ElementType(ctx) == nil {
-		model.CompactCommonParentDN = types.SetNull(types.StringType)
+	if model.CompactCommonParentDN.IsUnknown() || model.CompactCommonParentDN.IsNull() {
+		model.CompactCommonParentDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexIncludeAttribute.ElementType(ctx) == nil {
-		model.IndexIncludeAttribute = types.SetNull(types.StringType)
+	if model.IndexIncludeAttribute.IsUnknown() || model.IndexIncludeAttribute.IsNull() {
+		model.IndexIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrimeInternalNodesOnly.ElementType(ctx) == nil {
-		model.SystemIndexToPrimeInternalNodesOnly = types.SetNull(types.StringType)
+	if model.SystemIndexToPrimeInternalNodesOnly.IsUnknown() || model.SystemIndexToPrimeInternalNodesOnly.IsNull() {
+		model.SystemIndexToPrimeInternalNodesOnly, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogDeletedEntryIncludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogDeletedEntryIncludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogDeletedEntryIncludeAttribute.IsUnknown() || model.ChangelogDeletedEntryIncludeAttribute.IsNull() {
+		model.ChangelogDeletedEntryIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JeProperty.ElementType(ctx) == nil {
-		model.JeProperty = types.SetNull(types.StringType)
+	if model.JeProperty.IsUnknown() || model.JeProperty.IsNull() {
+		model.JeProperty, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryExcludeBaseDN.ElementType(ctx) == nil {
-		model.ChangelogEntryExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ChangelogEntryExcludeBaseDN.IsUnknown() || model.ChangelogEntryExcludeBaseDN.IsNull() {
+		model.ChangelogEntryExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogDeletedEntryExcludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogDeletedEntryExcludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogDeletedEntryExcludeAttribute.IsUnknown() || model.ChangelogDeletedEntryExcludeAttribute.IsNull() {
+		model.ChangelogDeletedEntryExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InsignificantConfigArchiveAttribute.ElementType(ctx) == nil {
-		model.InsignificantConfigArchiveAttribute = types.SetNull(types.StringType)
+	if model.InsignificantConfigArchiveAttribute.IsUnknown() || model.InsignificantConfigArchiveAttribute.IsNull() {
+		model.InsignificantConfigArchiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PrimeMethod.ElementType(ctx) == nil {
-		model.PrimeMethod = types.SetNull(types.StringType)
+	if model.PrimeMethod.IsUnknown() || model.PrimeMethod.IsNull() {
+		model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DbDirectory.IsUnknown() || model.DbDirectory.IsNull() {
+		model.DbDirectory = types.StringValue("")
+	}
+	if model.DbBackgroundSyncInterval.IsUnknown() || model.DbBackgroundSyncInterval.IsNull() {
+		model.DbBackgroundSyncInterval = types.StringValue("")
+	}
+	if model.BackupFilePermissions.IsUnknown() || model.BackupFilePermissions.IsNull() {
+		model.BackupFilePermissions = types.StringValue("")
+	}
+	if model.SingleWriterLockBehavior.IsUnknown() || model.SingleWriterLockBehavior.IsNull() {
+		model.SingleWriterLockBehavior = types.StringValue("")
+	}
+	if model.ReportExcludedChangelogAttributes.IsUnknown() || model.ReportExcludedChangelogAttributes.IsNull() {
+		model.ReportExcludedChangelogAttributes = types.StringValue("")
+	}
+	if model.DbCheckpointerWakeupInterval.IsUnknown() || model.DbCheckpointerWakeupInterval.IsNull() {
+		model.DbCheckpointerWakeupInterval = types.StringValue("")
+	}
+	if model.ExternalTxnDefaultBackendLockBehavior.IsUnknown() || model.ExternalTxnDefaultBackendLockBehavior.IsNull() {
+		model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("")
+	}
+	if model.TaskRetentionTime.IsUnknown() || model.TaskRetentionTime.IsNull() {
+		model.TaskRetentionTime = types.StringValue("")
+	}
+	if model.MetricsDir.IsUnknown() || model.MetricsDir.IsNull() {
+		model.MetricsDir = types.StringValue("")
+	}
+	if model.WritabilityMode.IsUnknown() || model.WritabilityMode.IsNull() {
+		model.WritabilityMode = types.StringValue("")
+	}
+	if model.DefaultCacheMode.IsUnknown() || model.DefaultCacheMode.IsNull() {
+		model.DefaultCacheMode = types.StringValue("")
+	}
+	if model.ImportTempDirectory.IsUnknown() || model.ImportTempDirectory.IsNull() {
+		model.ImportTempDirectory = types.StringValue("")
+	}
+	if model.SampleFlushInterval.IsUnknown() || model.SampleFlushInterval.IsNull() {
+		model.SampleFlushInterval = types.StringValue("")
+	}
+	if model.MirroredSubtreeSearchTimeout.IsUnknown() || model.MirroredSubtreeSearchTimeout.IsNull() {
+		model.MirroredSubtreeSearchTimeout = types.StringValue("")
+	}
+	if model.DbLoggingLevel.IsUnknown() || model.DbLoggingLevel.IsNull() {
+		model.DbLoggingLevel = types.StringValue("")
+	}
+	if model.MirroredSubtreePeerPollingInterval.IsUnknown() || model.MirroredSubtreePeerPollingInterval.IsNull() {
+		model.MirroredSubtreePeerPollingInterval = types.StringValue("")
+	}
+	if model.AlarmRetentionTime.IsUnknown() || model.AlarmRetentionTime.IsNull() {
+		model.AlarmRetentionTime = types.StringValue("")
+	}
+	if model.PrimeTimeLimit.IsUnknown() || model.PrimeTimeLimit.IsNull() {
+		model.PrimeTimeLimit = types.StringValue("")
+	}
+	if model.LdifFile.IsUnknown() || model.LdifFile.IsNull() {
+		model.LdifFile = types.StringValue("")
+	}
+	if model.MirroredSubtreeEntryUpdateTimeout.IsUnknown() || model.MirroredSubtreeEntryUpdateTimeout.IsNull() {
+		model.MirroredSubtreeEntryUpdateTimeout = types.StringValue("")
+	}
+	if model.StorageDir.IsUnknown() || model.StorageDir.IsNull() {
+		model.StorageDir = types.StringValue("")
+	}
+	if model.DbDirectoryPermissions.IsUnknown() || model.DbDirectoryPermissions.IsNull() {
+		model.DbDirectoryPermissions = types.StringValue("")
+	}
+	if model.DbLogFileMax.IsUnknown() || model.DbLogFileMax.IsNull() {
+		model.DbLogFileMax = types.StringValue("")
+	}
+	if model.AlertRetentionTime.IsUnknown() || model.AlertRetentionTime.IsNull() {
+		model.AlertRetentionTime = types.StringValue("")
+	}
+	if model.UncachedId2entryCacheMode.IsUnknown() || model.UncachedId2entryCacheMode.IsNull() {
+		model.UncachedId2entryCacheMode = types.StringValue("")
+	}
+	if model.OfflineProcessDatabaseOpenTimeout.IsUnknown() || model.OfflineProcessDatabaseOpenTimeout.IsNull() {
+		model.OfflineProcessDatabaseOpenTimeout = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()

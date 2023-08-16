@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1549,78 +1550,108 @@ func addOptionalThirdPartyVirtualAttributeFields(ctx context.Context, addRequest
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateVirtualAttributeUnknownValues(ctx context.Context, model *virtualAttributeResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Value.ElementType(ctx) == nil {
-		model.Value = types.SetNull(types.StringType)
+	if model.Value.IsUnknown() || model.Value.IsNull() {
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.GroupDN.ElementType(ctx) == nil {
-		model.GroupDN = types.SetNull(types.StringType)
+	if model.GroupDN.IsUnknown() || model.GroupDN.IsNull() {
+		model.GroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferenceSearchBaseDN.ElementType(ctx) == nil {
-		model.ReferenceSearchBaseDN = types.SetNull(types.StringType)
+	if model.ReferenceSearchBaseDN.IsUnknown() || model.ReferenceSearchBaseDN.IsNull() {
+		model.ReferenceSearchBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JoinAttribute.ElementType(ctx) == nil {
-		model.JoinAttribute = types.SetNull(types.StringType)
+	if model.JoinAttribute.IsUnknown() || model.JoinAttribute.IsNull() {
+		model.JoinAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ClientConnectionPolicy.ElementType(ctx) == nil {
-		model.ClientConnectionPolicy = types.SetNull(types.StringType)
+	if model.ClientConnectionPolicy.IsUnknown() || model.ClientConnectionPolicy.IsNull() {
+		model.ClientConnectionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferencedByAttribute.ElementType(ctx) == nil {
-		model.ReferencedByAttribute = types.SetNull(types.StringType)
+	if model.ReferencedByAttribute.IsUnknown() || model.ReferencedByAttribute.IsNull() {
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.JoinScope.IsUnknown() || model.JoinScope.IsNull() {
+		model.JoinScope = types.StringValue("")
+	}
+	if model.ConflictBehavior.IsUnknown() || model.ConflictBehavior.IsNull() {
+		model.ConflictBehavior = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+	if model.RewriteSearchFilters.IsUnknown() || model.RewriteSearchFilters.IsNull() {
+		model.RewriteSearchFilters = types.StringValue("")
+	}
+	if model.MultipleVirtualAttributeMergeBehavior.IsUnknown() || model.MultipleVirtualAttributeMergeBehavior.IsNull() {
+		model.MultipleVirtualAttributeMergeBehavior = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateVirtualAttributeUnknownValuesDefault(ctx context.Context, model *defaultVirtualAttributeResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Value.ElementType(ctx) == nil {
-		model.Value = types.SetNull(types.StringType)
+	if model.Value.IsUnknown() || model.Value.IsNull() {
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.GroupDN.ElementType(ctx) == nil {
-		model.GroupDN = types.SetNull(types.StringType)
+	if model.GroupDN.IsUnknown() || model.GroupDN.IsNull() {
+		model.GroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferenceSearchBaseDN.ElementType(ctx) == nil {
-		model.ReferenceSearchBaseDN = types.SetNull(types.StringType)
+	if model.ReferenceSearchBaseDN.IsUnknown() || model.ReferenceSearchBaseDN.IsNull() {
+		model.ReferenceSearchBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedAttribute.ElementType(ctx) == nil {
-		model.ExcludedAttribute = types.SetNull(types.StringType)
+	if model.ExcludedAttribute.IsUnknown() || model.ExcludedAttribute.IsNull() {
+		model.ExcludedAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JoinAttribute.ElementType(ctx) == nil {
-		model.JoinAttribute = types.SetNull(types.StringType)
+	if model.JoinAttribute.IsUnknown() || model.JoinAttribute.IsNull() {
+		model.JoinAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ClientConnectionPolicy.ElementType(ctx) == nil {
-		model.ClientConnectionPolicy = types.SetNull(types.StringType)
+	if model.ClientConnectionPolicy.IsUnknown() || model.ClientConnectionPolicy.IsNull() {
+		model.ClientConnectionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferencedByAttribute.ElementType(ctx) == nil {
-		model.ReferencedByAttribute = types.SetNull(types.StringType)
+	if model.ReferencedByAttribute.IsUnknown() || model.ReferencedByAttribute.IsNull() {
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.JoinScope.IsUnknown() || model.JoinScope.IsNull() {
+		model.JoinScope = types.StringValue("")
+	}
+	if model.ConflictBehavior.IsUnknown() || model.ConflictBehavior.IsNull() {
+		model.ConflictBehavior = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+	if model.RewriteSearchFilters.IsUnknown() || model.RewriteSearchFilters.IsNull() {
+		model.RewriteSearchFilters = types.StringValue("")
+	}
+	if model.MultipleVirtualAttributeMergeBehavior.IsUnknown() || model.MultipleVirtualAttributeMergeBehavior.IsNull() {
+		model.MultipleVirtualAttributeMergeBehavior = types.StringValue("")
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -253,11 +254,11 @@ func addOptionalStringTokenClaimValidationFields(ctx context.Context, addRequest
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateTokenClaimValidationUnknownValues(ctx context.Context, model *tokenClaimValidationResourceModel) {
-	if model.AnyRequiredValue.ElementType(ctx) == nil {
-		model.AnyRequiredValue = types.SetNull(types.StringType)
+	if model.AnyRequiredValue.IsUnknown() || model.AnyRequiredValue.IsNull() {
+		model.AnyRequiredValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredValue.ElementType(ctx) == nil {
-		model.AllRequiredValue = types.SetNull(types.StringType)
+	if model.AllRequiredValue.IsUnknown() || model.AllRequiredValue.IsNull() {
+		model.AllRequiredValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

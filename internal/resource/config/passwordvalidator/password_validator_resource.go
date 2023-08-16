@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1142,23 +1143,35 @@ func addOptionalThirdPartyPasswordValidatorFields(ctx context.Context, addReques
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePasswordValidatorUnknownValues(ctx context.Context, model *passwordValidatorResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AlternativePasswordCharacterMapping.ElementType(ctx) == nil {
-		model.AlternativePasswordCharacterMapping = types.SetNull(types.StringType)
+	if model.AlternativePasswordCharacterMapping.IsUnknown() || model.AlternativePasswordCharacterMapping.IsNull() {
+		model.AlternativePasswordCharacterMapping, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedCharacterType.ElementType(ctx) == nil {
-		model.AllowedCharacterType = types.SetNull(types.StringType)
+	if model.AllowedCharacterType.IsUnknown() || model.AllowedCharacterType.IsNull() {
+		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CharacterSet.ElementType(ctx) == nil {
-		model.CharacterSet = types.SetNull(types.StringType)
+	if model.CharacterSet.IsUnknown() || model.CharacterSet.IsNull() {
+		model.CharacterSet, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MatchAttribute.ElementType(ctx) == nil {
-		model.MatchAttribute = types.SetNull(types.StringType)
+	if model.MatchAttribute.IsUnknown() || model.MatchAttribute.IsNull() {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DictionaryFile.IsUnknown() || model.DictionaryFile.IsNull() {
+		model.DictionaryFile = types.StringValue("")
+	}
+	if model.PwnedPasswordsBaseURL.IsUnknown() || model.PwnedPasswordsBaseURL.IsNull() {
+		model.PwnedPasswordsBaseURL = types.StringValue("")
+	}
+	if model.AssumedPasswordGuessesPerSecond.IsUnknown() || model.AssumedPasswordGuessesPerSecond.IsNull() {
+		model.AssumedPasswordGuessesPerSecond = types.StringValue("")
+	}
+	if model.MinimumAcceptableTimeToExhaustSearchSpace.IsUnknown() || model.MinimumAcceptableTimeToExhaustSearchSpace.IsNull() {
+		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringValue("")
 	}
 }
 

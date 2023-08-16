@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -424,8 +425,8 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateDelegatedAdminAttributeUnknownValues(ctx context.Context, model *delegatedAdminAttributeResourceModel) {
-	if model.AllowedMIMEType.ElementType(ctx) == nil {
-		model.AllowedMIMEType = types.SetNull(types.StringType)
+	if model.AllowedMIMEType.IsUnknown() || model.AllowedMIMEType.IsNull() {
+		model.AllowedMIMEType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

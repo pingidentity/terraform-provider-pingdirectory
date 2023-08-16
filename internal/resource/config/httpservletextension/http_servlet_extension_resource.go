@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1497,105 +1498,162 @@ func addOptionalThirdPartyHttpServletExtensionFields(ctx context.Context, addReq
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateHttpServletExtensionUnknownValues(ctx context.Context, model *httpServletExtensionResourceModel) {
-	if model.ExcludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.ExcludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.ExcludeLDAPObjectclass.IsUnknown() || model.ExcludeLDAPObjectclass.IsNull() {
+		model.ExcludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.ExcludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeLDAPBaseDN.IsUnknown() || model.ExcludeLDAPBaseDN.IsNull() {
+		model.ExcludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexFile.ElementType(ctx) == nil {
-		model.IndexFile = types.SetNull(types.StringType)
+	if model.IndexFile.IsUnknown() || model.IndexFile.IsNull() {
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LabelNameValuePair.ElementType(ctx) == nil {
-		model.LabelNameValuePair = types.SetNull(types.StringType)
+	if model.LabelNameValuePair.IsUnknown() || model.LabelNameValuePair.IsNull() {
+		model.LabelNameValuePair, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugType.ElementType(ctx) == nil {
-		model.DebugType = types.SetNull(types.StringType)
+	if model.DebugType.IsUnknown() || model.DebugType.IsNull() {
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.IncludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.IncludeLDAPObjectclass.IsUnknown() || model.IncludeLDAPObjectclass.IsNull() {
+		model.IncludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RequireGroup.ElementType(ctx) == nil {
-		model.RequireGroup = types.SetNull(types.StringType)
+	if model.RequireGroup.IsUnknown() || model.RequireGroup.IsNull() {
+		model.RequireGroup, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedAuthenticationType.ElementType(ctx) == nil {
-		model.AllowedAuthenticationType = types.SetNull(types.StringType)
+	if model.AllowedAuthenticationType.IsUnknown() || model.AllowedAuthenticationType.IsNull() {
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.IncludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.IncludeLDAPBaseDN.IsUnknown() || model.IncludeLDAPBaseDN.IsNull() {
+		model.IncludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
+		model.BaseContextPath = types.StringValue("")
+	}
+	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
+		model.ResourceMappingFile = types.StringValue("")
+	}
+	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
+		model.DefaultMIMEType = types.StringValue("")
+	}
+	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
+		model.TemporaryDirectory = types.StringValue("")
+	}
+	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
+		model.TemporaryDirectoryPermissions = types.StringValue("")
+	}
+	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
+		model.BulkMaxPayloadSize = types.StringValue("")
+	}
+	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
+		model.DebugLevel = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateHttpServletExtensionUnknownValuesDefault(ctx context.Context, model *defaultHttpServletExtensionResourceModel) {
-	if model.ExcludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.ExcludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.ExcludeLDAPObjectclass.IsUnknown() || model.ExcludeLDAPObjectclass.IsNull() {
+		model.ExcludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.ExcludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeLDAPBaseDN.IsUnknown() || model.ExcludeLDAPBaseDN.IsNull() {
+		model.ExcludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexFile.ElementType(ctx) == nil {
-		model.IndexFile = types.SetNull(types.StringType)
+	if model.IndexFile.IsUnknown() || model.IndexFile.IsNull() {
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SchemasEndpointObjectclass.ElementType(ctx) == nil {
-		model.SchemasEndpointObjectclass = types.SetNull(types.StringType)
+	if model.SchemasEndpointObjectclass.IsUnknown() || model.SchemasEndpointObjectclass.IsNull() {
+		model.SchemasEndpointObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LabelNameValuePair.ElementType(ctx) == nil {
-		model.LabelNameValuePair = types.SetNull(types.StringType)
+	if model.LabelNameValuePair.IsUnknown() || model.LabelNameValuePair.IsNull() {
+		model.LabelNameValuePair, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugType.ElementType(ctx) == nil {
-		model.DebugType = types.SetNull(types.StringType)
+	if model.DebugType.IsUnknown() || model.DebugType.IsNull() {
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RejectExpansionAttribute.ElementType(ctx) == nil {
-		model.RejectExpansionAttribute = types.SetNull(types.StringType)
+	if model.RejectExpansionAttribute.IsUnknown() || model.RejectExpansionAttribute.IsNull() {
+		model.RejectExpansionAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedControl.ElementType(ctx) == nil {
-		model.AllowedControl = types.SetNull(types.StringType)
+	if model.AllowedControl.IsUnknown() || model.AllowedControl.IsNull() {
+		model.AllowedControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOperationalAttribute.ElementType(ctx) == nil {
-		model.DefaultOperationalAttribute = types.SetNull(types.StringType)
+	if model.DefaultOperationalAttribute.IsUnknown() || model.DefaultOperationalAttribute.IsNull() {
+		model.DefaultOperationalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TemplateDirectory.ElementType(ctx) == nil {
-		model.TemplateDirectory = types.SetNull(types.StringType)
+	if model.TemplateDirectory.IsUnknown() || model.TemplateDirectory.IsNull() {
+		model.TemplateDirectory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.IncludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.IncludeLDAPObjectclass.IsUnknown() || model.IncludeLDAPObjectclass.IsNull() {
+		model.IncludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RequireGroup.ElementType(ctx) == nil {
-		model.RequireGroup = types.SetNull(types.StringType)
+	if model.RequireGroup.IsUnknown() || model.RequireGroup.IsNull() {
+		model.RequireGroup, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedAuthenticationType.ElementType(ctx) == nil {
-		model.AllowedAuthenticationType = types.SetNull(types.StringType)
+	if model.AllowedAuthenticationType.IsUnknown() || model.AllowedAuthenticationType.IsNull() {
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.IncludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.IncludeLDAPBaseDN.IsUnknown() || model.IncludeLDAPBaseDN.IsNull() {
+		model.IncludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.StaticResponseHeader.ElementType(ctx) == nil {
-		model.StaticResponseHeader = types.SetNull(types.StringType)
+	if model.StaticResponseHeader.IsUnknown() || model.StaticResponseHeader.IsNull() {
+		model.StaticResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
+		model.BaseContextPath = types.StringValue("")
+	}
+	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
+		model.ResourceMappingFile = types.StringValue("")
+	}
+	if model.MapAccessTokensToLocalUsers.IsUnknown() || model.MapAccessTokensToLocalUsers.IsNull() {
+		model.MapAccessTokensToLocalUsers = types.StringValue("")
+	}
+	if model.StaticContextPath.IsUnknown() || model.StaticContextPath.IsNull() {
+		model.StaticContextPath = types.StringValue("")
+	}
+	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
+		model.DefaultMIMEType = types.StringValue("")
+	}
+	if model.CharacterEncoding.IsUnknown() || model.CharacterEncoding.IsNull() {
+		model.CharacterEncoding = types.StringValue("")
+	}
+	if model.StaticContentDirectory.IsUnknown() || model.StaticContentDirectory.IsNull() {
+		model.StaticContentDirectory = types.StringValue("")
+	}
+	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
+		model.TemporaryDirectory = types.StringValue("")
+	}
+	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
+		model.TemporaryDirectoryPermissions = types.StringValue("")
+	}
+	if model.StaticCustomDirectory.IsUnknown() || model.StaticCustomDirectory.IsNull() {
+		model.StaticCustomDirectory = types.StringValue("")
+	}
+	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
+		model.BulkMaxPayloadSize = types.StringValue("")
+	}
+	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
+		model.DebugLevel = types.StringValue("")
 	}
 }
 

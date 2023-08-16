@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -404,23 +405,23 @@ func addOptionalThirdPartyIdentityMapperFields(ctx context.Context, addRequest *
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateIdentityMapperUnknownValues(ctx context.Context, model *identityMapperResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MatchBaseDN.ElementType(ctx) == nil {
-		model.MatchBaseDN = types.SetNull(types.StringType)
+	if model.MatchBaseDN.IsUnknown() || model.MatchBaseDN.IsNull() {
+		model.MatchBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedIdentityMapper.ElementType(ctx) == nil {
-		model.AllIncludedIdentityMapper = types.SetNull(types.StringType)
+	if model.AllIncludedIdentityMapper.IsUnknown() || model.AllIncludedIdentityMapper.IsNull() {
+		model.AllIncludedIdentityMapper, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MatchAttribute.ElementType(ctx) == nil {
-		model.MatchAttribute = types.SetNull(types.StringType)
+	if model.MatchAttribute.IsUnknown() || model.MatchAttribute.IsNull() {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedIdentityMapper.ElementType(ctx) == nil {
-		model.AnyIncludedIdentityMapper = types.SetNull(types.StringType)
+	if model.AnyIncludedIdentityMapper.IsUnknown() || model.AnyIncludedIdentityMapper.IsNull() {
+		model.AnyIncludedIdentityMapper, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -174,17 +175,17 @@ func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateLogFieldSyntaxUnknownValues(ctx context.Context, model *logFieldSyntaxResourceModel) {
-	if model.IncludedSensitiveAttribute.ElementType(ctx) == nil {
-		model.IncludedSensitiveAttribute = types.SetNull(types.StringType)
+	if model.IncludedSensitiveAttribute.IsUnknown() || model.IncludedSensitiveAttribute.IsNull() {
+		model.IncludedSensitiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedSensitiveAttribute.ElementType(ctx) == nil {
-		model.ExcludedSensitiveAttribute = types.SetNull(types.StringType)
+	if model.ExcludedSensitiveAttribute.IsUnknown() || model.ExcludedSensitiveAttribute.IsNull() {
+		model.ExcludedSensitiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedSensitiveField.ElementType(ctx) == nil {
-		model.ExcludedSensitiveField = types.SetNull(types.StringType)
+	if model.ExcludedSensitiveField.IsUnknown() || model.ExcludedSensitiveField.IsNull() {
+		model.ExcludedSensitiveField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedSensitiveField.ElementType(ctx) == nil {
-		model.IncludedSensitiveField = types.SetNull(types.StringType)
+	if model.IncludedSensitiveField.IsUnknown() || model.IncludedSensitiveField.IsNull() {
+		model.IncludedSensitiveField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

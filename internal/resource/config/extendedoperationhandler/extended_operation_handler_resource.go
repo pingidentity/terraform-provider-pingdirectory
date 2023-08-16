@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -565,33 +566,57 @@ func addOptionalThirdPartyExtendedOperationHandlerFields(ctx context.Context, ad
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateExtendedOperationHandlerUnknownValues(ctx context.Context, model *extendedOperationHandlerResourceModel) {
-	if model.DefaultTokenDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultTokenDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultTokenDeliveryMechanism.IsUnknown() || model.DefaultTokenDeliveryMechanism.IsNull() {
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedOperation.ElementType(ctx) == nil {
-		model.AllowedOperation = types.SetNull(types.StringType)
+	if model.AllowedOperation.IsUnknown() || model.AllowedOperation.IsNull() {
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOTPDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultOTPDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
+		model.PasswordResetTokenValidityDuration = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
+		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateExtendedOperationHandlerUnknownValuesDefault(ctx context.Context, model *defaultExtendedOperationHandlerResourceModel) {
-	if model.DefaultTokenDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultTokenDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultTokenDeliveryMechanism.IsUnknown() || model.DefaultTokenDeliveryMechanism.IsNull() {
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedOperation.ElementType(ctx) == nil {
-		model.AllowedOperation = types.SetNull(types.StringType)
+	if model.AllowedOperation.IsUnknown() || model.AllowedOperation.IsNull() {
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOTPDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultOTPDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
+		model.PasswordResetTokenValidityDuration = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
+		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
 	}
 }
 

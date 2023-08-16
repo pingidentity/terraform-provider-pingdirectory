@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -384,32 +385,32 @@ func addOptionalThirdPartySearchReferenceCriteriaFields(ctx context.Context, add
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *searchReferenceCriteriaResourceModel) {
-	if model.AllIncludedReferenceControl.ElementType(ctx) == nil {
-		model.AllIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.AllIncludedReferenceControl.IsUnknown() || model.AllIncludedReferenceControl.IsNull() {
+		model.AllIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedSearchReferenceCriteria.IsUnknown() || model.AnyIncludedSearchReferenceCriteria.IsNull() {
+		model.AnyIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedSearchReferenceCriteria.IsUnknown() || model.NotAllIncludedSearchReferenceCriteria.IsNull() {
+		model.NotAllIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedReferenceControl.ElementType(ctx) == nil {
-		model.NoneIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.NoneIncludedReferenceControl.IsUnknown() || model.NoneIncludedReferenceControl.IsNull() {
+		model.NoneIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedReferenceControl.ElementType(ctx) == nil {
-		model.NotAllIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedReferenceControl.IsUnknown() || model.NotAllIncludedReferenceControl.IsNull() {
+		model.NotAllIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedSearchReferenceCriteria.IsUnknown() || model.NoneIncludedSearchReferenceCriteria.IsNull() {
+		model.NoneIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedReferenceControl.ElementType(ctx) == nil {
-		model.AnyIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.AnyIncludedReferenceControl.IsUnknown() || model.AnyIncludedReferenceControl.IsNull() {
+		model.AnyIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.AllIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedSearchReferenceCriteria.IsUnknown() || model.AllIncludedSearchReferenceCriteria.IsNull() {
+		model.AllIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

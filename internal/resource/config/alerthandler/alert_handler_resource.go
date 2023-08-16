@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -1051,20 +1052,32 @@ func addOptionalThirdPartyAlertHandlerFields(ctx context.Context, addRequest *cl
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateAlertHandlerUnknownValues(ctx context.Context, model *alertHandlerResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientPhoneNumber.ElementType(ctx) == nil {
-		model.RecipientPhoneNumber = types.SetNull(types.StringType)
+	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
+		model.LongMessageBehavior = types.StringValue("")
+	}
+	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
+		model.CommunityName = types.StringValue("")
+	}
+	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
+		model.MessageBody = types.StringValue("")
 	}
 	if model.TwilioAuthToken.IsUnknown() {
 		model.TwilioAuthToken = types.StringNull()
@@ -1073,20 +1086,38 @@ func populateAlertHandlerUnknownValues(ctx context.Context, model *alertHandlerR
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateAlertHandlerUnknownValuesDefault(ctx context.Context, model *defaultAlertHandlerResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientPhoneNumber.ElementType(ctx) == nil {
-		model.RecipientPhoneNumber = types.SetNull(types.StringType)
+	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
+		model.LongMessageBehavior = types.StringValue("")
+	}
+	if model.OutputFormat.IsUnknown() || model.OutputFormat.IsNull() {
+		model.OutputFormat = types.StringValue("")
+	}
+	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
+		model.CommunityName = types.StringValue("")
+	}
+	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
+		model.OutputLocation = types.StringValue("")
+	}
+	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
+		model.MessageBody = types.StringValue("")
 	}
 	if model.TwilioAuthToken.IsUnknown() {
 		model.TwilioAuthToken = types.StringNull()

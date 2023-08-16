@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -913,98 +914,101 @@ func addOptionalThirdPartyRequestCriteriaFields(ctx context.Context, addRequest 
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateRequestCriteriaUnknownValues(ctx context.Context, model *requestCriteriaResourceModel) {
-	if model.AnyIncludedRequestControl.ElementType(ctx) == nil {
-		model.AnyIncludedRequestControl = types.SetNull(types.StringType)
+	if model.AnyIncludedRequestControl.IsUnknown() || model.AnyIncludedRequestControl.IsNull() {
+		model.AnyIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedSearchScope.ElementType(ctx) == nil {
-		model.IncludedSearchScope = types.SetNull(types.StringType)
+	if model.IncludedSearchScope.IsUnknown() || model.IncludedSearchScope.IsNull() {
+		model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TargetBindType.ElementType(ctx) == nil {
-		model.TargetBindType = types.SetNull(types.StringType)
+	if model.TargetBindType.IsUnknown() || model.TargetBindType.IsNull() {
+		model.TargetBindType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedTargetEntryGroupDN.IsUnknown() || model.NoneIncludedTargetEntryGroupDN.IsNull() {
+		model.NoneIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedRequestCriteria.IsUnknown() || model.AnyIncludedRequestCriteria.IsNull() {
+		model.AnyIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetEntryDN.ElementType(ctx) == nil {
-		model.ExcludedTargetEntryDN = types.SetNull(types.StringType)
+	if model.ExcludedTargetEntryDN.IsUnknown() || model.ExcludedTargetEntryDN.IsNull() {
+		model.ExcludedTargetEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetEntryDN.ElementType(ctx) == nil {
-		model.IncludedTargetEntryDN = types.SetNull(types.StringType)
+	if model.IncludedTargetEntryDN.IsUnknown() || model.IncludedTargetEntryDN.IsNull() {
+		model.IncludedTargetEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedRequestCriteria.IsUnknown() || model.NoneIncludedRequestCriteria.IsNull() {
+		model.NoneIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedRequestControl.ElementType(ctx) == nil {
-		model.NotAllIncludedRequestControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedRequestControl.IsUnknown() || model.NotAllIncludedRequestControl.IsNull() {
+		model.NotAllIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedRequestControl.ElementType(ctx) == nil {
-		model.AllIncludedRequestControl = types.SetNull(types.StringType)
+	if model.AllIncludedRequestControl.IsUnknown() || model.AllIncludedRequestControl.IsNull() {
+		model.AllIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedTargetEntryGroupDN.IsUnknown() || model.AnyIncludedTargetEntryGroupDN.IsNull() {
+		model.AnyIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedApplicationName.ElementType(ctx) == nil {
-		model.IncludedApplicationName = types.SetNull(types.StringType)
+	if model.IncludedApplicationName.IsUnknown() || model.IncludedApplicationName.IsNull() {
+		model.IncludedApplicationName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedTargetEntryGroupDN.IsUnknown() || model.NotAllIncludedTargetEntryGroupDN.IsNull() {
+		model.NotAllIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetSASLMechanism.ElementType(ctx) == nil {
-		model.IncludedTargetSASLMechanism = types.SetNull(types.StringType)
+	if model.IncludedTargetSASLMechanism.IsUnknown() || model.IncludedTargetSASLMechanism.IsNull() {
+		model.IncludedTargetSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.AllIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedRequestCriteria.IsUnknown() || model.AllIncludedRequestCriteria.IsNull() {
+		model.AllIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedRequestCriteria.IsUnknown() || model.NotAllIncludedRequestCriteria.IsNull() {
+		model.NotAllIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetAttribute.ElementType(ctx) == nil {
-		model.ExcludedTargetAttribute = types.SetNull(types.StringType)
+	if model.ExcludedTargetAttribute.IsUnknown() || model.ExcludedTargetAttribute.IsNull() {
+		model.ExcludedTargetAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetSASLMechanism.ElementType(ctx) == nil {
-		model.ExcludedTargetSASLMechanism = types.SetNull(types.StringType)
+	if model.ExcludedTargetSASLMechanism.IsUnknown() || model.ExcludedTargetSASLMechanism.IsNull() {
+		model.ExcludedTargetSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.AllIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.AllIncludedTargetEntryFilter.IsUnknown() || model.AllIncludedTargetEntryFilter.IsNull() {
+		model.AllIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedExtendedOperationOID.ElementType(ctx) == nil {
-		model.IncludedExtendedOperationOID = types.SetNull(types.StringType)
+	if model.IncludedExtendedOperationOID.IsUnknown() || model.IncludedExtendedOperationOID.IsNull() {
+		model.IncludedExtendedOperationOID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationOrigin.ElementType(ctx) == nil {
-		model.OperationOrigin = types.SetNull(types.StringType)
+	if model.OperationOrigin.IsUnknown() || model.OperationOrigin.IsNull() {
+		model.OperationOrigin, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.AnyIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedTargetEntryFilter.IsUnknown() || model.AnyIncludedTargetEntryFilter.IsNull() {
+		model.AnyIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.NoneIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedTargetEntryFilter.IsUnknown() || model.NoneIncludedTargetEntryFilter.IsNull() {
+		model.NoneIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedTargetEntryGroupDN.IsUnknown() || model.AllIncludedTargetEntryGroupDN.IsNull() {
+		model.AllIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetAttribute.ElementType(ctx) == nil {
-		model.IncludedTargetAttribute = types.SetNull(types.StringType)
+	if model.IncludedTargetAttribute.IsUnknown() || model.IncludedTargetAttribute.IsNull() {
+		model.IncludedTargetAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationType.ElementType(ctx) == nil {
-		model.OperationType = types.SetNull(types.StringType)
+	if model.OperationType.IsUnknown() || model.OperationType.IsNull() {
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedExtendedOperationOID.ElementType(ctx) == nil {
-		model.ExcludedExtendedOperationOID = types.SetNull(types.StringType)
+	if model.ExcludedExtendedOperationOID.IsUnknown() || model.ExcludedExtendedOperationOID.IsNull() {
+		model.ExcludedExtendedOperationOID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedApplicationName.ElementType(ctx) == nil {
-		model.ExcludedApplicationName = types.SetNull(types.StringType)
+	if model.ExcludedApplicationName.IsUnknown() || model.ExcludedApplicationName.IsNull() {
+		model.ExcludedApplicationName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedTargetEntryFilter.IsUnknown() || model.NotAllIncludedTargetEntryFilter.IsNull() {
+		model.NotAllIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedRequestControl.ElementType(ctx) == nil {
-		model.NoneIncludedRequestControl = types.SetNull(types.StringType)
+	if model.NoneIncludedRequestControl.IsUnknown() || model.NoneIncludedRequestControl.IsNull() {
+		model.NoneIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.UsingAdministrativeSessionWorkerThread.IsUnknown() || model.UsingAdministrativeSessionWorkerThread.IsNull() {
+		model.UsingAdministrativeSessionWorkerThread = types.StringValue("")
 	}
 }
 
