@@ -162,6 +162,16 @@ func ldapCorrelationAttributePairSchema(ctx context.Context, req resource.Schema
 func addOptionalLdapCorrelationAttributePairFields(ctx context.Context, addRequest *client.AddLdapCorrelationAttributePairRequest, plan ldapCorrelationAttributePairResourceModel) {
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *ldapCorrelationAttributePairResourceModel) populateAllComputedStringAttributes() {
+	if model.PrimaryCorrelationAttribute.IsUnknown() || model.PrimaryCorrelationAttribute.IsNull() {
+		model.PrimaryCorrelationAttribute = types.StringValue("")
+	}
+	if model.SecondaryCorrelationAttribute.IsUnknown() || model.SecondaryCorrelationAttribute.IsNull() {
+		model.SecondaryCorrelationAttribute = types.StringValue("")
+	}
+}
+
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairResourceModel, expectedValues *ldapCorrelationAttributePairResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-correlation-attribute-pair")
@@ -308,6 +318,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Create(ctx context.Context
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -353,6 +364,10 @@ func readLdapCorrelationAttributePair(ctx context.Context, req resource.ReadRequ
 
 	// Read the response into the state
 	readLdapCorrelationAttributePairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

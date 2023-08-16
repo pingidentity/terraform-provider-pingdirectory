@@ -222,6 +222,22 @@ func addOptionalLocalDbCompositeIndexFields(ctx context.Context, addRequest *cli
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *localDbCompositeIndexResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IndexBaseDNPattern.IsUnknown() || model.IndexBaseDNPattern.IsNull() {
+		model.IndexBaseDNPattern = types.StringValue("")
+	}
+	if model.IndexFilterPattern.IsUnknown() || model.IndexFilterPattern.IsNull() {
+		model.IndexFilterPattern = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
+}
+
 // Read a LocalDbCompositeIndexResponse object into the model struct
 func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCompositeIndexResponse, state *localDbCompositeIndexResourceModel, expectedValues *localDbCompositeIndexResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("local-db-composite-index")
@@ -379,6 +395,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -424,6 +441,10 @@ func readLocalDbCompositeIndex(ctx context.Context, req resource.ReadRequest, re
 
 	// Read the response into the state
 	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

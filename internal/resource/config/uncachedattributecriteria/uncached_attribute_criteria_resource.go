@@ -304,7 +304,7 @@ func addOptionalThirdPartyUncachedAttributeCriteriaFields(ctx context.Context, a
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateUncachedAttributeCriteriaUnknownValues(ctx context.Context, model *uncachedAttributeCriteriaResourceModel) {
+func populateUncachedAttributeCriteriaUnknownValues(model *uncachedAttributeCriteriaResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -319,6 +319,19 @@ func populateUncachedAttributeCriteriaUnknownValues(ctx context.Context, model *
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *uncachedAttributeCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+}
+
 // Read a DefaultUncachedAttributeCriteriaResponse object into the model struct
 func readDefaultUncachedAttributeCriteriaResponse(ctx context.Context, r *client.DefaultUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaResourceModel, expectedValues *uncachedAttributeCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
@@ -327,7 +340,7 @@ func readDefaultUncachedAttributeCriteriaResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a GroovyScriptedUncachedAttributeCriteriaResponse object into the model struct
@@ -340,7 +353,7 @@ func readGroovyScriptedUncachedAttributeCriteriaResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a SimpleUncachedAttributeCriteriaResponse object into the model struct
@@ -356,7 +369,7 @@ func readSimpleUncachedAttributeCriteriaResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyUncachedAttributeCriteriaResponse object into the model struct
@@ -369,7 +382,7 @@ func readThirdPartyUncachedAttributeCriteriaResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -654,6 +667,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -709,6 +723,10 @@ func readUncachedAttributeCriteria(ctx context.Context, req resource.ReadRequest
 	}
 	if readResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

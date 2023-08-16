@@ -923,6 +923,175 @@ func addOptionalErrorLogFieldMappingFields(ctx context.Context, addRequest *clie
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logFieldMappingResourceModel) populateAllComputedStringAttributes() {
+	if model.LogFieldOrigin.IsUnknown() || model.LogFieldOrigin.IsNull() {
+		model.LogFieldOrigin = types.StringValue("")
+	}
+	if model.LogFieldMessageIDToAbandon.IsUnknown() || model.LogFieldMessageIDToAbandon.IsNull() {
+		model.LogFieldMessageIDToAbandon = types.StringValue("")
+	}
+	if model.LogFieldNewRDN.IsUnknown() || model.LogFieldNewRDN.IsNull() {
+		model.LogFieldNewRDN = types.StringValue("")
+	}
+	if model.LogFieldSourceAddress.IsUnknown() || model.LogFieldSourceAddress.IsNull() {
+		model.LogFieldSourceAddress = types.StringValue("")
+	}
+	if model.LogFieldRequestedAttributes.IsUnknown() || model.LogFieldRequestedAttributes.IsNull() {
+		model.LogFieldRequestedAttributes = types.StringValue("")
+	}
+	if model.LogFieldAlternateAuthorizationDN.IsUnknown() || model.LogFieldAlternateAuthorizationDN.IsNull() {
+		model.LogFieldAlternateAuthorizationDN = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationFailureID.IsUnknown() || model.LogFieldAuthenticationFailureID.IsNull() {
+		model.LogFieldAuthenticationFailureID = types.StringValue("")
+	}
+	if model.LogFieldProtocolName.IsUnknown() || model.LogFieldProtocolName.IsNull() {
+		model.LogFieldProtocolName = types.StringValue("")
+	}
+	if model.LogFieldBindDN.IsUnknown() || model.LogFieldBindDN.IsNull() {
+		model.LogFieldBindDN = types.StringValue("")
+	}
+	if model.LogFieldRequestOID.IsUnknown() || model.LogFieldRequestOID.IsNull() {
+		model.LogFieldRequestOID = types.StringValue("")
+	}
+	if model.LogFieldReplicationChangeID.IsUnknown() || model.LogFieldReplicationChangeID.IsNull() {
+		model.LogFieldReplicationChangeID = types.StringValue("")
+	}
+	if model.LogFieldBaseDN.IsUnknown() || model.LogFieldBaseDN.IsNull() {
+		model.LogFieldBaseDN = types.StringValue("")
+	}
+	if model.LogFieldNewSuperiorDN.IsUnknown() || model.LogFieldNewSuperiorDN.IsNull() {
+		model.LogFieldNewSuperiorDN = types.StringValue("")
+	}
+	if model.LogFieldInstanceName.IsUnknown() || model.LogFieldInstanceName.IsNull() {
+		model.LogFieldInstanceName = types.StringValue("")
+	}
+	if model.LogFieldSeverity.IsUnknown() || model.LogFieldSeverity.IsNull() {
+		model.LogFieldSeverity = types.StringValue("")
+	}
+	if model.LogFieldProcessingTime.IsUnknown() || model.LogFieldProcessingTime.IsNull() {
+		model.LogFieldProcessingTime = types.StringValue("")
+	}
+	if model.LogFieldTargetProtocol.IsUnknown() || model.LogFieldTargetProtocol.IsNull() {
+		model.LogFieldTargetProtocol = types.StringValue("")
+	}
+	if model.LogFieldOperationType.IsUnknown() || model.LogFieldOperationType.IsNull() {
+		model.LogFieldOperationType = types.StringValue("")
+	}
+	if model.LogFieldMessage.IsUnknown() || model.LogFieldMessage.IsNull() {
+		model.LogFieldMessage = types.StringValue("")
+	}
+	if model.LogFieldProtocolVersion.IsUnknown() || model.LogFieldProtocolVersion.IsNull() {
+		model.LogFieldProtocolVersion = types.StringValue("")
+	}
+	if model.LogFieldIntermediateClientResult.IsUnknown() || model.LogFieldIntermediateClientResult.IsNull() {
+		model.LogFieldIntermediateClientResult = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationType.IsUnknown() || model.LogFieldAuthenticationType.IsNull() {
+		model.LogFieldAuthenticationType = types.StringValue("")
+	}
+	if model.LogFieldMatchedDN.IsUnknown() || model.LogFieldMatchedDN.IsNull() {
+		model.LogFieldMatchedDN = types.StringValue("")
+	}
+	if model.LogFieldRequesterIPAddress.IsUnknown() || model.LogFieldRequesterIPAddress.IsNull() {
+		model.LogFieldRequesterIPAddress = types.StringValue("")
+	}
+	if model.LogFieldProductName.IsUnknown() || model.LogFieldProductName.IsNull() {
+		model.LogFieldProductName = types.StringValue("")
+	}
+	if model.LogFieldResponseControls.IsUnknown() || model.LogFieldResponseControls.IsNull() {
+		model.LogFieldResponseControls = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LogFieldUnindexed.IsUnknown() || model.LogFieldUnindexed.IsNull() {
+		model.LogFieldUnindexed = types.StringValue("")
+	}
+	if model.LogFieldRequesterDN.IsUnknown() || model.LogFieldRequesterDN.IsNull() {
+		model.LogFieldRequesterDN = types.StringValue("")
+	}
+	if model.LogFieldResultCode.IsUnknown() || model.LogFieldResultCode.IsNull() {
+		model.LogFieldResultCode = types.StringValue("")
+	}
+	if model.LogFieldTargetHost.IsUnknown() || model.LogFieldTargetHost.IsNull() {
+		model.LogFieldTargetHost = types.StringValue("")
+	}
+	if model.LogFieldOperationID.IsUnknown() || model.LogFieldOperationID.IsNull() {
+		model.LogFieldOperationID = types.StringValue("")
+	}
+	if model.LogFieldScope.IsUnknown() || model.LogFieldScope.IsNull() {
+		model.LogFieldScope = types.StringValue("")
+	}
+	if model.LogFieldMessageType.IsUnknown() || model.LogFieldMessageType.IsNull() {
+		model.LogFieldMessageType = types.StringValue("")
+	}
+	if model.LogFieldTimestamp.IsUnknown() || model.LogFieldTimestamp.IsNull() {
+		model.LogFieldTimestamp = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationFailureReason.IsUnknown() || model.LogFieldAuthenticationFailureReason.IsNull() {
+		model.LogFieldAuthenticationFailureReason = types.StringValue("")
+	}
+	if model.LogFieldDisconnectReason.IsUnknown() || model.LogFieldDisconnectReason.IsNull() {
+		model.LogFieldDisconnectReason = types.StringValue("")
+	}
+	if model.LogFieldDeleteOldRDN.IsUnknown() || model.LogFieldDeleteOldRDN.IsNull() {
+		model.LogFieldDeleteOldRDN = types.StringValue("")
+	}
+	if model.LogFieldTargetAttribute.IsUnknown() || model.LogFieldTargetAttribute.IsNull() {
+		model.LogFieldTargetAttribute = types.StringValue("")
+	}
+	if model.LogFieldIntermediateClientRequest.IsUnknown() || model.LogFieldIntermediateClientRequest.IsNull() {
+		model.LogFieldIntermediateClientRequest = types.StringValue("")
+	}
+	if model.LogFieldRequestControls.IsUnknown() || model.LogFieldRequestControls.IsNull() {
+		model.LogFieldRequestControls = types.StringValue("")
+	}
+	if model.LogFieldEntryDN.IsUnknown() || model.LogFieldEntryDN.IsNull() {
+		model.LogFieldEntryDN = types.StringValue("")
+	}
+	if model.LogFieldFilter.IsUnknown() || model.LogFieldFilter.IsNull() {
+		model.LogFieldFilter = types.StringValue("")
+	}
+	if model.LogFieldAuthenticatedUserDN.IsUnknown() || model.LogFieldAuthenticatedUserDN.IsNull() {
+		model.LogFieldAuthenticatedUserDN = types.StringValue("")
+	}
+	if model.LogFieldConnectionID.IsUnknown() || model.LogFieldConnectionID.IsNull() {
+		model.LogFieldConnectionID = types.StringValue("")
+	}
+	if model.LogFieldTargetPort.IsUnknown() || model.LogFieldTargetPort.IsNull() {
+		model.LogFieldTargetPort = types.StringValue("")
+	}
+	if model.LogFieldAdditionalInformation.IsUnknown() || model.LogFieldAdditionalInformation.IsNull() {
+		model.LogFieldAdditionalInformation = types.StringValue("")
+	}
+	if model.LogFieldTargetAddress.IsUnknown() || model.LogFieldTargetAddress.IsNull() {
+		model.LogFieldTargetAddress = types.StringValue("")
+	}
+	if model.LogFieldReferralUrls.IsUnknown() || model.LogFieldReferralUrls.IsNull() {
+		model.LogFieldReferralUrls = types.StringValue("")
+	}
+	if model.LogFieldStartupid.IsUnknown() || model.LogFieldStartupid.IsNull() {
+		model.LogFieldStartupid = types.StringValue("")
+	}
+	if model.LogFieldResponseOID.IsUnknown() || model.LogFieldResponseOID.IsNull() {
+		model.LogFieldResponseOID = types.StringValue("")
+	}
+	if model.LogFieldCategory.IsUnknown() || model.LogFieldCategory.IsNull() {
+		model.LogFieldCategory = types.StringValue("")
+	}
+	if model.LogFieldMessageID.IsUnknown() || model.LogFieldMessageID.IsNull() {
+		model.LogFieldMessageID = types.StringValue("")
+	}
+	if model.LogFieldEntriesReturned.IsUnknown() || model.LogFieldEntriesReturned.IsNull() {
+		model.LogFieldEntriesReturned = types.StringValue("")
+	}
+	if model.LogFieldSASLMechanismName.IsUnknown() || model.LogFieldSASLMechanismName.IsNull() {
+		model.LogFieldSASLMechanismName = types.StringValue("")
+	}
+}
+
 // Read a AccessLogFieldMappingResponse object into the model struct
 func readAccessLogFieldMappingResponse(ctx context.Context, r *client.AccessLogFieldMappingResponse, state *logFieldMappingResourceModel, expectedValues *logFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("access")
@@ -1230,6 +1399,7 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1279,6 +1449,10 @@ func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 	if readResponse.ErrorLogFieldMappingResponse != nil {
 		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

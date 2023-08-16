@@ -342,12 +342,46 @@ func addOptionalNumericGaugeDataSourceFields(ctx context.Context, addRequest *cl
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateGaugeDataSourceUnknownValues(ctx context.Context, model *gaugeDataSourceResourceModel) {
+func populateGaugeDataSourceUnknownValues(model *gaugeDataSourceResourceModel) {
 	if model.StatisticType.IsUnknown() || model.StatisticType.IsNull() {
 		model.StatisticType = types.StringValue("")
 	}
 	if model.DataOrientation.IsUnknown() || model.DataOrientation.IsNull() {
 		model.DataOrientation = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *gaugeDataSourceResourceModel) populateAllComputedStringAttributes() {
+	if model.MonitorAttribute.IsUnknown() || model.MonitorAttribute.IsNull() {
+		model.MonitorAttribute = types.StringValue("")
+	}
+	if model.MinimumUpdateInterval.IsUnknown() || model.MinimumUpdateInterval.IsNull() {
+		model.MinimumUpdateInterval = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.MonitorObjectclass.IsUnknown() || model.MonitorObjectclass.IsNull() {
+		model.MonitorObjectclass = types.StringValue("")
+	}
+	if model.ResourceType.IsUnknown() || model.ResourceType.IsNull() {
+		model.ResourceType = types.StringValue("")
+	}
+	if model.DivideValueByCounterAttribute.IsUnknown() || model.DivideValueByCounterAttribute.IsNull() {
+		model.DivideValueByCounterAttribute = types.StringValue("")
+	}
+	if model.ResourceAttribute.IsUnknown() || model.ResourceAttribute.IsNull() {
+		model.ResourceAttribute = types.StringValue("")
+	}
+	if model.DivideValueByAttribute.IsUnknown() || model.DivideValueByAttribute.IsNull() {
+		model.DivideValueByAttribute = types.StringValue("")
+	}
+	if model.AdditionalText.IsUnknown() || model.AdditionalText.IsNull() {
+		model.AdditionalText = types.StringValue("")
+	}
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter = types.StringValue("")
 	}
 }
 
@@ -367,7 +401,7 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateGaugeDataSourceUnknownValues(ctx, state)
+	populateGaugeDataSourceUnknownValues(state)
 }
 
 // Read a NumericGaugeDataSourceResponse object into the model struct
@@ -392,7 +426,7 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateGaugeDataSourceUnknownValues(ctx, state)
+	populateGaugeDataSourceUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -594,6 +628,7 @@ func (r *defaultGaugeDataSourceResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -643,6 +678,10 @@ func readGaugeDataSource(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 	if readResponse.NumericGaugeDataSourceResponse != nil {
 		readNumericGaugeDataSourceResponse(ctx, readResponse.NumericGaugeDataSourceResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -361,7 +361,7 @@ func addOptionalThirdPartyCertificateMapperFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateCertificateMapperUnknownValues(ctx context.Context, model *certificateMapperResourceModel) {
+func populateCertificateMapperUnknownValues(model *certificateMapperResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -382,6 +382,22 @@ func populateCertificateMapperUnknownValues(ctx context.Context, model *certific
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *certificateMapperResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.FingerprintAlgorithm.IsUnknown() || model.FingerprintAlgorithm.IsNull() {
+		model.FingerprintAlgorithm = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+}
+
 // Read a SubjectEqualsDnCertificateMapperResponse object into the model struct
 func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client.SubjectEqualsDnCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-equals-dn")
@@ -390,7 +406,7 @@ func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a SubjectDnToUserAttributeCertificateMapperResponse object into the model struct
@@ -403,7 +419,7 @@ func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a GroovyScriptedCertificateMapperResponse object into the model struct
@@ -416,7 +432,7 @@ func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a SubjectAttributeToUserAttributeCertificateMapperResponse object into the model struct
@@ -429,7 +445,7 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Co
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a FingerprintCertificateMapperResponse object into the model struct
@@ -443,7 +459,7 @@ func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.Fin
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a ThirdPartyCertificateMapperResponse object into the model struct
@@ -456,7 +472,7 @@ func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -841,6 +857,7 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -902,6 +919,10 @@ func readCertificateMapper(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyCertificateMapperResponse != nil {
 		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

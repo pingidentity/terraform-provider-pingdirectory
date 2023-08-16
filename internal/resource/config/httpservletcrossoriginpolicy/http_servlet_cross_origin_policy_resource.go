@@ -241,6 +241,16 @@ func addOptionalHttpServletCrossOriginPolicyFields(ctx context.Context, addReque
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *httpServletCrossOriginPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.CorsPreflightMaxAge.IsUnknown() || model.CorsPreflightMaxAge.IsNull() {
+		model.CorsPreflightMaxAge = types.StringValue("")
+	}
+}
+
 // Read a HttpServletCrossOriginPolicyResponse object into the model struct
 func readHttpServletCrossOriginPolicyResponse(ctx context.Context, r *client.HttpServletCrossOriginPolicyResponse, state *httpServletCrossOriginPolicyResourceModel, expectedValues *httpServletCrossOriginPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http-servlet-cross-origin-policy")
@@ -384,6 +394,7 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -429,6 +440,10 @@ func readHttpServletCrossOriginPolicy(ctx context.Context, req resource.ReadRequ
 
 	// Read the response into the state
 	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

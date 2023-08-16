@@ -341,7 +341,7 @@ func addOptionalThirdPartyPasswordGeneratorFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePasswordGeneratorUnknownValues(ctx context.Context, model *passwordGeneratorResourceModel) {
+func populatePasswordGeneratorUnknownValues(model *passwordGeneratorResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -350,6 +350,25 @@ func populatePasswordGeneratorUnknownValues(ctx context.Context, model *password
 	}
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordGeneratorResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.PasswordFormat.IsUnknown() || model.PasswordFormat.IsNull() {
+		model.PasswordFormat = types.StringValue("")
+	}
+	if model.DictionaryFile.IsUnknown() || model.DictionaryFile.IsNull() {
+		model.DictionaryFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -363,7 +382,7 @@ func readRandomPasswordGeneratorResponse(ctx context.Context, r *client.RandomPa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a GroovyScriptedPasswordGeneratorResponse object into the model struct
@@ -376,7 +395,7 @@ func readGroovyScriptedPasswordGeneratorResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a PassphrasePasswordGeneratorResponse object into the model struct
@@ -391,7 +410,7 @@ func readPassphrasePasswordGeneratorResponse(ctx context.Context, r *client.Pass
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a ThirdPartyPasswordGeneratorResponse object into the model struct
@@ -404,7 +423,7 @@ func readThirdPartyPasswordGeneratorResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -694,6 +713,7 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -749,6 +769,10 @@ func readPasswordGenerator(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyPasswordGeneratorResponse != nil {
 		readThirdPartyPasswordGeneratorResponse(ctx, readResponse.ThirdPartyPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

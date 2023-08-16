@@ -1823,7 +1823,7 @@ func addOptionalThirdPartyRecurringTaskFields(ctx context.Context, addRequest *c
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTaskResourceModel) {
+func populateRecurringTaskUnknownValues(model *recurringTaskResourceModel) {
 	if model.IncludedBackendID.IsUnknown() || model.IncludedBackendID.IsNull() {
 		model.IncludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1880,6 +1880,106 @@ func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTas
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *recurringTaskResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LogFileHeadCollectionSize.IsUnknown() || model.LogFileHeadCollectionSize.IsNull() {
+		model.LogFileHeadCollectionSize = types.StringValue("")
+	}
+	if model.OutputDirectory.IsUnknown() || model.OutputDirectory.IsNull() {
+		model.OutputDirectory = types.StringValue("")
+	}
+	if model.RetainAggregateFileSize.IsUnknown() || model.RetainAggregateFileSize.IsNull() {
+		model.RetainAggregateFileSize = types.StringValue("")
+	}
+	if model.CommandArguments.IsUnknown() || model.CommandArguments.IsNull() {
+		model.CommandArguments = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.DurationToWaitForWorkQueueIdle.IsUnknown() || model.DurationToWaitForWorkQueueIdle.IsNull() {
+		model.DurationToWaitForWorkQueueIdle = types.StringValue("")
+	}
+	if model.Reason.IsUnknown() || model.Reason.IsNull() {
+		model.Reason = types.StringValue("")
+	}
+	if model.DurationToWaitForSearchToReturnEntries.IsUnknown() || model.DurationToWaitForSearchToReturnEntries.IsNull() {
+		model.DurationToWaitForSearchToReturnEntries = types.StringValue("")
+	}
+	if model.TaskJavaClass.IsUnknown() || model.TaskJavaClass.IsNull() {
+		model.TaskJavaClass = types.StringValue("")
+	}
+	if model.TargetDirectory.IsUnknown() || model.TargetDirectory.IsNull() {
+		model.TargetDirectory = types.StringValue("")
+	}
+	if model.RetainPreviousReportAge.IsUnknown() || model.RetainPreviousReportAge.IsNull() {
+		model.RetainPreviousReportAge = types.StringValue("")
+	}
+	if model.SleepDuration.IsUnknown() || model.SleepDuration.IsNull() {
+		model.SleepDuration = types.StringValue("")
+	}
+	if model.FilenamePattern.IsUnknown() || model.FilenamePattern.IsNull() {
+		model.FilenamePattern = types.StringValue("")
+	}
+	if model.RetainPreviousProfileAge.IsUnknown() || model.RetainPreviousProfileAge.IsNull() {
+		model.RetainPreviousProfileAge = types.StringValue("")
+	}
+	if model.RetainPreviousOutputFileAge.IsUnknown() || model.RetainPreviousOutputFileAge.IsNull() {
+		model.RetainPreviousOutputFileAge = types.StringValue("")
+	}
+	if model.RetainPreviousSupportDataArchiveAge.IsUnknown() || model.RetainPreviousSupportDataArchiveAge.IsNull() {
+		model.RetainPreviousSupportDataArchiveAge = types.StringValue("")
+	}
+	if model.Comment.IsUnknown() || model.Comment.IsNull() {
+		model.Comment = types.StringValue("")
+	}
+	if model.WorkingDirectory.IsUnknown() || model.WorkingDirectory.IsNull() {
+		model.WorkingDirectory = types.StringValue("")
+	}
+	if model.SearchInterval.IsUnknown() || model.SearchInterval.IsNull() {
+		model.SearchInterval = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ProfileDirectory.IsUnknown() || model.ProfileDirectory.IsNull() {
+		model.ProfileDirectory = types.StringValue("")
+	}
+	if model.RetainFileAge.IsUnknown() || model.RetainFileAge.IsNull() {
+		model.RetainFileAge = types.StringValue("")
+	}
+	if model.EncryptionPassphraseFile.IsUnknown() || model.EncryptionPassphraseFile.IsNull() {
+		model.EncryptionPassphraseFile = types.StringValue("")
+	}
+	if model.TimestampFormat.IsUnknown() || model.TimestampFormat.IsNull() {
+		model.TimestampFormat = types.StringValue("")
+	}
+	if model.RetainPreviousFullBackupAge.IsUnknown() || model.RetainPreviousFullBackupAge.IsNull() {
+		model.RetainPreviousFullBackupAge = types.StringValue("")
+	}
+	if model.SearchTimeLimit.IsUnknown() || model.SearchTimeLimit.IsNull() {
+		model.SearchTimeLimit = types.StringValue("")
+	}
+	if model.LogFileTailCollectionSize.IsUnknown() || model.LogFileTailCollectionSize.IsNull() {
+		model.LogFileTailCollectionSize = types.StringValue("")
+	}
+	if model.CommandOutputFileBaseName.IsUnknown() || model.CommandOutputFileBaseName.IsNull() {
+		model.CommandOutputFileBaseName = types.StringValue("")
+	}
+	if model.LogDuration.IsUnknown() || model.LogDuration.IsNull() {
+		model.LogDuration = types.StringValue("")
+	}
+	if model.RetainPreviousLDIFExportAge.IsUnknown() || model.RetainPreviousLDIFExportAge.IsNull() {
+		model.RetainPreviousLDIFExportAge = types.StringValue("")
+	}
+	if model.CommandPath.IsUnknown() || model.CommandPath.IsNull() {
+		model.CommandPath = types.StringValue("")
+	}
+}
+
 // Read a GenerateServerProfileRecurringTaskResponse object into the model struct
 func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *client.GenerateServerProfileRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generate-server-profile")
@@ -1900,7 +2000,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a LeaveLockdownModeRecurringTaskResponse object into the model struct
@@ -1918,7 +2018,7 @@ func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.L
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a BackupRecurringTaskResponse object into the model struct
@@ -1947,7 +2047,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a DelayRecurringTaskResponse object into the model struct
@@ -1982,7 +2082,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a StaticallyDefinedRecurringTaskResponse object into the model struct
@@ -2002,7 +2102,7 @@ func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.S
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a CollectSupportDataRecurringTaskResponse object into the model struct
@@ -2045,7 +2145,7 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a LdifExportRecurringTaskResponse object into the model struct
@@ -2074,7 +2174,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a EnterLockdownModeRecurringTaskResponse object into the model struct
@@ -2092,7 +2192,7 @@ func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.E
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a AuditDataSecurityRecurringTaskResponse object into the model struct
@@ -2117,7 +2217,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a ExecRecurringTaskResponse object into the model struct
@@ -2145,7 +2245,7 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a FileRetentionRecurringTaskResponse object into the model struct
@@ -2172,7 +2272,7 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a ThirdPartyRecurringTaskResponse object into the model struct
@@ -2191,7 +2291,7 @@ func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPar
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -2959,6 +3059,7 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3038,6 +3139,10 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 	if readResponse.ThirdPartyRecurringTaskResponse != nil {
 		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

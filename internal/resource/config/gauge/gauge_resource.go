@@ -487,6 +487,43 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *gaugeResourceModel) populateAllComputedStringAttributes() {
+	if model.CriticalValue.IsUnknown() || model.CriticalValue.IsNull() {
+		model.CriticalValue = types.StringValue("")
+	}
+	if model.MinorValue.IsUnknown() || model.MinorValue.IsNull() {
+		model.MinorValue = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
+		model.OverrideSeverity = types.StringValue("")
+	}
+	if model.ServerDegradedSeverityLevel.IsUnknown() || model.ServerDegradedSeverityLevel.IsNull() {
+		model.ServerDegradedSeverityLevel = types.StringValue("")
+	}
+	if model.GaugeDataSource.IsUnknown() || model.GaugeDataSource.IsNull() {
+		model.GaugeDataSource = types.StringValue("")
+	}
+	if model.AlertLevel.IsUnknown() || model.AlertLevel.IsNull() {
+		model.AlertLevel = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.ServerUnavailableSeverityLevel.IsUnknown() || model.ServerUnavailableSeverityLevel.IsNull() {
+		model.ServerUnavailableSeverityLevel = types.StringValue("")
+	}
+	if model.WarningValue.IsUnknown() || model.WarningValue.IsNull() {
+		model.WarningValue = types.StringValue("")
+	}
+	if model.MajorValue.IsUnknown() || model.MajorValue.IsNull() {
+		model.MajorValue = types.StringValue("")
+	}
+}
+
 // Read a IndicatorGaugeResponse object into the model struct
 func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
@@ -768,6 +805,7 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -817,6 +855,10 @@ func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	}
 	if readResponse.NumericGaugeResponse != nil {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

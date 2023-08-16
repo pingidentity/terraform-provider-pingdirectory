@@ -602,9 +602,31 @@ func addOptionalRootDnUserFields(ctx context.Context, addRequest *client.AddRoot
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateRootDnUserUnknownValues(ctx context.Context, model *rootDnUserResourceModel) {
+func populateRootDnUserUnknownValues(model *rootDnUserResourceModel) {
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *rootDnUserResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AccountActivationTime.IsUnknown() || model.AccountActivationTime.IsNull() {
+		model.AccountActivationTime = types.StringValue("")
+	}
+	if model.IsProxyable.IsUnknown() || model.IsProxyable.IsNull() {
+		model.IsProxyable = types.StringValue("")
+	}
+	if model.AccountExpirationTime.IsUnknown() || model.AccountExpirationTime.IsNull() {
+		model.AccountExpirationTime = types.StringValue("")
+	}
+	if model.UserID.IsUnknown() || model.UserID.IsNull() {
+		model.UserID = types.StringValue("")
+	}
+	if model.PasswordPolicy.IsUnknown() || model.PasswordPolicy.IsNull() {
+		model.PasswordPolicy = types.StringValue("")
 	}
 }
 
@@ -648,7 +670,7 @@ func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, s
 	state.MayProxyAsGroup = internaltypes.GetStringSet(r.MayProxyAsGroup)
 	state.MayProxyAsURL = internaltypes.GetStringSet(r.MayProxyAsURL)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRootDnUserUnknownValues(ctx, state)
+	populateRootDnUserUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -817,6 +839,7 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -862,6 +885,10 @@ func readRootDnUser(ctx context.Context, req resource.ReadRequest, resp *resourc
 
 	// Read the response into the state
 	readRootDnUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

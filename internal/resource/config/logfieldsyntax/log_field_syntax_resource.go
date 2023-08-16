@@ -174,7 +174,7 @@ func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogFieldSyntaxUnknownValues(ctx context.Context, model *logFieldSyntaxResourceModel) {
+func populateLogFieldSyntaxUnknownValues(model *logFieldSyntaxResourceModel) {
 	if model.IncludedSensitiveAttribute.IsUnknown() || model.IncludedSensitiveAttribute.IsNull() {
 		model.IncludedSensitiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -200,7 +200,7 @@ func readJsonLogFieldSyntaxResponse(ctx context.Context, r *client.JsonLogFieldS
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Read a AttributeBasedLogFieldSyntaxResponse object into the model struct
@@ -214,7 +214,7 @@ func readAttributeBasedLogFieldSyntaxResponse(ctx context.Context, r *client.Att
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Read a GenericLogFieldSyntaxResponse object into the model struct
@@ -226,7 +226,7 @@ func readGenericLogFieldSyntaxResponse(ctx context.Context, r *client.GenericLog
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan

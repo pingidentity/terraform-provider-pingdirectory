@@ -1549,7 +1549,7 @@ func addOptionalThirdPartyVirtualAttributeFields(ctx context.Context, addRequest
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVirtualAttributeUnknownValues(ctx context.Context, model *virtualAttributeResourceModel) {
+func populateVirtualAttributeUnknownValues(model *virtualAttributeResourceModel) {
 	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
 		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1601,7 +1601,7 @@ func populateVirtualAttributeUnknownValues(ctx context.Context, model *virtualAt
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVirtualAttributeUnknownValuesDefault(ctx context.Context, model *defaultVirtualAttributeResourceModel) {
+func populateVirtualAttributeUnknownValuesDefault(model *defaultVirtualAttributeResourceModel) {
 	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
 		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1721,7 +1721,7 @@ func readMirrorVirtualAttributeResponse(ctx context.Context, r *client.MirrorVir
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a MirrorVirtualAttributeResponse object into the model struct
@@ -1748,7 +1748,7 @@ func readMirrorVirtualAttributeResponseDefault(ctx context.Context, r *client.Mi
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a EntryChecksumVirtualAttributeResponse object into the model struct
@@ -1773,7 +1773,7 @@ func readEntryChecksumVirtualAttributeResponseDefault(ctx context.Context, r *cl
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a MemberOfServerGroupVirtualAttributeResponse object into the model struct
@@ -1796,7 +1796,7 @@ func readMemberOfServerGroupVirtualAttributeResponseDefault(ctx context.Context,
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a ConstructedVirtualAttributeResponse object into the model struct
@@ -1820,7 +1820,7 @@ func readConstructedVirtualAttributeResponse(ctx context.Context, r *client.Cons
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a ConstructedVirtualAttributeResponse object into the model struct
@@ -1844,7 +1844,7 @@ func readConstructedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a IsMemberOfVirtualAttributeResponse object into the model struct
@@ -1871,7 +1871,7 @@ func readIsMemberOfVirtualAttributeResponse(ctx context.Context, r *client.IsMem
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a IsMemberOfVirtualAttributeResponse object into the model struct
@@ -1898,7 +1898,7 @@ func readIsMemberOfVirtualAttributeResponseDefault(ctx context.Context, r *clien
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a CustomVirtualAttributeResponse object into the model struct
@@ -1921,7 +1921,7 @@ func readCustomVirtualAttributeResponseDefault(ctx context.Context, r *client.Cu
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a NumSubordinatesVirtualAttributeResponse object into the model struct
@@ -1944,7 +1944,7 @@ func readNumSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a ReverseDnJoinVirtualAttributeResponse object into the model struct
@@ -1975,7 +1975,7 @@ func readReverseDnJoinVirtualAttributeResponse(ctx context.Context, r *client.Re
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a ReverseDnJoinVirtualAttributeResponse object into the model struct
@@ -2006,7 +2006,7 @@ func readReverseDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *cl
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a IdentifyReferencesVirtualAttributeResponse object into the model struct
@@ -2031,7 +2031,7 @@ func readIdentifyReferencesVirtualAttributeResponse(ctx context.Context, r *clie
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a IdentifyReferencesVirtualAttributeResponse object into the model struct
@@ -2056,7 +2056,7 @@ func readIdentifyReferencesVirtualAttributeResponseDefault(ctx context.Context, 
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a UserDefinedVirtualAttributeResponse object into the model struct
@@ -2080,7 +2080,7 @@ func readUserDefinedVirtualAttributeResponse(ctx context.Context, r *client.User
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a UserDefinedVirtualAttributeResponse object into the model struct
@@ -2104,7 +2104,7 @@ func readUserDefinedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a CurrentTimeVirtualAttributeResponse object into the model struct
@@ -2129,7 +2129,7 @@ func readCurrentTimeVirtualAttributeResponseDefault(ctx context.Context, r *clie
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a ShortUniqueIdVirtualAttributeResponse object into the model struct
@@ -2150,7 +2150,7 @@ func readShortUniqueIdVirtualAttributeResponseDefault(ctx context.Context, r *cl
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a EntryDnVirtualAttributeResponse object into the model struct
@@ -2173,7 +2173,7 @@ func readEntryDnVirtualAttributeResponse(ctx context.Context, r *client.EntryDnV
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a EntryDnVirtualAttributeResponse object into the model struct
@@ -2196,7 +2196,7 @@ func readEntryDnVirtualAttributeResponseDefault(ctx context.Context, r *client.E
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a HasSubordinatesVirtualAttributeResponse object into the model struct
@@ -2219,7 +2219,7 @@ func readHasSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a EqualityJoinVirtualAttributeResponse object into the model struct
@@ -2252,7 +2252,7 @@ func readEqualityJoinVirtualAttributeResponse(ctx context.Context, r *client.Equ
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a EqualityJoinVirtualAttributeResponse object into the model struct
@@ -2285,7 +2285,7 @@ func readEqualityJoinVirtualAttributeResponseDefault(ctx context.Context, r *cli
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a GroovyScriptedVirtualAttributeResponse object into the model struct
@@ -2310,7 +2310,7 @@ func readGroovyScriptedVirtualAttributeResponse(ctx context.Context, r *client.G
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a GroovyScriptedVirtualAttributeResponse object into the model struct
@@ -2335,7 +2335,7 @@ func readGroovyScriptedVirtualAttributeResponseDefault(ctx context.Context, r *c
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a InstanceNameVirtualAttributeResponse object into the model struct
@@ -2358,7 +2358,7 @@ func readInstanceNameVirtualAttributeResponseDefault(ctx context.Context, r *cli
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a ReplicationStateDetailVirtualAttributeResponse object into the model struct
@@ -2369,7 +2369,7 @@ func readReplicationStateDetailVirtualAttributeResponseDefault(ctx context.Conte
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a MemberVirtualAttributeResponse object into the model struct
@@ -2393,7 +2393,7 @@ func readMemberVirtualAttributeResponse(ctx context.Context, r *client.MemberVir
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a MemberVirtualAttributeResponse object into the model struct
@@ -2417,7 +2417,7 @@ func readMemberVirtualAttributeResponseDefault(ctx context.Context, r *client.Me
 	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a PasswordPolicyStateJsonVirtualAttributeResponse object into the model struct
@@ -2434,7 +2434,7 @@ func readPasswordPolicyStateJsonVirtualAttributeResponse(ctx context.Context, r 
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a PasswordPolicyStateJsonVirtualAttributeResponse object into the model struct
@@ -2451,7 +2451,7 @@ func readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx context.Cont
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a SubschemaSubentryVirtualAttributeResponse object into the model struct
@@ -2474,7 +2474,7 @@ func readSubschemaSubentryVirtualAttributeResponseDefault(ctx context.Context, r
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a DnJoinVirtualAttributeResponse object into the model struct
@@ -2505,7 +2505,7 @@ func readDnJoinVirtualAttributeResponse(ctx context.Context, r *client.DnJoinVir
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a DnJoinVirtualAttributeResponse object into the model struct
@@ -2536,7 +2536,7 @@ func readDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.Dn
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartyVirtualAttributeResponse object into the model struct
@@ -2561,7 +2561,7 @@ func readThirdPartyVirtualAttributeResponse(ctx context.Context, r *client.Third
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValues(ctx, state)
+	populateVirtualAttributeUnknownValues(state)
 }
 
 // Read a ThirdPartyVirtualAttributeResponse object into the model struct
@@ -2586,7 +2586,7 @@ func readThirdPartyVirtualAttributeResponseDefault(ctx context.Context, r *clien
 		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), true)
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVirtualAttributeUnknownValuesDefault(ctx, state)
+	populateVirtualAttributeUnknownValuesDefault(state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -175,6 +175,25 @@ func addOptionalConsentDefinitionLocalizationFields(ctx context.Context, addRequ
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *consentDefinitionLocalizationResourceModel) populateAllComputedStringAttributes() {
+	if model.Locale.IsUnknown() || model.Locale.IsNull() {
+		model.Locale = types.StringValue("")
+	}
+	if model.TitleText.IsUnknown() || model.TitleText.IsNull() {
+		model.TitleText = types.StringValue("")
+	}
+	if model.Version.IsUnknown() || model.Version.IsNull() {
+		model.Version = types.StringValue("")
+	}
+	if model.PurposeText.IsUnknown() || model.PurposeText.IsNull() {
+		model.PurposeText = types.StringValue("")
+	}
+	if model.DataText.IsUnknown() || model.DataText.IsNull() {
+		model.DataText = types.StringValue("")
+	}
+}
+
 // Read a ConsentDefinitionLocalizationResponse object into the model struct
 func readConsentDefinitionLocalizationResponse(ctx context.Context, r *client.ConsentDefinitionLocalizationResponse, state *consentDefinitionLocalizationResourceModel, expectedValues *consentDefinitionLocalizationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("consent-definition-localization")
@@ -325,6 +344,7 @@ func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Contex
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -370,6 +390,10 @@ func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadReq
 
 	// Read the response into the state
 	readConsentDefinitionLocalizationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

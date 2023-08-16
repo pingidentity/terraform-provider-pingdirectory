@@ -219,6 +219,25 @@ func addOptionalCorrelatedLdapDataViewFields(ctx context.Context, addRequest *cl
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *correlatedLdapDataViewResourceModel) populateAllComputedStringAttributes() {
+	if model.StructuralLDAPObjectclass.IsUnknown() || model.StructuralLDAPObjectclass.IsNull() {
+		model.StructuralLDAPObjectclass = types.StringValue("")
+	}
+	if model.PrimaryCorrelationAttribute.IsUnknown() || model.PrimaryCorrelationAttribute.IsNull() {
+		model.PrimaryCorrelationAttribute = types.StringValue("")
+	}
+	if model.CreateDNPattern.IsUnknown() || model.CreateDNPattern.IsNull() {
+		model.CreateDNPattern = types.StringValue("")
+	}
+	if model.SecondaryCorrelationAttribute.IsUnknown() || model.SecondaryCorrelationAttribute.IsNull() {
+		model.SecondaryCorrelationAttribute = types.StringValue("")
+	}
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN = types.StringValue("")
+	}
+}
+
 // Read a CorrelatedLdapDataViewResponse object into the model struct
 func readCorrelatedLdapDataViewResponse(ctx context.Context, r *client.CorrelatedLdapDataViewResponse, state *correlatedLdapDataViewResourceModel, expectedValues *correlatedLdapDataViewResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("correlated-ldap-data-view")
@@ -376,6 +395,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -421,6 +441,10 @@ func readCorrelatedLdapDataView(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

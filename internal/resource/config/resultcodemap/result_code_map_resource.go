@@ -198,6 +198,13 @@ func addOptionalResultCodeMapFields(ctx context.Context, addRequest *client.AddR
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *resultCodeMapResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+}
+
 // Read a ResultCodeMapResponse object into the model struct
 func readResultCodeMapResponse(ctx context.Context, r *client.ResultCodeMapResponse, state *resultCodeMapResourceModel, expectedValues *resultCodeMapResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("result-code-map")
@@ -335,6 +342,7 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -380,6 +388,10 @@ func readResultCodeMap(ctx context.Context, req resource.ReadRequest, resp *reso
 
 	// Read the response into the state
 	readResultCodeMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

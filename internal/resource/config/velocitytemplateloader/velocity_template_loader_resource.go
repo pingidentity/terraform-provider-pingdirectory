@@ -206,6 +206,22 @@ func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *cl
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *velocityTemplateLoaderResourceModel) populateAllComputedStringAttributes() {
+	if model.MimeTypeMatcher.IsUnknown() || model.MimeTypeMatcher.IsNull() {
+		model.MimeTypeMatcher = types.StringValue("")
+	}
+	if model.TemplateDirectory.IsUnknown() || model.TemplateDirectory.IsNull() {
+		model.TemplateDirectory = types.StringValue("")
+	}
+	if model.TemplateSuffix.IsUnknown() || model.TemplateSuffix.IsNull() {
+		model.TemplateSuffix = types.StringValue("")
+	}
+	if model.MimeType.IsUnknown() || model.MimeType.IsNull() {
+		model.MimeType = types.StringValue("")
+	}
+}
+
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderResourceModel, expectedValues *velocityTemplateLoaderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity-template-loader")
@@ -356,6 +372,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -401,6 +418,10 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

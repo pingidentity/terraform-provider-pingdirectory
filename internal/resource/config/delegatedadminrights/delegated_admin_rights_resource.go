@@ -188,6 +188,19 @@ func addOptionalDelegatedAdminRightsFields(ctx context.Context, addRequest *clie
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminRightsResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AdminGroupDN.IsUnknown() || model.AdminGroupDN.IsNull() {
+		model.AdminGroupDN = types.StringValue("")
+	}
+	if model.AdminUserDN.IsUnknown() || model.AdminUserDN.IsNull() {
+		model.AdminUserDN = types.StringValue("")
+	}
+}
+
 // Read a DelegatedAdminRightsResponse object into the model struct
 func readDelegatedAdminRightsResponse(ctx context.Context, r *client.DelegatedAdminRightsResponse, state *delegatedAdminRightsResourceModel, expectedValues *delegatedAdminRightsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin-rights")
@@ -324,6 +337,7 @@ func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -369,6 +383,10 @@ func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, res
 
 	// Read the response into the state
 	readDelegatedAdminRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

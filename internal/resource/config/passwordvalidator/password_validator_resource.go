@@ -1142,7 +1142,7 @@ func addOptionalThirdPartyPasswordValidatorFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePasswordValidatorUnknownValues(ctx context.Context, model *passwordValidatorResourceModel) {
+func populatePasswordValidatorUnknownValues(model *passwordValidatorResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1175,6 +1175,49 @@ func populatePasswordValidatorUnknownValues(ctx context.Context, model *password
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.MatchBehavior.IsUnknown() || model.MatchBehavior.IsNull() {
+		model.MatchBehavior = types.StringValue("")
+	}
+	if model.DisallowedTrailingCharacters.IsUnknown() || model.DisallowedTrailingCharacters.IsNull() {
+		model.DisallowedTrailingCharacters = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DisallowedLeadingCharacters.IsUnknown() || model.DisallowedLeadingCharacters.IsNull() {
+		model.DisallowedLeadingCharacters = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.ValidatorFailureMessage.IsUnknown() || model.ValidatorFailureMessage.IsNull() {
+		model.ValidatorFailureMessage = types.StringValue("")
+	}
+	if model.MatchPattern.IsUnknown() || model.MatchPattern.IsNull() {
+		model.MatchPattern = types.StringValue("")
+	}
+	if model.DisallowedCharacters.IsUnknown() || model.DisallowedCharacters.IsNull() {
+		model.DisallowedCharacters = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.ValidatorRequirementDescription.IsUnknown() || model.ValidatorRequirementDescription.IsNull() {
+		model.ValidatorRequirementDescription = types.StringValue("")
+	}
+}
+
 // Read a CharacterSetPasswordValidatorResponse object into the model struct
 func readCharacterSetPasswordValidatorResponse(ctx context.Context, r *client.CharacterSetPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("character-set")
@@ -1188,7 +1231,7 @@ func readCharacterSetPasswordValidatorResponse(ctx context.Context, r *client.Ch
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a SimilarityBasedPasswordValidatorResponse object into the model struct
@@ -1202,7 +1245,7 @@ func readSimilarityBasedPasswordValidatorResponse(ctx context.Context, r *client
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a AttributeValuePasswordValidatorResponse object into the model struct
@@ -1220,7 +1263,7 @@ func readAttributeValuePasswordValidatorResponse(ctx context.Context, r *client.
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a CustomPasswordValidatorResponse object into the model struct
@@ -1233,7 +1276,7 @@ func readCustomPasswordValidatorResponse(ctx context.Context, r *client.CustomPa
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a RepeatedCharactersPasswordValidatorResponse object into the model struct
@@ -1249,7 +1292,7 @@ func readRepeatedCharactersPasswordValidatorResponse(ctx context.Context, r *cli
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a DictionaryPasswordValidatorResponse object into the model struct
@@ -1270,7 +1313,7 @@ func readDictionaryPasswordValidatorResponse(ctx context.Context, r *client.Dict
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a HaystackPasswordValidatorResponse object into the model struct
@@ -1287,7 +1330,7 @@ func readHaystackPasswordValidatorResponse(ctx context.Context, r *client.Haysta
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a Utf8PasswordValidatorResponse object into the model struct
@@ -1304,7 +1347,7 @@ func readUtf8PasswordValidatorResponse(ctx context.Context, r *client.Utf8Passwo
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a GroovyScriptedPasswordValidatorResponse object into the model struct
@@ -1319,7 +1362,7 @@ func readGroovyScriptedPasswordValidatorResponse(ctx context.Context, r *client.
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a PwnedPasswordsPasswordValidatorResponse object into the model struct
@@ -1340,7 +1383,7 @@ func readPwnedPasswordsPasswordValidatorResponse(ctx context.Context, r *client.
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a DisallowedCharactersPasswordValidatorResponse object into the model struct
@@ -1356,7 +1399,7 @@ func readDisallowedCharactersPasswordValidatorResponse(ctx context.Context, r *c
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a LengthBasedPasswordValidatorResponse object into the model struct
@@ -1371,7 +1414,7 @@ func readLengthBasedPasswordValidatorResponse(ctx context.Context, r *client.Len
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a RegularExpressionPasswordValidatorResponse object into the model struct
@@ -1386,7 +1429,7 @@ func readRegularExpressionPasswordValidatorResponse(ctx context.Context, r *clie
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a UniqueCharactersPasswordValidatorResponse object into the model struct
@@ -1401,7 +1444,7 @@ func readUniqueCharactersPasswordValidatorResponse(ctx context.Context, r *clien
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Read a ThirdPartyPasswordValidatorResponse object into the model struct
@@ -1416,7 +1459,7 @@ func readThirdPartyPasswordValidatorResponse(ctx context.Context, r *client.Thir
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
 	state.ValidatorFailureMessage = internaltypes.StringTypeOrNil(r.ValidatorFailureMessage, internaltypes.IsEmptyString(expectedValues.ValidatorFailureMessage))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordValidatorUnknownValues(ctx, state)
+	populatePasswordValidatorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -2274,6 +2317,7 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2362,6 +2406,10 @@ func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyPasswordValidatorResponse != nil {
 		readThirdPartyPasswordValidatorResponse(ctx, readResponse.ThirdPartyPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

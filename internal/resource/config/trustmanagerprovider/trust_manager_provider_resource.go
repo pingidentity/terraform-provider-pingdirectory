@@ -293,12 +293,31 @@ func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateTrustManagerProviderUnknownValues(ctx context.Context, model *trustManagerProviderResourceModel) {
+func populateTrustManagerProviderUnknownValues(model *trustManagerProviderResourceModel) {
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *trustManagerProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustStorePinFile.IsUnknown() || model.TrustStorePinFile.IsNull() {
+		model.TrustStorePinFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
+		model.TrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 
@@ -310,7 +329,7 @@ func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindT
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderUnknownValues(ctx, state)
+	populateTrustManagerProviderUnknownValues(state)
 }
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
@@ -325,7 +344,7 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderUnknownValues(ctx, state)
+	populateTrustManagerProviderUnknownValues(state)
 }
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
@@ -335,7 +354,7 @@ func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.J
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderUnknownValues(ctx, state)
+	populateTrustManagerProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyTrustManagerProviderResponse object into the model struct
@@ -348,7 +367,7 @@ func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderUnknownValues(ctx, state)
+	populateTrustManagerProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -640,6 +659,7 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -695,6 +715,10 @@ func readTrustManagerProvider(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyTrustManagerProviderResponse != nil {
 		readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

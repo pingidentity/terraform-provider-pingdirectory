@@ -179,6 +179,22 @@ func addOptionalSoftDeletePolicyFields(ctx context.Context, addRequest *client.A
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *softDeletePolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SoftDeleteRetentionTime.IsUnknown() || model.SoftDeleteRetentionTime.IsNull() {
+		model.SoftDeleteRetentionTime = types.StringValue("")
+	}
+	if model.AutoSoftDeleteRequestCriteria.IsUnknown() || model.AutoSoftDeleteRequestCriteria.IsNull() {
+		model.AutoSoftDeleteRequestCriteria = types.StringValue("")
+	}
+	if model.AutoSoftDeleteConnectionCriteria.IsUnknown() || model.AutoSoftDeleteConnectionCriteria.IsNull() {
+		model.AutoSoftDeleteConnectionCriteria = types.StringValue("")
+	}
+}
+
 // Read a SoftDeletePolicyResponse object into the model struct
 func readSoftDeletePolicyResponse(ctx context.Context, r *client.SoftDeletePolicyResponse, state *softDeletePolicyResourceModel, expectedValues *softDeletePolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("soft-delete-policy")
@@ -318,6 +334,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -363,6 +380,10 @@ func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *r
 
 	// Read the response into the state
 	readSoftDeletePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

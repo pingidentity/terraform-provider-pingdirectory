@@ -399,7 +399,7 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, model *defaultWebApplicationExtensionResourceModel) {
+func populateWebApplicationExtensionUnknownValuesDefault(model *defaultWebApplicationExtensionResourceModel) {
 	if model.OidcClientSecretPassphraseProvider.IsUnknown() || model.OidcClientSecretPassphraseProvider.IsNull() {
 		model.OidcClientSecretPassphraseProvider = types.StringValue("")
 	}
@@ -470,7 +470,7 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
+	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Read a GenericWebApplicationExtensionResponse object into the model struct
@@ -501,7 +501,7 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
+	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

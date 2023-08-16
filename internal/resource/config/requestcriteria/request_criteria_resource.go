@@ -913,7 +913,7 @@ func addOptionalThirdPartyRequestCriteriaFields(ctx context.Context, addRequest 
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateRequestCriteriaUnknownValues(ctx context.Context, model *requestCriteriaResourceModel) {
+func populateRequestCriteriaUnknownValues(model *requestCriteriaResourceModel) {
 	if model.AnyIncludedRequestControl.IsUnknown() || model.AnyIncludedRequestControl.IsNull() {
 		model.AnyIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1012,6 +1012,19 @@ func populateRequestCriteriaUnknownValues(ctx context.Context, model *requestCri
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *requestCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+}
+
 // Read a RootDseRequestCriteriaResponse object into the model struct
 func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRequestCriteriaResponse, state *requestCriteriaResourceModel, expectedValues *requestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("root-dse")
@@ -1021,7 +1034,7 @@ func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRe
 		client.StringSliceEnumrequestCriteriaRootDseOperationTypeProp(r.OperationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a SimpleRequestCriteriaResponse object into the model struct
@@ -1064,7 +1077,7 @@ func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequ
 	state.ExcludedApplicationName = internaltypes.GetStringSet(r.ExcludedApplicationName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a AggregateRequestCriteriaResponse object into the model struct
@@ -1078,7 +1091,7 @@ func readAggregateRequestCriteriaResponse(ctx context.Context, r *client.Aggrega
 	state.NoneIncludedRequestCriteria = internaltypes.GetStringSet(r.NoneIncludedRequestCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyRequestCriteriaResponse object into the model struct
@@ -1090,7 +1103,7 @@ func readThirdPartyRequestCriteriaResponse(ctx context.Context, r *client.ThirdP
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1409,6 +1422,7 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1464,6 +1478,10 @@ func readRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 	if readResponse.ThirdPartyRequestCriteriaResponse != nil {
 		readThirdPartyRequestCriteriaResponse(ctx, readResponse.ThirdPartyRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

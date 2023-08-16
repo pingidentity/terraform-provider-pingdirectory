@@ -385,7 +385,7 @@ func addOptionalThirdPartyVelocityContextProviderFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVelocityContextProviderUnknownValues(ctx context.Context, model *velocityContextProviderResourceModel) {
+func populateVelocityContextProviderUnknownValues(model *velocityContextProviderResourceModel) {
 	if model.RequestTool.IsUnknown() || model.RequestTool.IsNull() {
 		model.RequestTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -400,6 +400,16 @@ func populateVelocityContextProviderUnknownValues(ctx context.Context, model *ve
 	}
 	if model.HttpMethod.IsUnknown() || model.HttpMethod.IsNull() {
 		model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *velocityContextProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ObjectScope.IsUnknown() || model.ObjectScope.IsNull() {
+		model.ObjectScope = types.StringValue("")
 	}
 }
 
@@ -418,7 +428,7 @@ func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *cl
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Read a CustomVelocityContextProviderResponse object into the model struct
@@ -434,7 +444,7 @@ func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.Cu
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyVelocityContextProviderResponse object into the model struct
@@ -452,7 +462,7 @@ func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *clien
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -665,6 +675,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -717,6 +728,10 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.ThirdPartyVelocityContextProviderResponse != nil {
 		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -312,6 +312,40 @@ func addOptionalCustomLoggedStatsFields(ctx context.Context, addRequest *client.
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *customLoggedStatsResourceModel) populateAllComputedStringAttributes() {
+	if model.DivideValueBy.IsUnknown() || model.DivideValueBy.IsNull() {
+		model.DivideValueBy = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.MonitorObjectclass.IsUnknown() || model.MonitorObjectclass.IsNull() {
+		model.MonitorObjectclass = types.StringValue("")
+	}
+	if model.RegexPattern.IsUnknown() || model.RegexPattern.IsNull() {
+		model.RegexPattern = types.StringValue("")
+	}
+	if model.DecimalFormat.IsUnknown() || model.DecimalFormat.IsNull() {
+		model.DecimalFormat = types.StringValue("")
+	}
+	if model.HeaderPrefixAttribute.IsUnknown() || model.HeaderPrefixAttribute.IsNull() {
+		model.HeaderPrefixAttribute = types.StringValue("")
+	}
+	if model.HeaderPrefix.IsUnknown() || model.HeaderPrefix.IsNull() {
+		model.HeaderPrefix = types.StringValue("")
+	}
+	if model.DivideValueByAttribute.IsUnknown() || model.DivideValueByAttribute.IsNull() {
+		model.DivideValueByAttribute = types.StringValue("")
+	}
+	if model.RegexReplacement.IsUnknown() || model.RegexReplacement.IsNull() {
+		model.RegexReplacement = types.StringValue("")
+	}
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter = types.StringValue("")
+	}
+}
+
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsResourceModel, expectedValues *customLoggedStatsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom-logged-stats")
@@ -488,6 +522,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -533,6 +568,10 @@ func readCustomLoggedStats(ctx context.Context, req resource.ReadRequest, resp *
 
 	// Read the response into the state
 	readCustomLoggedStatsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

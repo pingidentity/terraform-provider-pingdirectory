@@ -232,12 +232,25 @@ func addOptionalThirdPartyOauthTokenHandlerFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateOauthTokenHandlerUnknownValues(ctx context.Context, model *oauthTokenHandlerResourceModel) {
+func populateOauthTokenHandlerUnknownValues(model *oauthTokenHandlerResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *oauthTokenHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -250,7 +263,7 @@ func readGroovyScriptedOauthTokenHandlerResponse(ctx context.Context, r *client.
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerUnknownValues(ctx, state)
+	populateOauthTokenHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyOauthTokenHandlerResponse object into the model struct
@@ -262,7 +275,7 @@ func readThirdPartyOauthTokenHandlerResponse(ctx context.Context, r *client.Thir
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerUnknownValues(ctx, state)
+	populateOauthTokenHandlerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -446,6 +459,7 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -495,6 +509,10 @@ func readOauthTokenHandler(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

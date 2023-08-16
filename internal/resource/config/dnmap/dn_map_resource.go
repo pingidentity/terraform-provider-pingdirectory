@@ -154,6 +154,19 @@ func addOptionalDnMapFields(ctx context.Context, addRequest *client.AddDnMapRequ
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *dnMapResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.FromDNPattern.IsUnknown() || model.FromDNPattern.IsNull() {
+		model.FromDNPattern = types.StringValue("")
+	}
+	if model.ToDNPattern.IsUnknown() || model.ToDNPattern.IsNull() {
+		model.ToDNPattern = types.StringValue("")
+	}
+}
+
 // Read a DnMapResponse object into the model struct
 func readDnMapResponse(ctx context.Context, r *client.DnMapResponse, state *dnMapResourceModel, expectedValues *dnMapResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dn-map")
@@ -289,6 +302,7 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -334,6 +348,10 @@ func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 
 	// Read the response into the state
 	readDnMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

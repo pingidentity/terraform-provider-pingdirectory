@@ -837,7 +837,7 @@ func addOptionalThirdPartyConnectionCriteriaFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connectionCriteriaResourceModel) {
+func populateConnectionCriteriaUnknownValues(model *connectionCriteriaResourceModel) {
 	if model.ExcludedClientAddress.IsUnknown() || model.ExcludedClientAddress.IsNull() {
 		model.ExcludedClientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -930,6 +930,16 @@ func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connect
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+}
+
 // Read a SimpleConnectionCriteriaResponse object into the model struct
 func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleConnectionCriteriaResponse, state *connectionCriteriaResourceModel, expectedValues *connectionCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
@@ -969,7 +979,7 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 		client.StringSliceEnumconnectionCriteriaNoneIncludedUserPrivilegeProp(r.NoneIncludedUserPrivilege))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Read a AggregateConnectionCriteriaResponse object into the model struct
@@ -983,7 +993,7 @@ func readAggregateConnectionCriteriaResponse(ctx context.Context, r *client.Aggr
 	state.NoneIncludedConnectionCriteria = internaltypes.GetStringSet(r.NoneIncludedConnectionCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyConnectionCriteriaResponse object into the model struct
@@ -995,7 +1005,7 @@ func readThirdPartyConnectionCriteriaResponse(ctx context.Context, r *client.Thi
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1262,6 +1272,7 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1314,6 +1325,10 @@ func readConnectionCriteria(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyConnectionCriteriaResponse != nil {
 		readThirdPartyConnectionCriteriaResponse(ctx, readResponse.ThirdPartyConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

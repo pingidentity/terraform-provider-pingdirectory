@@ -584,7 +584,7 @@ func addOptionalThirdPartySearchEntryCriteriaFields(ctx context.Context, addRequ
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *searchEntryCriteriaResourceModel) {
+func populateSearchEntryCriteriaUnknownValues(model *searchEntryCriteriaResourceModel) {
 	if model.AllIncludedEntryGroupDN.IsUnknown() || model.AllIncludedEntryGroupDN.IsNull() {
 		model.AllIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -644,6 +644,19 @@ func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *search
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *searchEntryCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+}
+
 // Read a SimpleSearchEntryCriteriaResponse object into the model struct
 func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.SimpleSearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
@@ -666,7 +679,7 @@ func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.Simple
 	state.NoneIncludedEntryGroupDN = internaltypes.GetStringSet(r.NoneIncludedEntryGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Read a AggregateSearchEntryCriteriaResponse object into the model struct
@@ -680,7 +693,7 @@ func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.Agg
 	state.NoneIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchEntryCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartySearchEntryCriteriaResponse object into the model struct
@@ -692,7 +705,7 @@ func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.Th
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -937,6 +950,7 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -989,6 +1003,10 @@ func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp
 	}
 	if readResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -155,6 +155,16 @@ func addOptionalConstructedAttributeFields(ctx context.Context, addRequest *clie
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *constructedAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+}
+
 // Read a ConstructedAttributeResponse object into the model struct
 func readConstructedAttributeResponse(ctx context.Context, r *client.ConstructedAttributeResponse, state *constructedAttributeResourceModel, expectedValues *constructedAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("constructed-attribute")
@@ -292,6 +302,7 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -337,6 +348,10 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 
 	// Read the response into the state
 	readConstructedAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

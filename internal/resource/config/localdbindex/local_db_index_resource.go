@@ -276,6 +276,16 @@ func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLo
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *localDbIndexResourceModel) populateAllComputedStringAttributes() {
+	if model.Attribute.IsUnknown() || model.Attribute.IsNull() {
+		model.Attribute = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
+}
+
 // Read a LocalDbIndexResponse object into the model struct
 func readLocalDbIndexResponse(ctx context.Context, r *client.LocalDbIndexResponse, state *localDbIndexResourceModel, expectedValues *localDbIndexResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("local-db-index")
@@ -444,6 +454,7 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -489,6 +500,10 @@ func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resou
 
 	// Read the response into the state
 	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -156,6 +156,16 @@ func addOptionalDelegatedAdminAttributeCategoryFields(ctx context.Context, addRe
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminAttributeCategoryResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+}
+
 // Read a DelegatedAdminAttributeCategoryResponse object into the model struct
 func readDelegatedAdminAttributeCategoryResponse(ctx context.Context, r *client.DelegatedAdminAttributeCategoryResponse, state *delegatedAdminAttributeCategoryResourceModel, expectedValues *delegatedAdminAttributeCategoryResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin-attribute-category")
@@ -289,6 +299,7 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -334,6 +345,10 @@ func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadR
 
 	// Read the response into the state
 	readDelegatedAdminAttributeCategoryResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

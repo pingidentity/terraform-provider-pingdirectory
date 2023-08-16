@@ -366,6 +366,31 @@ func addOptionalJsonFieldConstraintsFields(ctx context.Context, addRequest *clie
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *jsonFieldConstraintsResourceModel) populateAllComputedStringAttributes() {
+	if model.MinimumNumericValue.IsUnknown() || model.MinimumNumericValue.IsNull() {
+		model.MinimumNumericValue = types.StringValue("")
+	}
+	if model.JsonField.IsUnknown() || model.JsonField.IsNull() {
+		model.JsonField = types.StringValue("")
+	}
+	if model.IsArray.IsUnknown() || model.IsArray.IsNull() {
+		model.IsArray = types.StringValue("")
+	}
+	if model.MaximumNumericValue.IsUnknown() || model.MaximumNumericValue.IsNull() {
+		model.MaximumNumericValue = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ValueType.IsUnknown() || model.ValueType.IsNull() {
+		model.ValueType = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
+}
+
 // Read a JsonFieldConstraintsResponse object into the model struct
 func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldConstraintsResponse, state *jsonFieldConstraintsResourceModel, expectedValues *jsonFieldConstraintsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-field-constraints")
@@ -554,6 +579,7 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -599,6 +625,10 @@ func readJsonFieldConstraints(ctx context.Context, req resource.ReadRequest, res
 
 	// Read the response into the state
 	readJsonFieldConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

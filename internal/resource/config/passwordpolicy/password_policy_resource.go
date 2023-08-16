@@ -790,6 +790,85 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.StateUpdateFailurePolicy.IsUnknown() || model.StateUpdateFailurePolicy.IsNull() {
+		model.StateUpdateFailurePolicy = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LockoutDuration.IsUnknown() || model.LockoutDuration.IsNull() {
+		model.LockoutDuration = types.StringValue("")
+	}
+	if model.RequireChangeByTime.IsUnknown() || model.RequireChangeByTime.IsNull() {
+		model.RequireChangeByTime = types.StringValue("")
+	}
+	if model.MaximumRecentLoginHistoryFailedAuthenticationDuration.IsUnknown() || model.MaximumRecentLoginHistoryFailedAuthenticationDuration.IsNull() {
+		model.MaximumRecentLoginHistoryFailedAuthenticationDuration = types.StringValue("")
+	}
+	if model.PasswordHistoryDuration.IsUnknown() || model.PasswordHistoryDuration.IsNull() {
+		model.PasswordHistoryDuration = types.StringValue("")
+	}
+	if model.BindPasswordValidationFailureAction.IsUnknown() || model.BindPasswordValidationFailureAction.IsNull() {
+		model.BindPasswordValidationFailureAction = types.StringValue("")
+	}
+	if model.IdleLockoutInterval.IsUnknown() || model.IdleLockoutInterval.IsNull() {
+		model.IdleLockoutInterval = types.StringValue("")
+	}
+	if model.LastLoginTimeAttribute.IsUnknown() || model.LastLoginTimeAttribute.IsNull() {
+		model.LastLoginTimeAttribute = types.StringValue("")
+	}
+	if model.MaxPasswordResetAge.IsUnknown() || model.MaxPasswordResetAge.IsNull() {
+		model.MaxPasswordResetAge = types.StringValue("")
+	}
+	if model.MinPasswordAge.IsUnknown() || model.MinPasswordAge.IsNull() {
+		model.MinPasswordAge = types.StringValue("")
+	}
+	if model.PasswordGenerator.IsUnknown() || model.PasswordGenerator.IsNull() {
+		model.PasswordGenerator = types.StringValue("")
+	}
+	if model.LastLoginTimeFormat.IsUnknown() || model.LastLoginTimeFormat.IsNull() {
+		model.LastLoginTimeFormat = types.StringValue("")
+	}
+	if model.MinimumBindPasswordValidationFrequency.IsUnknown() || model.MinimumBindPasswordValidationFrequency.IsNull() {
+		model.MinimumBindPasswordValidationFrequency = types.StringValue("")
+	}
+	if model.PasswordAttribute.IsUnknown() || model.PasswordAttribute.IsNull() {
+		model.PasswordAttribute = types.StringValue("")
+	}
+	if model.MaxRetiredPasswordAge.IsUnknown() || model.MaxRetiredPasswordAge.IsNull() {
+		model.MaxRetiredPasswordAge = types.StringValue("")
+	}
+	if model.PasswordExpirationWarningInterval.IsUnknown() || model.PasswordExpirationWarningInterval.IsNull() {
+		model.PasswordExpirationWarningInterval = types.StringValue("")
+	}
+	if model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration.IsUnknown() || model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration.IsNull() {
+		model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = types.StringValue("")
+	}
+	if model.RecentLoginHistorySimilarAttemptBehavior.IsUnknown() || model.RecentLoginHistorySimilarAttemptBehavior.IsNull() {
+		model.RecentLoginHistorySimilarAttemptBehavior = types.StringValue("")
+	}
+	if model.FailureLockoutAction.IsUnknown() || model.FailureLockoutAction.IsNull() {
+		model.FailureLockoutAction = types.StringValue("")
+	}
+	if model.MaxPasswordAge.IsUnknown() || model.MaxPasswordAge.IsNull() {
+		model.MaxPasswordAge = types.StringValue("")
+	}
+	if model.LastLoginIPAddressAttribute.IsUnknown() || model.LastLoginIPAddressAttribute.IsNull() {
+		model.LastLoginIPAddressAttribute = types.StringValue("")
+	}
+	if model.AllowPreEncodedPasswords.IsUnknown() || model.AllowPreEncodedPasswords.IsNull() {
+		model.AllowPreEncodedPasswords = types.StringValue("")
+	}
+	if model.ReturnPasswordExpirationControls.IsUnknown() || model.ReturnPasswordExpirationControls.IsNull() {
+		model.ReturnPasswordExpirationControls = types.StringValue("")
+	}
+	if model.LockoutFailureExpirationInterval.IsUnknown() || model.LockoutFailureExpirationInterval.IsNull() {
+		model.LockoutFailureExpirationInterval = types.StringValue("")
+	}
+}
+
 // Read a PasswordPolicyResponse object into the model struct
 func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyResponse, state *passwordPolicyResourceModel, expectedValues *passwordPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-policy")
@@ -1056,6 +1135,7 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1101,6 +1181,10 @@ func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *res
 
 	// Read the response into the state
 	readPasswordPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

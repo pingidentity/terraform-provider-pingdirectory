@@ -257,9 +257,25 @@ func addOptionalThirdPartyLogFileRotationListenerFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogFileRotationListenerUnknownValues(ctx context.Context, model *logFileRotationListenerResourceModel) {
+func populateLogFileRotationListenerUnknownValues(model *logFileRotationListenerResourceModel) {
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logFileRotationListenerResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.OutputDirectory.IsUnknown() || model.OutputDirectory.IsNull() {
+		model.OutputDirectory = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.CopyToDirectory.IsUnknown() || model.CopyToDirectory.IsNull() {
+		model.CopyToDirectory = types.StringValue("")
 	}
 }
 
@@ -272,7 +288,7 @@ func readSummarizeLogFileRotationListenerResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerUnknownValues(ctx, state)
+	populateLogFileRotationListenerUnknownValues(state)
 }
 
 // Read a CopyLogFileRotationListenerResponse object into the model struct
@@ -285,7 +301,7 @@ func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.Copy
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerUnknownValues(ctx, state)
+	populateLogFileRotationListenerUnknownValues(state)
 }
 
 // Read a ThirdPartyLogFileRotationListenerResponse object into the model struct
@@ -298,7 +314,7 @@ func readThirdPartyLogFileRotationListenerResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerUnknownValues(ctx, state)
+	populateLogFileRotationListenerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -532,6 +548,7 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -584,6 +601,10 @@ func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

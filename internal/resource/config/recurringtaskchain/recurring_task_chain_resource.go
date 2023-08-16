@@ -297,6 +297,25 @@ func addOptionalRecurringTaskChainFields(ctx context.Context, addRequest *client
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *recurringTaskChainResourceModel) populateAllComputedStringAttributes() {
+	if model.TimeZone.IsUnknown() || model.TimeZone.IsNull() {
+		model.TimeZone = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ScheduledDateSelectionType.IsUnknown() || model.ScheduledDateSelectionType.IsNull() {
+		model.ScheduledDateSelectionType = types.StringValue("")
+	}
+	if model.InterruptedByShutdownBehavior.IsUnknown() || model.InterruptedByShutdownBehavior.IsNull() {
+		model.InterruptedByShutdownBehavior = types.StringValue("")
+	}
+	if model.ServerOfflineAtStartTimeBehavior.IsUnknown() || model.ServerOfflineAtStartTimeBehavior.IsNull() {
+		model.ServerOfflineAtStartTimeBehavior = types.StringValue("")
+	}
+}
+
 // Read a RecurringTaskChainResponse object into the model struct
 func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTaskChainResponse, state *recurringTaskChainResourceModel, expectedValues *recurringTaskChainResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("recurring-task-chain")
@@ -467,6 +486,7 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -512,6 +532,10 @@ func readRecurringTaskChain(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -384,7 +384,7 @@ func addOptionalThirdPartySearchReferenceCriteriaFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *searchReferenceCriteriaResourceModel) {
+func populateSearchReferenceCriteriaUnknownValues(model *searchReferenceCriteriaResourceModel) {
 	if model.AllIncludedReferenceControl.IsUnknown() || model.AllIncludedReferenceControl.IsNull() {
 		model.AllIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -414,6 +414,19 @@ func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *se
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *searchReferenceCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+}
+
 // Read a SimpleSearchReferenceCriteriaResponse object into the model struct
 func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.SimpleSearchReferenceCriteriaResponse, state *searchReferenceCriteriaResourceModel, expectedValues *searchReferenceCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
@@ -426,7 +439,7 @@ func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.Si
 	state.NoneIncludedReferenceControl = internaltypes.GetStringSet(r.NoneIncludedReferenceControl)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Read a AggregateSearchReferenceCriteriaResponse object into the model struct
@@ -440,7 +453,7 @@ func readAggregateSearchReferenceCriteriaResponse(ctx context.Context, r *client
 	state.NoneIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchReferenceCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartySearchReferenceCriteriaResponse object into the model struct
@@ -452,7 +465,7 @@ func readThirdPartySearchReferenceCriteriaResponse(ctx context.Context, r *clien
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -687,6 +700,7 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -739,6 +753,10 @@ func readSearchReferenceCriteria(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 		readThirdPartySearchReferenceCriteriaResponse(ctx, readResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

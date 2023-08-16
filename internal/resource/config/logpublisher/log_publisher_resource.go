@@ -5786,7 +5786,7 @@ func addOptionalGroovyScriptedHttpOperationLogPublisherFields(ctx context.Contex
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogPublisherUnknownValues(ctx context.Context, model *logPublisherResourceModel) {
+func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
 	if model.IdTokenValidatorMessageType.IsUnknown() || model.IdTokenValidatorMessageType.IsNull() {
 		model.IdTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -5906,6 +5906,61 @@ func populateLogPublisherUnknownValues(ctx context.Context, model *logPublisherR
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logPublisherResourceModel) populateAllComputedStringAttributes() {
+	if model.SyslogMessageApplicationName.IsUnknown() || model.SyslogMessageApplicationName.IsNull() {
+		model.SyslogMessageApplicationName = types.StringValue("")
+	}
+	if model.LogFieldMapping.IsUnknown() || model.LogFieldMapping.IsNull() {
+		model.LogFieldMapping = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.MinIncludedOperationProcessingTime.IsUnknown() || model.MinIncludedOperationProcessingTime.IsNull() {
+		model.MinIncludedOperationProcessingTime = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SyslogMessageHostName.IsUnknown() || model.SyslogMessageHostName.IsNull() {
+		model.SyslogMessageHostName = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.SearchEntryCriteria.IsUnknown() || model.SearchEntryCriteria.IsNull() {
+		model.SearchEntryCriteria = types.StringValue("")
+	}
+	if model.LogFieldBehavior.IsUnknown() || model.LogFieldBehavior.IsNull() {
+		model.LogFieldBehavior = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.SearchReferenceCriteria.IsUnknown() || model.SearchReferenceCriteria.IsNull() {
+		model.SearchReferenceCriteria = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.ResultCriteria.IsUnknown() || model.ResultCriteria.IsNull() {
+		model.ResultCriteria = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+}
+
 // Read a SyslogJsonAuditLogPublisherResponse object into the model struct
 func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.SyslogJsonAuditLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-audit")
@@ -5945,7 +6000,7 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogBasedErrorLogPublisherResponse object into the model struct
@@ -5967,7 +6022,7 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyFileBasedAccessLogPublisherResponse object into the model struct
@@ -6019,7 +6074,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a OperationTimingAccessLogPublisherResponse object into the model struct
@@ -6070,7 +6125,7 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyHttpOperationLogPublisherResponse object into the model struct
@@ -6085,7 +6140,7 @@ func readThirdPartyHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a AdminAlertAccessLogPublisherResponse object into the model struct
@@ -6140,7 +6195,7 @@ func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.Adm
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedTraceLogPublisherResponse object into the model struct
@@ -6191,7 +6246,7 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JdbcBasedErrorLogPublisherResponse object into the model struct
@@ -6211,7 +6266,7 @@ func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcB
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JdbcBasedAccessLogPublisherResponse object into the model struct
@@ -6245,7 +6300,7 @@ func readJdbcBasedAccessLogPublisherResponse(ctx context.Context, r *client.Jdbc
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a CommonLogFileHttpOperationLogPublisherResponse object into the model struct
@@ -6278,7 +6333,7 @@ func readCommonLogFileHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonErrorLogPublisherResponse object into the model struct
@@ -6302,7 +6357,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogTextErrorLogPublisherResponse object into the model struct
@@ -6332,7 +6387,7 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogBasedAccessLogPublisherResponse object into the model struct
@@ -6390,7 +6445,7 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedJsonAuditLogPublisherResponse object into the model struct
@@ -6446,7 +6501,7 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedDebugLogPublisherResponse object into the model struct
@@ -6488,7 +6543,7 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedErrorLogPublisherResponse object into the model struct
@@ -6531,7 +6586,7 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyErrorLogPublisherResponse object into the model struct
@@ -6549,7 +6604,7 @@ func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.Thir
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogTextAccessLogPublisherResponse object into the model struct
@@ -6611,7 +6666,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a DetailedHttpOperationLogPublisherResponse object into the model struct
@@ -6666,7 +6721,7 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JsonAccessLogPublisherResponse object into the model struct
@@ -6739,7 +6794,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a DebugAccessLogPublisherResponse object into the model struct
@@ -6793,7 +6848,7 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonHttpOperationLogPublisherResponse object into the model struct
@@ -6834,7 +6889,7 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyAccessLogPublisherResponse object into the model struct
@@ -6866,7 +6921,7 @@ func readThirdPartyAccessLogPublisherResponse(ctx context.Context, r *client.Thi
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedAuditLogPublisherResponse object into the model struct
@@ -6923,7 +6978,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JsonErrorLogPublisherResponse object into the model struct
@@ -6965,7 +7020,7 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedFileBasedAccessLogPublisherResponse object into the model struct
@@ -7017,7 +7072,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedFileBasedErrorLogPublisherResponse object into the model struct
@@ -7055,7 +7110,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonAccessLogPublisherResponse object into the model struct
@@ -7113,7 +7168,7 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedAccessLogPublisherResponse object into the model struct
@@ -7145,7 +7200,7 @@ func readGroovyScriptedAccessLogPublisherResponse(ctx context.Context, r *client
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyFileBasedErrorLogPublisherResponse object into the model struct
@@ -7183,7 +7238,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonAuditLogPublisherResponse object into the model struct
@@ -7221,7 +7276,7 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonHttpOperationLogPublisherResponse object into the model struct
@@ -7258,7 +7313,7 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonAccessLogPublisherResponse object into the model struct
@@ -7312,7 +7367,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedAccessLogPublisherResponse object into the model struct
@@ -7386,7 +7441,7 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedErrorLogPublisherResponse object into the model struct
@@ -7404,7 +7459,7 @@ func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedJsonHttpOperationLogPublisherResponse object into the model struct
@@ -7459,7 +7514,7 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonErrorLogPublisherResponse object into the model struct
@@ -7487,7 +7542,7 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedHttpOperationLogPublisherResponse object into the model struct
@@ -7502,7 +7557,7 @@ func readGroovyScriptedHttpOperationLogPublisherResponse(ctx context.Context, r 
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -9563,6 +9618,7 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -9720,6 +9776,10 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	}
 	if readResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 		readGroovyScriptedHttpOperationLogPublisherResponse(ctx, readResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

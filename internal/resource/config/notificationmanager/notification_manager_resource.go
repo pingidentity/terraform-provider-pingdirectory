@@ -209,6 +209,22 @@ func addOptionalThirdPartyNotificationManagerFields(ctx context.Context, addRequ
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *notificationManagerResourceModel) populateAllComputedStringAttributes() {
+	if model.TransactionNotification.IsUnknown() || model.TransactionNotification.IsNull() {
+		model.TransactionNotification = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.SubscriptionBaseDN.IsUnknown() || model.SubscriptionBaseDN.IsNull() {
+		model.SubscriptionBaseDN = types.StringValue("")
+	}
+}
+
 // Read a ThirdPartyNotificationManagerResponse object into the model struct
 func readThirdPartyNotificationManagerResponse(ctx context.Context, r *client.ThirdPartyNotificationManagerResponse, state *notificationManagerResourceModel, expectedValues *notificationManagerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -358,6 +374,7 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -403,6 +420,10 @@ func readNotificationManager(ctx context.Context, req resource.ReadRequest, resp
 
 	// Read the response into the state
 	readThirdPartyNotificationManagerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

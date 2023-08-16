@@ -475,7 +475,7 @@ func addOptionalThirdPartyOtpDeliveryMechanismFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateOtpDeliveryMechanismUnknownValues(ctx context.Context, model *otpDeliveryMechanismResourceModel) {
+func populateOtpDeliveryMechanismUnknownValues(model *otpDeliveryMechanismResourceModel) {
 	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
 		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -496,6 +496,46 @@ func populateOtpDeliveryMechanismUnknownValues(ctx context.Context, model *otpDe
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *otpDeliveryMechanismResourceModel) populateAllComputedStringAttributes() {
+	if model.TwilioAccountSID.IsUnknown() || model.TwilioAccountSID.IsNull() {
+		model.TwilioAccountSID = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
+	if model.MessageTextAfterOTP.IsUnknown() || model.MessageTextAfterOTP.IsNull() {
+		model.MessageTextAfterOTP = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.MessageTextBeforeOTP.IsUnknown() || model.MessageTextBeforeOTP.IsNull() {
+		model.MessageTextBeforeOTP = types.StringValue("")
+	}
+	if model.PhoneNumberJSONField.IsUnknown() || model.PhoneNumberJSONField.IsNull() {
+		model.PhoneNumberJSONField = types.StringValue("")
+	}
+	if model.PhoneNumberJSONObjectFilter.IsUnknown() || model.PhoneNumberJSONObjectFilter.IsNull() {
+		model.PhoneNumberJSONObjectFilter = types.StringValue("")
+	}
+	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
+		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
+	}
+	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
+		model.EmailAddressJSONField = types.StringValue("")
+	}
+	if model.EmailAddressJSONObjectFilter.IsUnknown() || model.EmailAddressJSONObjectFilter.IsNull() {
+		model.EmailAddressJSONObjectFilter = types.StringValue("")
+	}
+}
+
 // Read a TwilioOtpDeliveryMechanismResponse object into the model struct
 func readTwilioOtpDeliveryMechanismResponse(ctx context.Context, r *client.TwilioOtpDeliveryMechanismResponse, state *otpDeliveryMechanismResourceModel, expectedValues *otpDeliveryMechanismResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("twilio")
@@ -513,7 +553,7 @@ func readTwilioOtpDeliveryMechanismResponse(ctx context.Context, r *client.Twili
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Read a EmailOtpDeliveryMechanismResponse object into the model struct
@@ -531,7 +571,7 @@ func readEmailOtpDeliveryMechanismResponse(ctx context.Context, r *client.EmailO
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Read a ThirdPartyOtpDeliveryMechanismResponse object into the model struct
@@ -544,7 +584,7 @@ func readThirdPartyOtpDeliveryMechanismResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -804,6 +844,7 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -856,6 +897,10 @@ func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 		readThirdPartyOtpDeliveryMechanismResponse(ctx, readResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

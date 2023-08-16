@@ -226,6 +226,16 @@ func addOptionalLockAccountFailureLockoutActionFields(ctx context.Context, addRe
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *failureLockoutActionResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Delay.IsUnknown() || model.Delay.IsNull() {
+		model.Delay = types.StringValue("")
+	}
+}
+
 // Read a DelayBindResponseFailureLockoutActionResponse object into the model struct
 func readDelayBindResponseFailureLockoutActionResponse(ctx context.Context, r *client.DelayBindResponseFailureLockoutActionResponse, state *failureLockoutActionResourceModel, expectedValues *failureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delay-bind-response")
@@ -483,6 +493,7 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -535,6 +546,10 @@ func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.LockAccountFailureLockoutActionResponse != nil {
 		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

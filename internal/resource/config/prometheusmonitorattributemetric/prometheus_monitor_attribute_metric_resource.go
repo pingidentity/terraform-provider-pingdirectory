@@ -215,6 +215,28 @@ func addOptionalPrometheusMonitorAttributeMetricFields(ctx context.Context, addR
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *prometheusMonitorAttributeMetricResourceModel) populateAllComputedStringAttributes() {
+	if model.MetricName.IsUnknown() || model.MetricName.IsNull() {
+		model.MetricName = types.StringValue("")
+	}
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter = types.StringValue("")
+	}
+	if model.MetricType.IsUnknown() || model.MetricType.IsNull() {
+		model.MetricType = types.StringValue("")
+	}
+	if model.MonitorAttributeName.IsUnknown() || model.MonitorAttributeName.IsNull() {
+		model.MonitorAttributeName = types.StringValue("")
+	}
+	if model.MetricDescription.IsUnknown() || model.MetricDescription.IsNull() {
+		model.MetricDescription = types.StringValue("")
+	}
+	if model.MonitorObjectClassName.IsUnknown() || model.MonitorObjectClassName.IsNull() {
+		model.MonitorObjectClassName = types.StringValue("")
+	}
+}
+
 // Read a PrometheusMonitorAttributeMetricResponse object into the model struct
 func readPrometheusMonitorAttributeMetricResponse(ctx context.Context, r *client.PrometheusMonitorAttributeMetricResponse, state *prometheusMonitorAttributeMetricResourceModel, expectedValues *prometheusMonitorAttributeMetricResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("prometheus-monitor-attribute-metric")
@@ -373,6 +395,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -418,6 +441,10 @@ func readPrometheusMonitorAttributeMetric(ctx context.Context, req resource.Read
 
 	// Read the response into the state
 	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

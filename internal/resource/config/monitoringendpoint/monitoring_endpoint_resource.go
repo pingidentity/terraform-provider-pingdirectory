@@ -204,6 +204,19 @@ func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *monitoringEndpointResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.ConnectionType.IsUnknown() || model.ConnectionType.IsNull() {
+		model.ConnectionType = types.StringValue("")
+	}
+	if model.Hostname.IsUnknown() || model.Hostname.IsNull() {
+		model.Hostname = types.StringValue("")
+	}
+}
+
 // Read a StatsdMonitoringEndpointResponse object into the model struct
 func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointResourceModel, expectedValues *monitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("statsd")
@@ -350,6 +363,7 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -395,6 +409,10 @@ func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

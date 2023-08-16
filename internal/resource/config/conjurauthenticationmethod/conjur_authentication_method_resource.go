@@ -170,12 +170,22 @@ func addOptionalApiKeyConjurAuthenticationMethodFields(ctx context.Context, addR
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model *conjurAuthenticationMethodResourceModel) {
+func populateConjurAuthenticationMethodUnknownValues(model *conjurAuthenticationMethodResourceModel) {
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
 	}
 	if model.ApiKey.IsUnknown() {
 		model.ApiKey = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *conjurAuthenticationMethodResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Username.IsUnknown() || model.Username.IsNull() {
+		model.Username = types.StringValue("")
 	}
 }
 
@@ -187,7 +197,7 @@ func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client
 	state.Username = types.StringValue(r.Username)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConjurAuthenticationMethodUnknownValues(ctx, state)
+	populateConjurAuthenticationMethodUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -328,6 +338,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -373,6 +384,10 @@ func readConjurAuthenticationMethod(ctx context.Context, req resource.ReadReques
 
 	// Read the response into the state
 	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

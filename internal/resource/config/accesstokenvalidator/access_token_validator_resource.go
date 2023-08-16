@@ -605,7 +605,7 @@ func addOptionalThirdPartyAccessTokenValidatorFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *accessTokenValidatorResourceModel) {
+func populateAccessTokenValidatorUnknownValues(model *accessTokenValidatorResourceModel) {
 	if model.AllowedKeyEncryptionAlgorithm.IsUnknown() || model.AllowedKeyEncryptionAlgorithm.IsNull() {
 		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -638,6 +638,40 @@ func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *acces
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *accessTokenValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.ClientSecretPassphraseProvider.IsUnknown() || model.ClientSecretPassphraseProvider.IsNull() {
+		model.ClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.AuthorizationServer.IsUnknown() || model.AuthorizationServer.IsNull() {
+		model.AuthorizationServer = types.StringValue("")
+	}
+	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
+		model.JwksEndpointPath = types.StringValue("")
+	}
+	if model.EncryptionKeyPair.IsUnknown() || model.EncryptionKeyPair.IsNull() {
+		model.EncryptionKeyPair = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SubjectClaimName.IsUnknown() || model.SubjectClaimName.IsNull() {
+		model.SubjectClaimName = types.StringValue("")
+	}
+	if model.AccessTokenManagerID.IsUnknown() || model.AccessTokenManagerID.IsNull() {
+		model.AccessTokenManagerID = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ClientID.IsUnknown() || model.ClientID.IsNull() {
+		model.ClientID = types.StringValue("")
+	}
+}
+
 // Read a PingFederateAccessTokenValidatorResponse object into the model struct
 func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client.PingFederateAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-federate")
@@ -657,7 +691,7 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a JwtAccessTokenValidatorResponse object into the model struct
@@ -686,7 +720,7 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a MockAccessTokenValidatorResponse object into the model struct
@@ -702,7 +736,7 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a ThirdPartyAccessTokenValidatorResponse object into the model struct
@@ -718,7 +752,7 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1041,6 +1075,7 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1096,6 +1131,10 @@ func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyAccessTokenValidatorResponse != nil {
 		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

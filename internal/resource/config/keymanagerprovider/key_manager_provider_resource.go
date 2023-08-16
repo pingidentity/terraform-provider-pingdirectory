@@ -431,7 +431,7 @@ func addOptionalThirdPartyKeyManagerProviderFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyManagerProviderResourceModel) {
+func populateKeyManagerProviderUnknownValues(model *keyManagerProviderResourceModel) {
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -449,6 +449,40 @@ func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyMana
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *keyManagerProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.KeyStoreType.IsUnknown() || model.KeyStoreType.IsNull() {
+		model.KeyStoreType = types.StringValue("")
+	}
+	if model.PrivateKeyPinFile.IsUnknown() || model.PrivateKeyPinFile.IsNull() {
+		model.PrivateKeyPinFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.Pkcs11ProviderClass.IsUnknown() || model.Pkcs11ProviderClass.IsNull() {
+		model.Pkcs11ProviderClass = types.StringValue("")
+	}
+	if model.KeyStorePinFile.IsUnknown() || model.KeyStorePinFile.IsNull() {
+		model.KeyStorePinFile = types.StringValue("")
+	}
+	if model.PrivateKeyPinPassphraseProvider.IsUnknown() || model.PrivateKeyPinPassphraseProvider.IsNull() {
+		model.PrivateKeyPinPassphraseProvider = types.StringValue("")
+	}
+	if model.Pkcs11ProviderConfigurationFile.IsUnknown() || model.Pkcs11ProviderConfigurationFile.IsNull() {
+		model.Pkcs11ProviderConfigurationFile = types.StringValue("")
+	}
+	if model.KeyStorePinPassphraseProvider.IsUnknown() || model.KeyStorePinPassphraseProvider.IsNull() {
+		model.KeyStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.KeyStoreFile.IsUnknown() || model.KeyStoreFile.IsNull() {
+		model.KeyStoreFile = types.StringValue("")
+	}
+}
+
 // Read a FileBasedKeyManagerProviderResponse object into the model struct
 func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.FileBasedKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
@@ -463,7 +497,7 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a CustomKeyManagerProviderResponse object into the model struct
@@ -474,7 +508,7 @@ func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomK
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a Pkcs11KeyManagerProviderResponse object into the model struct
@@ -493,7 +527,7 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyKeyManagerProviderResponse object into the model struct
@@ -506,7 +540,7 @@ func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -768,6 +802,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -823,6 +858,10 @@ func readKeyManagerProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
 		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

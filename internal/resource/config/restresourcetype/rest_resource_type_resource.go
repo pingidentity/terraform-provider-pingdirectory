@@ -531,6 +531,52 @@ func addOptionalGroupRestResourceTypeFields(ctx context.Context, addRequest *cli
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *restResourceTypeResourceModel) populateAllComputedStringAttributes() {
+	if model.PasswordAttributeCategory.IsUnknown() || model.PasswordAttributeCategory.IsNull() {
+		model.PasswordAttributeCategory = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.PrimaryDisplayAttributeType.IsUnknown() || model.PrimaryDisplayAttributeType.IsNull() {
+		model.PrimaryDisplayAttributeType = types.StringValue("")
+	}
+	if model.NonmembersColumnName.IsUnknown() || model.NonmembersColumnName.IsNull() {
+		model.NonmembersColumnName = types.StringValue("")
+	}
+	if model.ResourceEndpoint.IsUnknown() || model.ResourceEndpoint.IsNull() {
+		model.ResourceEndpoint = types.StringValue("")
+	}
+	if model.StructuralLDAPObjectclass.IsUnknown() || model.StructuralLDAPObjectclass.IsNull() {
+		model.StructuralLDAPObjectclass = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.RelativeDNFromParentResource.IsUnknown() || model.RelativeDNFromParentResource.IsNull() {
+		model.RelativeDNFromParentResource = types.StringValue("")
+	}
+	if model.MembersColumnName.IsUnknown() || model.MembersColumnName.IsNull() {
+		model.MembersColumnName = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.CreateRDNAttributeType.IsUnknown() || model.CreateRDNAttributeType.IsNull() {
+		model.CreateRDNAttributeType = types.StringValue("")
+	}
+	if model.ParentDN.IsUnknown() || model.ParentDN.IsNull() {
+		model.ParentDN = types.StringValue("")
+	}
+	if model.ParentResourceType.IsUnknown() || model.ParentResourceType.IsNull() {
+		model.ParentResourceType = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+}
+
 // Read a UserRestResourceTypeResponse object into the model struct
 func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user")
@@ -870,6 +916,7 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -922,6 +969,10 @@ func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.GroupRestResourceTypeResponse != nil {
 		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

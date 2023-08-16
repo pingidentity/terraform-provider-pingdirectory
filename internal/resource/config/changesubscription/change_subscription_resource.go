@@ -180,6 +180,25 @@ func addOptionalChangeSubscriptionFields(ctx context.Context, addRequest *client
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *changeSubscriptionResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.ExpirationTime.IsUnknown() || model.ExpirationTime.IsNull() {
+		model.ExpirationTime = types.StringValue("")
+	}
+	if model.ResultCriteria.IsUnknown() || model.ResultCriteria.IsNull() {
+		model.ResultCriteria = types.StringValue("")
+	}
+}
+
 // Read a ChangeSubscriptionResponse object into the model struct
 func readChangeSubscriptionResponse(ctx context.Context, r *client.ChangeSubscriptionResponse, state *changeSubscriptionResourceModel, expectedValues *changeSubscriptionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("change-subscription")
@@ -317,6 +336,7 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -362,6 +382,10 @@ func readChangeSubscription(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readChangeSubscriptionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

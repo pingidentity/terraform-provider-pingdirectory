@@ -424,9 +424,37 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateDelegatedAdminAttributeUnknownValues(ctx context.Context, model *delegatedAdminAttributeResourceModel) {
+func populateDelegatedAdminAttributeUnknownValues(model *delegatedAdminAttributeResourceModel) {
 	if model.AllowedMIMEType.IsUnknown() || model.AllowedMIMEType.IsNull() {
 		model.AllowedMIMEType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+	if model.AttributeCategory.IsUnknown() || model.AttributeCategory.IsNull() {
+		model.AttributeCategory = types.StringValue("")
+	}
+	if model.ReferenceResourceType.IsUnknown() || model.ReferenceResourceType.IsNull() {
+		model.ReferenceResourceType = types.StringValue("")
+	}
+	if model.Mutability.IsUnknown() || model.Mutability.IsNull() {
+		model.Mutability = types.StringValue("")
+	}
+	if model.AttributePresentation.IsUnknown() || model.AttributePresentation.IsNull() {
+		model.AttributePresentation = types.StringValue("")
+	}
+	if model.DateTimeFormat.IsUnknown() || model.DateTimeFormat.IsNull() {
+		model.DateTimeFormat = types.StringValue("")
 	}
 }
 
@@ -448,7 +476,7 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Read a PhotoDelegatedAdminAttributeResponse object into the model struct
@@ -469,7 +497,7 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Read a GenericDelegatedAdminAttributeResponse object into the model struct
@@ -489,7 +517,7 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -748,6 +776,7 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -800,6 +829,10 @@ func readDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
 		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -287,6 +287,25 @@ func addOptionalScimAttributeFields(ctx context.Context, addRequest *client.AddS
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Returned.IsUnknown() || model.Returned.IsNull() {
+		model.Returned = types.StringValue("")
+	}
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Mutability.IsUnknown() || model.Mutability.IsNull() {
+		model.Mutability = types.StringValue("")
+	}
+	if model.Name.IsUnknown() || model.Name.IsNull() {
+		model.Name = types.StringValue("")
+	}
+}
+
 // Read a ScimAttributeResponse object into the model struct
 func readScimAttributeResponse(ctx context.Context, r *client.ScimAttributeResponse, state *scimAttributeResourceModel, expectedValues *scimAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("scim-attribute")
@@ -448,6 +467,7 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -493,6 +513,10 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 
 	// Read the response into the state
 	readScimAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -179,6 +179,22 @@ func addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx context.Context, 
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminCorrelatedRestResourceResourceModel) populateAllComputedStringAttributes() {
+	if model.CorrelatedRESTResource.IsUnknown() || model.CorrelatedRESTResource.IsNull() {
+		model.CorrelatedRESTResource = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+	if model.PrimaryRESTResourceCorrelationAttribute.IsUnknown() || model.PrimaryRESTResourceCorrelationAttribute.IsNull() {
+		model.PrimaryRESTResourceCorrelationAttribute = types.StringValue("")
+	}
+	if model.SecondaryRESTResourceCorrelationAttribute.IsUnknown() || model.SecondaryRESTResourceCorrelationAttribute.IsNull() {
+		model.SecondaryRESTResourceCorrelationAttribute = types.StringValue("")
+	}
+}
+
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponse(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceResourceModel, expectedValues *delegatedAdminCorrelatedRestResourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin-correlated-rest-resource")
@@ -330,6 +346,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -375,6 +392,10 @@ func readDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.
 
 	// Read the response into the state
 	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -858,7 +858,7 @@ func addOptionalThirdPartyAccountStatusNotificationHandlerFields(ctx context.Con
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, model *accountStatusNotificationHandlerResourceModel) {
+func populateAccountStatusNotificationHandlerUnknownValues(model *accountStatusNotificationHandlerResourceModel) {
 	if model.MessageTemplateFile.IsUnknown() || model.MessageTemplateFile.IsNull() {
 		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -879,6 +879,97 @@ func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, 
 	}
 	if model.AccountStatusNotificationType.IsUnknown() || model.AccountStatusNotificationType.IsNull() {
 		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *accountStatusNotificationHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.AccountUnlockedMessageTemplate.IsUnknown() || model.AccountUnlockedMessageTemplate.IsNull() {
+		model.AccountUnlockedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountAuthenticatedMessageTemplate.IsUnknown() || model.AccountAuthenticatedMessageTemplate.IsNull() {
+		model.AccountAuthenticatedMessageTemplate = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AccountUpdatedMessageTemplate.IsUnknown() || model.AccountUpdatedMessageTemplate.IsNull() {
+		model.AccountUpdatedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountUpdateNotificationRequestCriteria.IsUnknown() || model.AccountUpdateNotificationRequestCriteria.IsNull() {
+		model.AccountUpdateNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.PasswordExpiringMessageTemplate.IsUnknown() || model.PasswordExpiringMessageTemplate.IsNull() {
+		model.PasswordExpiringMessageTemplate = types.StringValue("")
+	}
+	if model.AccountNotYetActiveMessageTemplate.IsUnknown() || model.AccountNotYetActiveMessageTemplate.IsNull() {
+		model.AccountNotYetActiveMessageTemplate = types.StringValue("")
+	}
+	if model.PasswordChangedMessageTemplate.IsUnknown() || model.PasswordChangedMessageTemplate.IsNull() {
+		model.PasswordChangedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountIdleLockedMessageTemplate.IsUnknown() || model.AccountIdleLockedMessageTemplate.IsNull() {
+		model.AccountIdleLockedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountPermanentlyFailureLockedMessageTemplate.IsUnknown() || model.AccountPermanentlyFailureLockedMessageTemplate.IsNull() {
+		model.AccountPermanentlyFailureLockedMessageTemplate = types.StringValue("")
+	}
+	if model.MustChangePasswordMessageTemplate.IsUnknown() || model.MustChangePasswordMessageTemplate.IsNull() {
+		model.MustChangePasswordMessageTemplate = types.StringValue("")
+	}
+	if model.AccountResetLockedMessageTemplate.IsUnknown() || model.AccountResetLockedMessageTemplate.IsNull() {
+		model.AccountResetLockedMessageTemplate = types.StringValue("")
+	}
+	if model.EmailAddressJSONObjectFilter.IsUnknown() || model.EmailAddressJSONObjectFilter.IsNull() {
+		model.EmailAddressJSONObjectFilter = types.StringValue("")
+	}
+	if model.AccountDeletionNotificationRequestCriteria.IsUnknown() || model.AccountDeletionNotificationRequestCriteria.IsNull() {
+		model.AccountDeletionNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.AccountDeletedMessageTemplate.IsUnknown() || model.AccountDeletedMessageTemplate.IsNull() {
+		model.AccountDeletedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountCreationNotificationRequestCriteria.IsUnknown() || model.AccountCreationNotificationRequestCriteria.IsNull() {
+		model.AccountCreationNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.PasswordResetMessageTemplate.IsUnknown() || model.PasswordResetMessageTemplate.IsNull() {
+		model.PasswordResetMessageTemplate = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.AccountExpiredMessageTemplate.IsUnknown() || model.AccountExpiredMessageTemplate.IsNull() {
+		model.AccountExpiredMessageTemplate = types.StringValue("")
+	}
+	if model.AccountAuthenticationNotificationResultCriteria.IsUnknown() || model.AccountAuthenticationNotificationResultCriteria.IsNull() {
+		model.AccountAuthenticationNotificationResultCriteria = types.StringValue("")
+	}
+	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
+		model.EmailAddressJSONField = types.StringValue("")
+	}
+	if model.AccountTemporarilyFailureLockedMessageTemplate.IsUnknown() || model.AccountTemporarilyFailureLockedMessageTemplate.IsNull() {
+		model.AccountTemporarilyFailureLockedMessageTemplate = types.StringValue("")
+	}
+	if model.BindPasswordFailedValidationMessageTemplate.IsUnknown() || model.BindPasswordFailedValidationMessageTemplate.IsNull() {
+		model.BindPasswordFailedValidationMessageTemplate = types.StringValue("")
+	}
+	if model.AccountEnabledMessageTemplate.IsUnknown() || model.AccountEnabledMessageTemplate.IsNull() {
+		model.AccountEnabledMessageTemplate = types.StringValue("")
+	}
+	if model.AccountCreatedMessageTemplate.IsUnknown() || model.AccountCreatedMessageTemplate.IsNull() {
+		model.AccountCreatedMessageTemplate = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.PasswordExpiredMessageTemplate.IsUnknown() || model.PasswordExpiredMessageTemplate.IsNull() {
+		model.PasswordExpiredMessageTemplate = types.StringValue("")
+	}
+	if model.AccountDisabledMessageTemplate.IsUnknown() || model.AccountDisabledMessageTemplate.IsNull() {
+		model.AccountDisabledMessageTemplate = types.StringValue("")
 	}
 }
 
@@ -903,7 +994,7 @@ func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *cl
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a GroovyScriptedAccountStatusNotificationHandlerResponse object into the model struct
@@ -921,7 +1012,7 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a AdminAlertAccountStatusNotificationHandlerResponse object into the model struct
@@ -939,7 +1030,7 @@ func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a ErrorLogAccountStatusNotificationHandlerResponse object into the model struct
@@ -957,7 +1048,7 @@ func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a MultiPartEmailAccountStatusNotificationHandlerResponse object into the model struct
@@ -992,7 +1083,7 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyAccountStatusNotificationHandlerResponse object into the model struct
@@ -1010,7 +1101,7 @@ func readThirdPartyAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1427,6 +1518,7 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1488,6 +1580,10 @@ func readAccountStatusNotificationHandler(ctx context.Context, req resource.Read
 	}
 	if readResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 		readThirdPartyAccountStatusNotificationHandlerResponse(ctx, readResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

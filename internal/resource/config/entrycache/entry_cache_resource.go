@@ -269,6 +269,13 @@ func addOptionalFifoEntryCacheFields(ctx context.Context, addRequest *client.Add
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *entryCacheResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+}
+
 // Read a FifoEntryCacheResponse object into the model struct
 func readFifoEntryCacheResponse(ctx context.Context, r *client.FifoEntryCacheResponse, state *entryCacheResourceModel, expectedValues *entryCacheResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("fifo")
@@ -421,6 +428,7 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -466,6 +474,10 @@ func readEntryCache(ctx context.Context, req resource.ReadRequest, resp *resourc
 
 	// Read the response into the state
 	readFifoEntryCacheResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

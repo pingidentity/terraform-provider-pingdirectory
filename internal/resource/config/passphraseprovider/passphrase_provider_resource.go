@@ -500,7 +500,7 @@ func addOptionalThirdPartyPassphraseProviderFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePassphraseProviderUnknownValues(ctx context.Context, model *passphraseProviderResourceModel) {
+func populatePassphraseProviderUnknownValues(model *passphraseProviderResourceModel) {
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -509,6 +509,64 @@ func populatePassphraseProviderUnknownValues(ctx context.Context, model *passphr
 	}
 	if model.ObscuredValue.IsUnknown() {
 		model.ObscuredValue = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passphraseProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.SecretVersionStage.IsUnknown() || model.SecretVersionStage.IsNull() {
+		model.SecretVersionStage = types.StringValue("")
+	}
+	if model.VaultSecretFieldName.IsUnknown() || model.VaultSecretFieldName.IsNull() {
+		model.VaultSecretFieldName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SecretVersionID.IsUnknown() || model.SecretVersionID.IsNull() {
+		model.SecretVersionID = types.StringValue("")
+	}
+	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
+		model.PasswordFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.ConjurSecretRelativePath.IsUnknown() || model.ConjurSecretRelativePath.IsNull() {
+		model.ConjurSecretRelativePath = types.StringValue("")
+	}
+	if model.AzureAuthenticationMethod.IsUnknown() || model.AzureAuthenticationMethod.IsNull() {
+		model.AzureAuthenticationMethod = types.StringValue("")
+	}
+	if model.SecretFieldName.IsUnknown() || model.SecretFieldName.IsNull() {
+		model.SecretFieldName = types.StringValue("")
+	}
+	if model.SecretName.IsUnknown() || model.SecretName.IsNull() {
+		model.SecretName = types.StringValue("")
+	}
+	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
+		model.ConjurExternalServer = types.StringValue("")
+	}
+	if model.SecretID.IsUnknown() || model.SecretID.IsNull() {
+		model.SecretID = types.StringValue("")
+	}
+	if model.VaultSecretPath.IsUnknown() || model.VaultSecretPath.IsNull() {
+		model.VaultSecretPath = types.StringValue("")
+	}
+	if model.EnvironmentVariable.IsUnknown() || model.EnvironmentVariable.IsNull() {
+		model.EnvironmentVariable = types.StringValue("")
+	}
+	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
+		model.KeyVaultURI = types.StringValue("")
+	}
+	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
+		model.VaultExternalServer = types.StringValue("")
 	}
 }
 
@@ -521,7 +579,7 @@ func readEnvironmentVariablePassphraseProviderResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a AmazonSecretsManagerPassphraseProviderResponse object into the model struct
@@ -540,7 +598,7 @@ func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ObscuredValuePassphraseProviderResponse object into the model struct
@@ -551,7 +609,7 @@ func readObscuredValuePassphraseProviderResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a AzureKeyVaultPassphraseProviderResponse object into the model struct
@@ -569,7 +627,7 @@ func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a FileBasedPassphraseProviderResponse object into the model struct
@@ -584,7 +642,7 @@ func readFileBasedPassphraseProviderResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ConjurPassphraseProviderResponse object into the model struct
@@ -600,7 +658,7 @@ func readConjurPassphraseProviderResponse(ctx context.Context, r *client.ConjurP
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a VaultPassphraseProviderResponse object into the model struct
@@ -617,7 +675,7 @@ func readVaultPassphraseProviderResponse(ctx context.Context, r *client.VaultPas
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyPassphraseProviderResponse object into the model struct
@@ -630,7 +688,7 @@ func readThirdPartyPassphraseProviderResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1132,6 +1190,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1199,6 +1258,10 @@ func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyPassphraseProviderResponse != nil {
 		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

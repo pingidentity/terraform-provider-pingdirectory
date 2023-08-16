@@ -254,7 +254,7 @@ func addOptionalUserPassVaultAuthenticationMethodFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVaultAuthenticationMethodUnknownValues(ctx context.Context, model *vaultAuthenticationMethodResourceModel) {
+func populateVaultAuthenticationMethodUnknownValues(model *vaultAuthenticationMethodResourceModel) {
 	if model.LoginMechanismName.IsUnknown() || model.LoginMechanismName.IsNull() {
 		model.LoginMechanismName = types.StringValue("")
 	}
@@ -269,6 +269,19 @@ func populateVaultAuthenticationMethodUnknownValues(ctx context.Context, model *
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *vaultAuthenticationMethodResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Username.IsUnknown() || model.Username.IsNull() {
+		model.Username = types.StringValue("")
+	}
+	if model.VaultRoleID.IsUnknown() || model.VaultRoleID.IsNull() {
+		model.VaultRoleID = types.StringValue("")
+	}
+}
+
 // Read a StaticTokenVaultAuthenticationMethodResponse object into the model struct
 func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *client.StaticTokenVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodResourceModel, expectedValues *vaultAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static-token")
@@ -276,7 +289,7 @@ func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *cl
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(ctx, state)
+	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Read a AppRoleVaultAuthenticationMethodResponse object into the model struct
@@ -288,7 +301,7 @@ func readAppRoleVaultAuthenticationMethodResponse(ctx context.Context, r *client
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(ctx, state)
+	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Read a UserPassVaultAuthenticationMethodResponse object into the model struct
@@ -300,7 +313,7 @@ func readUserPassVaultAuthenticationMethodResponse(ctx context.Context, r *clien
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(ctx, state)
+	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -550,6 +563,7 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -602,6 +616,10 @@ func readVaultAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 	}
 	if readResponse.UserPassVaultAuthenticationMethodResponse != nil {
 		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

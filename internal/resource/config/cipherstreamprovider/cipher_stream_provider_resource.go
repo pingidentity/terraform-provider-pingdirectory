@@ -848,7 +848,7 @@ func addOptionalThirdPartyCipherStreamProviderFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateCipherStreamProviderUnknownValues(ctx context.Context, model *cipherStreamProviderResourceModel) {
+func populateCipherStreamProviderUnknownValues(model *cipherStreamProviderResourceModel) {
 	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
 		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -881,6 +881,91 @@ func populateCipherStreamProviderUnknownValues(ctx context.Context, model *ciphe
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.VaultSecretFieldName.IsUnknown() || model.VaultSecretFieldName.IsNull() {
+		model.VaultSecretFieldName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SecretVersionID.IsUnknown() || model.SecretVersionID.IsNull() {
+		model.SecretVersionID = types.StringValue("")
+	}
+	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
+		model.PasswordFile = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.KeyStorePinFile.IsUnknown() || model.KeyStorePinFile.IsNull() {
+		model.KeyStorePinFile = types.StringValue("")
+	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.ConjurSecretRelativePath.IsUnknown() || model.ConjurSecretRelativePath.IsNull() {
+		model.ConjurSecretRelativePath = types.StringValue("")
+	}
+	if model.KmsEncryptionKeyArn.IsUnknown() || model.KmsEncryptionKeyArn.IsNull() {
+		model.KmsEncryptionKeyArn = types.StringValue("")
+	}
+	if model.SecretID.IsUnknown() || model.SecretID.IsNull() {
+		model.SecretID = types.StringValue("")
+	}
+	if model.VaultSecretPath.IsUnknown() || model.VaultSecretPath.IsNull() {
+		model.VaultSecretPath = types.StringValue("")
+	}
+	if model.Pkcs11ProviderConfigurationFile.IsUnknown() || model.Pkcs11ProviderConfigurationFile.IsNull() {
+		model.Pkcs11ProviderConfigurationFile = types.StringValue("")
+	}
+	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
+		model.AwsAccessKeyID = types.StringValue("")
+	}
+	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
+		model.VaultExternalServer = types.StringValue("")
+	}
+	if model.SecretVersionStage.IsUnknown() || model.SecretVersionStage.IsNull() {
+		model.SecretVersionStage = types.StringValue("")
+	}
+	if model.AwsRegionName.IsUnknown() || model.AwsRegionName.IsNull() {
+		model.AwsRegionName = types.StringValue("")
+	}
+	if model.VaultAuthenticationMethod.IsUnknown() || model.VaultAuthenticationMethod.IsNull() {
+		model.VaultAuthenticationMethod = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.Pkcs11ProviderClass.IsUnknown() || model.Pkcs11ProviderClass.IsNull() {
+		model.Pkcs11ProviderClass = types.StringValue("")
+	}
+	if model.AzureAuthenticationMethod.IsUnknown() || model.AzureAuthenticationMethod.IsNull() {
+		model.AzureAuthenticationMethod = types.StringValue("")
+	}
+	if model.SecretFieldName.IsUnknown() || model.SecretFieldName.IsNull() {
+		model.SecretFieldName = types.StringValue("")
+	}
+	if model.SecretName.IsUnknown() || model.SecretName.IsNull() {
+		model.SecretName = types.StringValue("")
+	}
+	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
+		model.ConjurExternalServer = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.KeyStorePinEnvironmentVariable.IsUnknown() || model.KeyStorePinEnvironmentVariable.IsNull() {
+		model.KeyStorePinEnvironmentVariable = types.StringValue("")
+	}
+	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
+		model.KeyVaultURI = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+}
+
 // Read a AmazonKeyManagementServiceCipherStreamProviderResponse object into the model struct
 func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Context, r *client.AmazonKeyManagementServiceCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-key-management-service")
@@ -895,7 +980,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a AmazonSecretsManagerCipherStreamProviderResponse object into the model struct
@@ -913,7 +998,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a AzureKeyVaultCipherStreamProviderResponse object into the model struct
@@ -930,7 +1015,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a FileBasedCipherStreamProviderResponse object into the model struct
@@ -945,7 +1030,7 @@ func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.Fi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a WaitForPassphraseCipherStreamProviderResponse object into the model struct
@@ -956,7 +1041,7 @@ func readWaitForPassphraseCipherStreamProviderResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a ConjurCipherStreamProviderResponse object into the model struct
@@ -971,7 +1056,7 @@ func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.Conju
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a Pkcs11CipherStreamProviderResponse object into the model struct
@@ -990,7 +1075,7 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a VaultCipherStreamProviderResponse object into the model struct
@@ -1010,7 +1095,7 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyCipherStreamProviderResponse object into the model struct
@@ -1023,7 +1108,7 @@ func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1594,6 +1679,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1664,6 +1750,10 @@ func readCipherStreamProvider(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyCipherStreamProviderResponse != nil {
 		readThirdPartyCipherStreamProviderResponse(ctx, readResponse.ThirdPartyCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

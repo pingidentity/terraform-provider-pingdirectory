@@ -299,12 +299,31 @@ func addOptionalThirdPartyUncachedEntryCriteriaFields(ctx context.Context, addRe
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateUncachedEntryCriteriaUnknownValues(ctx context.Context, model *uncachedEntryCriteriaResourceModel) {
+func populateUncachedEntryCriteriaUnknownValues(model *uncachedEntryCriteriaResourceModel) {
 	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
 		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *uncachedEntryCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.AccessTimeThreshold.IsUnknown() || model.AccessTimeThreshold.IsNull() {
+		model.AccessTimeThreshold = types.StringValue("")
 	}
 }
 
@@ -316,7 +335,7 @@ func readDefaultUncachedEntryCriteriaResponse(ctx context.Context, r *client.Def
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaUnknownValues(ctx, state)
+	populateUncachedEntryCriteriaUnknownValues(state)
 }
 
 // Read a LastAccessTimeUncachedEntryCriteriaResponse object into the model struct
@@ -330,7 +349,7 @@ func readLastAccessTimeUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaUnknownValues(ctx, state)
+	populateUncachedEntryCriteriaUnknownValues(state)
 }
 
 // Read a FilterBasedUncachedEntryCriteriaResponse object into the model struct
@@ -343,7 +362,7 @@ func readFilterBasedUncachedEntryCriteriaResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaUnknownValues(ctx, state)
+	populateUncachedEntryCriteriaUnknownValues(state)
 }
 
 // Read a GroovyScriptedUncachedEntryCriteriaResponse object into the model struct
@@ -356,7 +375,7 @@ func readGroovyScriptedUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaUnknownValues(ctx, state)
+	populateUncachedEntryCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyUncachedEntryCriteriaResponse object into the model struct
@@ -369,7 +388,7 @@ func readThirdPartyUncachedEntryCriteriaResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaUnknownValues(ctx, state)
+	populateUncachedEntryCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -699,6 +718,7 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -757,6 +777,10 @@ func readUncachedEntryCriteria(ctx context.Context, req resource.ReadRequest, re
 	}
 	if readResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -233,6 +233,22 @@ func addOptionalSizeLimitLogRetentionPolicyFields(ctx context.Context, addReques
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logRetentionPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.RetainDuration.IsUnknown() || model.RetainDuration.IsNull() {
+		model.RetainDuration = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DiskSpaceUsed.IsUnknown() || model.DiskSpaceUsed.IsNull() {
+		model.DiskSpaceUsed = types.StringValue("")
+	}
+	if model.FreeDiskSpace.IsUnknown() || model.FreeDiskSpace.IsNull() {
+		model.FreeDiskSpace = types.StringValue("")
+	}
+}
+
 // Read a TimeLimitLogRetentionPolicyResponse object into the model struct
 func readTimeLimitLogRetentionPolicyResponse(ctx context.Context, r *client.TimeLimitLogRetentionPolicyResponse, state *logRetentionPolicyResourceModel, expectedValues *logRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("time-limit")
@@ -606,6 +622,7 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -664,6 +681,10 @@ func readLogRetentionPolicy(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
 		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

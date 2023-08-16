@@ -1034,7 +1034,7 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConnectionHandlerUnknownValues(ctx context.Context, model *connectionHandlerResourceModel) {
+func populateConnectionHandlerUnknownValues(model *connectionHandlerResourceModel) {
 	if model.SslCipherSuite.IsUnknown() || model.SslCipherSuite.IsNull() {
 		model.SslCipherSuite, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -1094,6 +1094,22 @@ func populateConnectionHandlerUnknownValues(ctx context.Context, model *connecti
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+}
+
 // Read a JmxConnectionHandlerResponse object into the model struct
 func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
@@ -1108,7 +1124,7 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a LdapConnectionHandlerResponse object into the model struct
@@ -1151,7 +1167,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a LdifConnectionHandlerResponse object into the model struct
@@ -1168,7 +1184,7 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a HttpConnectionHandlerResponse object into the model struct
@@ -1215,7 +1231,7 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1549,6 +1565,7 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1604,6 +1621,10 @@ func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.HttpConnectionHandlerResponse != nil {
 		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -711,6 +711,49 @@ func addOptionalClientConnectionPolicyFields(ctx context.Context, addRequest *cl
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *clientConnectionPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.MaximumIdleConnectionDuration.IsUnknown() || model.MaximumIdleConnectionDuration.IsNull() {
+		model.MaximumIdleConnectionDuration = types.StringValue("")
+	}
+	if model.ConnectionOperationRateExceededBehavior.IsUnknown() || model.ConnectionOperationRateExceededBehavior.IsNull() {
+		model.ConnectionOperationRateExceededBehavior = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.MaximumSearchTimeLimit.IsUnknown() || model.MaximumSearchTimeLimit.IsNull() {
+		model.MaximumSearchTimeLimit = types.StringValue("")
+	}
+	if model.MaximumConcurrentOperationWaitTimeBeforeRejecting.IsUnknown() || model.MaximumConcurrentOperationWaitTimeBeforeRejecting.IsNull() {
+		model.MaximumConcurrentOperationWaitTimeBeforeRejecting = types.StringValue("")
+	}
+	if model.MaximumConnectionDuration.IsUnknown() || model.MaximumConnectionDuration.IsNull() {
+		model.MaximumConnectionDuration = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.ResultCodeMap.IsUnknown() || model.ResultCodeMap.IsNull() {
+		model.ResultCodeMap = types.StringValue("")
+	}
+	if model.ProhibitedOperationRequestCriteria.IsUnknown() || model.ProhibitedOperationRequestCriteria.IsNull() {
+		model.ProhibitedOperationRequestCriteria = types.StringValue("")
+	}
+	if model.RequiredOperationRequestCriteria.IsUnknown() || model.RequiredOperationRequestCriteria.IsNull() {
+		model.RequiredOperationRequestCriteria = types.StringValue("")
+	}
+	if model.PolicyOperationRateExceededBehavior.IsUnknown() || model.PolicyOperationRateExceededBehavior.IsNull() {
+		model.PolicyOperationRateExceededBehavior = types.StringValue("")
+	}
+	if model.MaximumConcurrentOperationsPerConnectionExceededBehavior.IsUnknown() || model.MaximumConcurrentOperationsPerConnectionExceededBehavior.IsNull() {
+		model.MaximumConcurrentOperationsPerConnectionExceededBehavior = types.StringValue("")
+	}
+	if model.PolicyID.IsUnknown() || model.PolicyID.IsNull() {
+		model.PolicyID = types.StringValue("")
+	}
+}
+
 // Read a ClientConnectionPolicyResponse object into the model struct
 func readClientConnectionPolicyResponse(ctx context.Context, r *client.ClientConnectionPolicyResponse, state *clientConnectionPolicyResourceModel, expectedValues *clientConnectionPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-connection-policy")
@@ -940,6 +983,7 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -985,6 +1029,10 @@ func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readClientConnectionPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

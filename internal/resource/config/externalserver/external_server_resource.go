@@ -1942,7 +1942,7 @@ func addOptionalVaultExternalServerFields(ctx context.Context, addRequest *clien
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateExternalServerUnknownValues(ctx context.Context, model *externalServerResourceModel) {
+func populateExternalServerUnknownValues(model *externalServerResourceModel) {
 	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
 		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -2014,6 +2014,82 @@ func populateExternalServerUnknownValues(ctx context.Context, model *externalSer
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *externalServerResourceModel) populateAllComputedStringAttributes() {
+	if model.UserName.IsUnknown() || model.UserName.IsNull() {
+		model.UserName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.BasicAuthenticationPassphraseProvider.IsUnknown() || model.BasicAuthenticationPassphraseProvider.IsNull() {
+		model.BasicAuthenticationPassphraseProvider = types.StringValue("")
+	}
+	if model.AwsRegionName.IsUnknown() || model.AwsRegionName.IsNull() {
+		model.AwsRegionName = types.StringValue("")
+	}
+	if model.VaultAuthenticationMethod.IsUnknown() || model.VaultAuthenticationMethod.IsNull() {
+		model.VaultAuthenticationMethod = types.StringValue("")
+	}
+	if model.ConjurAccountName.IsUnknown() || model.ConjurAccountName.IsNull() {
+		model.ConjurAccountName = types.StringValue("")
+	}
+	if model.JdbcDriverType.IsUnknown() || model.JdbcDriverType.IsNull() {
+		model.JdbcDriverType = types.StringValue("")
+	}
+	if model.HealthCheckConnectTimeout.IsUnknown() || model.HealthCheckConnectTimeout.IsNull() {
+		model.HealthCheckConnectTimeout = types.StringValue("")
+	}
+	if model.DatabaseName.IsUnknown() || model.DatabaseName.IsNull() {
+		model.DatabaseName = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.ConjurAuthenticationMethod.IsUnknown() || model.ConjurAuthenticationMethod.IsNull() {
+		model.ConjurAuthenticationMethod = types.StringValue("")
+	}
+	if model.ValidationQuery.IsUnknown() || model.ValidationQuery.IsNull() {
+		model.ValidationQuery = types.StringValue("")
+	}
+	if model.TransportMechanism.IsUnknown() || model.TransportMechanism.IsNull() {
+		model.TransportMechanism = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.JdbcDriverURL.IsUnknown() || model.JdbcDriverURL.IsNull() {
+		model.JdbcDriverURL = types.StringValue("")
+	}
+	if model.BasicAuthenticationUsername.IsUnknown() || model.BasicAuthenticationUsername.IsNull() {
+		model.BasicAuthenticationUsername = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.PassphraseProvider.IsUnknown() || model.PassphraseProvider.IsNull() {
+		model.PassphraseProvider = types.StringValue("")
+	}
+	if model.BaseURL.IsUnknown() || model.BaseURL.IsNull() {
+		model.BaseURL = types.StringValue("")
+	}
+	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
+		model.AwsAccessKeyID = types.StringValue("")
+	}
+	if model.BindDN.IsUnknown() || model.BindDN.IsNull() {
+		model.BindDN = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.Location.IsUnknown() || model.Location.IsNull() {
+		model.Location = types.StringValue("")
+	}
+}
+
 // Read a SmtpExternalServerResponse object into the model struct
 func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
@@ -2031,7 +2107,7 @@ func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalS
 	state.SmtpConnectionProperties = internaltypes.GetStringSet(r.SmtpConnectionProperties)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a NokiaDsExternalServerResponse object into the model struct
@@ -2072,7 +2148,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingIdentityDsExternalServerResponse object into the model struct
@@ -2113,7 +2189,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a ActiveDirectoryExternalServerResponse object into the model struct
@@ -2153,7 +2229,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a JdbcExternalServerResponse object into the model struct
@@ -2177,7 +2253,7 @@ func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalS
 		client.StringPointerEnumexternalServerTransactionIsolationLevelProp(r.TransactionIsolationLevel), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a SyslogExternalServerResponse object into the model struct
@@ -2197,7 +2273,7 @@ func readSyslogExternalServerResponse(ctx context.Context, r *client.SyslogExter
 	state.TrustManagerProvider = types.StringValue(r.TrustManagerProvider)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingIdentityProxyServerExternalServerResponse object into the model struct
@@ -2238,7 +2314,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a HttpProxyExternalServerResponse object into the model struct
@@ -2252,7 +2328,7 @@ func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProx
 	state.BasicAuthenticationPassphraseProvider = internaltypes.StringTypeOrNil(r.BasicAuthenticationPassphraseProvider, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a NokiaProxyServerExternalServerResponse object into the model struct
@@ -2293,7 +2369,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a OpendjExternalServerResponse object into the model struct
@@ -2333,7 +2409,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a LdapExternalServerResponse object into the model struct
@@ -2373,7 +2449,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingOneHttpExternalServerResponse object into the model struct
@@ -2392,7 +2468,7 @@ func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOn
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a HttpExternalServerResponse object into the model struct
@@ -2414,7 +2490,7 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a OracleUnifiedDirectoryExternalServerResponse object into the model struct
@@ -2454,7 +2530,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a ConjurExternalServerResponse object into the model struct
@@ -2469,7 +2545,7 @@ func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExter
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a AmazonAwsExternalServerResponse object into the model struct
@@ -2484,7 +2560,7 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 	state.AwsRegionName = types.StringValue(r.AwsRegionName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a VaultExternalServerResponse object into the model struct
@@ -2498,7 +2574,7 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -3521,6 +3597,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3615,6 +3692,10 @@ func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 	if readResponse.VaultExternalServerResponse != nil {
 		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

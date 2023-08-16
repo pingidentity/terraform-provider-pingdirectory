@@ -331,7 +331,7 @@ func addOptionalOpenidConnectIdTokenValidatorFields(ctx context.Context, addRequ
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenValidatorResourceModel) {
+func populateIdTokenValidatorUnknownValues(model *idTokenValidatorResourceModel) {
 	if model.SigningCertificate.IsUnknown() || model.SigningCertificate.IsNull() {
 		model.SigningCertificate, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -340,6 +340,34 @@ func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenVa
 	}
 	if model.OpenIDConnectMetadataCacheDuration.IsUnknown() || model.OpenIDConnectMetadataCacheDuration.IsNull() {
 		model.OpenIDConnectMetadataCacheDuration = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *idTokenValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
+		model.JwksEndpointPath = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IssuerURL.IsUnknown() || model.IssuerURL.IsNull() {
+		model.IssuerURL = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SubjectClaimName.IsUnknown() || model.SubjectClaimName.IsNull() {
+		model.SubjectClaimName = types.StringValue("")
+	}
+	if model.OpenIDConnectProvider.IsUnknown() || model.OpenIDConnectProvider.IsNull() {
+		model.OpenIDConnectProvider = types.StringValue("")
+	}
+	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
+		model.ClockSkewGracePeriod = types.StringValue("")
+	}
+	if model.JwksCacheDuration.IsUnknown() || model.JwksCacheDuration.IsNull() {
+		model.JwksCacheDuration = types.StringValue("")
 	}
 }
 
@@ -365,7 +393,7 @@ func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneI
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorUnknownValues(ctx, state)
+	populateIdTokenValidatorUnknownValues(state)
 }
 
 // Read a OpenidConnectIdTokenValidatorResponse object into the model struct
@@ -391,7 +419,7 @@ func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.Op
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorUnknownValues(ctx, state)
+	populateIdTokenValidatorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -592,6 +620,7 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -641,6 +670,10 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.OpenidConnectIdTokenValidatorResponse != nil {
 		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

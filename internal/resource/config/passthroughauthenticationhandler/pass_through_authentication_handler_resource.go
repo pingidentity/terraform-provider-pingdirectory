@@ -710,7 +710,7 @@ func addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx context.Con
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
+func populatePassThroughAuthenticationHandlerUnknownValues(model *passThroughAuthenticationHandlerResourceModel) {
 	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -746,6 +746,52 @@ func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, 
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passThroughAuthenticationHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.AuthURL.IsUnknown() || model.AuthURL.IsNull() {
+		model.AuthURL = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.OAuthClientSecretPassphraseProvider.IsUnknown() || model.OAuthClientSecretPassphraseProvider.IsNull() {
+		model.OAuthClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.EnvironmentID.IsUnknown() || model.EnvironmentID.IsNull() {
+		model.EnvironmentID = types.StringValue("")
+	}
+	if model.ApiURL.IsUnknown() || model.ApiURL.IsNull() {
+		model.ApiURL = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.AdditionalUserMappingSCIMFilter.IsUnknown() || model.AdditionalUserMappingSCIMFilter.IsNull() {
+		model.AdditionalUserMappingSCIMFilter = types.StringValue("")
+	}
+	if model.BindDNPattern.IsUnknown() || model.BindDNPattern.IsNull() {
+		model.BindDNPattern = types.StringValue("")
+	}
+	if model.OAuthClientID.IsUnknown() || model.OAuthClientID.IsNull() {
+		model.OAuthClientID = types.StringValue("")
+	}
+}
+
 // Read a PingOnePassThroughAuthenticationHandlerResponse object into the model struct
 func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r *client.PingOnePassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerResourceModel, expectedValues *passThroughAuthenticationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one")
@@ -765,7 +811,7 @@ func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r 
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a LdapPassThroughAuthenticationHandlerResponse object into the model struct
@@ -794,7 +840,7 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a AggregatePassThroughAuthenticationHandlerResponse object into the model struct
@@ -810,7 +856,7 @@ func readAggregatePassThroughAuthenticationHandlerResponse(ctx context.Context, 
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyPassThroughAuthenticationHandlerResponse object into the model struct
@@ -825,7 +871,7 @@ func readThirdPartyPassThroughAuthenticationHandlerResponse(ctx context.Context,
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1165,6 +1211,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1220,6 +1267,10 @@ func readPassThroughAuthenticationHandler(ctx context.Context, req resource.Read
 	}
 	if readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

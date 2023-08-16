@@ -217,6 +217,19 @@ func addOptionalScimAttributeMappingFields(ctx context.Context, addRequest *clie
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimAttributeMappingResourceModel) populateAllComputedStringAttributes() {
+	if model.CorrelatedLDAPDataView.IsUnknown() || model.CorrelatedLDAPDataView.IsNull() {
+		model.CorrelatedLDAPDataView = types.StringValue("")
+	}
+	if model.ScimResourceTypeAttribute.IsUnknown() || model.ScimResourceTypeAttribute.IsNull() {
+		model.ScimResourceTypeAttribute = types.StringValue("")
+	}
+	if model.LdapAttribute.IsUnknown() || model.LdapAttribute.IsNull() {
+		model.LdapAttribute = types.StringValue("")
+	}
+}
+
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingResourceModel, expectedValues *scimAttributeMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("scim-attribute-mapping")
@@ -370,6 +383,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -415,6 +429,10 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 
 	// Read the response into the state
 	readScimAttributeMappingResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
