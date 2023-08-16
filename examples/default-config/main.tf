@@ -37,7 +37,7 @@ resource "pingdirectory_log_publisher" "myNewFileBasedAccessLogPublisher" {
   rotation_policy      = ["Size Limit Rotation Policy"]
   retention_policy     = ["File Count Retention Policy"]
   asynchronous         = true
-  enabled              = true
+  enabled              = false
 }
 
 # Enable the default JMX connection handler

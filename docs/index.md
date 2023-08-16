@@ -114,7 +114,6 @@ provider "pingdirectory" {
 # Disable the default failed operations access logger
 resource "pingdirectory_default_log_publisher" "defaultFileBasedAccessLogPublisher" {
   name    = "Failed Operations Access Logger"
-  type    = "file-based-access"
   enabled = false
 }
 
@@ -132,7 +131,6 @@ resource "pingdirectory_log_publisher" "myNewFileBasedAccessLogPublisher" {
 
 # Enable the default JMX connection handler
 resource "pingdirectory_default_connection_handler" "defaultJmxConnHandler" {
-  type    = "jmx"
   name    = "JMX Connection Handler"
   enabled = true
 }
