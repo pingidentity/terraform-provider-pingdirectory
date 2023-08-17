@@ -242,6 +242,7 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"sign_log": schema.BoolAttribute{
@@ -258,6 +259,7 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
+					boolplanmodifier.RequiresReplace(),
 				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{

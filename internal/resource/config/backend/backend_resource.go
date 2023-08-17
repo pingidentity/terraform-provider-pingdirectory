@@ -685,6 +685,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"writability_mode": schema.StringAttribute{
@@ -741,9 +742,15 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that will be used to store queued samples.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		}
 		schemaDef.Attributes["metrics_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that contains metric definitions.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		}
 		schemaDef.Attributes["sample_flush_interval"] = schema.StringAttribute{
 			Description: "Period when samples are flushed to disk.",

@@ -312,6 +312,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"script_argument": schema.SetAttribute{
@@ -346,6 +347,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
+					boolplanmodifier.RequiresReplace(),
 				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
@@ -372,6 +374,9 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description:         "When the `type` attribute is set to `third-party-file-based-access`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Access Log Publisher. When the `type` attribute is set to `third-party-http-operation`: The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher. When the `type` attribute is set to `third-party-error`: The fully-qualified name of the Java class providing the logic for the Third Party Error Log Publisher. When the `type` attribute is set to `third-party-access`: The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher. When the `type` attribute is set to `third-party-file-based-error`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party-file-based-access`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Access Log Publisher.\n  - `third-party-http-operation`: The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher.\n  - `third-party-error`: The fully-qualified name of the Java class providing the logic for the Third Party Error Log Publisher.\n  - `third-party-access`: The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher.\n  - `third-party-file-based-error`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Error Log Publisher.",
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"debug_aci_enabled": schema.BoolAttribute{
 				Description: "Indicates whether to include debugging information about ACIs being used by the operations being logged.",

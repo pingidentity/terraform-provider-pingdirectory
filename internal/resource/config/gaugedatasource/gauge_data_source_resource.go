@@ -195,6 +195,7 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 		},
