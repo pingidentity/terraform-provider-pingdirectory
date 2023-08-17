@@ -189,10 +189,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 			"time_zone": schema.StringAttribute{
 				Description: "The time zone that will be used to interpret the scheduled-time-of-day values. If no value is provided, then the JVM's default time zone will be used.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"interrupted_by_shutdown_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if it is shut down or abnormally terminated while an instance of this Recurring Task Chain is running.",
@@ -219,6 +215,9 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -298,6 +297,25 @@ func addOptionalRecurringTaskChainFields(ctx context.Context, addRequest *client
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *recurringTaskChainResourceModel) populateAllComputedStringAttributes() {
+	if model.TimeZone.IsUnknown() || model.TimeZone.IsNull() {
+		model.TimeZone = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ScheduledDateSelectionType.IsUnknown() || model.ScheduledDateSelectionType.IsNull() {
+		model.ScheduledDateSelectionType = types.StringValue("")
+	}
+	if model.InterruptedByShutdownBehavior.IsUnknown() || model.InterruptedByShutdownBehavior.IsNull() {
+		model.InterruptedByShutdownBehavior = types.StringValue("")
+	}
+	if model.ServerOfflineAtStartTimeBehavior.IsUnknown() || model.ServerOfflineAtStartTimeBehavior.IsNull() {
+		model.ServerOfflineAtStartTimeBehavior = types.StringValue("")
+	}
+}
+
 // Read a RecurringTaskChainResponse object into the model struct
 func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTaskChainResponse, state *recurringTaskChainResourceModel, expectedValues *recurringTaskChainResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("recurring-task-chain")
@@ -316,9 +334,9 @@ func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTask
 	state.ScheduledTimeOfDay = internaltypes.GetStringSet(r.ScheduledTimeOfDay)
 	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, internaltypes.IsEmptyString(expectedValues.TimeZone))
 	state.InterruptedByShutdownBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), internaltypes.IsEmptyString(expectedValues.InterruptedByShutdownBehavior))
+		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), true)
 	state.ServerOfflineAtStartTimeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainServerOfflineAtStartTimeBehaviorProp(r.ServerOfflineAtStartTimeBehavior), internaltypes.IsEmptyString(expectedValues.ServerOfflineAtStartTimeBehavior))
+		client.StringPointerEnumrecurringTaskChainServerOfflineAtStartTimeBehaviorProp(r.ServerOfflineAtStartTimeBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -468,6 +486,7 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -513,6 +532,10 @@ func readRecurringTaskChain(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

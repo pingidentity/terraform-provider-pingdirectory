@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -458,7 +459,9 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -479,62 +482,12 @@ func configValidatorsRequestCriteria() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_target_entry_group_dn"),
+			path.MatchRoot("operation_type"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"root-dse", "simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_request_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("using_administrative_session_worker_thread"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_target_sasl_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_extended_operation_oid"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_request_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_target_entry_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_request_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_request_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_target_entry_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_application_name"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_target_entry_group_dn"),
+			path.MatchRoot("operation_origin"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -544,92 +497,12 @@ func configValidatorsRequestCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_application_name"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_target_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_target_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_extended_operation_oid"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_target_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_request_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_request_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_target_sasl_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("operation_origin"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_bind_type"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_target_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_search_scope"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_target_attribute"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_target_attribute"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_request_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("operation_type"),
-			path.MatchRoot("type"),
-			[]string{"root-dse", "simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_target_entry_group_dn"),
+			path.MatchRoot("any_included_request_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -639,12 +512,142 @@ func configValidatorsRequestCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_request_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("included_target_entry_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_target_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_target_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_bind_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_target_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_extended_operation_oid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_extended_operation_oid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_search_scope"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("using_administrative_session_worker_thread"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_application_name"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_application_name"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
@@ -910,99 +913,115 @@ func addOptionalThirdPartyRequestCriteriaFields(ctx context.Context, addRequest 
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateRequestCriteriaUnknownValues(ctx context.Context, model *requestCriteriaResourceModel) {
-	if model.AnyIncludedRequestControl.ElementType(ctx) == nil {
-		model.AnyIncludedRequestControl = types.SetNull(types.StringType)
+func populateRequestCriteriaUnknownValues(model *requestCriteriaResourceModel) {
+	if model.AnyIncludedRequestControl.IsUnknown() || model.AnyIncludedRequestControl.IsNull() {
+		model.AnyIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedSearchScope.ElementType(ctx) == nil {
-		model.IncludedSearchScope = types.SetNull(types.StringType)
+	if model.IncludedSearchScope.IsUnknown() || model.IncludedSearchScope.IsNull() {
+		model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TargetBindType.ElementType(ctx) == nil {
-		model.TargetBindType = types.SetNull(types.StringType)
+	if model.TargetBindType.IsUnknown() || model.TargetBindType.IsNull() {
+		model.TargetBindType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedTargetEntryGroupDN.IsUnknown() || model.NoneIncludedTargetEntryGroupDN.IsNull() {
+		model.NoneIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedRequestCriteria.IsUnknown() || model.AnyIncludedRequestCriteria.IsNull() {
+		model.AnyIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetEntryDN.ElementType(ctx) == nil {
-		model.ExcludedTargetEntryDN = types.SetNull(types.StringType)
+	if model.ExcludedTargetEntryDN.IsUnknown() || model.ExcludedTargetEntryDN.IsNull() {
+		model.ExcludedTargetEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetEntryDN.ElementType(ctx) == nil {
-		model.IncludedTargetEntryDN = types.SetNull(types.StringType)
+	if model.IncludedTargetEntryDN.IsUnknown() || model.IncludedTargetEntryDN.IsNull() {
+		model.IncludedTargetEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedRequestCriteria.IsUnknown() || model.NoneIncludedRequestCriteria.IsNull() {
+		model.NoneIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedRequestControl.ElementType(ctx) == nil {
-		model.NotAllIncludedRequestControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedRequestControl.IsUnknown() || model.NotAllIncludedRequestControl.IsNull() {
+		model.NotAllIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedRequestControl.ElementType(ctx) == nil {
-		model.AllIncludedRequestControl = types.SetNull(types.StringType)
+	if model.AllIncludedRequestControl.IsUnknown() || model.AllIncludedRequestControl.IsNull() {
+		model.AllIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedTargetEntryGroupDN.IsUnknown() || model.AnyIncludedTargetEntryGroupDN.IsNull() {
+		model.AnyIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedApplicationName.ElementType(ctx) == nil {
-		model.IncludedApplicationName = types.SetNull(types.StringType)
+	if model.IncludedApplicationName.IsUnknown() || model.IncludedApplicationName.IsNull() {
+		model.IncludedApplicationName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedTargetEntryGroupDN.IsUnknown() || model.NotAllIncludedTargetEntryGroupDN.IsNull() {
+		model.NotAllIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetSASLMechanism.ElementType(ctx) == nil {
-		model.IncludedTargetSASLMechanism = types.SetNull(types.StringType)
+	if model.IncludedTargetSASLMechanism.IsUnknown() || model.IncludedTargetSASLMechanism.IsNull() {
+		model.IncludedTargetSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.AllIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedRequestCriteria.IsUnknown() || model.AllIncludedRequestCriteria.IsNull() {
+		model.AllIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedRequestCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedRequestCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedRequestCriteria.IsUnknown() || model.NotAllIncludedRequestCriteria.IsNull() {
+		model.NotAllIncludedRequestCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetAttribute.ElementType(ctx) == nil {
-		model.ExcludedTargetAttribute = types.SetNull(types.StringType)
+	if model.ExcludedTargetAttribute.IsUnknown() || model.ExcludedTargetAttribute.IsNull() {
+		model.ExcludedTargetAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedTargetSASLMechanism.ElementType(ctx) == nil {
-		model.ExcludedTargetSASLMechanism = types.SetNull(types.StringType)
+	if model.ExcludedTargetSASLMechanism.IsUnknown() || model.ExcludedTargetSASLMechanism.IsNull() {
+		model.ExcludedTargetSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.AllIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.AllIncludedTargetEntryFilter.IsUnknown() || model.AllIncludedTargetEntryFilter.IsNull() {
+		model.AllIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedExtendedOperationOID.ElementType(ctx) == nil {
-		model.IncludedExtendedOperationOID = types.SetNull(types.StringType)
+	if model.IncludedExtendedOperationOID.IsUnknown() || model.IncludedExtendedOperationOID.IsNull() {
+		model.IncludedExtendedOperationOID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationOrigin.ElementType(ctx) == nil {
-		model.OperationOrigin = types.SetNull(types.StringType)
+	if model.OperationOrigin.IsUnknown() || model.OperationOrigin.IsNull() {
+		model.OperationOrigin, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.AnyIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedTargetEntryFilter.IsUnknown() || model.AnyIncludedTargetEntryFilter.IsNull() {
+		model.AnyIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.NoneIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedTargetEntryFilter.IsUnknown() || model.NoneIncludedTargetEntryFilter.IsNull() {
+		model.NoneIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedTargetEntryGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedTargetEntryGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedTargetEntryGroupDN.IsUnknown() || model.AllIncludedTargetEntryGroupDN.IsNull() {
+		model.AllIncludedTargetEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedTargetAttribute.ElementType(ctx) == nil {
-		model.IncludedTargetAttribute = types.SetNull(types.StringType)
+	if model.IncludedTargetAttribute.IsUnknown() || model.IncludedTargetAttribute.IsNull() {
+		model.IncludedTargetAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationType.ElementType(ctx) == nil {
-		model.OperationType = types.SetNull(types.StringType)
+	if model.OperationType.IsUnknown() || model.OperationType.IsNull() {
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedExtendedOperationOID.ElementType(ctx) == nil {
-		model.ExcludedExtendedOperationOID = types.SetNull(types.StringType)
+	if model.ExcludedExtendedOperationOID.IsUnknown() || model.ExcludedExtendedOperationOID.IsNull() {
+		model.ExcludedExtendedOperationOID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedApplicationName.ElementType(ctx) == nil {
-		model.ExcludedApplicationName = types.SetNull(types.StringType)
+	if model.ExcludedApplicationName.IsUnknown() || model.ExcludedApplicationName.IsNull() {
+		model.ExcludedApplicationName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedTargetEntryFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedTargetEntryFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedTargetEntryFilter.IsUnknown() || model.NotAllIncludedTargetEntryFilter.IsNull() {
+		model.NotAllIncludedTargetEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedRequestControl.ElementType(ctx) == nil {
-		model.NoneIncludedRequestControl = types.SetNull(types.StringType)
+	if model.NoneIncludedRequestControl.IsUnknown() || model.NoneIncludedRequestControl.IsNull() {
+		model.NoneIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.UsingAdministrativeSessionWorkerThread.IsUnknown() || model.UsingAdministrativeSessionWorkerThread.IsNull() {
+		model.UsingAdministrativeSessionWorkerThread = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *requestCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
 	}
 }
 
@@ -1015,7 +1034,7 @@ func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRe
 		client.StringSliceEnumrequestCriteriaRootDseOperationTypeProp(r.OperationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a SimpleRequestCriteriaResponse object into the model struct
@@ -1053,12 +1072,12 @@ func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequ
 	state.IncludedSearchScope = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaIncludedSearchScopeProp(r.IncludedSearchScope))
 	state.UsingAdministrativeSessionWorkerThread = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrequestCriteriaUsingAdministrativeSessionWorkerThreadProp(r.UsingAdministrativeSessionWorkerThread), internaltypes.IsEmptyString(expectedValues.UsingAdministrativeSessionWorkerThread))
+		client.StringPointerEnumrequestCriteriaUsingAdministrativeSessionWorkerThreadProp(r.UsingAdministrativeSessionWorkerThread), true)
 	state.IncludedApplicationName = internaltypes.GetStringSet(r.IncludedApplicationName)
 	state.ExcludedApplicationName = internaltypes.GetStringSet(r.ExcludedApplicationName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a AggregateRequestCriteriaResponse object into the model struct
@@ -1072,7 +1091,7 @@ func readAggregateRequestCriteriaResponse(ctx context.Context, r *client.Aggrega
 	state.NoneIncludedRequestCriteria = internaltypes.GetStringSet(r.NoneIncludedRequestCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyRequestCriteriaResponse object into the model struct
@@ -1084,7 +1103,7 @@ func readThirdPartyRequestCriteriaResponse(ctx context.Context, r *client.ThirdP
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRequestCriteriaUnknownValues(ctx, state)
+	populateRequestCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1403,6 +1422,7 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1458,6 +1478,10 @@ func readRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 	if readResponse.ThirdPartyRequestCriteriaResponse != nil {
 		readThirdPartyRequestCriteriaResponse(ctx, readResponse.ThirdPartyRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -165,6 +165,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"global-configuration"}...),
 				},
@@ -911,14 +914,14 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 }
 

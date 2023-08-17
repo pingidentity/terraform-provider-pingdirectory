@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -181,10 +182,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"aws_external_server": schema.StringAttribute{
 				Description: "The external server with information to use when interacting with the AWS Secrets Manager service.",
@@ -308,7 +305,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -359,24 +358,39 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("parallelism_factor"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("memory_usage_kb"),
 			path.MatchRoot("type"),
 			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_field"),
+			path.MatchRoot("derived_key_length_bytes"),
 			path.MatchRoot("type"),
-			[]string{"vault", "amazon-secrets-manager"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("password_encoding_mechanism"),
 			path.MatchRoot("type"),
-			[]string{"scrypt"},
+			[]string{"crypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("num_digest_rounds"),
 			path.MatchRoot("type"),
-			[]string{"pbkdf2"},
+			[]string{"crypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_password_length"),
@@ -389,74 +403,9 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 			[]string{"vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("iteration_count"),
+			path.MatchRoot("default_field"),
 			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_encoding_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"crypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_vault_uri"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party", "third-party-enhanced"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("azure_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("parallelism_factor"),
-			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_external_server"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("derived_key_length_bytes"),
-			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_external_server"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_parallelization_parameter"),
-			path.MatchRoot("type"),
-			[]string{"scrypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"aes-256"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
-			path.MatchRoot("type"),
-			[]string{"scrypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_digest_rounds"),
-			path.MatchRoot("type"),
-			[]string{"crypt"},
+			[]string{"vault", "amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -464,14 +413,64 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 			[]string{"third-party", "third-party-enhanced"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
+			[]string{"third-party", "third-party-enhanced"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"aes-256"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("bcrypt_cost_factor"),
 			path.MatchRoot("type"),
 			[]string{"bcrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_parallelization_parameter"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
 		),
 	}
 }
@@ -697,9 +696,49 @@ func addOptionalScryptPasswordStorageSchemeFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePasswordStorageSchemeUnknownValues(ctx context.Context, model *passwordStorageSchemeResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+func populatePasswordStorageSchemeUnknownValues(model *passwordStorageSchemeResourceModel) {
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.PasswordEncodingMechanism.IsUnknown() || model.PasswordEncodingMechanism.IsNull() {
+		model.PasswordEncodingMechanism = types.StringValue("")
+	}
+	if model.DigestAlgorithm.IsUnknown() || model.DigestAlgorithm.IsNull() {
+		model.DigestAlgorithm = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordStorageSchemeResourceModel) populateAllComputedStringAttributes() {
+	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
+		model.ConjurExternalServer = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.DefaultField.IsUnknown() || model.DefaultField.IsNull() {
+		model.DefaultField = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
+		model.KeyVaultURI = types.StringValue("")
+	}
+	if model.AzureAuthenticationMethod.IsUnknown() || model.AzureAuthenticationMethod.IsNull() {
+		model.AzureAuthenticationMethod = types.StringValue("")
+	}
+	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
+		model.VaultExternalServer = types.StringValue("")
 	}
 }
 
@@ -712,7 +751,7 @@ func readSaltedSha256PasswordStorageSchemeResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Argon2dPasswordStorageSchemeResponse object into the model struct
@@ -728,7 +767,7 @@ func readArgon2dPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a CryptPasswordStorageSchemeResponse object into the model struct
@@ -737,13 +776,13 @@ func readCryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Crypt
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PasswordEncodingMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), internaltypes.IsEmptyString(expectedValues.PasswordEncodingMechanism))
+		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), true)
 	state.NumDigestRounds = internaltypes.Int64TypeOrNil(r.NumDigestRounds)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Argon2iPasswordStorageSchemeResponse object into the model struct
@@ -759,7 +798,7 @@ func readArgon2iPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Base64PasswordStorageSchemeResponse object into the model struct
@@ -770,7 +809,7 @@ func readBase64PasswordStorageSchemeResponse(ctx context.Context, r *client.Base
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a SaltedMd5PasswordStorageSchemeResponse object into the model struct
@@ -782,7 +821,7 @@ func readSaltedMd5PasswordStorageSchemeResponse(ctx context.Context, r *client.S
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a AesPasswordStorageSchemeResponse object into the model struct
@@ -793,7 +832,7 @@ func readAesPasswordStorageSchemeResponse(ctx context.Context, r *client.AesPass
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Argon2idPasswordStorageSchemeResponse object into the model struct
@@ -809,7 +848,7 @@ func readArgon2idPasswordStorageSchemeResponse(ctx context.Context, r *client.Ar
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a VaultPasswordStorageSchemeResponse object into the model struct
@@ -822,7 +861,7 @@ func readVaultPasswordStorageSchemeResponse(ctx context.Context, r *client.Vault
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a ThirdPartyPasswordStorageSchemeResponse object into the model struct
@@ -835,7 +874,7 @@ func readThirdPartyPasswordStorageSchemeResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Argon2PasswordStorageSchemeResponse object into the model struct
@@ -851,7 +890,7 @@ func readArgon2PasswordStorageSchemeResponse(ctx context.Context, r *client.Argo
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a ThirdPartyEnhancedPasswordStorageSchemeResponse object into the model struct
@@ -864,7 +903,7 @@ func readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Pbkdf2PasswordStorageSchemeResponse object into the model struct
@@ -873,7 +912,7 @@ func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkd
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), internaltypes.IsEmptyString(expectedValues.DigestAlgorithm))
+		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), true)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
@@ -881,7 +920,7 @@ func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkd
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Rc4PasswordStorageSchemeResponse object into the model struct
@@ -892,7 +931,7 @@ func readRc4PasswordStorageSchemeResponse(ctx context.Context, r *client.Rc4Pass
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a SaltedSha384PasswordStorageSchemeResponse object into the model struct
@@ -904,7 +943,7 @@ func readSaltedSha384PasswordStorageSchemeResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a TripleDesPasswordStorageSchemeResponse object into the model struct
@@ -915,7 +954,7 @@ func readTripleDesPasswordStorageSchemeResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a ClearPasswordStorageSchemeResponse object into the model struct
@@ -926,7 +965,7 @@ func readClearPasswordStorageSchemeResponse(ctx context.Context, r *client.Clear
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Aes256PasswordStorageSchemeResponse object into the model struct
@@ -938,7 +977,7 @@ func readAes256PasswordStorageSchemeResponse(ctx context.Context, r *client.Aes2
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a BcryptPasswordStorageSchemeResponse object into the model struct
@@ -950,7 +989,7 @@ func readBcryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Bcry
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a BlowfishPasswordStorageSchemeResponse object into the model struct
@@ -961,7 +1000,7 @@ func readBlowfishPasswordStorageSchemeResponse(ctx context.Context, r *client.Bl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Sha1PasswordStorageSchemeResponse object into the model struct
@@ -972,7 +1011,7 @@ func readSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.Sha1Pa
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a AmazonSecretsManagerPasswordStorageSchemeResponse object into the model struct
@@ -985,7 +1024,7 @@ func readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a AzureKeyVaultPasswordStorageSchemeResponse object into the model struct
@@ -999,7 +1038,7 @@ func readAzureKeyVaultPasswordStorageSchemeResponse(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a ConjurPasswordStorageSchemeResponse object into the model struct
@@ -1011,7 +1050,7 @@ func readConjurPasswordStorageSchemeResponse(ctx context.Context, r *client.Conj
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a SaltedSha1PasswordStorageSchemeResponse object into the model struct
@@ -1023,7 +1062,7 @@ func readSaltedSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a SaltedSha512PasswordStorageSchemeResponse object into the model struct
@@ -1035,7 +1074,7 @@ func readSaltedSha512PasswordStorageSchemeResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a ScryptPasswordStorageSchemeResponse object into the model struct
@@ -1050,7 +1089,7 @@ func readScryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Scry
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Read a Md5PasswordStorageSchemeResponse object into the model struct
@@ -1061,7 +1100,7 @@ func readMd5PasswordStorageSchemeResponse(ctx context.Context, r *client.Md5Pass
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordStorageSchemeUnknownValues(ctx, state)
+	populatePasswordStorageSchemeUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -2028,6 +2067,7 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2155,6 +2195,10 @@ func readPasswordStorageScheme(ctx context.Context, req resource.ReadRequest, re
 	}
 	if readResponse.Md5PasswordStorageSchemeResponse != nil {
 		readMd5PasswordStorageSchemeResponse(ctx, readResponse.Md5PasswordStorageSchemeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

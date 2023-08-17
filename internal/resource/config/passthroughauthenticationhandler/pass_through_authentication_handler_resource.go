@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -213,10 +214,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 			"search_base_dn": schema.StringAttribute{
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -298,10 +295,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_mapping_local_attribute": schema.SetAttribute{
 				Description: "The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.",
@@ -353,7 +346,9 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -405,24 +400,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("additional_user_mapping_scim_filter"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("api_url"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_location"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("auth_url"),
@@ -435,29 +415,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("oauth_client_secret"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("continue_on_failure_type"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connections"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn_map"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oauth_client_secret_passphrase_provider"),
@@ -465,7 +425,12 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_mapping_remote_json_field"),
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
 		),
@@ -475,22 +440,37 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subordinate_pass_through_authentication_handler"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("environment_id"),
+			path.MatchRoot("user_mapping_remote_json_field"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("additional_user_mapping_scim_filter"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("initial_connections"),
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
 		),
@@ -500,9 +480,19 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("initial_connections"),
 			path.MatchRoot("type"),
-			[]string{"ping-one"},
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_location"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("maximum_allowed_local_response_time"),
@@ -510,19 +500,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_secret"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("maximum_allowed_nonlocal_response_time"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("use_password_policy_control"),
@@ -530,9 +510,24 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("subordinate_pass_through_authentication_handler"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("continue_on_failure_type"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -715,30 +710,85 @@ func addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx context.Con
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+func populatePassThroughAuthenticationHandlerUnknownValues(model *passThroughAuthenticationHandlerResourceModel) {
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SubordinatePassThroughAuthenticationHandler.ElementType(ctx) == nil {
-		model.SubordinatePassThroughAuthenticationHandler = types.SetNull(types.StringType)
+	if model.SubordinatePassThroughAuthenticationHandler.IsUnknown() || model.SubordinatePassThroughAuthenticationHandler.IsNull() {
+		model.SubordinatePassThroughAuthenticationHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ContinueOnFailureType.ElementType(ctx) == nil {
-		model.ContinueOnFailureType = types.SetNull(types.StringType)
+	if model.ContinueOnFailureType.IsUnknown() || model.ContinueOnFailureType.IsNull() {
+		model.ContinueOnFailureType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MaximumAllowedNonlocalResponseTime.IsUnknown() || model.MaximumAllowedNonlocalResponseTime.IsNull() {
+		model.MaximumAllowedNonlocalResponseTime = types.StringValue("")
+	}
+	if model.MaximumAllowedLocalResponseTime.IsUnknown() || model.MaximumAllowedLocalResponseTime.IsNull() {
+		model.MaximumAllowedLocalResponseTime = types.StringValue("")
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
 	}
 	if model.OAuthClientSecret.IsUnknown() {
 		model.OAuthClientSecret = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passThroughAuthenticationHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.AuthURL.IsUnknown() || model.AuthURL.IsNull() {
+		model.AuthURL = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.OAuthClientSecretPassphraseProvider.IsUnknown() || model.OAuthClientSecretPassphraseProvider.IsNull() {
+		model.OAuthClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.EnvironmentID.IsUnknown() || model.EnvironmentID.IsNull() {
+		model.EnvironmentID = types.StringValue("")
+	}
+	if model.ApiURL.IsUnknown() || model.ApiURL.IsNull() {
+		model.ApiURL = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.AdditionalUserMappingSCIMFilter.IsUnknown() || model.AdditionalUserMappingSCIMFilter.IsNull() {
+		model.AdditionalUserMappingSCIMFilter = types.StringValue("")
+	}
+	if model.BindDNPattern.IsUnknown() || model.BindDNPattern.IsNull() {
+		model.BindDNPattern = types.StringValue("")
+	}
+	if model.OAuthClientID.IsUnknown() || model.OAuthClientID.IsNull() {
+		model.OAuthClientID = types.StringValue("")
 	}
 }
 
@@ -761,7 +811,7 @@ func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r 
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a LdapPassThroughAuthenticationHandlerResponse object into the model struct
@@ -778,10 +828,10 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
 	state.UseLocation = internaltypes.BoolTypeOrNil(r.UseLocation)
-	state.MaximumAllowedLocalResponseTime = internaltypes.StringTypeOrNil(r.MaximumAllowedLocalResponseTime, internaltypes.IsEmptyString(expectedValues.MaximumAllowedLocalResponseTime))
+	state.MaximumAllowedLocalResponseTime = internaltypes.StringTypeOrNil(r.MaximumAllowedLocalResponseTime, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_allowed_local_response_time",
 		expectedValues.MaximumAllowedLocalResponseTime, state.MaximumAllowedLocalResponseTime, diagnostics)
-	state.MaximumAllowedNonlocalResponseTime = internaltypes.StringTypeOrNil(r.MaximumAllowedNonlocalResponseTime, internaltypes.IsEmptyString(expectedValues.MaximumAllowedNonlocalResponseTime))
+	state.MaximumAllowedNonlocalResponseTime = internaltypes.StringTypeOrNil(r.MaximumAllowedNonlocalResponseTime, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_allowed_nonlocal_response_time",
 		expectedValues.MaximumAllowedNonlocalResponseTime, state.MaximumAllowedNonlocalResponseTime, diagnostics)
 	state.UsePasswordPolicyControl = internaltypes.BoolTypeOrNil(r.UsePasswordPolicyControl)
@@ -790,7 +840,7 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a AggregatePassThroughAuthenticationHandlerResponse object into the model struct
@@ -806,7 +856,7 @@ func readAggregatePassThroughAuthenticationHandlerResponse(ctx context.Context, 
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyPassThroughAuthenticationHandlerResponse object into the model struct
@@ -821,7 +871,7 @@ func readThirdPartyPassThroughAuthenticationHandlerResponse(ctx context.Context,
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1161,6 +1211,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1216,6 +1267,10 @@ func readPassThroughAuthenticationHandler(ctx context.Context, req resource.Read
 	}
 	if readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

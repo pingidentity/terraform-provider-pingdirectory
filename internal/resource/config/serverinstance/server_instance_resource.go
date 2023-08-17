@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -100,6 +101,9 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"proxy", "metrics-engine", "authorize", "directory", "sync"}...),
 				},
@@ -302,102 +306,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jmx_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("start_tls_enabled"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_set_name"),
-			path.MatchRoot("type"),
-			[]string{"directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("member_of_server_group"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("https_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("preferred_security"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("load_balancing_algorithm_name"),
-			path.MatchRoot("type"),
-			[]string{"directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_root"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_domain_server_id"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_instance_type"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldaps_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("cluster_name"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("hostname"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_instance_location"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_server_id"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_version"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldap_port"),
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
@@ -407,7 +316,27 @@ func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jmxs_port"),
+			path.MatchRoot("cluster_name"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_instance_location"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hostname"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_root"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_version"),
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
@@ -416,22 +345,106 @@ func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldaps_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("https_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_domain_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmx_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmxs_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("preferred_security"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("start_tls_enabled"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("member_of_server_group"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_set_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("load_balancing_algorithm_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
+		),
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateServerInstanceUnknownValues(ctx context.Context, model *serverInstanceResourceModel) {
-	if model.ReplicationDomainServerID.ElementType(ctx) == nil {
-		model.ReplicationDomainServerID = types.SetNull(types.Int64Type)
+func populateServerInstanceUnknownValues(model *serverInstanceResourceModel) {
+	if model.ReplicationDomainServerID.IsUnknown() || model.ReplicationDomainServerID.IsNull() {
+		model.ReplicationDomainServerID, _ = types.SetValue(types.Int64Type, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LoadBalancingAlgorithmName.ElementType(ctx) == nil {
-		model.LoadBalancingAlgorithmName = types.SetNull(types.StringType)
+	if model.LoadBalancingAlgorithmName.IsUnknown() || model.LoadBalancingAlgorithmName.IsNull() {
+		model.LoadBalancingAlgorithmName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MemberOfServerGroup.ElementType(ctx) == nil {
-		model.MemberOfServerGroup = types.SetNull(types.StringType)
+	if model.MemberOfServerGroup.IsUnknown() || model.MemberOfServerGroup.IsNull() {
+		model.MemberOfServerGroup, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.PreferredSecurity.IsUnknown() || model.PreferredSecurity.IsNull() {
+		model.PreferredSecurity = types.StringValue("")
+	}
+	if model.ServerInstanceType.IsUnknown() || model.ServerInstanceType.IsNull() {
+		model.ServerInstanceType = types.StringValue("")
+	}
+	if model.ClusterName.IsUnknown() || model.ClusterName.IsNull() {
+		model.ClusterName = types.StringValue("")
 	}
 }
 
@@ -464,7 +477,7 @@ func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerI
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceUnknownValues(ctx, state)
+	populateServerInstanceUnknownValues(state)
 }
 
 // Read a MetricsEngineServerInstanceResponse object into the model struct
@@ -496,7 +509,7 @@ func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.Metr
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceUnknownValues(ctx, state)
+	populateServerInstanceUnknownValues(state)
 }
 
 // Read a AuthorizeServerInstanceResponse object into the model struct
@@ -528,7 +541,7 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceUnknownValues(ctx, state)
+	populateServerInstanceUnknownValues(state)
 }
 
 // Read a DirectoryServerInstanceResponse object into the model struct
@@ -562,7 +575,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceUnknownValues(ctx, state)
+	populateServerInstanceUnknownValues(state)
 }
 
 // Read a SyncServerInstanceResponse object into the model struct
@@ -594,7 +607,7 @@ func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerIns
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceUnknownValues(ctx, state)
+	populateServerInstanceUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan

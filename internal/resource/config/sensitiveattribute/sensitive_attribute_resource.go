@@ -193,6 +193,9 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -253,6 +256,28 @@ func addOptionalSensitiveAttributeFields(ctx context.Context, addRequest *client
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *sensitiveAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AllowInModify.IsUnknown() || model.AllowInModify.IsNull() {
+		model.AllowInModify = types.StringValue("")
+	}
+	if model.AllowInReturnedEntries.IsUnknown() || model.AllowInReturnedEntries.IsNull() {
+		model.AllowInReturnedEntries = types.StringValue("")
+	}
+	if model.AllowInFilter.IsUnknown() || model.AllowInFilter.IsNull() {
+		model.AllowInFilter = types.StringValue("")
+	}
+	if model.AllowInAdd.IsUnknown() || model.AllowInAdd.IsNull() {
+		model.AllowInAdd = types.StringValue("")
+	}
+	if model.AllowInCompare.IsUnknown() || model.AllowInCompare.IsNull() {
+		model.AllowInCompare = types.StringValue("")
+	}
+}
+
 // Read a SensitiveAttributeResponse object into the model struct
 func readSensitiveAttributeResponse(ctx context.Context, r *client.SensitiveAttributeResponse, state *sensitiveAttributeResourceModel, expectedValues *sensitiveAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sensitive-attribute")
@@ -262,15 +287,15 @@ func readSensitiveAttributeResponse(ctx context.Context, r *client.SensitiveAttr
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.IncludeDefaultSensitiveOperationalAttributes = internaltypes.BoolTypeOrNil(r.IncludeDefaultSensitiveOperationalAttributes)
 	state.AllowInReturnedEntries = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInReturnedEntriesProp(r.AllowInReturnedEntries), internaltypes.IsEmptyString(expectedValues.AllowInReturnedEntries))
+		client.StringPointerEnumsensitiveAttributeAllowInReturnedEntriesProp(r.AllowInReturnedEntries), true)
 	state.AllowInFilter = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInFilterProp(r.AllowInFilter), internaltypes.IsEmptyString(expectedValues.AllowInFilter))
+		client.StringPointerEnumsensitiveAttributeAllowInFilterProp(r.AllowInFilter), true)
 	state.AllowInAdd = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInAddProp(r.AllowInAdd), internaltypes.IsEmptyString(expectedValues.AllowInAdd))
+		client.StringPointerEnumsensitiveAttributeAllowInAddProp(r.AllowInAdd), true)
 	state.AllowInCompare = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInCompareProp(r.AllowInCompare), internaltypes.IsEmptyString(expectedValues.AllowInCompare))
+		client.StringPointerEnumsensitiveAttributeAllowInCompareProp(r.AllowInCompare), true)
 	state.AllowInModify = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsensitiveAttributeAllowInModifyProp(r.AllowInModify), internaltypes.IsEmptyString(expectedValues.AllowInModify))
+		client.StringPointerEnumsensitiveAttributeAllowInModifyProp(r.AllowInModify), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -408,6 +433,7 @@ func (r *defaultSensitiveAttributeResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -453,6 +479,10 @@ func readSensitiveAttribute(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readSensitiveAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

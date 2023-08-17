@@ -503,6 +503,9 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "policy_id"})
@@ -708,6 +711,49 @@ func addOptionalClientConnectionPolicyFields(ctx context.Context, addRequest *cl
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *clientConnectionPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.MaximumIdleConnectionDuration.IsUnknown() || model.MaximumIdleConnectionDuration.IsNull() {
+		model.MaximumIdleConnectionDuration = types.StringValue("")
+	}
+	if model.ConnectionOperationRateExceededBehavior.IsUnknown() || model.ConnectionOperationRateExceededBehavior.IsNull() {
+		model.ConnectionOperationRateExceededBehavior = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.MaximumSearchTimeLimit.IsUnknown() || model.MaximumSearchTimeLimit.IsNull() {
+		model.MaximumSearchTimeLimit = types.StringValue("")
+	}
+	if model.MaximumConcurrentOperationWaitTimeBeforeRejecting.IsUnknown() || model.MaximumConcurrentOperationWaitTimeBeforeRejecting.IsNull() {
+		model.MaximumConcurrentOperationWaitTimeBeforeRejecting = types.StringValue("")
+	}
+	if model.MaximumConnectionDuration.IsUnknown() || model.MaximumConnectionDuration.IsNull() {
+		model.MaximumConnectionDuration = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.ResultCodeMap.IsUnknown() || model.ResultCodeMap.IsNull() {
+		model.ResultCodeMap = types.StringValue("")
+	}
+	if model.ProhibitedOperationRequestCriteria.IsUnknown() || model.ProhibitedOperationRequestCriteria.IsNull() {
+		model.ProhibitedOperationRequestCriteria = types.StringValue("")
+	}
+	if model.RequiredOperationRequestCriteria.IsUnknown() || model.RequiredOperationRequestCriteria.IsNull() {
+		model.RequiredOperationRequestCriteria = types.StringValue("")
+	}
+	if model.PolicyOperationRateExceededBehavior.IsUnknown() || model.PolicyOperationRateExceededBehavior.IsNull() {
+		model.PolicyOperationRateExceededBehavior = types.StringValue("")
+	}
+	if model.MaximumConcurrentOperationsPerConnectionExceededBehavior.IsUnknown() || model.MaximumConcurrentOperationsPerConnectionExceededBehavior.IsNull() {
+		model.MaximumConcurrentOperationsPerConnectionExceededBehavior = types.StringValue("")
+	}
+	if model.PolicyID.IsUnknown() || model.PolicyID.IsNull() {
+		model.PolicyID = types.StringValue("")
+	}
+}
+
 // Read a ClientConnectionPolicyResponse object into the model struct
 func readClientConnectionPolicyResponse(ctx context.Context, r *client.ClientConnectionPolicyResponse, state *clientConnectionPolicyResourceModel, expectedValues *clientConnectionPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-connection-policy")
@@ -741,27 +787,27 @@ func readClientConnectionPolicyResponse(ctx context.Context, r *client.ClientCon
 	state.AllowUnindexedSearchesWithControl = internaltypes.BoolTypeOrNil(r.AllowUnindexedSearchesWithControl)
 	state.MinimumSubstringLength = internaltypes.Int64TypeOrNil(r.MinimumSubstringLength)
 	state.MaximumConcurrentConnections = internaltypes.Int64TypeOrNil(r.MaximumConcurrentConnections)
-	state.MaximumConnectionDuration = internaltypes.StringTypeOrNil(r.MaximumConnectionDuration, internaltypes.IsEmptyString(expectedValues.MaximumConnectionDuration))
+	state.MaximumConnectionDuration = internaltypes.StringTypeOrNil(r.MaximumConnectionDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_connection_duration",
 		expectedValues.MaximumConnectionDuration, state.MaximumConnectionDuration, diagnostics)
-	state.MaximumIdleConnectionDuration = internaltypes.StringTypeOrNil(r.MaximumIdleConnectionDuration, internaltypes.IsEmptyString(expectedValues.MaximumIdleConnectionDuration))
+	state.MaximumIdleConnectionDuration = internaltypes.StringTypeOrNil(r.MaximumIdleConnectionDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_idle_connection_duration",
 		expectedValues.MaximumIdleConnectionDuration, state.MaximumIdleConnectionDuration, diagnostics)
 	state.MaximumOperationCountPerConnection = internaltypes.Int64TypeOrNil(r.MaximumOperationCountPerConnection)
 	state.MaximumConcurrentOperationsPerConnection = internaltypes.Int64TypeOrNil(r.MaximumConcurrentOperationsPerConnection)
-	state.MaximumConcurrentOperationWaitTimeBeforeRejecting = internaltypes.StringTypeOrNil(r.MaximumConcurrentOperationWaitTimeBeforeRejecting, internaltypes.IsEmptyString(expectedValues.MaximumConcurrentOperationWaitTimeBeforeRejecting))
+	state.MaximumConcurrentOperationWaitTimeBeforeRejecting = internaltypes.StringTypeOrNil(r.MaximumConcurrentOperationWaitTimeBeforeRejecting, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_concurrent_operation_wait_time_before_rejecting",
 		expectedValues.MaximumConcurrentOperationWaitTimeBeforeRejecting, state.MaximumConcurrentOperationWaitTimeBeforeRejecting, diagnostics)
 	state.MaximumConcurrentOperationsPerConnectionExceededBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumclientConnectionPolicyMaximumConcurrentOperationsPerConnectionExceededBehaviorProp(r.MaximumConcurrentOperationsPerConnectionExceededBehavior), internaltypes.IsEmptyString(expectedValues.MaximumConcurrentOperationsPerConnectionExceededBehavior))
+		client.StringPointerEnumclientConnectionPolicyMaximumConcurrentOperationsPerConnectionExceededBehaviorProp(r.MaximumConcurrentOperationsPerConnectionExceededBehavior), true)
 	state.MaximumConnectionOperationRate = internaltypes.GetStringSet(r.MaximumConnectionOperationRate)
 	state.ConnectionOperationRateExceededBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumclientConnectionPolicyConnectionOperationRateExceededBehaviorProp(r.ConnectionOperationRateExceededBehavior), internaltypes.IsEmptyString(expectedValues.ConnectionOperationRateExceededBehavior))
+		client.StringPointerEnumclientConnectionPolicyConnectionOperationRateExceededBehaviorProp(r.ConnectionOperationRateExceededBehavior), true)
 	state.MaximumPolicyOperationRate = internaltypes.GetStringSet(r.MaximumPolicyOperationRate)
 	state.PolicyOperationRateExceededBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumclientConnectionPolicyPolicyOperationRateExceededBehaviorProp(r.PolicyOperationRateExceededBehavior), internaltypes.IsEmptyString(expectedValues.PolicyOperationRateExceededBehavior))
+		client.StringPointerEnumclientConnectionPolicyPolicyOperationRateExceededBehaviorProp(r.PolicyOperationRateExceededBehavior), true)
 	state.MaximumSearchSizeLimit = internaltypes.Int64TypeOrNil(r.MaximumSearchSizeLimit)
-	state.MaximumSearchTimeLimit = internaltypes.StringTypeOrNil(r.MaximumSearchTimeLimit, internaltypes.IsEmptyString(expectedValues.MaximumSearchTimeLimit))
+	state.MaximumSearchTimeLimit = internaltypes.StringTypeOrNil(r.MaximumSearchTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("maximum_search_time_limit",
 		expectedValues.MaximumSearchTimeLimit, state.MaximumSearchTimeLimit, diagnostics)
 	state.MaximumSearchLookthroughLimit = internaltypes.Int64TypeOrNil(r.MaximumSearchLookthroughLimit)
@@ -937,6 +983,7 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -982,6 +1029,10 @@ func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readClientConnectionPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

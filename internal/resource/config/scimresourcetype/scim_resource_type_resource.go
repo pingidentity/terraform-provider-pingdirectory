@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -229,7 +230,9 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -242,17 +245,17 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 func configValidatorsScimResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("optional_schema_extension"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapping"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("core_schema"),
 			path.MatchRoot("type"),
 			[]string{"ldap-mapping"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("required_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("optional_schema_extension"),
 			path.MatchRoot("type"),
 			[]string{"ldap-mapping"},
 		),
@@ -384,12 +387,34 @@ func addOptionalLdapMappingScimResourceTypeFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateScimResourceTypeUnknownValues(ctx context.Context, model *scimResourceTypeResourceModel) {
-	if model.RequiredSchemaExtension.ElementType(ctx) == nil {
-		model.RequiredSchemaExtension = types.SetNull(types.StringType)
+func populateScimResourceTypeUnknownValues(model *scimResourceTypeResourceModel) {
+	if model.RequiredSchemaExtension.IsUnknown() || model.RequiredSchemaExtension.IsNull() {
+		model.RequiredSchemaExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OptionalSchemaExtension.ElementType(ctx) == nil {
-		model.OptionalSchemaExtension = types.SetNull(types.StringType)
+	if model.OptionalSchemaExtension.IsUnknown() || model.OptionalSchemaExtension.IsNull() {
+		model.OptionalSchemaExtension, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimResourceTypeResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Endpoint.IsUnknown() || model.Endpoint.IsNull() {
+		model.Endpoint = types.StringValue("")
+	}
+	if model.CoreSchema.IsUnknown() || model.CoreSchema.IsNull() {
+		model.CoreSchema = types.StringValue("")
+	}
+	if model.StructuralLDAPObjectclass.IsUnknown() || model.StructuralLDAPObjectclass.IsNull() {
+		model.StructuralLDAPObjectclass = types.StringValue("")
+	}
+	if model.CreateDNPattern.IsUnknown() || model.CreateDNPattern.IsNull() {
+		model.CreateDNPattern = types.StringValue("")
+	}
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN = types.StringValue("")
 	}
 }
 
@@ -411,7 +436,7 @@ func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.
 	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
 	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, internaltypes.IsEmptyString(expectedValues.CreateDNPattern))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateScimResourceTypeUnknownValues(ctx, state)
+	populateScimResourceTypeUnknownValues(state)
 }
 
 // Read a LdapMappingScimResourceTypeResponse object into the model struct
@@ -435,7 +460,7 @@ func readLdapMappingScimResourceTypeResponse(ctx context.Context, r *client.Ldap
 	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
 	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, internaltypes.IsEmptyString(expectedValues.CreateDNPattern))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateScimResourceTypeUnknownValues(ctx, state)
+	populateScimResourceTypeUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -639,6 +664,7 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -688,6 +714,10 @@ func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

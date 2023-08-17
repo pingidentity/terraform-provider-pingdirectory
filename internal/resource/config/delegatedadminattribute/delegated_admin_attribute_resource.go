@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -193,10 +194,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_category": schema.StringAttribute{
 				Description: "Specifies which attribute category this attribute belongs to.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"display_order_index": schema.Int64Attribute{
 				Description: "This property determines a display order for attributes within a given attribute category. Attributes are ordered within their category based on this index from least to greatest.",
@@ -214,10 +211,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_presentation": schema.StringAttribute{
 				Description: "Indicates how the attribute is presented to the user of the app.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"date_time_format": schema.StringAttribute{
 				Description: "Specifies the format string that is used to present a date and/or time value to the user of the app. This property only applies to LDAP attribute types whose LDAP syntax is GeneralizedTime and is ignored if the attribute type has any other syntax.",
@@ -235,7 +228,9 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute_type", "rest_resource_type_name"})
@@ -429,9 +424,37 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateDelegatedAdminAttributeUnknownValues(ctx context.Context, model *delegatedAdminAttributeResourceModel) {
-	if model.AllowedMIMEType.ElementType(ctx) == nil {
-		model.AllowedMIMEType = types.SetNull(types.StringType)
+func populateDelegatedAdminAttributeUnknownValues(model *delegatedAdminAttributeResourceModel) {
+	if model.AllowedMIMEType.IsUnknown() || model.AllowedMIMEType.IsNull() {
+		model.AllowedMIMEType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+	if model.AttributeCategory.IsUnknown() || model.AttributeCategory.IsNull() {
+		model.AttributeCategory = types.StringValue("")
+	}
+	if model.ReferenceResourceType.IsUnknown() || model.ReferenceResourceType.IsNull() {
+		model.ReferenceResourceType = types.StringValue("")
+	}
+	if model.Mutability.IsUnknown() || model.Mutability.IsNull() {
+		model.Mutability = types.StringValue("")
+	}
+	if model.AttributePresentation.IsUnknown() || model.AttributePresentation.IsNull() {
+		model.AttributePresentation = types.StringValue("")
+	}
+	if model.DateTimeFormat.IsUnknown() || model.DateTimeFormat.IsNull() {
+		model.DateTimeFormat = types.StringValue("")
 	}
 }
 
@@ -451,9 +474,9 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
+	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Read a PhotoDelegatedAdminAttributeResponse object into the model struct
@@ -472,9 +495,9 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
+	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Read a GenericDelegatedAdminAttributeResponse object into the model struct
@@ -492,9 +515,9 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
+	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -753,6 +776,7 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -805,6 +829,10 @@ func readDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
 		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

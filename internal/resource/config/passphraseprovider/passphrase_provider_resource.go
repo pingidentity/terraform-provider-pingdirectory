@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -186,10 +187,6 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
@@ -248,7 +245,9 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -292,14 +291,19 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			[]string{"environment-variable"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_field_name"),
+			path.MatchRoot("aws_external_server"),
 			path.MatchRoot("type"),
 			[]string{"amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("secret_id"),
 			path.MatchRoot("type"),
-			[]string{"conjur"},
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("secret_version_id"),
@@ -307,44 +311,14 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			[]string{"amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("secret_version_stage"),
 			path.MatchRoot("type"),
 			[]string{"amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_secret_field_name"),
+			path.MatchRoot("max_cache_duration"),
 			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_secret_path"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_external_server"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_name"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_id"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
+			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("obscured_value"),
@@ -357,9 +331,29 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			[]string{"azure-key-vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("azure_authentication_method"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_name"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("conjur_secret_relative_path"),
@@ -367,9 +361,19 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			[]string{"conjur"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("vault_external_server"),
 			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_path"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -377,14 +381,9 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_version_stage"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_cache_duration"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "vault"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -501,12 +500,73 @@ func addOptionalThirdPartyPassphraseProviderFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePassphraseProviderUnknownValues(ctx context.Context, model *passphraseProviderResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+func populatePassphraseProviderUnknownValues(model *passphraseProviderResourceModel) {
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MaxCacheDuration.IsUnknown() || model.MaxCacheDuration.IsNull() {
+		model.MaxCacheDuration = types.StringValue("")
 	}
 	if model.ObscuredValue.IsUnknown() {
 		model.ObscuredValue = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passphraseProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.SecretVersionStage.IsUnknown() || model.SecretVersionStage.IsNull() {
+		model.SecretVersionStage = types.StringValue("")
+	}
+	if model.VaultSecretFieldName.IsUnknown() || model.VaultSecretFieldName.IsNull() {
+		model.VaultSecretFieldName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SecretVersionID.IsUnknown() || model.SecretVersionID.IsNull() {
+		model.SecretVersionID = types.StringValue("")
+	}
+	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
+		model.PasswordFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.ConjurSecretRelativePath.IsUnknown() || model.ConjurSecretRelativePath.IsNull() {
+		model.ConjurSecretRelativePath = types.StringValue("")
+	}
+	if model.AzureAuthenticationMethod.IsUnknown() || model.AzureAuthenticationMethod.IsNull() {
+		model.AzureAuthenticationMethod = types.StringValue("")
+	}
+	if model.SecretFieldName.IsUnknown() || model.SecretFieldName.IsNull() {
+		model.SecretFieldName = types.StringValue("")
+	}
+	if model.SecretName.IsUnknown() || model.SecretName.IsNull() {
+		model.SecretName = types.StringValue("")
+	}
+	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
+		model.ConjurExternalServer = types.StringValue("")
+	}
+	if model.SecretID.IsUnknown() || model.SecretID.IsNull() {
+		model.SecretID = types.StringValue("")
+	}
+	if model.VaultSecretPath.IsUnknown() || model.VaultSecretPath.IsNull() {
+		model.VaultSecretPath = types.StringValue("")
+	}
+	if model.EnvironmentVariable.IsUnknown() || model.EnvironmentVariable.IsNull() {
+		model.EnvironmentVariable = types.StringValue("")
+	}
+	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
+		model.KeyVaultURI = types.StringValue("")
+	}
+	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
+		model.VaultExternalServer = types.StringValue("")
 	}
 }
 
@@ -519,7 +579,7 @@ func readEnvironmentVariablePassphraseProviderResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a AmazonSecretsManagerPassphraseProviderResponse object into the model struct
@@ -532,13 +592,13 @@ func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
 	state.SecretVersionID = internaltypes.StringTypeOrNil(r.SecretVersionID, internaltypes.IsEmptyString(expectedValues.SecretVersionID))
 	state.SecretVersionStage = internaltypes.StringTypeOrNil(r.SecretVersionStage, internaltypes.IsEmptyString(expectedValues.SecretVersionStage))
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ObscuredValuePassphraseProviderResponse object into the model struct
@@ -549,7 +609,7 @@ func readObscuredValuePassphraseProviderResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a AzureKeyVaultPassphraseProviderResponse object into the model struct
@@ -561,13 +621,13 @@ func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.SecretName = types.StringValue(r.SecretName)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a FileBasedPassphraseProviderResponse object into the model struct
@@ -576,13 +636,13 @@ func readFileBasedPassphraseProviderResponse(ctx context.Context, r *client.File
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ConjurPassphraseProviderResponse object into the model struct
@@ -592,13 +652,13 @@ func readConjurPassphraseProviderResponse(ctx context.Context, r *client.ConjurP
 	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a VaultPassphraseProviderResponse object into the model struct
@@ -609,13 +669,13 @@ func readVaultPassphraseProviderResponse(ctx context.Context, r *client.VaultPas
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.VaultSecretPath = types.StringValue(r.VaultSecretPath)
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
-	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
+	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
 		expectedValues.MaxCacheDuration, state.MaxCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyPassphraseProviderResponse object into the model struct
@@ -628,7 +688,7 @@ func readThirdPartyPassphraseProviderResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassphraseProviderUnknownValues(ctx, state)
+	populatePassphraseProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1130,6 +1190,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1197,6 +1258,10 @@ func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyPassphraseProviderResponse != nil {
 		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

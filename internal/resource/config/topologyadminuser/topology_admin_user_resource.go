@@ -431,6 +431,9 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -599,9 +602,31 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateTopologyAdminUserUnknownValues(ctx context.Context, model *topologyAdminUserResourceModel) {
+func populateTopologyAdminUserUnknownValues(model *topologyAdminUserResourceModel) {
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *topologyAdminUserResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AccountActivationTime.IsUnknown() || model.AccountActivationTime.IsNull() {
+		model.AccountActivationTime = types.StringValue("")
+	}
+	if model.IsProxyable.IsUnknown() || model.IsProxyable.IsNull() {
+		model.IsProxyable = types.StringValue("")
+	}
+	if model.AccountExpirationTime.IsUnknown() || model.AccountExpirationTime.IsNull() {
+		model.AccountExpirationTime = types.StringValue("")
+	}
+	if model.UserID.IsUnknown() || model.UserID.IsNull() {
+		model.UserID = types.StringValue("")
+	}
+	if model.PasswordPolicy.IsUnknown() || model.PasswordPolicy.IsNull() {
+		model.PasswordPolicy = types.StringValue("")
 	}
 }
 
@@ -637,7 +662,7 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.AllowedAuthenticationIPAddress = internaltypes.GetStringSet(r.AllowedAuthenticationIPAddress)
 	state.PreferredOTPDeliveryMechanism = internaltypes.GetStringSet(r.PreferredOTPDeliveryMechanism)
 	state.IsProxyable = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumtopologyAdminUserIsProxyableProp(r.IsProxyable), internaltypes.IsEmptyString(expectedValues.IsProxyable))
+		client.StringPointerEnumtopologyAdminUserIsProxyableProp(r.IsProxyable), true)
 	state.IsProxyableByDN = internaltypes.GetStringSet(r.IsProxyableByDN)
 	state.IsProxyableByGroup = internaltypes.GetStringSet(r.IsProxyableByGroup)
 	state.IsProxyableByURL = internaltypes.GetStringSet(r.IsProxyableByURL)
@@ -645,7 +670,7 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.MayProxyAsGroup = internaltypes.GetStringSet(r.MayProxyAsGroup)
 	state.MayProxyAsURL = internaltypes.GetStringSet(r.MayProxyAsURL)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTopologyAdminUserUnknownValues(ctx, state)
+	populateTopologyAdminUserUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -814,6 +839,7 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -859,6 +885,10 @@ func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *
 
 	// Read the response into the state
 	readTopologyAdminUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

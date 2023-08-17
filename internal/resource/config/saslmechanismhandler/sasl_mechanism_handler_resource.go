@@ -6,12 +6,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -231,10 +231,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry.\n  - `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_required_scope": schema.SetAttribute{
 				Description: "The set of OAuth scopes that will all be required for any access tokens that will be allowed for authentication.",
@@ -266,10 +262,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process. When the `type` attribute is set to `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server. When the `type` attribute is set to `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the DNS-resolvable fully-qualified domain name for the server that is used when validating the digest-uri parameter during the authentication process.\n  - `oauth-bearer`: The fully-qualified name that clients are expected to use when communicating with the server.\n  - `gssapi`: Specifies the DNS-resolvable fully-qualified domain name for the system.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities. When the `type` attribute is set to  one of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request. When the `type` attribute is set to `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values. When the `type` attribute is set to `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
@@ -291,7 +283,9 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "external", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "anonymous", "cram-md5", "oauth-bearer", "unboundid-certificate-plus-password", "gssapi", "third-party"}...),
 		}
@@ -299,165 +293,81 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["kdc_address"] = schema.StringAttribute{
 			Description: "Specifies the address of the KDC that is to be used for Kerberos processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["keytab"] = schema.StringAttribute{
 			Description: "Specifies the keytab file that should be used for Kerberos processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allow_null_server_fqdn"] = schema.BoolAttribute{
 			Description: "Specifies whether or not to allow a null value for the server-fqdn.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allowed_quality_of_protection"] = schema.SetAttribute{
 			Description: "Specifies the supported quality of protection (QoP) levels that clients will be permitted to request when performing GSSAPI authentication.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["kerberos_service_principal"] = schema.StringAttribute{
 			Description: "Specifies the Kerberos service principal that the Directory Server will use to identify itself to the KDC.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["gssapi_role"] = schema.StringAttribute{
 			Description: "Specifies the role that should be declared for the server in the generated JAAS configuration file.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["jaas_config_file"] = schema.StringAttribute{
 			Description: "Specifies the path to a JAAS (Java Authentication and Authorization Service) configuration file that provides the information that the JVM should use for Kerberos processing.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["enable_debug"] = schema.BoolAttribute{
 			Description: "Indicates whether to enable debugging for the Java GSSAPI provider. Debug information will be written to standard output, which should be captured in the server.out log file.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["realm"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication. When the `type` attribute is set to `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `digest-md5`: Specifies the realm that is to be used by the server for DIGEST-MD5 authentication.\n  - `gssapi`: Specifies the realm to be used for GSSAPI authentication.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["certificate_validation_policy"] = schema.StringAttribute{
 			Description: "Indicates whether to attempt to validate the peer certificate against a certificate held in the user's entry.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["certificate_attribute"] = schema.StringAttribute{
 			Description: "Specifies the name of the attribute to hold user certificates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["certificate_mapper"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries. When the `type` attribute is set to `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `external`: Specifies the name of the certificate mapper that should be used to match client certificates to user entries.\n  - `unboundid-certificate-plus-password`: The certificate mapper that will be used to identify the target user based on the certificate that was presented to the server.",
-			Optional:            true,
 		}
 		schemaDef.Attributes["yubikey_client_id"] = schema.StringAttribute{
 			Description: "The client ID to include in requests to the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["yubikey_api_key"] = schema.StringAttribute{
 			Description: "The API key needed to verify signatures generated by the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["yubikey_api_key_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider to use to obtain the API key needed to verify signatures generated by the YubiKey validation server. A client ID and API key may be obtained for free from https://upgrade.yubico.com/getapikey/.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["yubikey_validation_server_base_url"] = schema.SetAttribute{
 			Description: "The base URL of the validation server to use to verify one-time passwords. You should only need to change the value if you wish to use your own validation server instead of using one of the Yubico servers. The server must use the YubiKey Validation Protocol version 2.0.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
 			Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["shared_secret_attribute_type"] = schema.StringAttribute{
 			Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["key_manager_provider"] = schema.StringAttribute{
 			Description: "Specifies which key manager provider should be used to obtain a client certificate to present to the validation server when performing HTTPS communication. This may be left undefined if communication will not be secured with HTTPS, or if there is no need to present a client certificate to the validation service.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_manager_provider"] = schema.StringAttribute{
 			Description: "Specifies which trust manager provider should be used to determine whether to trust the certificate presented by the server when performing HTTPS communication. This may be left undefined if HTTPS communication is not needed, or if the validation service presents a certificate that is trusted by the default JVM configuration (which should be the case for the validation servers that Yubico provides, but may not be the case if an alternate validation server is configured).",
-			Optional:    true,
 		}
 		schemaDef.Attributes["time_interval_duration"] = schema.StringAttribute{
 			Description: "The duration of the time interval used for TOTP processing.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["adjacent_intervals_to_check"] = schema.Int64Attribute{
 			Description: "The number of adjacent time intervals (both before and after the current time) that should be checked when performing authentication.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["require_static_password"] = schema.BoolAttribute{
 			Description:         "When the `type` attribute is set to `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password. When the `type` attribute is set to `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `unboundid-totp`: Indicates whether to require a static password (as might be held in the userPassword attribute, or whatever password attribute is defined in the password policy governing the user) in addition to the one-time password.\n  - `unboundid-yubikey-otp`: Indicates whether a user will be required to provide a static password when authenticating via the UNBOUNDID-YUBIKEY-OTP SASL mechanism.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["prevent_totp_reuse"] = schema.BoolAttribute{
 			Description: "Indicates whether to prevent clients from re-using TOTP passwords.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -503,24 +413,9 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("access_token_validator"),
-			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_required_scope"),
-			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_fqdn"),
@@ -528,7 +423,27 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"digest-md5", "oauth-bearer", "gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("otp_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-delivered-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("require_both_access_token_and_id_token"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validate_access_token_when_id_token_is_also_provided"),
 			path.MatchRoot("type"),
 			[]string{"oauth-bearer"},
 		),
@@ -538,19 +453,14 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"oauth-bearer", "gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("validate_access_token_when_id_token_is_also_provided"),
+			path.MatchRoot("all_required_scope"),
 			path.MatchRoot("type"),
 			[]string{"oauth-bearer"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("any_required_scope"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("otp_validity_duration"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-delivered-otp"},
+			[]string{"oauth-bearer"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -558,9 +468,9 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_required_scope"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -574,39 +484,9 @@ func (r saslMechanismHandlerResource) ConfigValidators(ctx context.Context) []re
 func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("keytab"),
+			path.MatchRoot("shared_secret_attribute_type"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("certificate_mapper"),
-			path.MatchRoot("type"),
-			[]string{"external", "unboundid-certificate-plus-password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("kerberos_service_principal"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("certificate_validation_policy"),
-			path.MatchRoot("type"),
-			[]string{"external"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_null_server_fqdn"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
+			[]string{"unboundid-totp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("time_interval_duration"),
@@ -614,19 +494,29 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-totp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_validation_server_base_url"),
+			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_static_password"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp", "unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_client_id"),
 			path.MatchRoot("type"),
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_quality_of_protection"),
+			path.MatchRoot("yubikey_api_key"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("adjacent_intervals_to_check"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("yubikey_api_key_passphrase_provider"),
@@ -634,7 +524,7 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_client_id"),
+			path.MatchRoot("yubikey_validation_server_base_url"),
 			path.MatchRoot("type"),
 			[]string{"unboundid-yubikey-otp"},
 		),
@@ -644,14 +534,19 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("key_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jaas_config_file"),
+			path.MatchRoot("trust_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("certificate_validation_policy"),
+			path.MatchRoot("type"),
+			[]string{"external"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("certificate_attribute"),
@@ -659,19 +554,9 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"external"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_api_key"),
+			path.MatchRoot("certificate_mapper"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("gssapi_role"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_debug"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
+			[]string{"external", "unboundid-certificate-plus-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("realm"),
@@ -684,14 +569,39 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_static_password"),
+			path.MatchRoot("keytab"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp", "unboundid-yubikey-otp"},
+			[]string{"gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("shared_secret_attribute_type"),
+			path.MatchRoot("allow_null_server_fqdn"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_quality_of_protection"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("kerberos_service_principal"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gssapi_role"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jaas_config_file"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_debug"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
 		),
 	}
 	return append(configValidatorsSaslMechanismHandler(), validators...)
@@ -786,49 +696,121 @@ func addOptionalThirdPartySaslMechanismHandlerFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSaslMechanismHandlerUnknownValues(ctx context.Context, model *saslMechanismHandlerResourceModel) {
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+func populateSaslMechanismHandlerUnknownValues(model *saslMechanismHandlerResourceModel) {
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyRequiredScope.ElementType(ctx) == nil {
-		model.AnyRequiredScope = types.SetNull(types.StringType)
+	if model.AnyRequiredScope.IsUnknown() || model.AnyRequiredScope.IsNull() {
+		model.AnyRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredScope.ElementType(ctx) == nil {
-		model.AllRequiredScope = types.SetNull(types.StringType)
+	if model.AllRequiredScope.IsUnknown() || model.AllRequiredScope.IsNull() {
+		model.AllRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
+		model.OtpValidityDuration = types.StringValue("")
+	}
+	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSaslMechanismHandlerUnknownValuesDefault(ctx context.Context, model *defaultSaslMechanismHandlerResourceModel) {
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+func populateSaslMechanismHandlerUnknownValuesDefault(model *defaultSaslMechanismHandlerResourceModel) {
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyRequiredScope.ElementType(ctx) == nil {
-		model.AnyRequiredScope = types.SetNull(types.StringType)
+	if model.AnyRequiredScope.IsUnknown() || model.AnyRequiredScope.IsNull() {
+		model.AnyRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedQualityOfProtection.ElementType(ctx) == nil {
-		model.AllowedQualityOfProtection = types.SetNull(types.StringType)
+	if model.AllowedQualityOfProtection.IsUnknown() || model.AllowedQualityOfProtection.IsNull() {
+		model.AllowedQualityOfProtection, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredScope.ElementType(ctx) == nil {
-		model.AllRequiredScope = types.SetNull(types.StringType)
+	if model.AllRequiredScope.IsUnknown() || model.AllRequiredScope.IsNull() {
+		model.AllRequiredScope, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.YubikeyValidationServerBaseURL.ElementType(ctx) == nil {
-		model.YubikeyValidationServerBaseURL = types.SetNull(types.StringType)
+	if model.YubikeyValidationServerBaseURL.IsUnknown() || model.YubikeyValidationServerBaseURL.IsNull() {
+		model.YubikeyValidationServerBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.YubikeyAPIKey.IsUnknown() {
-		model.YubikeyAPIKey = types.StringNull()
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.YubikeyAPIKey.IsUnknown() || model.YubikeyAPIKey.IsNull() {
+		model.YubikeyAPIKey = types.StringValue("")
+	}
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.AlternateAuthorizationIdentityMapper.IsUnknown() || model.AlternateAuthorizationIdentityMapper.IsNull() {
+		model.AlternateAuthorizationIdentityMapper = types.StringValue("")
+	}
+	if model.GssapiRole.IsUnknown() || model.GssapiRole.IsNull() {
+		model.GssapiRole = types.StringValue("")
+	}
+	if model.CertificateValidationPolicy.IsUnknown() || model.CertificateValidationPolicy.IsNull() {
+		model.CertificateValidationPolicy = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.ServerFqdn.IsUnknown() || model.ServerFqdn.IsNull() {
+		model.ServerFqdn = types.StringValue("")
+	}
+	if model.KdcAddress.IsUnknown() || model.KdcAddress.IsNull() {
+		model.KdcAddress = types.StringValue("")
+	}
+	if model.JaasConfigFile.IsUnknown() || model.JaasConfigFile.IsNull() {
+		model.JaasConfigFile = types.StringValue("")
+	}
+	if model.CertificateAttribute.IsUnknown() || model.CertificateAttribute.IsNull() {
+		model.CertificateAttribute = types.StringValue("")
+	}
+	if model.YubikeyClientID.IsUnknown() || model.YubikeyClientID.IsNull() {
+		model.YubikeyClientID = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
+		model.OtpValidityDuration = types.StringValue("")
+	}
+	if model.KerberosServicePrincipal.IsUnknown() || model.KerberosServicePrincipal.IsNull() {
+		model.KerberosServicePrincipal = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.CertificateMapper.IsUnknown() || model.CertificateMapper.IsNull() {
+		model.CertificateMapper = types.StringValue("")
+	}
+	if model.Keytab.IsUnknown() || model.Keytab.IsNull() {
+		model.Keytab = types.StringValue("")
+	}
+	if model.YubikeyAPIKeyPassphraseProvider.IsUnknown() || model.YubikeyAPIKeyPassphraseProvider.IsNull() {
+		model.YubikeyAPIKeyPassphraseProvider = types.StringValue("")
+	}
+	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
+	}
+	if model.Realm.IsUnknown() || model.Realm.IsNull() {
+		model.Realm = types.StringValue("")
 	}
 }
 
@@ -841,7 +823,7 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
+	populateSaslMechanismHandlerUnknownValues(state)
 }
 
 // Read a UnboundidMsChapV2SaslMechanismHandlerResponse object into the model struct
@@ -850,10 +832,10 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx context.Contex
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a UnboundidTotpSaslMechanismHandlerResponse object into the model struct
@@ -862,17 +844,17 @@ func readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx context.Context, r
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, internaltypes.IsEmptyString(expectedValues.SharedSecretAttributeType))
-	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, internaltypes.IsEmptyString(expectedValues.TimeIntervalDuration))
+	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, true)
+	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval_duration",
 		expectedValues.TimeIntervalDuration, state.TimeIntervalDuration, diagnostics)
 	state.AdjacentIntervalsToCheck = internaltypes.Int64TypeOrNil(r.AdjacentIntervalsToCheck)
 	state.RequireStaticPassword = internaltypes.BoolTypeOrNil(r.RequireStaticPassword)
 	state.PreventTOTPReuse = internaltypes.BoolTypeOrNil(r.PreventTOTPReuse)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a UnboundidYubikeyOtpSaslMechanismHandlerResponse object into the model struct
@@ -880,18 +862,18 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.Type = types.StringValue("unboundid-yubikey-otp")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, internaltypes.IsEmptyString(expectedValues.YubikeyClientID))
-	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.YubikeyAPIKeyPassphraseProvider))
+	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, true)
+	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, true)
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.RequireStaticPassword = internaltypes.BoolTypeOrNil(r.RequireStaticPassword)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a ExternalSaslMechanismHandlerResponse object into the model struct
@@ -900,12 +882,12 @@ func readExternalSaslMechanismHandlerResponseDefault(ctx context.Context, r *cli
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CertificateValidationPolicy = types.StringValue(r.CertificateValidationPolicy.String())
-	state.CertificateAttribute = internaltypes.StringTypeOrNil(r.CertificateAttribute, internaltypes.IsEmptyString(expectedValues.CertificateAttribute))
+	state.CertificateAttribute = internaltypes.StringTypeOrNil(r.CertificateAttribute, true)
 	state.CertificateMapper = types.StringValue(r.CertificateMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a DigestMd5SaslMechanismHandlerResponse object into the model struct
@@ -913,13 +895,13 @@ func readDigestMd5SaslMechanismHandlerResponseDefault(ctx context.Context, r *cl
 	state.Type = types.StringValue("digest-md5")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Realm = internaltypes.StringTypeOrNil(r.Realm, internaltypes.IsEmptyString(expectedValues.Realm))
+	state.Realm = internaltypes.StringTypeOrNil(r.Realm, true)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a PlainSaslMechanismHandlerResponse object into the model struct
@@ -928,10 +910,10 @@ func readPlainSaslMechanismHandlerResponseDefault(ctx context.Context, r *client
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a UnboundidDeliveredOtpSaslMechanismHandlerResponse object into the model struct
@@ -946,7 +928,7 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
+	populateSaslMechanismHandlerUnknownValues(state)
 }
 
 // Read a UnboundidDeliveredOtpSaslMechanismHandlerResponse object into the model struct
@@ -958,10 +940,10 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx context.Co
 	state.OtpValidityDuration = types.StringValue(r.OtpValidityDuration)
 	config.CheckMismatchedPDFormattedAttributes("otp_validity_duration",
 		expectedValues.OtpValidityDuration, state.OtpValidityDuration, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a UnboundidExternalAuthSaslMechanismHandlerResponse object into the model struct
@@ -970,10 +952,10 @@ func readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx context.Co
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a AnonymousSaslMechanismHandlerResponse object into the model struct
@@ -981,10 +963,10 @@ func readAnonymousSaslMechanismHandlerResponseDefault(ctx context.Context, r *cl
 	state.Type = types.StringValue("anonymous")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a CramMd5SaslMechanismHandlerResponse object into the model struct
@@ -993,10 +975,10 @@ func readCramMd5SaslMechanismHandlerResponseDefault(ctx context.Context, r *clie
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a OauthBearerSaslMechanismHandlerResponse object into the model struct
@@ -1008,7 +990,7 @@ func readOauthBearerSaslMechanismHandlerResponse(ctx context.Context, r *client.
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireBothAccessTokenAndIDToken = internaltypes.BoolTypeOrNil(r.RequireBothAccessTokenAndIDToken)
 	state.ValidateAccessTokenWhenIDTokenIsAlsoProvided = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), internaltypes.IsEmptyString(expectedValues.ValidateAccessTokenWhenIDTokenIsAlsoProvided))
+		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), true)
 	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
 	state.AllRequiredScope = internaltypes.GetStringSet(r.AllRequiredScope)
 	state.AnyRequiredScope = internaltypes.GetStringSet(r.AnyRequiredScope)
@@ -1016,7 +998,7 @@ func readOauthBearerSaslMechanismHandlerResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
+	populateSaslMechanismHandlerUnknownValues(state)
 }
 
 // Read a OauthBearerSaslMechanismHandlerResponse object into the model struct
@@ -1028,15 +1010,15 @@ func readOauthBearerSaslMechanismHandlerResponseDefault(ctx context.Context, r *
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireBothAccessTokenAndIDToken = internaltypes.BoolTypeOrNil(r.RequireBothAccessTokenAndIDToken)
 	state.ValidateAccessTokenWhenIDTokenIsAlsoProvided = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), internaltypes.IsEmptyString(expectedValues.ValidateAccessTokenWhenIDTokenIsAlsoProvided))
-	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
+		client.StringPointerEnumsaslMechanismHandlerValidateAccessTokenWhenIDTokenIsAlsoProvidedProp(r.ValidateAccessTokenWhenIDTokenIsAlsoProvided), true)
+	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, true)
 	state.AllRequiredScope = internaltypes.GetStringSet(r.AllRequiredScope)
 	state.AnyRequiredScope = internaltypes.GetStringSet(r.AnyRequiredScope)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse object into the model struct
@@ -1045,10 +1027,10 @@ func readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CertificateMapper = types.StringValue(r.CertificateMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a GssapiSaslMechanismHandlerResponse object into the model struct
@@ -1056,24 +1038,24 @@ func readGssapiSaslMechanismHandlerResponseDefault(ctx context.Context, r *clien
 	state.Type = types.StringValue("gssapi")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Realm = internaltypes.StringTypeOrNil(r.Realm, internaltypes.IsEmptyString(expectedValues.Realm))
-	state.KdcAddress = internaltypes.StringTypeOrNil(r.KdcAddress, internaltypes.IsEmptyString(expectedValues.KdcAddress))
-	state.Keytab = internaltypes.StringTypeOrNil(r.Keytab, internaltypes.IsEmptyString(expectedValues.Keytab))
+	state.Realm = internaltypes.StringTypeOrNil(r.Realm, true)
+	state.KdcAddress = internaltypes.StringTypeOrNil(r.KdcAddress, true)
+	state.Keytab = internaltypes.StringTypeOrNil(r.Keytab, true)
 	state.AllowNullServerFqdn = internaltypes.BoolTypeOrNil(r.AllowNullServerFqdn)
-	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, internaltypes.IsEmptyString(expectedValues.ServerFqdn))
+	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, true)
 	state.AllowedQualityOfProtection = internaltypes.GetStringSet(
 		client.StringSliceEnumsaslMechanismHandlerAllowedQualityOfProtectionProp(r.AllowedQualityOfProtection))
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, internaltypes.IsEmptyString(expectedValues.AlternateAuthorizationIdentityMapper))
-	state.KerberosServicePrincipal = internaltypes.StringTypeOrNil(r.KerberosServicePrincipal, internaltypes.IsEmptyString(expectedValues.KerberosServicePrincipal))
+	state.AlternateAuthorizationIdentityMapper = internaltypes.StringTypeOrNil(r.AlternateAuthorizationIdentityMapper, true)
+	state.KerberosServicePrincipal = internaltypes.StringTypeOrNil(r.KerberosServicePrincipal, true)
 	state.GssapiRole = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumsaslMechanismHandlerGssapiRoleProp(r.GssapiRole), internaltypes.IsEmptyString(expectedValues.GssapiRole))
-	state.JaasConfigFile = internaltypes.StringTypeOrNil(r.JaasConfigFile, internaltypes.IsEmptyString(expectedValues.JaasConfigFile))
+		client.StringPointerEnumsaslMechanismHandlerGssapiRoleProp(r.GssapiRole), true)
+	state.JaasConfigFile = internaltypes.StringTypeOrNil(r.JaasConfigFile, true)
 	state.EnableDebug = internaltypes.BoolTypeOrNil(r.EnableDebug)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartySaslMechanismHandlerResponse object into the model struct
@@ -1087,7 +1069,7 @@ func readThirdPartySaslMechanismHandlerResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
+	populateSaslMechanismHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartySaslMechanismHandlerResponse object into the model struct
@@ -1097,11 +1079,11 @@ func readThirdPartySaslMechanismHandlerResponseDefault(ctx context.Context, r *c
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

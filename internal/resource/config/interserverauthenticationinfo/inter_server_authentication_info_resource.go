@@ -83,6 +83,9 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"password", "certificate"}...),
 				},
@@ -153,17 +156,12 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn"),
-			path.MatchRoot("type"),
-			[]string{"password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password"),
-			path.MatchRoot("type"),
-			[]string{"password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn"),
 			path.MatchRoot("type"),
 			[]string{"password"},
 		),
@@ -172,11 +170,19 @@ func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Cont
 			path.MatchRoot("type"),
 			[]string{"password"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateInterServerAuthenticationInfoUnknownValues(ctx context.Context, model *interServerAuthenticationInfoResourceModel) {
+func populateInterServerAuthenticationInfoUnknownValues(model *interServerAuthenticationInfoResourceModel) {
+	if model.AuthenticationType.IsUnknown() || model.AuthenticationType.IsNull() {
+		model.AuthenticationType = types.StringValue("")
+	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
 	}
@@ -194,7 +200,7 @@ func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *c
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateInterServerAuthenticationInfoUnknownValues(ctx, state)
+	populateInterServerAuthenticationInfoUnknownValues(state)
 }
 
 // Read a CertificateInterServerAuthenticationInfoResponse object into the model struct
@@ -205,7 +211,7 @@ func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateInterServerAuthenticationInfoUnknownValues(ctx, state)
+	populateInterServerAuthenticationInfoUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

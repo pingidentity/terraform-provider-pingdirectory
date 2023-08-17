@@ -224,6 +224,9 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type", "name", "scim_schema_name"})
@@ -282,6 +285,25 @@ func addOptionalScimAttributeFields(ctx context.Context, addRequest *client.AddS
 		addRequest.ReferenceType = slice
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimAttributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Returned.IsUnknown() || model.Returned.IsNull() {
+		model.Returned = types.StringValue("")
+	}
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Mutability.IsUnknown() || model.Mutability.IsNull() {
+		model.Mutability = types.StringValue("")
+	}
+	if model.Name.IsUnknown() || model.Name.IsNull() {
+		model.Name = types.StringValue("")
+	}
 }
 
 // Read a ScimAttributeResponse object into the model struct
@@ -445,6 +467,7 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -490,6 +513,10 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 
 	// Read the response into the state
 	readScimAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -400,7 +400,9 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -413,167 +415,7 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 func configValidatorsLogFieldMapping() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_entries_returned"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_authentication_failure_reason"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_field_connection_id"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_authenticated_user_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_replication_change_id"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_new_rdn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_request_oid"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_scope"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_target_host"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_message_type"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_result_code"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_referral_urls"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_sasl_mechanism_name"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_operation_type"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_bind_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_message_id_to_abandon"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_intermediate_client_request"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_processing_time"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_target_address"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_filter"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_response_oid"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_matched_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_new_superior_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_category"),
-			path.MatchRoot("type"),
-			[]string{"error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_requester_ip_address"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_authentication_failure_id"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_target_attribute"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_target_protocol"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_disconnect_reason"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_protocol_name"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_target_port"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_response_controls"),
 			path.MatchRoot("type"),
 			[]string{"access"},
 		),
@@ -583,37 +425,17 @@ func configValidatorsLogFieldMapping() []resource.ConfigValidator {
 			[]string{"access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_source_address"),
+			path.MatchRoot("log_field_message_type"),
 			path.MatchRoot("type"),
 			[]string{"access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_intermediate_client_result"),
+			path.MatchRoot("log_field_operation_type"),
 			path.MatchRoot("type"),
 			[]string{"access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_unindexed"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_additional_information"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_delete_old_rdn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_request_controls"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_protocol_version"),
+			path.MatchRoot("log_field_result_code"),
 			path.MatchRoot("type"),
 			[]string{"access"},
 		),
@@ -623,22 +445,62 @@ func configValidatorsLogFieldMapping() []resource.ConfigValidator {
 			[]string{"access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_alternate_authorization_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_severity"),
-			path.MatchRoot("type"),
-			[]string{"error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_entry_dn"),
-			path.MatchRoot("type"),
-			[]string{"access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_field_requester_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_disconnect_reason"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_delete_old_rdn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authenticated_user_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_processing_time"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_requested_attributes"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_sasl_mechanism_name"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_new_rdn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_matched_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_requester_ip_address"),
 			path.MatchRoot("type"),
 			[]string{"access"},
 		),
@@ -648,9 +510,149 @@ func configValidatorsLogFieldMapping() []resource.ConfigValidator {
 			[]string{"access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_requested_attributes"),
+			path.MatchRoot("log_field_new_superior_dn"),
 			path.MatchRoot("type"),
 			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_filter"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_alternate_authorization_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_entries_returned"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authentication_failure_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_request_oid"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_response_oid"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_protocol"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_port"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_address"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_target_host"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_protocol_version"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_protocol_name"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_authentication_failure_reason"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_additional_information"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_unindexed"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_scope"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_referral_urls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_source_address"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_message_id_to_abandon"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_response_controls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_request_controls"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_intermediate_client_result"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_intermediate_client_request"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_replication_change_id"),
+			path.MatchRoot("type"),
+			[]string{"access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_category"),
+			path.MatchRoot("type"),
+			[]string{"error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_severity"),
+			path.MatchRoot("type"),
+			[]string{"error"},
 		),
 	}
 }
@@ -918,6 +920,175 @@ func addOptionalErrorLogFieldMappingFields(ctx context.Context, addRequest *clie
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logFieldMappingResourceModel) populateAllComputedStringAttributes() {
+	if model.LogFieldOrigin.IsUnknown() || model.LogFieldOrigin.IsNull() {
+		model.LogFieldOrigin = types.StringValue("")
+	}
+	if model.LogFieldMessageIDToAbandon.IsUnknown() || model.LogFieldMessageIDToAbandon.IsNull() {
+		model.LogFieldMessageIDToAbandon = types.StringValue("")
+	}
+	if model.LogFieldNewRDN.IsUnknown() || model.LogFieldNewRDN.IsNull() {
+		model.LogFieldNewRDN = types.StringValue("")
+	}
+	if model.LogFieldSourceAddress.IsUnknown() || model.LogFieldSourceAddress.IsNull() {
+		model.LogFieldSourceAddress = types.StringValue("")
+	}
+	if model.LogFieldRequestedAttributes.IsUnknown() || model.LogFieldRequestedAttributes.IsNull() {
+		model.LogFieldRequestedAttributes = types.StringValue("")
+	}
+	if model.LogFieldAlternateAuthorizationDN.IsUnknown() || model.LogFieldAlternateAuthorizationDN.IsNull() {
+		model.LogFieldAlternateAuthorizationDN = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationFailureID.IsUnknown() || model.LogFieldAuthenticationFailureID.IsNull() {
+		model.LogFieldAuthenticationFailureID = types.StringValue("")
+	}
+	if model.LogFieldProtocolName.IsUnknown() || model.LogFieldProtocolName.IsNull() {
+		model.LogFieldProtocolName = types.StringValue("")
+	}
+	if model.LogFieldBindDN.IsUnknown() || model.LogFieldBindDN.IsNull() {
+		model.LogFieldBindDN = types.StringValue("")
+	}
+	if model.LogFieldRequestOID.IsUnknown() || model.LogFieldRequestOID.IsNull() {
+		model.LogFieldRequestOID = types.StringValue("")
+	}
+	if model.LogFieldReplicationChangeID.IsUnknown() || model.LogFieldReplicationChangeID.IsNull() {
+		model.LogFieldReplicationChangeID = types.StringValue("")
+	}
+	if model.LogFieldBaseDN.IsUnknown() || model.LogFieldBaseDN.IsNull() {
+		model.LogFieldBaseDN = types.StringValue("")
+	}
+	if model.LogFieldNewSuperiorDN.IsUnknown() || model.LogFieldNewSuperiorDN.IsNull() {
+		model.LogFieldNewSuperiorDN = types.StringValue("")
+	}
+	if model.LogFieldInstanceName.IsUnknown() || model.LogFieldInstanceName.IsNull() {
+		model.LogFieldInstanceName = types.StringValue("")
+	}
+	if model.LogFieldSeverity.IsUnknown() || model.LogFieldSeverity.IsNull() {
+		model.LogFieldSeverity = types.StringValue("")
+	}
+	if model.LogFieldProcessingTime.IsUnknown() || model.LogFieldProcessingTime.IsNull() {
+		model.LogFieldProcessingTime = types.StringValue("")
+	}
+	if model.LogFieldTargetProtocol.IsUnknown() || model.LogFieldTargetProtocol.IsNull() {
+		model.LogFieldTargetProtocol = types.StringValue("")
+	}
+	if model.LogFieldOperationType.IsUnknown() || model.LogFieldOperationType.IsNull() {
+		model.LogFieldOperationType = types.StringValue("")
+	}
+	if model.LogFieldMessage.IsUnknown() || model.LogFieldMessage.IsNull() {
+		model.LogFieldMessage = types.StringValue("")
+	}
+	if model.LogFieldProtocolVersion.IsUnknown() || model.LogFieldProtocolVersion.IsNull() {
+		model.LogFieldProtocolVersion = types.StringValue("")
+	}
+	if model.LogFieldIntermediateClientResult.IsUnknown() || model.LogFieldIntermediateClientResult.IsNull() {
+		model.LogFieldIntermediateClientResult = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationType.IsUnknown() || model.LogFieldAuthenticationType.IsNull() {
+		model.LogFieldAuthenticationType = types.StringValue("")
+	}
+	if model.LogFieldMatchedDN.IsUnknown() || model.LogFieldMatchedDN.IsNull() {
+		model.LogFieldMatchedDN = types.StringValue("")
+	}
+	if model.LogFieldRequesterIPAddress.IsUnknown() || model.LogFieldRequesterIPAddress.IsNull() {
+		model.LogFieldRequesterIPAddress = types.StringValue("")
+	}
+	if model.LogFieldProductName.IsUnknown() || model.LogFieldProductName.IsNull() {
+		model.LogFieldProductName = types.StringValue("")
+	}
+	if model.LogFieldResponseControls.IsUnknown() || model.LogFieldResponseControls.IsNull() {
+		model.LogFieldResponseControls = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LogFieldUnindexed.IsUnknown() || model.LogFieldUnindexed.IsNull() {
+		model.LogFieldUnindexed = types.StringValue("")
+	}
+	if model.LogFieldRequesterDN.IsUnknown() || model.LogFieldRequesterDN.IsNull() {
+		model.LogFieldRequesterDN = types.StringValue("")
+	}
+	if model.LogFieldResultCode.IsUnknown() || model.LogFieldResultCode.IsNull() {
+		model.LogFieldResultCode = types.StringValue("")
+	}
+	if model.LogFieldTargetHost.IsUnknown() || model.LogFieldTargetHost.IsNull() {
+		model.LogFieldTargetHost = types.StringValue("")
+	}
+	if model.LogFieldOperationID.IsUnknown() || model.LogFieldOperationID.IsNull() {
+		model.LogFieldOperationID = types.StringValue("")
+	}
+	if model.LogFieldScope.IsUnknown() || model.LogFieldScope.IsNull() {
+		model.LogFieldScope = types.StringValue("")
+	}
+	if model.LogFieldMessageType.IsUnknown() || model.LogFieldMessageType.IsNull() {
+		model.LogFieldMessageType = types.StringValue("")
+	}
+	if model.LogFieldTimestamp.IsUnknown() || model.LogFieldTimestamp.IsNull() {
+		model.LogFieldTimestamp = types.StringValue("")
+	}
+	if model.LogFieldAuthenticationFailureReason.IsUnknown() || model.LogFieldAuthenticationFailureReason.IsNull() {
+		model.LogFieldAuthenticationFailureReason = types.StringValue("")
+	}
+	if model.LogFieldDisconnectReason.IsUnknown() || model.LogFieldDisconnectReason.IsNull() {
+		model.LogFieldDisconnectReason = types.StringValue("")
+	}
+	if model.LogFieldDeleteOldRDN.IsUnknown() || model.LogFieldDeleteOldRDN.IsNull() {
+		model.LogFieldDeleteOldRDN = types.StringValue("")
+	}
+	if model.LogFieldTargetAttribute.IsUnknown() || model.LogFieldTargetAttribute.IsNull() {
+		model.LogFieldTargetAttribute = types.StringValue("")
+	}
+	if model.LogFieldIntermediateClientRequest.IsUnknown() || model.LogFieldIntermediateClientRequest.IsNull() {
+		model.LogFieldIntermediateClientRequest = types.StringValue("")
+	}
+	if model.LogFieldRequestControls.IsUnknown() || model.LogFieldRequestControls.IsNull() {
+		model.LogFieldRequestControls = types.StringValue("")
+	}
+	if model.LogFieldEntryDN.IsUnknown() || model.LogFieldEntryDN.IsNull() {
+		model.LogFieldEntryDN = types.StringValue("")
+	}
+	if model.LogFieldFilter.IsUnknown() || model.LogFieldFilter.IsNull() {
+		model.LogFieldFilter = types.StringValue("")
+	}
+	if model.LogFieldAuthenticatedUserDN.IsUnknown() || model.LogFieldAuthenticatedUserDN.IsNull() {
+		model.LogFieldAuthenticatedUserDN = types.StringValue("")
+	}
+	if model.LogFieldConnectionID.IsUnknown() || model.LogFieldConnectionID.IsNull() {
+		model.LogFieldConnectionID = types.StringValue("")
+	}
+	if model.LogFieldTargetPort.IsUnknown() || model.LogFieldTargetPort.IsNull() {
+		model.LogFieldTargetPort = types.StringValue("")
+	}
+	if model.LogFieldAdditionalInformation.IsUnknown() || model.LogFieldAdditionalInformation.IsNull() {
+		model.LogFieldAdditionalInformation = types.StringValue("")
+	}
+	if model.LogFieldTargetAddress.IsUnknown() || model.LogFieldTargetAddress.IsNull() {
+		model.LogFieldTargetAddress = types.StringValue("")
+	}
+	if model.LogFieldReferralUrls.IsUnknown() || model.LogFieldReferralUrls.IsNull() {
+		model.LogFieldReferralUrls = types.StringValue("")
+	}
+	if model.LogFieldStartupid.IsUnknown() || model.LogFieldStartupid.IsNull() {
+		model.LogFieldStartupid = types.StringValue("")
+	}
+	if model.LogFieldResponseOID.IsUnknown() || model.LogFieldResponseOID.IsNull() {
+		model.LogFieldResponseOID = types.StringValue("")
+	}
+	if model.LogFieldCategory.IsUnknown() || model.LogFieldCategory.IsNull() {
+		model.LogFieldCategory = types.StringValue("")
+	}
+	if model.LogFieldMessageID.IsUnknown() || model.LogFieldMessageID.IsNull() {
+		model.LogFieldMessageID = types.StringValue("")
+	}
+	if model.LogFieldEntriesReturned.IsUnknown() || model.LogFieldEntriesReturned.IsNull() {
+		model.LogFieldEntriesReturned = types.StringValue("")
+	}
+	if model.LogFieldSASLMechanismName.IsUnknown() || model.LogFieldSASLMechanismName.IsNull() {
+		model.LogFieldSASLMechanismName = types.StringValue("")
 	}
 }
 
@@ -1228,6 +1399,7 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1277,6 +1449,10 @@ func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 	if readResponse.ErrorLogFieldMappingResponse != nil {
 		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

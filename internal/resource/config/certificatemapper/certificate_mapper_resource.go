@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -206,7 +207,9 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -219,9 +222,9 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 func configValidatorsCertificateMapper() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subject_attribute_mapping"),
+			path.MatchRoot("subject_attribute"),
 			path.MatchRoot("type"),
-			[]string{"subject-attribute-to-user-attribute"},
+			[]string{"subject-dn-to-user-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("user_base_dn"),
@@ -229,19 +232,9 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"subject-dn-to-user-attribute", "subject-attribute-to-user-attribute", "fingerprint"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("fingerprint_algorithm"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"fingerprint"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subject_attribute"),
-			path.MatchRoot("type"),
-			[]string{"subject-dn-to-user-attribute"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
@@ -249,7 +242,17 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subject_attribute_mapping"),
+			path.MatchRoot("type"),
+			[]string{"subject-attribute-to-user-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("fingerprint_attribute"),
+			path.MatchRoot("type"),
+			[]string{"fingerprint"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("fingerprint_algorithm"),
 			path.MatchRoot("type"),
 			[]string{"fingerprint"},
 		),
@@ -259,9 +262,9 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -358,18 +361,40 @@ func addOptionalThirdPartyCertificateMapperFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateCertificateMapperUnknownValues(ctx context.Context, model *certificateMapperResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populateCertificateMapperUnknownValues(model *certificateMapperResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SubjectAttributeMapping.ElementType(ctx) == nil {
-		model.SubjectAttributeMapping = types.SetNull(types.StringType)
+	if model.SubjectAttributeMapping.IsUnknown() || model.SubjectAttributeMapping.IsNull() {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserBaseDN.ElementType(ctx) == nil {
-		model.UserBaseDN = types.SetNull(types.StringType)
+	if model.UserBaseDN.IsUnknown() || model.UserBaseDN.IsNull() {
+		model.UserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.SubjectAttribute.IsUnknown() || model.SubjectAttribute.IsNull() {
+		model.SubjectAttribute = types.StringValue("")
+	}
+	if model.FingerprintAttribute.IsUnknown() || model.FingerprintAttribute.IsNull() {
+		model.FingerprintAttribute = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *certificateMapperResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.FingerprintAlgorithm.IsUnknown() || model.FingerprintAlgorithm.IsNull() {
+		model.FingerprintAlgorithm = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -381,7 +406,7 @@ func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a SubjectDnToUserAttributeCertificateMapperResponse object into the model struct
@@ -394,7 +419,7 @@ func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a GroovyScriptedCertificateMapperResponse object into the model struct
@@ -407,7 +432,7 @@ func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a SubjectAttributeToUserAttributeCertificateMapperResponse object into the model struct
@@ -420,7 +445,7 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Co
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a FingerprintCertificateMapperResponse object into the model struct
@@ -434,7 +459,7 @@ func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.Fin
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Read a ThirdPartyCertificateMapperResponse object into the model struct
@@ -447,7 +472,7 @@ func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperUnknownValues(ctx, state)
+	populateCertificateMapperUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -832,6 +857,7 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -893,6 +919,10 @@ func readCertificateMapper(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyCertificateMapperResponse != nil {
 		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

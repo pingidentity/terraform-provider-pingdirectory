@@ -161,6 +161,9 @@ func delegatedAdminCorrelatedRestResourceSchema(ctx context.Context, req resourc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "rest_resource_type_name"})
@@ -173,6 +176,22 @@ func delegatedAdminCorrelatedRestResourceSchema(ctx context.Context, req resourc
 func addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx context.Context, addRequest *client.AddDelegatedAdminCorrelatedRestResourceRequest, plan delegatedAdminCorrelatedRestResourceResourceModel) {
 	if internaltypes.IsDefined(plan.UseSecondaryValueForLinking) {
 		addRequest.UseSecondaryValueForLinking = plan.UseSecondaryValueForLinking.ValueBoolPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminCorrelatedRestResourceResourceModel) populateAllComputedStringAttributes() {
+	if model.CorrelatedRESTResource.IsUnknown() || model.CorrelatedRESTResource.IsNull() {
+		model.CorrelatedRESTResource = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+	if model.PrimaryRESTResourceCorrelationAttribute.IsUnknown() || model.PrimaryRESTResourceCorrelationAttribute.IsNull() {
+		model.PrimaryRESTResourceCorrelationAttribute = types.StringValue("")
+	}
+	if model.SecondaryRESTResourceCorrelationAttribute.IsUnknown() || model.SecondaryRESTResourceCorrelationAttribute.IsNull() {
+		model.SecondaryRESTResourceCorrelationAttribute = types.StringValue("")
 	}
 }
 
@@ -327,6 +346,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -372,6 +392,10 @@ func readDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.
 
 	// Read the response into the state
 	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

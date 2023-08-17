@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -677,10 +678,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"min_included_phase_time_nanos": schema.Int64Attribute{
 				Description: "The minimum length of time in nanoseconds that an operation phase should take before it is included in a log message.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"time_interval": schema.StringAttribute{
 				Description: "Specifies the interval at which to check whether the log files need to be rotated.",
@@ -917,19 +914,11 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher.\n  - `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.\n  - `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher.\n  - `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.\n  - `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher.\n  - `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"syslog_message_application_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The application name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The application name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The application name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The application name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `syslog-json-audit`: The application name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher.\n  - `syslog-text-error`: The application name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.\n  - `syslog-text-access`: The application name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher.\n  - `syslog-json-http-operation`: The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.\n  - `syslog-json-access`: The application name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher.\n  - `syslog-json-error`: The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -1133,7 +1122,9 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -1146,29 +1137,129 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 func configValidatorsLogPublisher() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("directory_rest_api_message_type"),
+			path.MatchRoot("syslog_external_server"),
 			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_result_messages"),
+			path.MatchRoot("syslog_facility"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "syslog-json-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+			[]string{"syslog-json-audit", "syslog-based-error", "syslog-text-error", "syslog-based-access", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_search_entry_messages"),
+			path.MatchRoot("syslog_severity"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_requests"),
+			path.MatchRoot("syslog_message_host_name"),
 			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_message_application_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("queue_size"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("write_multi_line_messages"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "console-json-error", "file-based-json-audit", "json-access", "syslog-json-http-operation", "json-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_audit_behavior"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_operation_purpose_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_intermediate_client_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("obscure_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "debug-access", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_internal_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_product_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_instance_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_startup_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_thread_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_requester_dn"),
 			path.MatchRoot("type"),
 			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_requester_ip_address"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_response_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_replication_change_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_security_negotiation"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_replication_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_criteria"),
@@ -1181,9 +1272,249 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_host_name"),
 			path.MatchRoot("type"),
 			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_flush"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("asynchronous"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_permissions"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compression_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sign_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("append"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("buffer_size"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_interval"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_connects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_disconnects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_client_certificates"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_requests"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_entries"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_references"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_intermediate_responses"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlate_requests_and_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_operation_processing_time"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_phase_time_nanos"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_string_length"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access", "admin-alert-access", "file-based-trace", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_result_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "syslog-json-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_assurance_completed"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "syslog-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_entry_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_reference_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_intermediate_response_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_result_code_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extended_search_request_details"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_add_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_modify_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_search_entry_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generify_message_strings_when_possible"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-error", "syslog-text-access", "json-access", "json-error", "syslog-json-access", "console-json-access", "file-based-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_behavior"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("access_token_validator_message_type"),
@@ -1191,7 +1522,97 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"file-based-trace"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_response_headers"),
+			path.MatchRoot("id_token_validator_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scim_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("consent_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("directory_rest_api_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_mapping"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_table_name"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_location"),
+			path.MatchRoot("type"),
+			[]string{"console-json-error", "console-json-audit", "console-json-http-operation", "console-json-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("timestamp_precision"),
+			path.MatchRoot("type"),
+			[]string{"syslog-text-error", "file-based-debug", "file-based-error", "syslog-text-access", "file-based-audit", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_level"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_category"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_entry_arguments"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_return_value"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_include_throwable_cause"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_throwable_stack_frames"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_headers"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
@@ -1201,9 +1622,24 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_reference_criteria"),
+			path.MatchRoot("log_response_headers"),
 			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppressed_response_header_name"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_authorization_type"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_cookie_names"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_response_cookie_names"),
@@ -1211,112 +1647,7 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_internal_operations"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_response_controls"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_headers"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_string_length"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access", "admin-alert-access", "file-based-trace", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encrypt_log"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("write_multi_line_messages"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "console-json-error", "file-based-json-audit", "json-access", "syslog-json-http-operation", "json-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_intermediate_responses"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generify_message_strings_when_possible"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-error", "syslog-text-access", "json-access", "json-error", "syslog-json-access", "console-json-access", "file-based-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scim_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_result_code_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("override_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_included_phase_time_nanos"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_omit_method_return_value"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlate_requests_and_results"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_message_application_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("obscure_attribute"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "debug-access", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sign_log"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("buffer_size"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_cookie_names"),
+			path.MatchRoot("log_request_parameters"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
@@ -1331,279 +1662,9 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_debug_category"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_security_negotiation"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("time_interval"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_add_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_extended_search_request_details"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_redirect_uri"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_reversible_form"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_path_pattern"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_included_operation_processing_time"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("consent_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id_token_validator_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("debug_aci_enabled"),
-			path.MatchRoot("type"),
-			[]string{"debug-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_controls"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_authorization_type"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("debug_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_mapping"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppressed_response_header_name"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_debug_level"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_behavior"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_replication_operations"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_client_certificates"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_intermediate_client_request_control"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_facility"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-based-error", "syslog-text-error", "syslog-based-access", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_path_pattern"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_assurance_completed"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "syslog-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_search_reference_messages"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_operation_purpose_request_control"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_startup_id"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_omit_method_entry_arguments"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_requester_ip_address"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_search_entry_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_results"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_listener"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_throwable_stack_frames"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("timestamp_precision"),
-			path.MatchRoot("type"),
-			[]string{"syslog-text-error", "file-based-debug", "file-based-error", "syslog-text-access", "file-based-audit", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_message_host_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_search_references"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_location"),
-			path.MatchRoot("type"),
-			[]string{"console-json-error", "console-json-audit", "console-json-http-operation", "console-json-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_connects"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compression_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_policy"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_parameters"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_entry_criteria"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_port"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "syslog-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_table_name"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_search_entries"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("obscure_sensitive_content"),
@@ -1611,89 +1672,19 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"debug-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("soft_delete_entry_audit_behavior"),
+			path.MatchRoot("debug_aci_enabled"),
 			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+			[]string{"debug-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_thread_id"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("asynchronous"),
+			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_modify_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_include_throwable_cause"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_replication_change_id"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_product_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_instance_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_external_server"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_disconnects"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auto_flush"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("queue_size"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_intermediate_response_messages"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_permissions"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("append"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
 		),
 	}
 }
@@ -5795,78 +5786,178 @@ func addOptionalGroovyScriptedHttpOperationLogPublisherFields(ctx context.Contex
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogPublisherUnknownValues(ctx context.Context, model *logPublisherResourceModel) {
-	if model.IdTokenValidatorMessageType.ElementType(ctx) == nil {
-		model.IdTokenValidatorMessageType = types.SetNull(types.StringType)
+func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
+	if model.IdTokenValidatorMessageType.IsUnknown() || model.IdTokenValidatorMessageType.IsNull() {
+		model.IdTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedResponseHeaderName.ElementType(ctx) == nil {
-		model.SuppressedResponseHeaderName = types.SetNull(types.StringType)
+	if model.SuppressedResponseHeaderName.IsUnknown() || model.SuppressedResponseHeaderName.IsNull() {
+		model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultDebugCategory.ElementType(ctx) == nil {
-		model.DefaultDebugCategory = types.SetNull(types.StringType)
+	if model.DefaultDebugCategory.IsUnknown() || model.DefaultDebugCategory.IsNull() {
+		model.DefaultDebugCategory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScimMessageType.ElementType(ctx) == nil {
-		model.ScimMessageType = types.SetNull(types.StringType)
+	if model.ScimMessageType.IsUnknown() || model.ScimMessageType.IsNull() {
+		model.ScimMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedRequestHeaderName.ElementType(ctx) == nil {
-		model.SuppressedRequestHeaderName = types.SetNull(types.StringType)
+	if model.SuppressedRequestHeaderName.IsUnknown() || model.SuppressedRequestHeaderName.IsNull() {
+		model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludePathPattern.ElementType(ctx) == nil {
-		model.IncludePathPattern = types.SetNull(types.StringType)
+	if model.IncludePathPattern.IsUnknown() || model.IncludePathPattern.IsNull() {
+		model.IncludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeAttribute.ElementType(ctx) == nil {
-		model.ExcludeAttribute = types.SetNull(types.StringType)
+	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
+		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpMessageType.ElementType(ctx) == nil {
-		model.HttpMessageType = types.SetNull(types.StringType)
+	if model.HttpMessageType.IsUnknown() || model.HttpMessageType.IsNull() {
+		model.HttpMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultSeverity.ElementType(ctx) == nil {
-		model.DefaultSeverity = types.SetNull(types.StringType)
+	if model.DefaultSeverity.IsUnknown() || model.DefaultSeverity.IsNull() {
+		model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludePathPattern.ElementType(ctx) == nil {
-		model.ExcludePathPattern = types.SetNull(types.StringType)
+	if model.ExcludePathPattern.IsUnknown() || model.ExcludePathPattern.IsNull() {
+		model.ExcludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidatorMessageType.ElementType(ctx) == nil {
-		model.AccessTokenValidatorMessageType = types.SetNull(types.StringType)
+	if model.AccessTokenValidatorMessageType.IsUnknown() || model.AccessTokenValidatorMessageType.IsNull() {
+		model.AccessTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionMessageType.ElementType(ctx) == nil {
-		model.ExtensionMessageType = types.SetNull(types.StringType)
+	if model.ExtensionMessageType.IsUnknown() || model.ExtensionMessageType.IsNull() {
+		model.ExtensionMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SuppressedRequestParameterName.ElementType(ctx) == nil {
-		model.SuppressedRequestParameterName = types.SetNull(types.StringType)
+	if model.SuppressedRequestParameterName.IsUnknown() || model.SuppressedRequestParameterName.IsNull() {
+		model.SuppressedRequestParameterName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ConsentMessageType.ElementType(ctx) == nil {
-		model.ConsentMessageType = types.SetNull(types.StringType)
+	if model.ConsentMessageType.IsUnknown() || model.ConsentMessageType.IsNull() {
+		model.ConsentMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OverrideSeverity.ElementType(ctx) == nil {
-		model.OverrideSeverity = types.SetNull(types.StringType)
+	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
+		model.OverrideSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DirectoryRESTAPIMessageType.ElementType(ctx) == nil {
-		model.DirectoryRESTAPIMessageType = types.SetNull(types.StringType)
+	if model.DirectoryRESTAPIMessageType.IsUnknown() || model.DirectoryRESTAPIMessageType.IsNull() {
+		model.DirectoryRESTAPIMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ObscureAttribute.ElementType(ctx) == nil {
-		model.ObscureAttribute = types.SetNull(types.StringType)
+	if model.ObscureAttribute.IsUnknown() || model.ObscureAttribute.IsNull() {
+		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SyslogExternalServer.ElementType(ctx) == nil {
-		model.SyslogExternalServer = types.SetNull(types.StringType)
+	if model.SyslogExternalServer.IsUnknown() || model.SyslogExternalServer.IsNull() {
+		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugMessageType.ElementType(ctx) == nil {
-		model.DebugMessageType = types.SetNull(types.StringType)
+	if model.DebugMessageType.IsUnknown() || model.DebugMessageType.IsNull() {
+		model.DebugMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.LogRequestParameters.IsUnknown() || model.LogRequestParameters.IsNull() {
+		model.LogRequestParameters = types.StringValue("")
+	}
+	if model.SyslogFacility.IsUnknown() || model.SyslogFacility.IsNull() {
+		model.SyslogFacility = types.StringValue("")
+	}
+	if model.SyslogSeverity.IsUnknown() || model.SyslogSeverity.IsNull() {
+		model.SyslogSeverity = types.StringValue("")
+	}
+	if model.TimeInterval.IsUnknown() || model.TimeInterval.IsNull() {
+		model.TimeInterval = types.StringValue("")
+	}
+	if model.SoftDeleteEntryAuditBehavior.IsUnknown() || model.SoftDeleteEntryAuditBehavior.IsNull() {
+		model.SoftDeleteEntryAuditBehavior = types.StringValue("")
+	}
+	if model.CompressionMechanism.IsUnknown() || model.CompressionMechanism.IsNull() {
+		model.CompressionMechanism = types.StringValue("")
+	}
+	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
+		model.OutputLocation = types.StringValue("")
+	}
+	if model.LogTableName.IsUnknown() || model.LogTableName.IsNull() {
+		model.LogTableName = types.StringValue("")
+	}
+	if model.BufferSize.IsUnknown() || model.BufferSize.IsNull() {
+		model.BufferSize = types.StringValue("")
+	}
+	if model.LogResponseHeaders.IsUnknown() || model.LogResponseHeaders.IsNull() {
+		model.LogResponseHeaders = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.DefaultDebugLevel.IsUnknown() || model.DefaultDebugLevel.IsNull() {
+		model.DefaultDebugLevel = types.StringValue("")
+	}
+	if model.TimestampPrecision.IsUnknown() || model.TimestampPrecision.IsNull() {
+		model.TimestampPrecision = types.StringValue("")
+	}
+	if model.LogRequestHeaders.IsUnknown() || model.LogRequestHeaders.IsNull() {
+		model.LogRequestHeaders = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logPublisherResourceModel) populateAllComputedStringAttributes() {
+	if model.SyslogMessageApplicationName.IsUnknown() || model.SyslogMessageApplicationName.IsNull() {
+		model.SyslogMessageApplicationName = types.StringValue("")
+	}
+	if model.LogFieldMapping.IsUnknown() || model.LogFieldMapping.IsNull() {
+		model.LogFieldMapping = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.MinIncludedOperationProcessingTime.IsUnknown() || model.MinIncludedOperationProcessingTime.IsNull() {
+		model.MinIncludedOperationProcessingTime = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SyslogMessageHostName.IsUnknown() || model.SyslogMessageHostName.IsNull() {
+		model.SyslogMessageHostName = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.SearchEntryCriteria.IsUnknown() || model.SearchEntryCriteria.IsNull() {
+		model.SearchEntryCriteria = types.StringValue("")
+	}
+	if model.LogFieldBehavior.IsUnknown() || model.LogFieldBehavior.IsNull() {
+		model.LogFieldBehavior = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.SearchReferenceCriteria.IsUnknown() || model.SearchReferenceCriteria.IsNull() {
+		model.SearchReferenceCriteria = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.ResultCriteria.IsUnknown() || model.ResultCriteria.IsNull() {
+		model.ResultCriteria = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -5884,7 +5975,7 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherSyslogJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -5907,9 +5998,9 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogBasedErrorLogPublisherResponse object into the model struct
@@ -5929,9 +6020,9 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyFileBasedAccessLogPublisherResponse object into the model struct
@@ -5945,7 +6036,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -5954,11 +6045,11 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -5981,9 +6072,9 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a OperationTimingAccessLogPublisherResponse object into the model struct
@@ -5997,7 +6088,7 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6014,12 +6105,12 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.MinIncludedPhaseTimeNanos = internaltypes.Int64TypeOrNil(r.MinIncludedPhaseTimeNanos)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
@@ -6032,9 +6123,9 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyHttpOperationLogPublisherResponse object into the model struct
@@ -6047,9 +6138,9 @@ func readThirdPartyHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a AdminAlertAccessLogPublisherResponse object into the model struct
@@ -6102,9 +6193,9 @@ func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.Adm
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedTraceLogPublisherResponse object into the model struct
@@ -6118,15 +6209,15 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
@@ -6153,9 +6244,9 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JdbcBasedErrorLogPublisherResponse object into the model struct
@@ -6173,9 +6264,9 @@ func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JdbcBasedAccessLogPublisherResponse object into the model struct
@@ -6207,9 +6298,9 @@ func readJdbcBasedAccessLogPublisherResponse(ctx context.Context, r *client.Jdbc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a CommonLogFileHttpOperationLogPublisherResponse object into the model struct
@@ -6223,26 +6314,26 @@ func readCommonLogFileHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonErrorLogPublisherResponse object into the model struct
@@ -6255,7 +6346,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
@@ -6264,9 +6355,9 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogTextErrorLogPublisherResponse object into the model struct
@@ -6279,7 +6370,7 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), internaltypes.IsEmptyString(expectedValues.SyslogSeverity))
+		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
 	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
 	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
@@ -6288,15 +6379,15 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogBasedAccessLogPublisherResponse object into the model struct
@@ -6352,9 +6443,9 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 	state.SearchReferenceCriteria = internaltypes.StringTypeOrNil(r.SearchReferenceCriteria, internaltypes.IsEmptyString(expectedValues.SearchReferenceCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedJsonAuditLogPublisherResponse object into the model struct
@@ -6368,24 +6459,24 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherFileBasedJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherFileBasedJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -6408,9 +6499,9 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedDebugLogPublisherResponse object into the model struct
@@ -6424,22 +6515,22 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.DefaultDebugLevel = types.StringValue(r.DefaultDebugLevel.String())
 	state.DefaultDebugCategory = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultDebugCategoryProp(r.DefaultDebugCategory))
@@ -6450,9 +6541,9 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedErrorLogPublisherResponse object into the model struct
@@ -6466,7 +6557,7 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6478,24 +6569,24 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyErrorLogPublisherResponse object into the model struct
@@ -6511,9 +6602,9 @@ func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogTextAccessLogPublisherResponse object into the model struct
@@ -6560,7 +6651,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -6573,9 +6664,9 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a DetailedHttpOperationLogPublisherResponse object into the model struct
@@ -6589,7 +6680,7 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6602,35 +6693,35 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JsonAccessLogPublisherResponse object into the model struct
@@ -6644,7 +6735,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6655,11 +6746,11 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.LogAssuranceCompleted = internaltypes.BoolTypeOrNil(r.LogAssuranceCompleted)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
@@ -6701,9 +6792,9 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a DebugAccessLogPublisherResponse object into the model struct
@@ -6722,7 +6813,7 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6732,11 +6823,11 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.DebugACIEnabled = internaltypes.BoolTypeOrNil(r.DebugACIEnabled)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6755,9 +6846,9 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonHttpOperationLogPublisherResponse object into the model struct
@@ -6779,16 +6870,16 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
@@ -6796,9 +6887,9 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyAccessLogPublisherResponse object into the model struct
@@ -6828,9 +6919,9 @@ func readThirdPartyAccessLogPublisherResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedAuditLogPublisherResponse object into the model struct
@@ -6845,7 +6936,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6859,7 +6950,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
@@ -6867,15 +6958,15 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.ExcludeAttribute = internaltypes.GetStringSet(r.ExcludeAttribute)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
 	state.LogIntermediateResponses = internaltypes.BoolTypeOrNil(r.LogIntermediateResponses)
 	state.SuppressReplicationOperations = internaltypes.BoolTypeOrNil(r.SuppressReplicationOperations)
@@ -6885,9 +6976,9 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a JsonErrorLogPublisherResponse object into the model struct
@@ -6901,18 +6992,18 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
@@ -6927,9 +7018,9 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedFileBasedAccessLogPublisherResponse object into the model struct
@@ -6944,7 +7035,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -6952,11 +7043,11 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6979,9 +7070,9 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedFileBasedErrorLogPublisherResponse object into the model struct
@@ -6996,7 +7087,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -7004,11 +7095,11 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -7017,9 +7108,9 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonAccessLogPublisherResponse object into the model struct
@@ -7075,9 +7166,9 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedAccessLogPublisherResponse object into the model struct
@@ -7107,9 +7198,9 @@ func readGroovyScriptedAccessLogPublisherResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ThirdPartyFileBasedErrorLogPublisherResponse object into the model struct
@@ -7123,7 +7214,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
@@ -7132,11 +7223,11 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -7145,9 +7236,9 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonAuditLogPublisherResponse object into the model struct
@@ -7157,11 +7248,11 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherConsoleJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherConsoleJsonAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)
 	state.ObscureAttribute = internaltypes.GetStringSet(r.ObscureAttribute)
@@ -7183,9 +7274,9 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 	state.ResultCriteria = internaltypes.StringTypeOrNil(r.ResultCriteria, internaltypes.IsEmptyString(expectedValues.ResultCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonHttpOperationLogPublisherResponse object into the model struct
@@ -7195,7 +7286,7 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
 	state.LogResults = internaltypes.BoolTypeOrNil(r.LogResults)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
@@ -7204,25 +7295,25 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a ConsoleJsonAccessLogPublisherResponse object into the model struct
@@ -7233,7 +7324,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), true)
 	state.IncludeProductName = internaltypes.BoolTypeOrNil(r.IncludeProductName)
 	state.IncludeInstanceName = internaltypes.BoolTypeOrNil(r.IncludeInstanceName)
 	state.IncludeStartupID = internaltypes.BoolTypeOrNil(r.IncludeStartupID)
@@ -7274,9 +7365,9 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.SearchReferenceCriteria = internaltypes.StringTypeOrNil(r.SearchReferenceCriteria, internaltypes.IsEmptyString(expectedValues.SearchReferenceCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedAccessLogPublisherResponse object into the model struct
@@ -7290,19 +7381,19 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), internaltypes.IsEmptyString(expectedValues.TimestampPrecision))
+		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
@@ -7348,9 +7439,9 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedErrorLogPublisherResponse object into the model struct
@@ -7366,9 +7457,9 @@ func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a FileBasedJsonHttpOperationLogPublisherResponse object into the model struct
@@ -7382,18 +7473,18 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.CompressionMechanism = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), internaltypes.IsEmptyString(expectedValues.CompressionMechanism))
+		client.StringPointerEnumlogPublisherCompressionMechanismProp(r.CompressionMechanism), true)
 	state.SignLog = internaltypes.BoolTypeOrNil(r.SignLog)
 	state.EncryptLog = internaltypes.BoolTypeOrNil(r.EncryptLog)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
-	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, internaltypes.IsEmptyString(expectedValues.BufferSize))
+	state.BufferSize = internaltypes.StringTypeOrNil(r.BufferSize, true)
 	config.CheckMismatchedPDFormattedAttributes("buffer_size",
 		expectedValues.BufferSize, state.BufferSize, diagnostics)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
-	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, internaltypes.IsEmptyString(expectedValues.TimeInterval))
+	state.TimeInterval = internaltypes.StringTypeOrNil(r.TimeInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval",
 		expectedValues.TimeInterval, state.TimeInterval, diagnostics)
 	state.LogRequests = internaltypes.BoolTypeOrNil(r.LogRequests)
@@ -7404,16 +7495,16 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.IncludeRequestDetailsInResultMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInResultMessages)
 	state.LogRequestHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), internaltypes.IsEmptyString(expectedValues.LogRequestHeaders))
+		client.StringPointerEnumlogPublisherLogRequestHeadersProp(r.LogRequestHeaders), true)
 	state.SuppressedRequestHeaderName = internaltypes.GetStringSet(r.SuppressedRequestHeaderName)
 	state.LogResponseHeaders = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), internaltypes.IsEmptyString(expectedValues.LogResponseHeaders))
+		client.StringPointerEnumlogPublisherLogResponseHeadersProp(r.LogResponseHeaders), true)
 	state.SuppressedResponseHeaderName = internaltypes.GetStringSet(r.SuppressedResponseHeaderName)
 	state.LogRequestAuthorizationType = internaltypes.BoolTypeOrNil(r.LogRequestAuthorizationType)
 	state.LogRequestCookieNames = internaltypes.BoolTypeOrNil(r.LogRequestCookieNames)
 	state.LogResponseCookieNames = internaltypes.BoolTypeOrNil(r.LogResponseCookieNames)
 	state.LogRequestParameters = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), internaltypes.IsEmptyString(expectedValues.LogRequestParameters))
+		client.StringPointerEnumlogPublisherLogRequestParametersProp(r.LogRequestParameters), true)
 	state.SuppressedRequestParameterName = internaltypes.GetStringSet(r.SuppressedRequestParameterName)
 	state.LogRequestProtocol = internaltypes.BoolTypeOrNil(r.LogRequestProtocol)
 	state.LogRedirectURI = internaltypes.BoolTypeOrNil(r.LogRedirectURI)
@@ -7421,9 +7512,9 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a SyslogJsonErrorLogPublisherResponse object into the model struct
@@ -7436,7 +7527,7 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), internaltypes.IsEmptyString(expectedValues.SyslogSeverity))
+		client.StringPointerEnumlogPublisherSyslogSeverityProp(r.SyslogSeverity), true)
 	state.SyslogMessageHostName = internaltypes.StringTypeOrNil(r.SyslogMessageHostName, internaltypes.IsEmptyString(expectedValues.SyslogMessageHostName))
 	state.SyslogMessageApplicationName = internaltypes.StringTypeOrNil(r.SyslogMessageApplicationName, internaltypes.IsEmptyString(expectedValues.SyslogMessageApplicationName))
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
@@ -7449,9 +7540,9 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Read a GroovyScriptedHttpOperationLogPublisherResponse object into the model struct
@@ -7464,9 +7555,9 @@ func readGroovyScriptedHttpOperationLogPublisherResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogPublisherUnknownValues(ctx, state)
+	populateLogPublisherUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -9527,6 +9618,7 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -9684,6 +9776,10 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	}
 	if readResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 		readGroovyScriptedHttpOperationLogPublisherResponse(ctx, readResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

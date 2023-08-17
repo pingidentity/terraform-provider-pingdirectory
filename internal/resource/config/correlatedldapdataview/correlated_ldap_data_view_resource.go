@@ -185,6 +185,9 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "scim_resource_type_name"})
@@ -213,6 +216,25 @@ func addOptionalCorrelatedLdapDataViewFields(ctx context.Context, addRequest *cl
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CreateDNPattern) {
 		addRequest.CreateDNPattern = plan.CreateDNPattern.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *correlatedLdapDataViewResourceModel) populateAllComputedStringAttributes() {
+	if model.StructuralLDAPObjectclass.IsUnknown() || model.StructuralLDAPObjectclass.IsNull() {
+		model.StructuralLDAPObjectclass = types.StringValue("")
+	}
+	if model.PrimaryCorrelationAttribute.IsUnknown() || model.PrimaryCorrelationAttribute.IsNull() {
+		model.PrimaryCorrelationAttribute = types.StringValue("")
+	}
+	if model.CreateDNPattern.IsUnknown() || model.CreateDNPattern.IsNull() {
+		model.CreateDNPattern = types.StringValue("")
+	}
+	if model.SecondaryCorrelationAttribute.IsUnknown() || model.SecondaryCorrelationAttribute.IsNull() {
+		model.SecondaryCorrelationAttribute = types.StringValue("")
+	}
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN = types.StringValue("")
 	}
 }
 
@@ -373,6 +395,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -418,6 +441,10 @@ func readCorrelatedLdapDataView(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

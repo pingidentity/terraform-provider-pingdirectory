@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -173,154 +174,78 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 			"account_temporarily_failure_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account becomes temporarily locked as a result of too many authentication failures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_permanently_failure_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account becomes permanently locked as a result of too many authentication failures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_idle_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that authentication attempt fails because it has been too long since the user last successfully authenticated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_reset_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that authentication attempt fails because the user failed to choose a new password in a timely manner after an administrative reset.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_unlocked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account has been unlocked (e.g., by an administrative password reset).",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_disabled_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account is disabled by an administrator.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_enabled_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account is enabled by an administrator.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_not_yet_active_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an activation time that is in the future.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_expired_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expiration time that is in the past.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_expired_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expired password.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_expiring_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt succeeds, but the user's password is about to expire. This notification will only be generated the first time the user authenticates within the window of time that the server should warn about an upcoming password expiration.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_reset_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's password has been reset by an administrator.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_changed_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user changes their own password.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_authenticated_message_template": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_created_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a new account is created in an add request that matches the criteria provided in the account-creation-notification-request-criteria property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_deleted_message_template": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_updated_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an existing account is updated with a modify or modify DN operation that matches the criteria provided in the account-update-notification-request-criteria property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_password_failed_validation_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user authenticated with a password that failed to satisfy the criteria for one or more of the configured password validators.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"must_change_password_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user successfully authenticates to the server but will be required to choose a new password before they will be allowed to perform any other operations.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_status_notification_type": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `admin-alert`: The types of account status notifications that should result in administrative alerts. When the `type` attribute is set to `error-log`: Indicates which types of event can trigger an account status notification.",
@@ -421,34 +346,18 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 			"account_authentication_notification_result_criteria": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_deletion_notification_request_criteria": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. A request criteria object that identifies which delete requests should result in account deletion notifications for this handler.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -457,7 +366,9 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -505,24 +416,9 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_address"),
+			path.MatchRoot("email_address_attribute_type"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_unlocked_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("must_change_password_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_password_failed_validation_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("email_address_json_field"),
@@ -530,19 +426,29 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("email_address_json_object_filter"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_status_notification_type"),
+			path.MatchRoot("recipient_address"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert", "error-log"},
+			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_deleted_message_template"),
+			path.MatchRoot("send_message_without_end_user_address"),
 			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("message_template_file"),
@@ -550,34 +456,19 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_expired_message_template"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_expiring_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_idle_locked_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_not_yet_active_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
 			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_status_notification_type"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert", "error-log"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("account_temporarily_failure_locked_message_template"),
@@ -590,12 +481,7 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_expired_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_reset_message_template"),
+			path.MatchRoot("account_idle_locked_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
@@ -605,24 +491,44 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_unlocked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_disabled_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("account_enabled_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_address"),
+			path.MatchRoot("account_not_yet_active_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("account_expired_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_subject"),
+			path.MatchRoot("password_expired_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_expiring_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_reset_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_changed_message_template"),
@@ -640,7 +546,7 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_disabled_message_template"),
+			path.MatchRoot("account_deleted_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
@@ -650,19 +556,24 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_password_failed_validation_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("must_change_password_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("send_message_without_end_user_address"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -947,27 +858,118 @@ func addOptionalThirdPartyAccountStatusNotificationHandlerFields(ctx context.Con
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, model *accountStatusNotificationHandlerResourceModel) {
-	if model.MessageTemplateFile.ElementType(ctx) == nil {
-		model.MessageTemplateFile = types.SetNull(types.StringType)
+func populateAccountStatusNotificationHandlerUnknownValues(model *accountStatusNotificationHandlerResourceModel) {
+	if model.MessageTemplateFile.IsUnknown() || model.MessageTemplateFile.IsNull() {
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MessageSubject.ElementType(ctx) == nil {
-		model.MessageSubject = types.SetNull(types.StringType)
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.EmailAddressAttributeType.ElementType(ctx) == nil {
-		model.EmailAddressAttributeType = types.SetNull(types.StringType)
+	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
+		model.EmailAddressAttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccountStatusNotificationType.ElementType(ctx) == nil {
-		model.AccountStatusNotificationType = types.SetNull(types.StringType)
+	if model.AccountStatusNotificationType.IsUnknown() || model.AccountStatusNotificationType.IsNull() {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *accountStatusNotificationHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.AccountUnlockedMessageTemplate.IsUnknown() || model.AccountUnlockedMessageTemplate.IsNull() {
+		model.AccountUnlockedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountAuthenticatedMessageTemplate.IsUnknown() || model.AccountAuthenticatedMessageTemplate.IsNull() {
+		model.AccountAuthenticatedMessageTemplate = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.AccountUpdatedMessageTemplate.IsUnknown() || model.AccountUpdatedMessageTemplate.IsNull() {
+		model.AccountUpdatedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountUpdateNotificationRequestCriteria.IsUnknown() || model.AccountUpdateNotificationRequestCriteria.IsNull() {
+		model.AccountUpdateNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.PasswordExpiringMessageTemplate.IsUnknown() || model.PasswordExpiringMessageTemplate.IsNull() {
+		model.PasswordExpiringMessageTemplate = types.StringValue("")
+	}
+	if model.AccountNotYetActiveMessageTemplate.IsUnknown() || model.AccountNotYetActiveMessageTemplate.IsNull() {
+		model.AccountNotYetActiveMessageTemplate = types.StringValue("")
+	}
+	if model.PasswordChangedMessageTemplate.IsUnknown() || model.PasswordChangedMessageTemplate.IsNull() {
+		model.PasswordChangedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountIdleLockedMessageTemplate.IsUnknown() || model.AccountIdleLockedMessageTemplate.IsNull() {
+		model.AccountIdleLockedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountPermanentlyFailureLockedMessageTemplate.IsUnknown() || model.AccountPermanentlyFailureLockedMessageTemplate.IsNull() {
+		model.AccountPermanentlyFailureLockedMessageTemplate = types.StringValue("")
+	}
+	if model.MustChangePasswordMessageTemplate.IsUnknown() || model.MustChangePasswordMessageTemplate.IsNull() {
+		model.MustChangePasswordMessageTemplate = types.StringValue("")
+	}
+	if model.AccountResetLockedMessageTemplate.IsUnknown() || model.AccountResetLockedMessageTemplate.IsNull() {
+		model.AccountResetLockedMessageTemplate = types.StringValue("")
+	}
+	if model.EmailAddressJSONObjectFilter.IsUnknown() || model.EmailAddressJSONObjectFilter.IsNull() {
+		model.EmailAddressJSONObjectFilter = types.StringValue("")
+	}
+	if model.AccountDeletionNotificationRequestCriteria.IsUnknown() || model.AccountDeletionNotificationRequestCriteria.IsNull() {
+		model.AccountDeletionNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.AccountDeletedMessageTemplate.IsUnknown() || model.AccountDeletedMessageTemplate.IsNull() {
+		model.AccountDeletedMessageTemplate = types.StringValue("")
+	}
+	if model.AccountCreationNotificationRequestCriteria.IsUnknown() || model.AccountCreationNotificationRequestCriteria.IsNull() {
+		model.AccountCreationNotificationRequestCriteria = types.StringValue("")
+	}
+	if model.PasswordResetMessageTemplate.IsUnknown() || model.PasswordResetMessageTemplate.IsNull() {
+		model.PasswordResetMessageTemplate = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.AccountExpiredMessageTemplate.IsUnknown() || model.AccountExpiredMessageTemplate.IsNull() {
+		model.AccountExpiredMessageTemplate = types.StringValue("")
+	}
+	if model.AccountAuthenticationNotificationResultCriteria.IsUnknown() || model.AccountAuthenticationNotificationResultCriteria.IsNull() {
+		model.AccountAuthenticationNotificationResultCriteria = types.StringValue("")
+	}
+	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
+		model.EmailAddressJSONField = types.StringValue("")
+	}
+	if model.AccountTemporarilyFailureLockedMessageTemplate.IsUnknown() || model.AccountTemporarilyFailureLockedMessageTemplate.IsNull() {
+		model.AccountTemporarilyFailureLockedMessageTemplate = types.StringValue("")
+	}
+	if model.BindPasswordFailedValidationMessageTemplate.IsUnknown() || model.BindPasswordFailedValidationMessageTemplate.IsNull() {
+		model.BindPasswordFailedValidationMessageTemplate = types.StringValue("")
+	}
+	if model.AccountEnabledMessageTemplate.IsUnknown() || model.AccountEnabledMessageTemplate.IsNull() {
+		model.AccountEnabledMessageTemplate = types.StringValue("")
+	}
+	if model.AccountCreatedMessageTemplate.IsUnknown() || model.AccountCreatedMessageTemplate.IsNull() {
+		model.AccountCreatedMessageTemplate = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.PasswordExpiredMessageTemplate.IsUnknown() || model.PasswordExpiredMessageTemplate.IsNull() {
+		model.PasswordExpiredMessageTemplate = types.StringValue("")
+	}
+	if model.AccountDisabledMessageTemplate.IsUnknown() || model.AccountDisabledMessageTemplate.IsNull() {
+		model.AccountDisabledMessageTemplate = types.StringValue("")
 	}
 }
 
@@ -992,7 +994,7 @@ func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *cl
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a GroovyScriptedAccountStatusNotificationHandlerResponse object into the model struct
@@ -1010,7 +1012,7 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a AdminAlertAccountStatusNotificationHandlerResponse object into the model struct
@@ -1028,7 +1030,7 @@ func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a ErrorLogAccountStatusNotificationHandlerResponse object into the model struct
@@ -1046,7 +1048,7 @@ func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a MultiPartEmailAccountStatusNotificationHandlerResponse object into the model struct
@@ -1081,7 +1083,7 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyAccountStatusNotificationHandlerResponse object into the model struct
@@ -1099,7 +1101,7 @@ func readThirdPartyAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1516,6 +1518,7 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1577,6 +1580,10 @@ func readAccountStatusNotificationHandler(ctx context.Context, req resource.Read
 	}
 	if readResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 		readThirdPartyAccountStatusNotificationHandlerResponse(ctx, readResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

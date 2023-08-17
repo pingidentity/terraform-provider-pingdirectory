@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -190,10 +191,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"replace_pattern": schema.StringAttribute{
 				Description: "Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `exact-match`: Specifies the set of base DNs below which to search for users. When the `type` attribute is set to `regular-expression`: Specifies the base DN(s) that should be used when performing searches to map the provided ID string to a user entry. If multiple values are given, searches are performed below all the specified base DNs.",
@@ -224,7 +221,9 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -245,17 +244,7 @@ func configValidatorsIdentityMapper() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_identity_mapper"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replace_pattern"),
-			path.MatchRoot("type"),
-			[]string{"regular-expression"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_filter"),
+			path.MatchRoot("match_attribute"),
 			path.MatchRoot("type"),
 			[]string{"exact-match", "regular-expression"},
 		),
@@ -265,29 +254,9 @@ func configValidatorsIdentityMapper() []resource.ConfigValidator {
 			[]string{"exact-match", "regular-expression"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_attribute"),
+			path.MatchRoot("match_filter"),
 			path.MatchRoot("type"),
 			[]string{"exact-match", "regular-expression"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_pattern"),
-			path.MatchRoot("type"),
-			[]string{"regular-expression"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_class"),
@@ -295,9 +264,39 @@ func configValidatorsIdentityMapper() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replace_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_identity_mapper"),
 			path.MatchRoot("type"),
 			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -405,24 +404,46 @@ func addOptionalThirdPartyIdentityMapperFields(ctx context.Context, addRequest *
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateIdentityMapperUnknownValues(ctx context.Context, model *identityMapperResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populateIdentityMapperUnknownValues(model *identityMapperResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MatchBaseDN.ElementType(ctx) == nil {
-		model.MatchBaseDN = types.SetNull(types.StringType)
+	if model.MatchBaseDN.IsUnknown() || model.MatchBaseDN.IsNull() {
+		model.MatchBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedIdentityMapper.ElementType(ctx) == nil {
-		model.AllIncludedIdentityMapper = types.SetNull(types.StringType)
+	if model.AllIncludedIdentityMapper.IsUnknown() || model.AllIncludedIdentityMapper.IsNull() {
+		model.AllIncludedIdentityMapper, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MatchAttribute.ElementType(ctx) == nil {
-		model.MatchAttribute = types.SetNull(types.StringType)
+	if model.MatchAttribute.IsUnknown() || model.MatchAttribute.IsNull() {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedIdentityMapper.ElementType(ctx) == nil {
-		model.AnyIncludedIdentityMapper = types.SetNull(types.StringType)
+	if model.AnyIncludedIdentityMapper.IsUnknown() || model.AnyIncludedIdentityMapper.IsNull() {
+		model.AnyIncludedIdentityMapper, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *identityMapperResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.MatchFilter.IsUnknown() || model.MatchFilter.IsNull() {
+		model.MatchFilter = types.StringValue("")
+	}
+	if model.MatchPattern.IsUnknown() || model.MatchPattern.IsNull() {
+		model.MatchPattern = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.ReplacePattern.IsUnknown() || model.ReplacePattern.IsNull() {
+		model.ReplacePattern = types.StringValue("")
 	}
 }
 
@@ -437,7 +458,7 @@ func readExactMatchIdentityMapperResponse(ctx context.Context, r *client.ExactMa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperUnknownValues(ctx, state)
+	populateIdentityMapperUnknownValues(state)
 }
 
 // Read a GroovyScriptedIdentityMapperResponse object into the model struct
@@ -450,7 +471,7 @@ func readGroovyScriptedIdentityMapperResponse(ctx context.Context, r *client.Gro
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperUnknownValues(ctx, state)
+	populateIdentityMapperUnknownValues(state)
 }
 
 // Read a RegularExpressionIdentityMapperResponse object into the model struct
@@ -466,7 +487,7 @@ func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperUnknownValues(ctx, state)
+	populateIdentityMapperUnknownValues(state)
 }
 
 // Read a AggregateIdentityMapperResponse object into the model struct
@@ -479,7 +500,7 @@ func readAggregateIdentityMapperResponse(ctx context.Context, r *client.Aggregat
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperUnknownValues(ctx, state)
+	populateIdentityMapperUnknownValues(state)
 }
 
 // Read a ThirdPartyIdentityMapperResponse object into the model struct
@@ -492,7 +513,7 @@ func readThirdPartyIdentityMapperResponse(ctx context.Context, r *client.ThirdPa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperUnknownValues(ctx, state)
+	populateIdentityMapperUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -825,6 +846,7 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -883,6 +905,10 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 	if readResponse.ThirdPartyIdentityMapperResponse != nil {
 		readThirdPartyIdentityMapperResponse(ctx, readResponse.ThirdPartyIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

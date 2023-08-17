@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -315,10 +316,8 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			},
 			"backend_id": schema.StringAttribute{
 				Description: "Specifies a name to identify the associated backend.",
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -482,42 +481,22 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"id2entry_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dn2id_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2children_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2children database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its immediate children. This index may be used when performing searches with a single-level scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2subtree_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dn2uri_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_method": schema.SetAttribute{
 				Description: "Specifies the method that should be used to prime caches with data for this backend.",
@@ -597,18 +576,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"id2children_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2children system index (which keeps track of the immediate children for an entry, to assist in otherwise unindexed searches with a single-level scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2subtree_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2subtree system index (which keeps track of all descendants below an entry, to assist in otherwise unindexed searches with a whole-subtree or subordinate subtree scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"import_temp_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.",
@@ -760,7 +731,9 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"}...),
 		}
@@ -768,437 +741,190 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that will be used to store queued samples.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["metrics_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that contains metric definitions.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["sample_flush_interval"] = schema.StringAttribute{
 			Description: "Period when samples are flushed to disk.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["retention_policy"] = schema.SetAttribute{
 			Description: "The retention policy to use for the Metrics Backend .",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["alarm_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the maximum length of time that information about raised alarms should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_alarms"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of alarms that should be retained. If more alarms than this configured maximum are generated within the alarm retention time, then the oldest alarms will be purged to achieve this maximum. Only alarms at normal severity will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["alert_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the maximum length of time that information about generated alerts should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_alerts"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of alerts that should be retained. If more alerts than this configured maximum are generated within the alert retention time, then the oldest alerts will be purged to achieve this maximum.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["disabled_alert_type"] = schema.SetAttribute{
 			Description: "Specifies the names of the alert types that should not be added to the backend. This can be used to suppress high volume alerts that might trigger hitting the max-alerts limit sooner than desired. Disabled alert types will not be sent out over persistent searches on this backend.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["task_backing_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the backing file for storing information about the tasks configured in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_initial_task_log_messages_to_retain"] = schema.Int64Attribute{
 			Description: "The maximum number of log messages to retain in each task entry from the beginning of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_final_task_log_messages_to_retain"] = schema.Int64Attribute{
 			Description: "The maximum number of log messages to retain in each task entry from the end of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["task_retention_time"] = schema.StringAttribute{
 			Description: "Specifies the length of time that task entries should be retained after processing on the associated task has been completed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["notification_sender_address"] = schema.StringAttribute{
 			Description: "Specifies the email address to use as the sender address (that is, the \"From:\" address) for notification mail messages generated when a task completes execution.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["insignificant_config_archive_attribute"] = schema.SetAttribute{
 			Description: "The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_config_archive_count"] = schema.Int64Attribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_peer_polling_interval"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_entry_update_timeout"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for an update operation (add, delete, modify and modify-dn) on an entry to be applied on all servers in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["mirrored_subtree_search_timeout"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for a search operation to complete. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data. Search requests that take longer than this timeout will be canceled and considered failures.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_write_batch_size"] = schema.Int64Attribute{
 			Description: "Specifies the number of changelog entries written in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_purge_batch_size"] = schema.Int64Attribute{
 			Description: "Specifies the number of changelog entries purged in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_write_queue_capacity"] = schema.Int64Attribute{
 			Description: "Specifies the capacity of the changelog write queue in number of changes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["index_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["index_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values \"*\" and \"+\".",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_maximum_age"] = schema.StringAttribute{
 			Description: "Changes are guaranteed to be maintained in the changelog database for at least this duration. Setting target-database-size can allow additional changes to be maintained up to the configured size on disk.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["target_database_size"] = schema.StringAttribute{
 			Description: "The changelog database is allowed to grow up to this size on disk even if changes are older than the configured changelog-maximum-age.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_include_base_dn"] = schema.SetAttribute{
 			Description: "The base DNs for branches in the data for which to record changes in the changelog.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_exclude_base_dn"] = schema.SetAttribute{
 			Description: "The base DNs for branches in the data for which no changelog records should be generated.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_include_filter"] = schema.SetAttribute{
 			Description: "A filter that indicates which changelog entries should actually be stored in the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_entry_exclude_filter"] = schema.SetAttribute{
 			Description: "A filter that indicates which changelog entries should be excluded from the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types will be included in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be excluded in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_deleted_entry_include_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be included in a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_deleted_entry_exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies a set of attribute types that should be excluded from a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_include_key_attribute"] = schema.SetAttribute{
 			Description: "Specifies which attribute types will be included in a changelog entry on every change.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_max_before_after_values"] = schema.Int64Attribute{
 			Description: "This controls whether all attribute values for a modified attribute (even those values that have not changed) will be included in the changelog entry. If the number of attribute values does not exceed this limit, then all values for the modified attribute will be included in the changelog entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["write_lastmod_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether values of creatorsName, createTimestamp, modifiersName and modifyTimestamp attributes will be written to changelog entries.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["use_reversible_form"] = schema.BoolAttribute{
 			Description: "Specifies whether the changelog should provide enough information to be able to revert the changes if desired.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["include_virtual_attributes"] = schema.SetAttribute{
 			Description: "Specifies the changelog entry elements (if any) in which virtual attributes should be included.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["apply_access_controls_to_changelog_entry_contents"] = schema.BoolAttribute{
 			Description: "Indicates whether the contents of changelog entries should be subject to access control and sensitive attribute evaluation such that the contents of attributes like changes, deletedEntryAttrs, ds-changelog-entry-key-attr-values, ds-changelog-before-values, and ds-changelog-after-values may be altered based on attributes the user can see in the target entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["report_excluded_changelog_attributes"] = schema.StringAttribute{
 			Description: "Indicates whether changelog entries that have been altered by applying access controls should include additional information about any attributes that may have been removed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["soft_delete_entry_included_operation"] = schema.SetAttribute{
 			Description: "Specifies which operations performed on soft-deleted entries will appear in the changelog.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to  one of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend. When the `type` attribute is set to `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend.\n  - `ldif`: Specifies the path to the LDIF file containing the data for this backend.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the file that stores the trust information.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the key store file.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_pin"] = schema.StringAttribute{
 			Description: "Specifies the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["trust_store_pin_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["backup_directory"] = schema.SetAttribute{
 			Description: "Specifies the path to a backup directory containing one or more backups for a particular backend.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["schema_entry_dn"] = schema.SetAttribute{
 			Description: "Defines the base DNs of the subtrees in which the schema information is published in addition to the value included in the base-dn property.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["show_all_attributes"] = schema.BoolAttribute{
 			Description: "Indicates whether to treat all attributes in the schema entry as if they were user attributes regardless of their configuration.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["read_only_schema_file"] = schema.SetAttribute{
 			Description: "Specifies the name of a file (which must exist in the config/schema directory) containing schema elements that should be considered read-only. Any schema definitions contained in read-only files cannot be altered by external clients.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["backup_file_permissions"] = schema.StringAttribute{
 			Description: "Specifies the permissions that should be applied to files and directories created by a backup of the backend.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "backend_id"})
 	}
@@ -1227,14 +953,14 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
@@ -1242,59 +968,9 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 func configValidatorsBackend() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_directory_permissions"),
+			path.MatchRoot("base_dn"),
 			path.MatchRoot("type"),
-			[]string{"changelog", "local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2children_index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("composite_index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("process_filters_with_undefined_attribute_types"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_method"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_all_indexes"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("single_writer_lock_behavior"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compact_common_parent_dn"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2entry_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
+			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("writability_mode"),
@@ -1302,69 +978,9 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"schema", "backup", "ldif", "trust-store", "custom", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("return_unavailable_for_untrusted_index"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
+			path.MatchRoot("set_degraded_alert_when_disabled"),
 			path.MatchRoot("type"),
 			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_cleaner_min_utilization"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("import_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("export_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compress_entries"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("offline_process_database_open_timeout"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("deadlock_retry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("external_txn_default_backend_lock_behavior"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("system_index_to_prime"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn2uri_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_import_cache_percent"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("is_private_backend"),
@@ -1372,47 +988,17 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"ldif", "local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_num_cleaner_threads"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2subtree_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_log_file_max"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("hash_entries"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("uncached_attribute_criteria"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_checkpointer_wakeup_interval"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_use_thread_local_handles"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("db_directory"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_directory_permissions"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cache_percent"),
 			path.MatchRoot("type"),
 			[]string{"changelog", "local-db"},
 		),
@@ -1427,37 +1013,7 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_logging_level"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subtree_delete_size_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("set_degraded_alert_when_disabled"),
-			path.MatchRoot("type"),
-			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_cache_percent"),
-			path.MatchRoot("type"),
-			[]string{"changelog", "local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_evictor_critical_percentage"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("system_index_to_prime_internal_nodes_only"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_txn_write_no_sync"),
+			path.MatchRoot("uncached_attribute_criteria"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1467,12 +1023,52 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_recent_changes"),
+			path.MatchRoot("set_degraded_alert_for_untrusted_index"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("background_prime"),
+			path.MatchRoot("return_unavailable_for_untrusted_index"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("process_filters_with_undefined_attribute_types"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compact_common_parent_dn"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hash_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_num_cleaner_threads"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cleaner_min_utilization"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_evictor_critical_percentage"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_checkpointer_wakeup_interval"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1482,12 +1078,27 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2subtree_index_entry_limit"),
+			path.MatchRoot("db_use_thread_local_handles"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("import_temp_directory"),
+			path.MatchRoot("db_log_file_max"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_logging_level"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2entry_cache_mode"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1502,7 +1113,122 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("set_degraded_alert_for_untrusted_index"),
+			path.MatchRoot("id2subtree_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn2uri_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_method"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_all_indexes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime_internal_nodes_only"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("background_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("composite_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2children_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2subtree_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_temp_directory"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("export_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_import_cache_percent"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_txn_write_no_sync"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("deadlock_retry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("external_txn_default_backend_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("single_writer_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subtree_delete_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_recent_changes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("offline_process_database_open_timeout"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1518,49 +1244,14 @@ func (r backendResource) ConfigValidators(ctx context.Context) []resource.Config
 func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_maximum_age"),
+			path.MatchRoot("schema_entry_dn"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_exclude_base_dn"),
+			path.MatchRoot("show_all_attributes"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_search_timeout"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_alarms"),
-			path.MatchRoot("type"),
-			[]string{"alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_virtual_attributes"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_initial_task_log_messages_to_retain"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("alarm_retention_time"),
-			path.MatchRoot("type"),
-			[]string{"alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_file"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
+			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("read_only_schema_file"),
@@ -1568,49 +1259,9 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("backup_file_permissions"),
 			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("soft_delete_entry_included_operation"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("notification_sender_address"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_exclude_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_file"),
-			path.MatchRoot("type"),
-			[]string{"ldif", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_backing_file"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("write_lastmod_attributes"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("schema_entry_dn"),
-			path.MatchRoot("type"),
-			[]string{"schema"},
+			[]string{"schema", "encryption-settings", "ldif", "trust-store", "custom", "config-file-handler", "task", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("backup_directory"),
@@ -1618,54 +1269,9 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("ldif_file"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sample_flush_interval"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backup_file_permissions"),
-			path.MatchRoot("type"),
-			[]string{"schema", "encryption-settings", "ldif", "trust-store", "custom", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_include_key_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("insignificant_config_archive_attribute"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_deleted_entry_include_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disabled_alert_type"),
-			path.MatchRoot("type"),
-			[]string{"alert"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_entry_update_timeout"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_include_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_include_filter"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"ldif", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_store_file"),
@@ -1673,17 +1279,27 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_include_attribute"),
+			path.MatchRoot("trust_store_type"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maintain_config_archive"),
+			path.MatchRoot("trust_store_pin"),
 			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
+			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("report_excluded_changelog_attributes"),
+			path.MatchRoot("trust_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_write_batch_size"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1693,17 +1309,42 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("storage_dir"),
+			path.MatchRoot("changelog_write_queue_capacity"),
 			path.MatchRoot("type"),
-			[]string{"metrics"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("show_all_attributes"),
+			path.MatchRoot("index_include_attribute"),
 			path.MatchRoot("type"),
-			[]string{"schema"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_write_batch_size"),
+			path.MatchRoot("index_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_maximum_age"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_database_size"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_exclude_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_filter"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1713,9 +1354,19 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_peer_polling_interval"),
+			path.MatchRoot("changelog_include_attribute"),
 			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_deleted_entry_include_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("changelog_deleted_entry_exclude_attribute"),
@@ -1723,62 +1374,27 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_alerts"),
-			path.MatchRoot("type"),
-			[]string{"alert"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_database_size"),
+			path.MatchRoot("changelog_include_key_attribute"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_write_queue_capacity"),
+			path.MatchRoot("changelog_max_before_after_values"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_retention_time"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_exclude_attribute"),
+			path.MatchRoot("write_lastmod_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("alert_retention_time"),
+			path.MatchRoot("use_reversible_form"),
 			path.MatchRoot("type"),
-			[]string{"alert"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("insignificant_config_archive_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_config_archive_count"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("metrics_dir"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_include_base_dn"),
+			path.MatchRoot("include_virtual_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1788,9 +1404,119 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_max_before_after_values"),
+			path.MatchRoot("report_excluded_changelog_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_included_operation"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_attribute"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maintain_config_archive"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_config_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_peer_polling_interval"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_entry_update_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_search_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_backing_file"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_initial_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("notification_sender_address"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alert_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alerts"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disabled_alert_type"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alarm_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alarms"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("storage_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("metrics_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_flush_interval"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
 		),
 	}
 	return append(configValidatorsBackend(), validators...)
@@ -2064,109 +1790,274 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateBackendUnknownValues(ctx context.Context, model *backendResourceModel) {
-	if model.JeProperty.ElementType(ctx) == nil {
-		model.JeProperty = types.SetNull(types.StringType)
+func populateBackendUnknownValues(model *backendResourceModel) {
+	if model.JeProperty.IsUnknown() || model.JeProperty.IsNull() {
+		model.JeProperty, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CompactCommonParentDN.ElementType(ctx) == nil {
-		model.CompactCommonParentDN = types.SetNull(types.StringType)
+	if model.CompactCommonParentDN.IsUnknown() || model.CompactCommonParentDN.IsNull() {
+		model.CompactCommonParentDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrimeInternalNodesOnly.ElementType(ctx) == nil {
-		model.SystemIndexToPrimeInternalNodesOnly = types.SetNull(types.StringType)
+	if model.SystemIndexToPrimeInternalNodesOnly.IsUnknown() || model.SystemIndexToPrimeInternalNodesOnly.IsNull() {
+		model.SystemIndexToPrimeInternalNodesOnly, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PrimeMethod.ElementType(ctx) == nil {
-		model.PrimeMethod = types.SetNull(types.StringType)
+	if model.PrimeMethod.IsUnknown() || model.PrimeMethod.IsNull() {
+		model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrime.ElementType(ctx) == nil {
-		model.SystemIndexToPrime = types.SetNull(types.StringType)
+	if model.SystemIndexToPrime.IsUnknown() || model.SystemIndexToPrime.IsNull() {
+		model.SystemIndexToPrime, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DbDirectory.IsUnknown() || model.DbDirectory.IsNull() {
+		model.DbDirectory = types.StringValue("")
+	}
+	if model.DbBackgroundSyncInterval.IsUnknown() || model.DbBackgroundSyncInterval.IsNull() {
+		model.DbBackgroundSyncInterval = types.StringValue("")
+	}
+	if model.PrimeTimeLimit.IsUnknown() || model.PrimeTimeLimit.IsNull() {
+		model.PrimeTimeLimit = types.StringValue("")
+	}
+	if model.SingleWriterLockBehavior.IsUnknown() || model.SingleWriterLockBehavior.IsNull() {
+		model.SingleWriterLockBehavior = types.StringValue("")
+	}
+	if model.DbCheckpointerWakeupInterval.IsUnknown() || model.DbCheckpointerWakeupInterval.IsNull() {
+		model.DbCheckpointerWakeupInterval = types.StringValue("")
+	}
+	if model.ExternalTxnDefaultBackendLockBehavior.IsUnknown() || model.ExternalTxnDefaultBackendLockBehavior.IsNull() {
+		model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("")
+	}
+	if model.DbDirectoryPermissions.IsUnknown() || model.DbDirectoryPermissions.IsNull() {
+		model.DbDirectoryPermissions = types.StringValue("")
+	}
+	if model.WritabilityMode.IsUnknown() || model.WritabilityMode.IsNull() {
+		model.WritabilityMode = types.StringValue("")
+	}
+	if model.DefaultCacheMode.IsUnknown() || model.DefaultCacheMode.IsNull() {
+		model.DefaultCacheMode = types.StringValue("")
+	}
+	if model.DbLogFileMax.IsUnknown() || model.DbLogFileMax.IsNull() {
+		model.DbLogFileMax = types.StringValue("")
+	}
+	if model.ImportTempDirectory.IsUnknown() || model.ImportTempDirectory.IsNull() {
+		model.ImportTempDirectory = types.StringValue("")
+	}
+	if model.UncachedId2entryCacheMode.IsUnknown() || model.UncachedId2entryCacheMode.IsNull() {
+		model.UncachedId2entryCacheMode = types.StringValue("")
+	}
+	if model.OfflineProcessDatabaseOpenTimeout.IsUnknown() || model.OfflineProcessDatabaseOpenTimeout.IsNull() {
+		model.OfflineProcessDatabaseOpenTimeout = types.StringValue("")
+	}
+	if model.DbLoggingLevel.IsUnknown() || model.DbLoggingLevel.IsNull() {
+		model.DbLoggingLevel = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBackendResourceModel) {
-	if model.InsignificantConfigArchiveBaseDN.ElementType(ctx) == nil {
-		model.InsignificantConfigArchiveBaseDN = types.SetNull(types.StringType)
+func populateBackendUnknownValuesDefault(model *defaultBackendResourceModel) {
+	if model.InsignificantConfigArchiveBaseDN.IsUnknown() || model.InsignificantConfigArchiveBaseDN.IsNull() {
+		model.InsignificantConfigArchiveBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryIncludeFilter.ElementType(ctx) == nil {
-		model.ChangelogEntryIncludeFilter = types.SetNull(types.StringType)
+	if model.ChangelogEntryIncludeFilter.IsUnknown() || model.ChangelogEntryIncludeFilter.IsNull() {
+		model.ChangelogEntryIncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeVirtualAttributes.ElementType(ctx) == nil {
-		model.IncludeVirtualAttributes = types.SetNull(types.StringType)
+	if model.IncludeVirtualAttributes.IsUnknown() || model.IncludeVirtualAttributes.IsNull() {
+		model.IncludeVirtualAttributes, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrime.ElementType(ctx) == nil {
-		model.SystemIndexToPrime = types.SetNull(types.StringType)
+	if model.SystemIndexToPrime.IsUnknown() || model.SystemIndexToPrime.IsNull() {
+		model.SystemIndexToPrime, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReadOnlySchemaFile.ElementType(ctx) == nil {
-		model.ReadOnlySchemaFile = types.SetNull(types.StringType)
+	if model.ReadOnlySchemaFile.IsUnknown() || model.ReadOnlySchemaFile.IsNull() {
+		model.ReadOnlySchemaFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryExcludeFilter.ElementType(ctx) == nil {
-		model.ChangelogEntryExcludeFilter = types.SetNull(types.StringType)
+	if model.ChangelogEntryExcludeFilter.IsUnknown() || model.ChangelogEntryExcludeFilter.IsNull() {
+		model.ChangelogEntryExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BackupDirectory.ElementType(ctx) == nil {
-		model.BackupDirectory = types.SetNull(types.StringType)
+	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
+		model.BackupDirectory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SchemaEntryDN.ElementType(ctx) == nil {
-		model.SchemaEntryDN = types.SetNull(types.StringType)
+	if model.SchemaEntryDN.IsUnknown() || model.SchemaEntryDN.IsNull() {
+		model.SchemaEntryDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexExcludeAttribute.ElementType(ctx) == nil {
-		model.IndexExcludeAttribute = types.SetNull(types.StringType)
+	if model.IndexExcludeAttribute.IsUnknown() || model.IndexExcludeAttribute.IsNull() {
+		model.IndexExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogExcludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogExcludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogExcludeAttribute.IsUnknown() || model.ChangelogExcludeAttribute.IsNull() {
+		model.ChangelogExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogIncludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogIncludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogIncludeAttribute.IsUnknown() || model.ChangelogIncludeAttribute.IsNull() {
+		model.ChangelogIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SoftDeleteEntryIncludedOperation.ElementType(ctx) == nil {
-		model.SoftDeleteEntryIncludedOperation = types.SetNull(types.StringType)
+	if model.SoftDeleteEntryIncludedOperation.IsUnknown() || model.SoftDeleteEntryIncludedOperation.IsNull() {
+		model.SoftDeleteEntryIncludedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DisabledAlertType.ElementType(ctx) == nil {
-		model.DisabledAlertType = types.SetNull(types.StringType)
+	if model.DisabledAlertType.IsUnknown() || model.DisabledAlertType.IsNull() {
+		model.DisabledAlertType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryIncludeBaseDN.ElementType(ctx) == nil {
-		model.ChangelogEntryIncludeBaseDN = types.SetNull(types.StringType)
+	if model.ChangelogEntryIncludeBaseDN.IsUnknown() || model.ChangelogEntryIncludeBaseDN.IsNull() {
+		model.ChangelogEntryIncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogIncludeKeyAttribute.ElementType(ctx) == nil {
-		model.ChangelogIncludeKeyAttribute = types.SetNull(types.StringType)
+	if model.ChangelogIncludeKeyAttribute.IsUnknown() || model.ChangelogIncludeKeyAttribute.IsNull() {
+		model.ChangelogIncludeKeyAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CompactCommonParentDN.ElementType(ctx) == nil {
-		model.CompactCommonParentDN = types.SetNull(types.StringType)
+	if model.CompactCommonParentDN.IsUnknown() || model.CompactCommonParentDN.IsNull() {
+		model.CompactCommonParentDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexIncludeAttribute.ElementType(ctx) == nil {
-		model.IndexIncludeAttribute = types.SetNull(types.StringType)
+	if model.IndexIncludeAttribute.IsUnknown() || model.IndexIncludeAttribute.IsNull() {
+		model.IndexIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SystemIndexToPrimeInternalNodesOnly.ElementType(ctx) == nil {
-		model.SystemIndexToPrimeInternalNodesOnly = types.SetNull(types.StringType)
+	if model.SystemIndexToPrimeInternalNodesOnly.IsUnknown() || model.SystemIndexToPrimeInternalNodesOnly.IsNull() {
+		model.SystemIndexToPrimeInternalNodesOnly, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogDeletedEntryIncludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogDeletedEntryIncludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogDeletedEntryIncludeAttribute.IsUnknown() || model.ChangelogDeletedEntryIncludeAttribute.IsNull() {
+		model.ChangelogDeletedEntryIncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JeProperty.ElementType(ctx) == nil {
-		model.JeProperty = types.SetNull(types.StringType)
+	if model.JeProperty.IsUnknown() || model.JeProperty.IsNull() {
+		model.JeProperty, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogEntryExcludeBaseDN.ElementType(ctx) == nil {
-		model.ChangelogEntryExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ChangelogEntryExcludeBaseDN.IsUnknown() || model.ChangelogEntryExcludeBaseDN.IsNull() {
+		model.ChangelogEntryExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ChangelogDeletedEntryExcludeAttribute.ElementType(ctx) == nil {
-		model.ChangelogDeletedEntryExcludeAttribute = types.SetNull(types.StringType)
+	if model.ChangelogDeletedEntryExcludeAttribute.IsUnknown() || model.ChangelogDeletedEntryExcludeAttribute.IsNull() {
+		model.ChangelogDeletedEntryExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InsignificantConfigArchiveAttribute.ElementType(ctx) == nil {
-		model.InsignificantConfigArchiveAttribute = types.SetNull(types.StringType)
+	if model.InsignificantConfigArchiveAttribute.IsUnknown() || model.InsignificantConfigArchiveAttribute.IsNull() {
+		model.InsignificantConfigArchiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PrimeMethod.ElementType(ctx) == nil {
-		model.PrimeMethod = types.SetNull(types.StringType)
+	if model.PrimeMethod.IsUnknown() || model.PrimeMethod.IsNull() {
+		model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TrustStorePin.IsUnknown() {
-		model.TrustStorePin = types.StringNull()
+	if model.DbDirectory.IsUnknown() || model.DbDirectory.IsNull() {
+		model.DbDirectory = types.StringValue("")
+	}
+	if model.DbBackgroundSyncInterval.IsUnknown() || model.DbBackgroundSyncInterval.IsNull() {
+		model.DbBackgroundSyncInterval = types.StringValue("")
+	}
+	if model.TrustStorePinFile.IsUnknown() || model.TrustStorePinFile.IsNull() {
+		model.TrustStorePinFile = types.StringValue("")
+	}
+	if model.Dn2uriCacheMode.IsUnknown() || model.Dn2uriCacheMode.IsNull() {
+		model.Dn2uriCacheMode = types.StringValue("")
+	}
+	if model.BackupFilePermissions.IsUnknown() || model.BackupFilePermissions.IsNull() {
+		model.BackupFilePermissions = types.StringValue("")
+	}
+	if model.SingleWriterLockBehavior.IsUnknown() || model.SingleWriterLockBehavior.IsNull() {
+		model.SingleWriterLockBehavior = types.StringValue("")
+	}
+	if model.Id2entryCacheMode.IsUnknown() || model.Id2entryCacheMode.IsNull() {
+		model.Id2entryCacheMode = types.StringValue("")
+	}
+	if model.ReportExcludedChangelogAttributes.IsUnknown() || model.ReportExcludedChangelogAttributes.IsNull() {
+		model.ReportExcludedChangelogAttributes = types.StringValue("")
+	}
+	if model.DbCheckpointerWakeupInterval.IsUnknown() || model.DbCheckpointerWakeupInterval.IsNull() {
+		model.DbCheckpointerWakeupInterval = types.StringValue("")
+	}
+	if model.ExternalTxnDefaultBackendLockBehavior.IsUnknown() || model.ExternalTxnDefaultBackendLockBehavior.IsNull() {
+		model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("")
+	}
+	if model.TaskRetentionTime.IsUnknown() || model.TaskRetentionTime.IsNull() {
+		model.TaskRetentionTime = types.StringValue("")
+	}
+	if model.Id2subtreeCacheMode.IsUnknown() || model.Id2subtreeCacheMode.IsNull() {
+		model.Id2subtreeCacheMode = types.StringValue("")
+	}
+	if model.MetricsDir.IsUnknown() || model.MetricsDir.IsNull() {
+		model.MetricsDir = types.StringValue("")
+	}
+	if model.WritabilityMode.IsUnknown() || model.WritabilityMode.IsNull() {
+		model.WritabilityMode = types.StringValue("")
+	}
+	if model.DefaultCacheMode.IsUnknown() || model.DefaultCacheMode.IsNull() {
+		model.DefaultCacheMode = types.StringValue("")
+	}
+	if model.UncachedAttributeCriteria.IsUnknown() || model.UncachedAttributeCriteria.IsNull() {
+		model.UncachedAttributeCriteria = types.StringValue("")
+	}
+	if model.ImportTempDirectory.IsUnknown() || model.ImportTempDirectory.IsNull() {
+		model.ImportTempDirectory = types.StringValue("")
+	}
+	if model.SampleFlushInterval.IsUnknown() || model.SampleFlushInterval.IsNull() {
+		model.SampleFlushInterval = types.StringValue("")
+	}
+	if model.MirroredSubtreeSearchTimeout.IsUnknown() || model.MirroredSubtreeSearchTimeout.IsNull() {
+		model.MirroredSubtreeSearchTimeout = types.StringValue("")
+	}
+	if model.DbLoggingLevel.IsUnknown() || model.DbLoggingLevel.IsNull() {
+		model.DbLoggingLevel = types.StringValue("")
+	}
+	if model.MirroredSubtreePeerPollingInterval.IsUnknown() || model.MirroredSubtreePeerPollingInterval.IsNull() {
+		model.MirroredSubtreePeerPollingInterval = types.StringValue("")
+	}
+	if model.AlarmRetentionTime.IsUnknown() || model.AlarmRetentionTime.IsNull() {
+		model.AlarmRetentionTime = types.StringValue("")
+	}
+	if model.TrustStorePin.IsUnknown() || model.TrustStorePin.IsNull() {
+		model.TrustStorePin = types.StringValue("")
+	}
+	if model.PrimeTimeLimit.IsUnknown() || model.PrimeTimeLimit.IsNull() {
+		model.PrimeTimeLimit = types.StringValue("")
+	}
+	if model.TaskBackingFile.IsUnknown() || model.TaskBackingFile.IsNull() {
+		model.TaskBackingFile = types.StringValue("")
+	}
+	if model.LdifFile.IsUnknown() || model.LdifFile.IsNull() {
+		model.LdifFile = types.StringValue("")
+	}
+	if model.MirroredSubtreeEntryUpdateTimeout.IsUnknown() || model.MirroredSubtreeEntryUpdateTimeout.IsNull() {
+		model.MirroredSubtreeEntryUpdateTimeout = types.StringValue("")
+	}
+	if model.StorageDir.IsUnknown() || model.StorageDir.IsNull() {
+		model.StorageDir = types.StringValue("")
+	}
+	if model.TargetDatabaseSize.IsUnknown() || model.TargetDatabaseSize.IsNull() {
+		model.TargetDatabaseSize = types.StringValue("")
+	}
+	if model.DbDirectoryPermissions.IsUnknown() || model.DbDirectoryPermissions.IsNull() {
+		model.DbDirectoryPermissions = types.StringValue("")
+	}
+	if model.ChangelogMaximumAge.IsUnknown() || model.ChangelogMaximumAge.IsNull() {
+		model.ChangelogMaximumAge = types.StringValue("")
+	}
+	if model.DbLogFileMax.IsUnknown() || model.DbLogFileMax.IsNull() {
+		model.DbLogFileMax = types.StringValue("")
+	}
+	if model.AlertRetentionTime.IsUnknown() || model.AlertRetentionTime.IsNull() {
+		model.AlertRetentionTime = types.StringValue("")
+	}
+	if model.Dn2idCacheMode.IsUnknown() || model.Dn2idCacheMode.IsNull() {
+		model.Dn2idCacheMode = types.StringValue("")
+	}
+	if model.UncachedId2entryCacheMode.IsUnknown() || model.UncachedId2entryCacheMode.IsNull() {
+		model.UncachedId2entryCacheMode = types.StringValue("")
+	}
+	if model.Id2childrenCacheMode.IsUnknown() || model.Id2childrenCacheMode.IsNull() {
+		model.Id2childrenCacheMode = types.StringValue("")
+	}
+	if model.OfflineProcessDatabaseOpenTimeout.IsUnknown() || model.OfflineProcessDatabaseOpenTimeout.IsNull() {
+		model.OfflineProcessDatabaseOpenTimeout = types.StringValue("")
+	}
+	if model.NotificationSenderAddress.IsUnknown() || model.NotificationSenderAddress.IsNull() {
+		model.NotificationSenderAddress = types.StringValue("")
+	}
+	if model.UncachedEntryCriteria.IsUnknown() || model.UncachedEntryCriteria.IsNull() {
+		model.UncachedEntryCriteria = types.StringValue("")
+	}
+	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
+		model.TrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 
@@ -2180,14 +2071,14 @@ func readSchemaBackendResponseDefault(ctx context.Context, r *client.SchemaBacke
 	state.SchemaEntryDN = internaltypes.GetStringSet(r.SchemaEntryDN)
 	state.ShowAllAttributes = types.BoolValue(r.ShowAllAttributes)
 	state.ReadOnlySchemaFile = internaltypes.GetStringSet(r.ReadOnlySchemaFile)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a BackupBackendResponse object into the model struct
@@ -2198,13 +2089,13 @@ func readBackupBackendResponseDefault(ctx context.Context, r *client.BackupBacke
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.BackupDirectory = internaltypes.GetStringSet(r.BackupDirectory)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a EncryptionSettingsBackendResponse object into the model struct
@@ -2213,14 +2104,14 @@ func readEncryptionSettingsBackendResponseDefault(ctx context.Context, r *client
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a LdifBackendResponse object into the model struct
@@ -2231,15 +2122,15 @@ func readLdifBackendResponseDefault(ctx context.Context, r *client.LdifBackendRe
 	state.IsPrivateBackend = internaltypes.BoolTypeOrNil(r.IsPrivateBackend)
 	state.LdifFile = types.StringValue(r.LdifFile)
 	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a TrustStoreBackendResponse object into the model struct
@@ -2250,17 +2141,17 @@ func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustSt
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
-	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
-	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
+	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, true)
+	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a CustomBackendResponse object into the model struct
@@ -2268,16 +2159,16 @@ func readCustomBackendResponseDefault(ctx context.Context, r *client.CustomBacke
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a ChangelogBackendResponse object into the model struct
@@ -2285,8 +2176,8 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 	state.Type = types.StringValue("changelog")
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.DbDirectory = internaltypes.StringTypeOrNil(r.DbDirectory, internaltypes.IsEmptyString(expectedValues.DbDirectory))
-	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, internaltypes.IsEmptyString(expectedValues.DbDirectoryPermissions))
+	state.DbDirectory = internaltypes.StringTypeOrNil(r.DbDirectory, true)
+	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, true)
 	state.DbCachePercent = internaltypes.Int64TypeOrNil(r.DbCachePercent)
 	state.JeProperty = internaltypes.GetStringSet(r.JeProperty)
 	state.ChangelogWriteBatchSize = internaltypes.Int64TypeOrNil(r.ChangelogWriteBatchSize)
@@ -2297,7 +2188,7 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 	state.ChangelogMaximumAge = types.StringValue(r.ChangelogMaximumAge)
 	config.CheckMismatchedPDFormattedAttributes("changelog_maximum_age",
 		expectedValues.ChangelogMaximumAge, state.ChangelogMaximumAge, diagnostics)
-	state.TargetDatabaseSize = internaltypes.StringTypeOrNil(r.TargetDatabaseSize, internaltypes.IsEmptyString(expectedValues.TargetDatabaseSize))
+	state.TargetDatabaseSize = internaltypes.StringTypeOrNil(r.TargetDatabaseSize, true)
 	config.CheckMismatchedPDFormattedAttributes("target_database_size",
 		expectedValues.TargetDatabaseSize, state.TargetDatabaseSize, diagnostics)
 	state.ChangelogEntryIncludeBaseDN = internaltypes.GetStringSet(r.ChangelogEntryIncludeBaseDN)
@@ -2316,17 +2207,17 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 		client.StringSliceEnumbackendIncludeVirtualAttributesProp(r.IncludeVirtualAttributes))
 	state.ApplyAccessControlsToChangelogEntryContents = internaltypes.BoolTypeOrNil(r.ApplyAccessControlsToChangelogEntryContents)
 	state.ReportExcludedChangelogAttributes = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendReportExcludedChangelogAttributesProp(r.ReportExcludedChangelogAttributes), internaltypes.IsEmptyString(expectedValues.ReportExcludedChangelogAttributes))
+		client.StringPointerEnumbackendReportExcludedChangelogAttributesProp(r.ReportExcludedChangelogAttributes), true)
 	state.SoftDeleteEntryIncludedOperation = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendSoftDeleteEntryIncludedOperationProp(r.SoftDeleteEntryIncludedOperation))
 	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a MonitorBackendResponse object into the model struct
@@ -2335,13 +2226,13 @@ func readMonitorBackendResponseDefault(ctx context.Context, r *client.MonitorBac
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct
@@ -2349,7 +2240,7 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.Type = types.StringValue("local-db")
 	state.Id = types.StringValue(r.Id)
 	state.UncachedId2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendUncachedId2entryCacheModeProp(r.UncachedId2entryCacheMode), internaltypes.IsEmptyString(expectedValues.UncachedId2entryCacheMode))
+		client.StringPointerEnumbackendUncachedId2entryCacheModeProp(r.UncachedId2entryCacheMode), true)
 	state.UncachedAttributeCriteria = internaltypes.StringTypeOrNil(r.UncachedAttributeCriteria, internaltypes.IsEmptyString(expectedValues.UncachedAttributeCriteria))
 	state.UncachedEntryCriteria = internaltypes.StringTypeOrNil(r.UncachedEntryCriteria, internaltypes.IsEmptyString(expectedValues.UncachedEntryCriteria))
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
@@ -2358,28 +2249,28 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.ProcessFiltersWithUndefinedAttributeTypes = internaltypes.BoolTypeOrNil(r.ProcessFiltersWithUndefinedAttributeTypes)
 	state.IsPrivateBackend = internaltypes.BoolTypeOrNil(r.IsPrivateBackend)
 	state.DbDirectory = types.StringValue(r.DbDirectory)
-	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, internaltypes.IsEmptyString(expectedValues.DbDirectoryPermissions))
+	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, true)
 	state.CompactCommonParentDN = internaltypes.GetStringSet(r.CompactCommonParentDN)
 	state.CompressEntries = internaltypes.BoolTypeOrNil(r.CompressEntries)
 	state.HashEntries = internaltypes.BoolTypeOrNil(r.HashEntries)
 	state.DbNumCleanerThreads = internaltypes.Int64TypeOrNil(r.DbNumCleanerThreads)
 	state.DbCleanerMinUtilization = internaltypes.Int64TypeOrNil(r.DbCleanerMinUtilization)
 	state.DbEvictorCriticalPercentage = internaltypes.Int64TypeOrNil(r.DbEvictorCriticalPercentage)
-	state.DbCheckpointerWakeupInterval = internaltypes.StringTypeOrNil(r.DbCheckpointerWakeupInterval, internaltypes.IsEmptyString(expectedValues.DbCheckpointerWakeupInterval))
+	state.DbCheckpointerWakeupInterval = internaltypes.StringTypeOrNil(r.DbCheckpointerWakeupInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("db_checkpointer_wakeup_interval",
 		expectedValues.DbCheckpointerWakeupInterval, state.DbCheckpointerWakeupInterval, diagnostics)
-	state.DbBackgroundSyncInterval = internaltypes.StringTypeOrNil(r.DbBackgroundSyncInterval, internaltypes.IsEmptyString(expectedValues.DbBackgroundSyncInterval))
+	state.DbBackgroundSyncInterval = internaltypes.StringTypeOrNil(r.DbBackgroundSyncInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("db_background_sync_interval",
 		expectedValues.DbBackgroundSyncInterval, state.DbBackgroundSyncInterval, diagnostics)
 	state.DbUseThreadLocalHandles = internaltypes.BoolTypeOrNil(r.DbUseThreadLocalHandles)
-	state.DbLogFileMax = internaltypes.StringTypeOrNil(r.DbLogFileMax, internaltypes.IsEmptyString(expectedValues.DbLogFileMax))
+	state.DbLogFileMax = internaltypes.StringTypeOrNil(r.DbLogFileMax, true)
 	config.CheckMismatchedPDFormattedAttributes("db_log_file_max",
 		expectedValues.DbLogFileMax, state.DbLogFileMax, diagnostics)
-	state.DbLoggingLevel = internaltypes.StringTypeOrNil(r.DbLoggingLevel, internaltypes.IsEmptyString(expectedValues.DbLoggingLevel))
+	state.DbLoggingLevel = internaltypes.StringTypeOrNil(r.DbLoggingLevel, true)
 	state.JeProperty = internaltypes.GetStringSet(r.JeProperty)
 	state.DbCachePercent = internaltypes.Int64TypeOrNil(r.DbCachePercent)
 	state.DefaultCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), internaltypes.IsEmptyString(expectedValues.DefaultCacheMode))
+		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), true)
 	state.Id2entryCacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), internaltypes.IsEmptyString(expectedValues.Id2entryCacheMode))
 	state.Dn2idCacheMode = internaltypes.StringTypeOrNil(
@@ -2393,7 +2284,7 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.PrimeMethod = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
 	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
-	state.PrimeTimeLimit = internaltypes.StringTypeOrNil(r.PrimeTimeLimit, internaltypes.IsEmptyString(expectedValues.PrimeTimeLimit))
+	state.PrimeTimeLimit = internaltypes.StringTypeOrNil(r.PrimeTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("prime_time_limit",
 		expectedValues.PrimeTimeLimit, state.PrimeTimeLimit, diagnostics)
 	state.PrimeAllIndexes = internaltypes.BoolTypeOrNil(r.PrimeAllIndexes)
@@ -2413,12 +2304,12 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.DbTxnWriteNoSync = internaltypes.BoolTypeOrNil(r.DbTxnWriteNoSync)
 	state.DeadlockRetryLimit = internaltypes.Int64TypeOrNil(r.DeadlockRetryLimit)
 	state.ExternalTxnDefaultBackendLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), internaltypes.IsEmptyString(expectedValues.ExternalTxnDefaultBackendLockBehavior))
+		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), true)
 	state.SingleWriterLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), internaltypes.IsEmptyString(expectedValues.SingleWriterLockBehavior))
+		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), true)
 	state.SubtreeDeleteSizeLimit = internaltypes.Int64TypeOrNil(r.SubtreeDeleteSizeLimit)
 	state.NumRecentChanges = internaltypes.Int64TypeOrNil(r.NumRecentChanges)
-	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, internaltypes.IsEmptyString(expectedValues.OfflineProcessDatabaseOpenTimeout))
+	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("offline_process_database_open_timeout",
 		expectedValues.OfflineProcessDatabaseOpenTimeout, state.OfflineProcessDatabaseOpenTimeout, diagnostics)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2429,7 +2320,7 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValues(ctx, state)
+	populateBackendUnknownValues(state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct
@@ -2437,51 +2328,51 @@ func readLocalDbBackendResponseDefault(ctx context.Context, r *client.LocalDbBac
 	state.Type = types.StringValue("local-db")
 	state.Id = types.StringValue(r.Id)
 	state.UncachedId2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendUncachedId2entryCacheModeProp(r.UncachedId2entryCacheMode), internaltypes.IsEmptyString(expectedValues.UncachedId2entryCacheMode))
-	state.UncachedAttributeCriteria = internaltypes.StringTypeOrNil(r.UncachedAttributeCriteria, internaltypes.IsEmptyString(expectedValues.UncachedAttributeCriteria))
-	state.UncachedEntryCriteria = internaltypes.StringTypeOrNil(r.UncachedEntryCriteria, internaltypes.IsEmptyString(expectedValues.UncachedEntryCriteria))
+		client.StringPointerEnumbackendUncachedId2entryCacheModeProp(r.UncachedId2entryCacheMode), true)
+	state.UncachedAttributeCriteria = internaltypes.StringTypeOrNil(r.UncachedAttributeCriteria, true)
+	state.UncachedEntryCriteria = internaltypes.StringTypeOrNil(r.UncachedEntryCriteria, true)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.SetDegradedAlertForUntrustedIndex = internaltypes.BoolTypeOrNil(r.SetDegradedAlertForUntrustedIndex)
 	state.ReturnUnavailableForUntrustedIndex = internaltypes.BoolTypeOrNil(r.ReturnUnavailableForUntrustedIndex)
 	state.ProcessFiltersWithUndefinedAttributeTypes = internaltypes.BoolTypeOrNil(r.ProcessFiltersWithUndefinedAttributeTypes)
 	state.IsPrivateBackend = internaltypes.BoolTypeOrNil(r.IsPrivateBackend)
 	state.DbDirectory = types.StringValue(r.DbDirectory)
-	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, internaltypes.IsEmptyString(expectedValues.DbDirectoryPermissions))
+	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, true)
 	state.CompactCommonParentDN = internaltypes.GetStringSet(r.CompactCommonParentDN)
 	state.CompressEntries = internaltypes.BoolTypeOrNil(r.CompressEntries)
 	state.HashEntries = internaltypes.BoolTypeOrNil(r.HashEntries)
 	state.DbNumCleanerThreads = internaltypes.Int64TypeOrNil(r.DbNumCleanerThreads)
 	state.DbCleanerMinUtilization = internaltypes.Int64TypeOrNil(r.DbCleanerMinUtilization)
 	state.DbEvictorCriticalPercentage = internaltypes.Int64TypeOrNil(r.DbEvictorCriticalPercentage)
-	state.DbCheckpointerWakeupInterval = internaltypes.StringTypeOrNil(r.DbCheckpointerWakeupInterval, internaltypes.IsEmptyString(expectedValues.DbCheckpointerWakeupInterval))
+	state.DbCheckpointerWakeupInterval = internaltypes.StringTypeOrNil(r.DbCheckpointerWakeupInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("db_checkpointer_wakeup_interval",
 		expectedValues.DbCheckpointerWakeupInterval, state.DbCheckpointerWakeupInterval, diagnostics)
-	state.DbBackgroundSyncInterval = internaltypes.StringTypeOrNil(r.DbBackgroundSyncInterval, internaltypes.IsEmptyString(expectedValues.DbBackgroundSyncInterval))
+	state.DbBackgroundSyncInterval = internaltypes.StringTypeOrNil(r.DbBackgroundSyncInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("db_background_sync_interval",
 		expectedValues.DbBackgroundSyncInterval, state.DbBackgroundSyncInterval, diagnostics)
 	state.DbUseThreadLocalHandles = internaltypes.BoolTypeOrNil(r.DbUseThreadLocalHandles)
-	state.DbLogFileMax = internaltypes.StringTypeOrNil(r.DbLogFileMax, internaltypes.IsEmptyString(expectedValues.DbLogFileMax))
+	state.DbLogFileMax = internaltypes.StringTypeOrNil(r.DbLogFileMax, true)
 	config.CheckMismatchedPDFormattedAttributes("db_log_file_max",
 		expectedValues.DbLogFileMax, state.DbLogFileMax, diagnostics)
-	state.DbLoggingLevel = internaltypes.StringTypeOrNil(r.DbLoggingLevel, internaltypes.IsEmptyString(expectedValues.DbLoggingLevel))
+	state.DbLoggingLevel = internaltypes.StringTypeOrNil(r.DbLoggingLevel, true)
 	state.JeProperty = internaltypes.GetStringSet(r.JeProperty)
 	state.DbCachePercent = internaltypes.Int64TypeOrNil(r.DbCachePercent)
 	state.DefaultCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), internaltypes.IsEmptyString(expectedValues.DefaultCacheMode))
+		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), true)
 	state.Id2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), internaltypes.IsEmptyString(expectedValues.Id2entryCacheMode))
+		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), true)
 	state.Dn2idCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2idCacheMode))
+		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), true)
 	state.Id2childrenCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), internaltypes.IsEmptyString(expectedValues.Id2childrenCacheMode))
+		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), true)
 	state.Id2subtreeCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), internaltypes.IsEmptyString(expectedValues.Id2subtreeCacheMode))
+		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), true)
 	state.Dn2uriCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2uriCacheMode))
+		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), true)
 	state.PrimeMethod = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
 	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
-	state.PrimeTimeLimit = internaltypes.StringTypeOrNil(r.PrimeTimeLimit, internaltypes.IsEmptyString(expectedValues.PrimeTimeLimit))
+	state.PrimeTimeLimit = internaltypes.StringTypeOrNil(r.PrimeTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("prime_time_limit",
 		expectedValues.PrimeTimeLimit, state.PrimeTimeLimit, diagnostics)
 	state.PrimeAllIndexes = internaltypes.BoolTypeOrNil(r.PrimeAllIndexes)
@@ -2501,23 +2392,23 @@ func readLocalDbBackendResponseDefault(ctx context.Context, r *client.LocalDbBac
 	state.DbTxnWriteNoSync = internaltypes.BoolTypeOrNil(r.DbTxnWriteNoSync)
 	state.DeadlockRetryLimit = internaltypes.Int64TypeOrNil(r.DeadlockRetryLimit)
 	state.ExternalTxnDefaultBackendLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), internaltypes.IsEmptyString(expectedValues.ExternalTxnDefaultBackendLockBehavior))
+		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), true)
 	state.SingleWriterLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), internaltypes.IsEmptyString(expectedValues.SingleWriterLockBehavior))
+		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), true)
 	state.SubtreeDeleteSizeLimit = internaltypes.Int64TypeOrNil(r.SubtreeDeleteSizeLimit)
 	state.NumRecentChanges = internaltypes.Int64TypeOrNil(r.NumRecentChanges)
-	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, internaltypes.IsEmptyString(expectedValues.OfflineProcessDatabaseOpenTimeout))
+	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("offline_process_database_open_timeout",
 		expectedValues.OfflineProcessDatabaseOpenTimeout, state.OfflineProcessDatabaseOpenTimeout, diagnostics)
 	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a ConfigFileHandlerBackendResponse object into the model struct
@@ -2531,23 +2422,23 @@ func readConfigFileHandlerBackendResponseDefault(ctx context.Context, r *client.
 	state.InsignificantConfigArchiveBaseDN = internaltypes.GetStringSet(r.InsignificantConfigArchiveBaseDN)
 	state.MaintainConfigArchive = internaltypes.BoolTypeOrNil(r.MaintainConfigArchive)
 	state.MaxConfigArchiveCount = internaltypes.Int64TypeOrNil(r.MaxConfigArchiveCount)
-	state.MirroredSubtreePeerPollingInterval = internaltypes.StringTypeOrNil(r.MirroredSubtreePeerPollingInterval, internaltypes.IsEmptyString(expectedValues.MirroredSubtreePeerPollingInterval))
+	state.MirroredSubtreePeerPollingInterval = internaltypes.StringTypeOrNil(r.MirroredSubtreePeerPollingInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("mirrored_subtree_peer_polling_interval",
 		expectedValues.MirroredSubtreePeerPollingInterval, state.MirroredSubtreePeerPollingInterval, diagnostics)
-	state.MirroredSubtreeEntryUpdateTimeout = internaltypes.StringTypeOrNil(r.MirroredSubtreeEntryUpdateTimeout, internaltypes.IsEmptyString(expectedValues.MirroredSubtreeEntryUpdateTimeout))
+	state.MirroredSubtreeEntryUpdateTimeout = internaltypes.StringTypeOrNil(r.MirroredSubtreeEntryUpdateTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("mirrored_subtree_entry_update_timeout",
 		expectedValues.MirroredSubtreeEntryUpdateTimeout, state.MirroredSubtreeEntryUpdateTimeout, diagnostics)
-	state.MirroredSubtreeSearchTimeout = internaltypes.StringTypeOrNil(r.MirroredSubtreeSearchTimeout, internaltypes.IsEmptyString(expectedValues.MirroredSubtreeSearchTimeout))
+	state.MirroredSubtreeSearchTimeout = internaltypes.StringTypeOrNil(r.MirroredSubtreeSearchTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("mirrored_subtree_search_timeout",
 		expectedValues.MirroredSubtreeSearchTimeout, state.MirroredSubtreeSearchTimeout, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a TaskBackendResponse object into the model struct
@@ -2560,18 +2451,18 @@ func readTaskBackendResponseDefault(ctx context.Context, r *client.TaskBackendRe
 	state.TaskBackingFile = types.StringValue(r.TaskBackingFile)
 	state.MaximumInitialTaskLogMessagesToRetain = internaltypes.Int64TypeOrNil(r.MaximumInitialTaskLogMessagesToRetain)
 	state.MaximumFinalTaskLogMessagesToRetain = internaltypes.Int64TypeOrNil(r.MaximumFinalTaskLogMessagesToRetain)
-	state.TaskRetentionTime = internaltypes.StringTypeOrNil(r.TaskRetentionTime, internaltypes.IsEmptyString(expectedValues.TaskRetentionTime))
+	state.TaskRetentionTime = internaltypes.StringTypeOrNil(r.TaskRetentionTime, true)
 	config.CheckMismatchedPDFormattedAttributes("task_retention_time",
 		expectedValues.TaskRetentionTime, state.TaskRetentionTime, diagnostics)
-	state.NotificationSenderAddress = internaltypes.StringTypeOrNil(r.NotificationSenderAddress, internaltypes.IsEmptyString(expectedValues.NotificationSenderAddress))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.NotificationSenderAddress = internaltypes.StringTypeOrNil(r.NotificationSenderAddress, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a AlertBackendResponse object into the model struct
@@ -2588,14 +2479,14 @@ func readAlertBackendResponseDefault(ctx context.Context, r *client.AlertBackend
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendDisabledAlertTypeProp(r.DisabledAlertType))
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a AlarmBackendResponse object into the model struct
@@ -2610,14 +2501,14 @@ func readAlarmBackendResponseDefault(ctx context.Context, r *client.AlarmBackend
 		expectedValues.AlarmRetentionTime, state.AlarmRetentionTime, diagnostics)
 	state.MaxAlarms = internaltypes.Int64TypeOrNil(r.MaxAlarms)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, true)
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Read a MetricsBackendResponse object into the model struct
@@ -2627,17 +2518,17 @@ func readMetricsBackendResponseDefault(ctx context.Context, r *client.MetricsBac
 	state.BackendID = types.StringValue(r.BackendID)
 	state.StorageDir = types.StringValue(r.StorageDir)
 	state.MetricsDir = types.StringValue(r.MetricsDir)
-	state.SampleFlushInterval = internaltypes.StringTypeOrNil(r.SampleFlushInterval, internaltypes.IsEmptyString(expectedValues.SampleFlushInterval))
+	state.SampleFlushInterval = internaltypes.StringTypeOrNil(r.SampleFlushInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("sample_flush_interval",
 		expectedValues.SampleFlushInterval, state.SampleFlushInterval, diagnostics)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
+	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendUnknownValuesDefault(ctx, state)
+	populateBackendUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

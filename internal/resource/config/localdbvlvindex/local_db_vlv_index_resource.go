@@ -165,10 +165,6 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -177,6 +173,9 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "name", "backend_name"})
@@ -199,6 +198,28 @@ func addOptionalLocalDbVlvIndexFields(ctx context.Context, addRequest *client.Ad
 		addRequest.CacheMode = cacheMode
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *localDbVlvIndexResourceModel) populateAllComputedStringAttributes() {
+	if model.Scope.IsUnknown() || model.Scope.IsNull() {
+		model.Scope = types.StringValue("")
+	}
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter = types.StringValue("")
+	}
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN = types.StringValue("")
+	}
+	if model.SortOrder.IsUnknown() || model.SortOrder.IsNull() {
+		model.SortOrder = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
+	if model.Name.IsUnknown() || model.Name.IsNull() {
+		model.Name = types.StringValue("")
+	}
 }
 
 // Read a LocalDbVlvIndexResponse object into the model struct
@@ -366,6 +387,7 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -411,6 +433,10 @@ func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *re
 
 	// Read the response into the state
 	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

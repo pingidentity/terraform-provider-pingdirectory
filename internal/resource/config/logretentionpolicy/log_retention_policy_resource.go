@@ -146,7 +146,9 @@ func logRetentionPolicySchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -164,9 +166,9 @@ func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
 			[]string{"time-limit"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disk_space_used"),
+			path.MatchRoot("number_of_files"),
 			path.MatchRoot("type"),
-			[]string{"size-limit"},
+			[]string{"file-count"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("free_disk_space"),
@@ -174,9 +176,9 @@ func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
 			[]string{"free-disk-space"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("number_of_files"),
+			path.MatchRoot("disk_space_used"),
 			path.MatchRoot("type"),
-			[]string{"file-count"},
+			[]string{"size-limit"},
 		),
 	}
 }
@@ -228,6 +230,22 @@ func addOptionalSizeLimitLogRetentionPolicyFields(ctx context.Context, addReques
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logRetentionPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.RetainDuration.IsUnknown() || model.RetainDuration.IsNull() {
+		model.RetainDuration = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DiskSpaceUsed.IsUnknown() || model.DiskSpaceUsed.IsNull() {
+		model.DiskSpaceUsed = types.StringValue("")
+	}
+	if model.FreeDiskSpace.IsUnknown() || model.FreeDiskSpace.IsNull() {
+		model.FreeDiskSpace = types.StringValue("")
 	}
 }
 
@@ -604,6 +622,7 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -662,6 +681,10 @@ func readLogRetentionPolicy(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
 		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

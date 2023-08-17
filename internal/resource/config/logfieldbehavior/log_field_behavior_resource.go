@@ -251,7 +251,9 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -510,6 +512,16 @@ func addOptionalJsonFormattedAccessLogFieldBehaviorFields(ctx context.Context, a
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logFieldBehaviorResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DefaultBehavior.IsUnknown() || model.DefaultBehavior.IsNull() {
+		model.DefaultBehavior = types.StringValue("")
+	}
+}
+
 // Read a TextAccessLogFieldBehaviorResponse object into the model struct
 func readTextAccessLogFieldBehaviorResponse(ctx context.Context, r *client.TextAccessLogFieldBehaviorResponse, state *logFieldBehaviorResourceModel, expectedValues *logFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("text-access")
@@ -764,6 +776,7 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -813,6 +826,10 @@ func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

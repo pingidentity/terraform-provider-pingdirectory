@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -206,10 +207,6 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"twilio_account_sid": schema.StringAttribute{
 				Description: "The unique identifier assigned to the Twilio account that will be used.",
@@ -363,7 +360,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"output", "smtp", "jmx", "groovy-scripted", "custom", "snmp", "twilio", "error-log", "snmp-sub-agent", "exec", "third-party"}...),
 		}
@@ -371,19 +370,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -434,7 +423,37 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("community_name"),
+			path.MatchRoot("recipient_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_body"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_data_filter"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_host_name"),
 			path.MatchRoot("type"),
 			[]string{"snmp"},
 		),
@@ -444,57 +463,17 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"snmp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("long_message_behavior"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_monitor_data_filter"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_host_name"),
+			path.MatchRoot("community_name"),
 			path.MatchRoot("type"),
 			[]string{"snmp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("twilio_auth_token_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_body"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("twilio_account_sid"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_address"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
 		),
@@ -504,14 +483,29 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"twilio"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("recipient_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("long_message_behavior"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("command"),
 			path.MatchRoot("type"),
 			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_subject"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -519,14 +513,9 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_phone_number"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -540,12 +529,12 @@ func (r alertHandlerResource) ConfigValidators(ctx context.Context) []resource.C
 func (r defaultAlertHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_format"),
+			path.MatchRoot("output_location"),
 			path.MatchRoot("type"),
 			[]string{"output"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_location"),
+			path.MatchRoot("output_format"),
 			path.MatchRoot("type"),
 			[]string{"output"},
 		),
@@ -1062,21 +1051,33 @@ func addOptionalThirdPartyAlertHandlerFields(ctx context.Context, addRequest *cl
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAlertHandlerUnknownValues(ctx context.Context, model *alertHandlerResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populateAlertHandlerUnknownValues(model *alertHandlerResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientPhoneNumber.ElementType(ctx) == nil {
-		model.RecipientPhoneNumber = types.SetNull(types.StringType)
+	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
+		model.LongMessageBehavior = types.StringValue("")
+	}
+	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
+		model.CommunityName = types.StringValue("")
+	}
+	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
+		model.MessageBody = types.StringValue("")
 	}
 	if model.TwilioAuthToken.IsUnknown() {
 		model.TwilioAuthToken = types.StringNull()
@@ -1084,24 +1085,69 @@ func populateAlertHandlerUnknownValues(ctx context.Context, model *alertHandlerR
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAlertHandlerUnknownValuesDefault(ctx context.Context, model *defaultAlertHandlerResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populateAlertHandlerUnknownValuesDefault(model *defaultAlertHandlerResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientAddress.ElementType(ctx) == nil {
-		model.RecipientAddress = types.SetNull(types.StringType)
+	if model.RecipientAddress.IsUnknown() || model.RecipientAddress.IsNull() {
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RecipientPhoneNumber.ElementType(ctx) == nil {
-		model.RecipientPhoneNumber = types.SetNull(types.StringType)
+	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TwilioAuthToken.IsUnknown() {
-		model.TwilioAuthToken = types.StringNull()
+	if model.TwilioAccountSID.IsUnknown() || model.TwilioAccountSID.IsNull() {
+		model.TwilioAccountSID = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.OutputFormat.IsUnknown() || model.OutputFormat.IsNull() {
+		model.OutputFormat = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
+		model.OutputLocation = types.StringValue("")
+	}
+	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
+		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
+	}
+	if model.TwilioAuthToken.IsUnknown() || model.TwilioAuthToken.IsNull() {
+		model.TwilioAuthToken = types.StringValue("")
+	}
+	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
+		model.LongMessageBehavior = types.StringValue("")
+	}
+	if model.Command.IsUnknown() || model.Command.IsNull() {
+		model.Command = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
+		model.CommunityName = types.StringValue("")
+	}
+	if model.IncludeMonitorDataFilter.IsUnknown() || model.IncludeMonitorDataFilter.IsNull() {
+		model.IncludeMonitorDataFilter = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
+		model.MessageBody = types.StringValue("")
 	}
 }
 
@@ -1111,10 +1157,10 @@ func readOutputAlertHandlerResponseDefault(ctx context.Context, r *client.Output
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumalertHandlerOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
+		client.StringPointerEnumalertHandlerOutputLocationProp(r.OutputLocation), true)
 	state.OutputFormat = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumalertHandlerOutputFormatProp(r.OutputFormat), internaltypes.IsEmptyString(expectedValues.OutputFormat))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+		client.StringPointerEnumalertHandlerOutputFormatProp(r.OutputFormat), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1124,7 +1170,7 @@ func readOutputAlertHandlerResponseDefault(ctx context.Context, r *client.Output
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a SmtpAlertHandlerResponse object into the model struct
@@ -1147,7 +1193,7 @@ func readSmtpAlertHandlerResponse(ctx context.Context, r *client.SmtpAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a SmtpAlertHandlerResponse object into the model struct
@@ -1160,8 +1206,8 @@ func readSmtpAlertHandlerResponseDefault(ctx context.Context, r *client.SmtpAler
 	state.RecipientAddress = internaltypes.GetStringSet(r.RecipientAddress)
 	state.MessageSubject = types.StringValue(r.MessageSubject)
 	state.MessageBody = types.StringValue(r.MessageBody)
-	state.IncludeMonitorDataFilter = internaltypes.StringTypeOrNil(r.IncludeMonitorDataFilter, internaltypes.IsEmptyString(expectedValues.IncludeMonitorDataFilter))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludeMonitorDataFilter = internaltypes.StringTypeOrNil(r.IncludeMonitorDataFilter, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1170,7 +1216,7 @@ func readSmtpAlertHandlerResponseDefault(ctx context.Context, r *client.SmtpAler
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a JmxAlertHandlerResponse object into the model struct
@@ -1188,7 +1234,7 @@ func readJmxAlertHandlerResponse(ctx context.Context, r *client.JmxAlertHandlerR
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a JmxAlertHandlerResponse object into the model struct
@@ -1197,7 +1243,7 @@ func readJmxAlertHandlerResponseDefault(ctx context.Context, r *client.JmxAlertH
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1206,7 +1252,7 @@ func readJmxAlertHandlerResponseDefault(ctx context.Context, r *client.JmxAlertH
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a GroovyScriptedAlertHandlerResponse object into the model struct
@@ -1226,7 +1272,7 @@ func readGroovyScriptedAlertHandlerResponse(ctx context.Context, r *client.Groov
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a GroovyScriptedAlertHandlerResponse object into the model struct
@@ -1236,7 +1282,7 @@ func readGroovyScriptedAlertHandlerResponseDefault(ctx context.Context, r *clien
 	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1246,7 +1292,7 @@ func readGroovyScriptedAlertHandlerResponseDefault(ctx context.Context, r *clien
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a CustomAlertHandlerResponse object into the model struct
@@ -1254,7 +1300,7 @@ func readCustomAlertHandlerResponseDefault(ctx context.Context, r *client.Custom
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1264,7 +1310,7 @@ func readCustomAlertHandlerResponseDefault(ctx context.Context, r *client.Custom
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a SnmpAlertHandlerResponse object into the model struct
@@ -1285,7 +1331,7 @@ func readSnmpAlertHandlerResponse(ctx context.Context, r *client.SnmpAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a SnmpAlertHandlerResponse object into the model struct
@@ -1297,7 +1343,7 @@ func readSnmpAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpAler
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.CommunityName = types.StringValue(r.CommunityName)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1306,7 +1352,7 @@ func readSnmpAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpAler
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a TwilioAlertHandlerResponse object into the model struct
@@ -1330,7 +1376,7 @@ func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHa
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a TwilioAlertHandlerResponse object into the model struct
@@ -1339,13 +1385,13 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
-	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
+	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, true)
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)
 	state.RecipientPhoneNumber = internaltypes.GetStringSet(r.RecipientPhoneNumber)
 	state.LongMessageBehavior = types.StringValue(r.LongMessageBehavior.String())
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1354,7 +1400,7 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a ErrorLogAlertHandlerResponse object into the model struct
@@ -1372,7 +1418,7 @@ func readErrorLogAlertHandlerResponse(ctx context.Context, r *client.ErrorLogAle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a ErrorLogAlertHandlerResponse object into the model struct
@@ -1380,7 +1426,7 @@ func readErrorLogAlertHandlerResponseDefault(ctx context.Context, r *client.Erro
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1390,7 +1436,7 @@ func readErrorLogAlertHandlerResponseDefault(ctx context.Context, r *client.Erro
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a SnmpSubAgentAlertHandlerResponse object into the model struct
@@ -1408,7 +1454,7 @@ func readSnmpSubAgentAlertHandlerResponse(ctx context.Context, r *client.SnmpSub
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a SnmpSubAgentAlertHandlerResponse object into the model struct
@@ -1417,7 +1463,7 @@ func readSnmpSubAgentAlertHandlerResponseDefault(ctx context.Context, r *client.
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1426,7 +1472,7 @@ func readSnmpSubAgentAlertHandlerResponseDefault(ctx context.Context, r *client.
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a ExecAlertHandlerResponse object into the model struct
@@ -1445,7 +1491,7 @@ func readExecAlertHandlerResponse(ctx context.Context, r *client.ExecAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a ExecAlertHandlerResponse object into the model struct
@@ -1455,7 +1501,7 @@ func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAler
 	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerEnabledAlertSeverityProp(r.EnabledAlertSeverity))
@@ -1464,7 +1510,7 @@ func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAler
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartyAlertHandlerResponse object into the model struct
@@ -1484,7 +1530,7 @@ func readThirdPartyAlertHandlerResponse(ctx context.Context, r *client.ThirdPart
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValues(ctx, state)
+	populateAlertHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyAlertHandlerResponse object into the model struct
@@ -1494,7 +1540,7 @@ func readThirdPartyAlertHandlerResponseDefault(ctx context.Context, r *client.Th
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.EnabledAlertSeverity = internaltypes.GetStringSet(
@@ -1504,7 +1550,7 @@ func readThirdPartyAlertHandlerResponseDefault(ctx context.Context, r *client.Th
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAlertHandlerUnknownValuesDefault(ctx, state)
+	populateAlertHandlerUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

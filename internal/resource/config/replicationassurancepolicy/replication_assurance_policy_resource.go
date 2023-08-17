@@ -177,6 +177,9 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -219,6 +222,28 @@ func addOptionalReplicationAssurancePolicyFields(ctx context.Context, addRequest
 		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *replicationAssurancePolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.RemoteLevel.IsUnknown() || model.RemoteLevel.IsNull() {
+		model.RemoteLevel = types.StringValue("")
+	}
+	if model.Timeout.IsUnknown() || model.Timeout.IsNull() {
+		model.Timeout = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.LocalLevel.IsUnknown() || model.LocalLevel.IsNull() {
+		model.LocalLevel = types.StringValue("")
+	}
 }
 
 // Read a ReplicationAssurancePolicyResponse object into the model struct
@@ -372,6 +397,7 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -417,6 +443,10 @@ func readReplicationAssurancePolicy(ctx context.Context, req resource.ReadReques
 
 	// Read the response into the state
 	readReplicationAssurancePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -225,6 +225,9 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type", "scim_attribute_name", "scim_schema_name"})
@@ -283,6 +286,22 @@ func addOptionalScimSubattributeFields(ctx context.Context, addRequest *client.A
 		addRequest.ReferenceType = slice
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimSubattributeResourceModel) populateAllComputedStringAttributes() {
+	if model.Returned.IsUnknown() || model.Returned.IsNull() {
+		model.Returned = types.StringValue("")
+	}
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Mutability.IsUnknown() || model.Mutability.IsNull() {
+		model.Mutability = types.StringValue("")
+	}
 }
 
 // Read a ScimSubattributeResponse object into the model struct
@@ -447,6 +466,7 @@ func (r *defaultScimSubattributeResource) Create(ctx context.Context, req resour
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -492,6 +512,10 @@ func readScimSubattribute(ctx context.Context, req resource.ReadRequest, resp *r
 
 	// Read the response into the state
 	readScimSubattributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

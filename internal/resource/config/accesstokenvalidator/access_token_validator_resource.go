@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -176,18 +177,10 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"encryption_key_pair": schema.StringAttribute{
 				Description: "The public-private key pair that is used to encrypt the JWT payload. If specified, the JWT Access Token Validator will use the private key to decrypt the JWT payload, and the public key must be exported to the Authorization Server that is issuing access tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_key_encryption_algorithm": schema.SetAttribute{
 				Description: "Specifies an allow list of JWT key encryption algorithms that will be accepted by the JWT Access Token Validator. This setting is only used if encryption-key-pair is set.",
@@ -255,10 +248,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"access_token_manager_id": schema.StringAttribute{
 				Description: "The Access Token Manager instance ID to specify when calling the PingFederate introspection endpoint. If this property is set the include-aud-parameter property is ignored.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"endpoint_cache_refresh": schema.StringAttribute{
 				Description: "How often the Access Token Validator should refresh its stored value of the PingFederate server's token introspection endpoint.",
@@ -280,18 +269,10 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 			"authorization_server": schema.StringAttribute{
 				Description: "Specifies the external server that will be used to aid in validating access tokens. In most cases this will be the Authorization Server that minted the token.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description: "Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subject_claim_name": schema.StringAttribute{
 				Description: "The name of the token claim that contains the subject, i.e. the logged-in user in an access token. This property goes hand-in-hand with the identity-mapper property and tells the Identity Mapper which field to use to look up the user entry on the server.",
@@ -317,7 +298,9 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -338,7 +321,22 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_secret"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("client_secret_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_aud_parameter"),
 			path.MatchRoot("type"),
 			[]string{"ping-federate"},
 		),
@@ -348,9 +346,14 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"ping-federate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_content_encryption_algorithm"),
+			path.MatchRoot("endpoint_cache_refresh"),
 			path.MatchRoot("type"),
-			[]string{"jwt"},
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authorization_server"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate", "jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allowed_signing_algorithm"),
@@ -363,9 +366,9 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scope_claim_name"),
+			path.MatchRoot("jwks_endpoint_path"),
 			path.MatchRoot("type"),
-			[]string{"jwt", "mock"},
+			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("encryption_key_pair"),
@@ -373,34 +376,14 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("endpoint_cache_refresh"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("allowed_key_encryption_algorithm"),
 			path.MatchRoot("type"),
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_aud_parameter"),
+			path.MatchRoot("allowed_content_encryption_algorithm"),
 			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_secret"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("authorization_server"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate", "jwt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("clock_skew_grace_period"),
@@ -408,24 +391,24 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scope_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_key_encryption_algorithm"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"jwt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_id"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_id_claim_name"),
-			path.MatchRoot("type"),
-			[]string{"jwt", "mock"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -622,24 +605,70 @@ func addOptionalThirdPartyAccessTokenValidatorFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *accessTokenValidatorResourceModel) {
-	if model.AllowedKeyEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedKeyEncryptionAlgorithm = types.SetNull(types.StringType)
+func populateAccessTokenValidatorUnknownValues(model *accessTokenValidatorResourceModel) {
+	if model.AllowedKeyEncryptionAlgorithm.IsUnknown() || model.AllowedKeyEncryptionAlgorithm.IsNull() {
+		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SigningCertificate.ElementType(ctx) == nil {
-		model.SigningCertificate = types.SetNull(types.StringType)
+	if model.SigningCertificate.IsUnknown() || model.SigningCertificate.IsNull() {
+		model.SigningCertificate, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
-		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedSigningAlgorithm.IsUnknown() || model.AllowedSigningAlgorithm.IsNull() {
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedContentEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedContentEncryptionAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedContentEncryptionAlgorithm.IsUnknown() || model.AllowedContentEncryptionAlgorithm.IsNull() {
+		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
+		model.ClockSkewGracePeriod = types.StringValue("")
+	}
+	if model.EndpointCacheRefresh.IsUnknown() || model.EndpointCacheRefresh.IsNull() {
+		model.EndpointCacheRefresh = types.StringValue("")
+	}
+	if model.ClientIDClaimName.IsUnknown() || model.ClientIDClaimName.IsNull() {
+		model.ClientIDClaimName = types.StringValue("")
+	}
+	if model.ScopeClaimName.IsUnknown() || model.ScopeClaimName.IsNull() {
+		model.ScopeClaimName = types.StringValue("")
 	}
 	if model.ClientSecret.IsUnknown() {
 		model.ClientSecret = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *accessTokenValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.ClientSecretPassphraseProvider.IsUnknown() || model.ClientSecretPassphraseProvider.IsNull() {
+		model.ClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.AuthorizationServer.IsUnknown() || model.AuthorizationServer.IsNull() {
+		model.AuthorizationServer = types.StringValue("")
+	}
+	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
+		model.JwksEndpointPath = types.StringValue("")
+	}
+	if model.EncryptionKeyPair.IsUnknown() || model.EncryptionKeyPair.IsNull() {
+		model.EncryptionKeyPair = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SubjectClaimName.IsUnknown() || model.SubjectClaimName.IsNull() {
+		model.SubjectClaimName = types.StringValue("")
+	}
+	if model.AccessTokenManagerID.IsUnknown() || model.AccessTokenManagerID.IsNull() {
+		model.AccessTokenManagerID = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ClientID.IsUnknown() || model.ClientID.IsNull() {
+		model.ClientID = types.StringValue("")
 	}
 }
 
@@ -652,17 +681,17 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ClientSecretPassphraseProvider))
 	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
 	state.AccessTokenManagerID = internaltypes.StringTypeOrNil(r.AccessTokenManagerID, internaltypes.IsEmptyString(expectedValues.AccessTokenManagerID))
-	state.EndpointCacheRefresh = internaltypes.StringTypeOrNil(r.EndpointCacheRefresh, internaltypes.IsEmptyString(expectedValues.EndpointCacheRefresh))
+	state.EndpointCacheRefresh = internaltypes.StringTypeOrNil(r.EndpointCacheRefresh, true)
 	config.CheckMismatchedPDFormattedAttributes("endpoint_cache_refresh",
 		expectedValues.EndpointCacheRefresh, state.EndpointCacheRefresh, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a JwtAccessTokenValidatorResponse object into the model struct
@@ -679,19 +708,19 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 		client.StringSliceEnumaccessTokenValidatorAllowedKeyEncryptionAlgorithmProp(r.AllowedKeyEncryptionAlgorithm))
 	state.AllowedContentEncryptionAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessTokenValidatorAllowedContentEncryptionAlgorithmProp(r.AllowedContentEncryptionAlgorithm))
-	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
+	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, true)
 	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
 		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
-	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
-	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
+	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, true)
+	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, true)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a MockAccessTokenValidatorResponse object into the model struct
@@ -699,15 +728,15 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.Type = types.StringValue("mock")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
-	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
+	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, true)
+	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, true)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Read a ThirdPartyAccessTokenValidatorResponse object into the model struct
@@ -718,12 +747,12 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorUnknownValues(ctx, state)
+	populateAccessTokenValidatorUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1046,6 +1075,7 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1101,6 +1131,10 @@ func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyAccessTokenValidatorResponse != nil {
 		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -201,6 +201,9 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
@@ -241,6 +244,19 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *debugTargetResourceModel) populateAllComputedStringAttributes() {
+	if model.DebugScope.IsUnknown() || model.DebugScope.IsNull() {
+		model.DebugScope = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
+		model.DebugLevel = types.StringValue("")
+	}
 }
 
 // Read a DebugTargetResponse object into the model struct
@@ -407,6 +423,7 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -452,6 +469,10 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 
 	// Read the response into the state
 	readDebugTargetResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -143,18 +143,10 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"password_attribute_category": schema.StringAttribute{
 				Description: "Specifies which attribute category the password belongs to.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_display_order_index": schema.Int64Attribute{
 				Description: "This property determines the display order for the password within its attribute category. Attributes are ordered within their category based on this index from least to greatest.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this REST Resource Type",
@@ -205,18 +197,10 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"relative_dn_from_parent_resource": schema.StringAttribute{
 				Description: "Specifies a template for a relative DN from the parent resource which identifies the parent entry for a new resource of this type. If this property is not specified then new resources are created immediately below the parent resource or parent DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"create_rdn_attribute_type": schema.StringAttribute{
 				Description: "Specifies the name or OID of the LDAP attribute type to be used as the RDN of new resources.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"post_create_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",
@@ -289,7 +273,9 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -545,6 +531,52 @@ func addOptionalGroupRestResourceTypeFields(ctx context.Context, addRequest *cli
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *restResourceTypeResourceModel) populateAllComputedStringAttributes() {
+	if model.PasswordAttributeCategory.IsUnknown() || model.PasswordAttributeCategory.IsNull() {
+		model.PasswordAttributeCategory = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.PrimaryDisplayAttributeType.IsUnknown() || model.PrimaryDisplayAttributeType.IsNull() {
+		model.PrimaryDisplayAttributeType = types.StringValue("")
+	}
+	if model.NonmembersColumnName.IsUnknown() || model.NonmembersColumnName.IsNull() {
+		model.NonmembersColumnName = types.StringValue("")
+	}
+	if model.ResourceEndpoint.IsUnknown() || model.ResourceEndpoint.IsNull() {
+		model.ResourceEndpoint = types.StringValue("")
+	}
+	if model.StructuralLDAPObjectclass.IsUnknown() || model.StructuralLDAPObjectclass.IsNull() {
+		model.StructuralLDAPObjectclass = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.RelativeDNFromParentResource.IsUnknown() || model.RelativeDNFromParentResource.IsNull() {
+		model.RelativeDNFromParentResource = types.StringValue("")
+	}
+	if model.MembersColumnName.IsUnknown() || model.MembersColumnName.IsNull() {
+		model.MembersColumnName = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.CreateRDNAttributeType.IsUnknown() || model.CreateRDNAttributeType.IsNull() {
+		model.CreateRDNAttributeType = types.StringValue("")
+	}
+	if model.ParentDN.IsUnknown() || model.ParentDN.IsNull() {
+		model.ParentDN = types.StringValue("")
+	}
+	if model.ParentResourceType.IsUnknown() || model.ParentResourceType.IsNull() {
+		model.ParentResourceType = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
+	}
+}
+
 // Read a UserRestResourceTypeResponse object into the model struct
 func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user")
@@ -570,8 +602,8 @@ func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestRes
 	state.PrimaryDisplayAttributeType = internaltypes.StringTypeOrNil(r.PrimaryDisplayAttributeType, internaltypes.IsEmptyString(expectedValues.PrimaryDisplayAttributeType))
 	state.DelegatedAdminSearchSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminSearchSizeLimit)
 	state.DelegatedAdminReportSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminReportSizeLimit)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
+	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, true)
+	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -598,8 +630,8 @@ func readGenericRestResourceTypeResponse(ctx context.Context, r *client.GenericR
 	state.PrimaryDisplayAttributeType = internaltypes.StringTypeOrNil(r.PrimaryDisplayAttributeType, internaltypes.IsEmptyString(expectedValues.PrimaryDisplayAttributeType))
 	state.DelegatedAdminSearchSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminSearchSizeLimit)
 	state.DelegatedAdminReportSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminReportSizeLimit)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
+	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, true)
+	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -608,8 +640,8 @@ func readGroupRestResourceTypeResponse(ctx context.Context, r *client.GroupRestR
 	state.Type = types.StringValue("group")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
+	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, true)
+	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
@@ -884,6 +916,7 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -936,6 +969,10 @@ func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.GroupRestResourceTypeResponse != nil {
 		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -180,10 +181,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"twilio_account_sid": schema.StringAttribute{
 				Description: "The unique identifier assigned to the Twilio account that will be used.",
@@ -246,7 +243,9 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -293,37 +292,12 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_address"),
-			path.MatchRoot("type"),
-			[]string{"email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_text_before_otp"),
-			path.MatchRoot("type"),
-			[]string{"twilio", "email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_json_field"),
-			path.MatchRoot("type"),
-			[]string{"email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("twilio_account_sid"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
 		),
@@ -333,7 +307,57 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			[]string{"twilio"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_field"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_before_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_after_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_field"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
 			path.MatchRoot("type"),
 			[]string{"email"},
 		),
@@ -343,39 +367,14 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			[]string{"email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_json_field"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_text_after_otp"),
-			path.MatchRoot("type"),
-			[]string{"twilio", "email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_phone_number"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_json_object_filter"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"twilio"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -476,15 +475,64 @@ func addOptionalThirdPartyOtpDeliveryMechanismFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateOtpDeliveryMechanismUnknownValues(ctx context.Context, model *otpDeliveryMechanismResourceModel) {
-	if model.SenderPhoneNumber.ElementType(ctx) == nil {
-		model.SenderPhoneNumber = types.SetNull(types.StringType)
+func populateOtpDeliveryMechanismUnknownValues(model *otpDeliveryMechanismResourceModel) {
+	if model.SenderPhoneNumber.IsUnknown() || model.SenderPhoneNumber.IsNull() {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
+	if model.PhoneNumberAttributeType.IsUnknown() || model.PhoneNumberAttributeType.IsNull() {
+		model.PhoneNumberAttributeType = types.StringValue("")
+	}
+	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
+		model.EmailAddressAttributeType = types.StringValue("")
 	}
 	if model.TwilioAuthToken.IsUnknown() {
 		model.TwilioAuthToken = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *otpDeliveryMechanismResourceModel) populateAllComputedStringAttributes() {
+	if model.TwilioAccountSID.IsUnknown() || model.TwilioAccountSID.IsNull() {
+		model.TwilioAccountSID = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
+		model.SenderAddress = types.StringValue("")
+	}
+	if model.MessageTextAfterOTP.IsUnknown() || model.MessageTextAfterOTP.IsNull() {
+		model.MessageTextAfterOTP = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.MessageTextBeforeOTP.IsUnknown() || model.MessageTextBeforeOTP.IsNull() {
+		model.MessageTextBeforeOTP = types.StringValue("")
+	}
+	if model.PhoneNumberJSONField.IsUnknown() || model.PhoneNumberJSONField.IsNull() {
+		model.PhoneNumberJSONField = types.StringValue("")
+	}
+	if model.PhoneNumberJSONObjectFilter.IsUnknown() || model.PhoneNumberJSONObjectFilter.IsNull() {
+		model.PhoneNumberJSONObjectFilter = types.StringValue("")
+	}
+	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
+		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
+	}
+	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
+		model.EmailAddressJSONField = types.StringValue("")
+	}
+	if model.EmailAddressJSONObjectFilter.IsUnknown() || model.EmailAddressJSONObjectFilter.IsNull() {
+		model.EmailAddressJSONObjectFilter = types.StringValue("")
 	}
 }
 
@@ -505,7 +553,7 @@ func readTwilioOtpDeliveryMechanismResponse(ctx context.Context, r *client.Twili
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Read a EmailOtpDeliveryMechanismResponse object into the model struct
@@ -523,7 +571,7 @@ func readEmailOtpDeliveryMechanismResponse(ctx context.Context, r *client.EmailO
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Read a ThirdPartyOtpDeliveryMechanismResponse object into the model struct
@@ -536,7 +584,7 @@ func readThirdPartyOtpDeliveryMechanismResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+	populateOtpDeliveryMechanismUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -796,6 +844,7 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -848,6 +897,10 @@ func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 		readThirdPartyOtpDeliveryMechanismResponse(ctx, readResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

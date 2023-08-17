@@ -151,7 +151,9 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -164,9 +166,9 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generate_account_status_notification"),
+			path.MatchRoot("delay"),
 			path.MatchRoot("type"),
-			[]string{"delay-bind-response", "no-operation"},
+			[]string{"delay-bind-response"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_blocking_delay"),
@@ -174,9 +176,9 @@ func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 			[]string{"delay-bind-response"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay"),
+			path.MatchRoot("generate_account_status_notification"),
 			path.MatchRoot("type"),
-			[]string{"delay-bind-response"},
+			[]string{"delay-bind-response", "no-operation"},
 		),
 	}
 }
@@ -221,6 +223,16 @@ func addOptionalLockAccountFailureLockoutActionFields(ctx context.Context, addRe
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *failureLockoutActionResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.Delay.IsUnknown() || model.Delay.IsNull() {
+		model.Delay = types.StringValue("")
 	}
 }
 
@@ -481,6 +493,7 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -533,6 +546,10 @@ func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.LockAccountFailureLockoutActionResponse != nil {
 		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

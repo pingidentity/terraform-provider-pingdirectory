@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -249,18 +250,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_output_file_count": schema.Int64Attribute{
 				Description: "The minimum number of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_output_file_age": schema.StringAttribute{
 				Description: "The minimum age of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_command_output": schema.BoolAttribute{
 				Description: "Indicates whether the command's output (both standard output and standard error) should be recorded in the server's error log.",
@@ -281,10 +274,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"working_directory": schema.StringAttribute{
 				Description: "The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_output_directory": schema.StringAttribute{
 				Description: "The base directory below which generated reports will be written. Each invocation of the audit-data-security task will create a new subdirectory below this base directory whose name is a timestamp indicating when the report was generated.",
@@ -324,18 +313,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_report_count": schema.Int64Attribute{
 				Description: "The minimum number of previous reports that should be preserved after a new report is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_report_age": schema.StringAttribute{
 				Description: "The minimum age of previous reports that should be preserved after a new report completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ldif_directory": schema.StringAttribute{
 				Description: "The directory in which LDIF export files will be placed. The directory must already exist.",
@@ -390,18 +371,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_ldif_export_count": schema.Int64Attribute{
 				Description: "The minimum number of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_ldif_export_age": schema.StringAttribute{
 				Description: "The minimum age of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_binary_files": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.",
@@ -462,26 +435,14 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"log_duration": schema.StringAttribute{
 				Description: "The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_head_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the beginning of each log file included in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_tail_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the end of each log file included in the support data archive.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"comment": schema.StringAttribute{
 				Description: "An optional comment to include in a README file within the support data archive.",
@@ -490,18 +451,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_support_data_archive_count": schema.Int64Attribute{
 				Description: "The minimum number of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_support_data_archive_age": schema.StringAttribute{
 				Description: "The minimum age of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"task_java_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class that provides the logic for the task to be invoked.",
@@ -623,27 +576,15 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_full_backup_count": schema.Int64Attribute{
 				Description: "The minimum number of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_full_backup_age": schema.StringAttribute{
 				Description: "The minimum age of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to `backup`: The maximum rate, in megabytes per second, at which backups should be written. When the `type` attribute is set to `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `backup`: The maximum rate, in megabytes per second, at which backups should be written.\n  - `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"reason": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode. When the `type` attribute is set to `enter-lockdown-mode`: The reason that the server is being placed in lockdown mode.",
@@ -666,18 +607,10 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"retain_previous_profile_count": schema.Int64Attribute{
 				Description: "The minimum number of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_profile_age": schema.StringAttribute{
 				Description: "The minimum age of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -753,7 +686,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -835,29 +770,59 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_directory"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_count"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_age"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("reason"),
 			path.MatchRoot("type"),
 			[]string{"leave-lockdown-mode", "enter-lockdown-mode"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_report_age"),
+			path.MatchRoot("backup_directory"),
 			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backend_id"),
+			path.MatchRoot("included_backend_id"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_head_collection_size"),
+			path.MatchRoot("excluded_backend_id"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_ldif_export_count"),
+			path.MatchRoot("compress"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("sign"),
@@ -865,29 +830,29 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_attribute_value"),
+			path.MatchRoot("retain_previous_full_backup_count"),
 			path.MatchRoot("type"),
-			[]string{"statically-defined"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_duration"),
+			path.MatchRoot("retain_previous_full_backup_age"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_directory"),
+			path.MatchRoot("max_megabytes_per_second"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_output_file_count"),
+			path.MatchRoot("sleep_duration"),
 			path.MatchRoot("type"),
-			[]string{"exec"},
+			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_aggregate_file_size"),
+			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
+			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
@@ -895,24 +860,74 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("report_count"),
+			path.MatchRoot("search_interval"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("duration_to_wait_for_search_to_return_entries"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_return_state_if_timeout_is_encountered"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_java_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_object_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_attribute_value"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_directory"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_support_data_archive_age"),
+			path.MatchRoot("encryption_passphrase_file"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("include_expensive_data"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_output_directory"),
+			path.MatchRoot("include_replication_state_dump"),
 			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_binary_files"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extension_source"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_sequential_mode"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("security_level"),
@@ -925,84 +940,9 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_tail_collection_size"),
+			path.MatchRoot("report_count"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compress"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_expensive_data"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_file_age"),
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_filter"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_command_output"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("duration_to_wait_for_search_to_return_entries"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_passphrase_file"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_path"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_extension_source"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_profile_age"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_support_data_archive_count"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_return_state_if_timeout_is_encountered"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("report_interval_seconds"),
@@ -1010,12 +950,132 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_binary_files"),
+			path.MatchRoot("log_duration"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_file_count"),
+			path.MatchRoot("log_file_head_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_tail_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("comment"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_age"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_count"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_output_directory"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("data_security_auditor"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_count"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_age"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_path"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_arguments"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_output_file_base_name"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_count"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_age"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_command_output"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_completion_state_for_nonzero_exit_code"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("working_directory"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_directory"),
 			path.MatchRoot("type"),
 			[]string{"file-retention"},
 		),
@@ -1025,159 +1085,34 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"file-retention"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_directory"),
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_java_class"),
-			path.MatchRoot("type"),
-			[]string{"statically-defined"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_full_backup_count"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_full_backup_age"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_report_count"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_completion_state_for_nonzero_exit_code"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_megabytes_per_second"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encrypt"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_output_file_age"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backend"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_arguments"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_profile_count"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backup_directory"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_sequential_mode"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_interval"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sleep_duration"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_replication_state_dump"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("working_directory"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_path"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_object_class"),
-			path.MatchRoot("type"),
-			[]string{"statically-defined"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("data_security_auditor"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_directory"),
-			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("profile_directory"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_output_file_base_name"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("timestamp_format"),
 			path.MatchRoot("type"),
 			[]string{"file-retention"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("comment"),
+			path.MatchRoot("retain_file_count"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_file_age"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_aggregate_file_size"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -1888,42 +1823,160 @@ func addOptionalThirdPartyRecurringTaskFields(ctx context.Context, addRequest *c
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTaskResourceModel) {
-	if model.IncludedBackendID.ElementType(ctx) == nil {
-		model.IncludedBackendID = types.SetNull(types.StringType)
+func populateRecurringTaskUnknownValues(model *recurringTaskResourceModel) {
+	if model.IncludedBackendID.IsUnknown() || model.IncludedBackendID.IsNull() {
+		model.IncludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Backend.ElementType(ctx) == nil {
-		model.Backend = types.SetNull(types.StringType)
+	if model.Backend.IsUnknown() || model.Backend.IsNull() {
+		model.Backend, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludePath.ElementType(ctx) == nil {
-		model.IncludePath = types.SetNull(types.StringType)
+	if model.IncludePath.IsUnknown() || model.IncludePath.IsNull() {
+		model.IncludePath, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LdapURLForSearchExpectedToReturnEntries.ElementType(ctx) == nil {
-		model.LdapURLForSearchExpectedToReturnEntries = types.SetNull(types.StringType)
+	if model.LdapURLForSearchExpectedToReturnEntries.IsUnknown() || model.LdapURLForSearchExpectedToReturnEntries.IsNull() {
+		model.LdapURLForSearchExpectedToReturnEntries, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TaskAttributeValue.ElementType(ctx) == nil {
-		model.TaskAttributeValue = types.SetNull(types.StringType)
+	if model.TaskAttributeValue.IsUnknown() || model.TaskAttributeValue.IsNull() {
+		model.TaskAttributeValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BackendID.ElementType(ctx) == nil {
-		model.BackendID = types.SetNull(types.StringType)
+	if model.BackendID.IsUnknown() || model.BackendID.IsNull() {
+		model.BackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DataSecurityAuditor.ElementType(ctx) == nil {
-		model.DataSecurityAuditor = types.SetNull(types.StringType)
+	if model.DataSecurityAuditor.IsUnknown() || model.DataSecurityAuditor.IsNull() {
+		model.DataSecurityAuditor, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBackendID.ElementType(ctx) == nil {
-		model.ExcludeBackendID = types.SetNull(types.StringType)
+	if model.ExcludeBackendID.IsUnknown() || model.ExcludeBackendID.IsNull() {
+		model.ExcludeBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedBackendID.ElementType(ctx) == nil {
-		model.ExcludedBackendID = types.SetNull(types.StringType)
+	if model.ExcludedBackendID.IsUnknown() || model.ExcludedBackendID.IsNull() {
+		model.ExcludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TaskObjectClass.ElementType(ctx) == nil {
-		model.TaskObjectClass = types.SetNull(types.StringType)
+	if model.TaskObjectClass.IsUnknown() || model.TaskObjectClass.IsNull() {
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.BaseOutputDirectory.IsUnknown() || model.BaseOutputDirectory.IsNull() {
+		model.BaseOutputDirectory = types.StringValue("")
+	}
+	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
+		model.BackupDirectory = types.StringValue("")
+	}
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.SecurityLevel.IsUnknown() || model.SecurityLevel.IsNull() {
+		model.SecurityLevel = types.StringValue("")
+	}
+	if model.TaskCompletionStateForNonzeroExitCode.IsUnknown() || model.TaskCompletionStateForNonzeroExitCode.IsNull() {
+		model.TaskCompletionStateForNonzeroExitCode = types.StringValue("")
+	}
+	if model.TaskReturnStateIfTimeoutIsEncountered.IsUnknown() || model.TaskReturnStateIfTimeoutIsEncountered.IsNull() {
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *recurringTaskResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LogFileHeadCollectionSize.IsUnknown() || model.LogFileHeadCollectionSize.IsNull() {
+		model.LogFileHeadCollectionSize = types.StringValue("")
+	}
+	if model.OutputDirectory.IsUnknown() || model.OutputDirectory.IsNull() {
+		model.OutputDirectory = types.StringValue("")
+	}
+	if model.RetainAggregateFileSize.IsUnknown() || model.RetainAggregateFileSize.IsNull() {
+		model.RetainAggregateFileSize = types.StringValue("")
+	}
+	if model.CommandArguments.IsUnknown() || model.CommandArguments.IsNull() {
+		model.CommandArguments = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.DurationToWaitForWorkQueueIdle.IsUnknown() || model.DurationToWaitForWorkQueueIdle.IsNull() {
+		model.DurationToWaitForWorkQueueIdle = types.StringValue("")
+	}
+	if model.Reason.IsUnknown() || model.Reason.IsNull() {
+		model.Reason = types.StringValue("")
+	}
+	if model.DurationToWaitForSearchToReturnEntries.IsUnknown() || model.DurationToWaitForSearchToReturnEntries.IsNull() {
+		model.DurationToWaitForSearchToReturnEntries = types.StringValue("")
+	}
+	if model.TaskJavaClass.IsUnknown() || model.TaskJavaClass.IsNull() {
+		model.TaskJavaClass = types.StringValue("")
+	}
+	if model.TargetDirectory.IsUnknown() || model.TargetDirectory.IsNull() {
+		model.TargetDirectory = types.StringValue("")
+	}
+	if model.RetainPreviousReportAge.IsUnknown() || model.RetainPreviousReportAge.IsNull() {
+		model.RetainPreviousReportAge = types.StringValue("")
+	}
+	if model.SleepDuration.IsUnknown() || model.SleepDuration.IsNull() {
+		model.SleepDuration = types.StringValue("")
+	}
+	if model.FilenamePattern.IsUnknown() || model.FilenamePattern.IsNull() {
+		model.FilenamePattern = types.StringValue("")
+	}
+	if model.RetainPreviousProfileAge.IsUnknown() || model.RetainPreviousProfileAge.IsNull() {
+		model.RetainPreviousProfileAge = types.StringValue("")
+	}
+	if model.RetainPreviousOutputFileAge.IsUnknown() || model.RetainPreviousOutputFileAge.IsNull() {
+		model.RetainPreviousOutputFileAge = types.StringValue("")
+	}
+	if model.RetainPreviousSupportDataArchiveAge.IsUnknown() || model.RetainPreviousSupportDataArchiveAge.IsNull() {
+		model.RetainPreviousSupportDataArchiveAge = types.StringValue("")
+	}
+	if model.Comment.IsUnknown() || model.Comment.IsNull() {
+		model.Comment = types.StringValue("")
+	}
+	if model.WorkingDirectory.IsUnknown() || model.WorkingDirectory.IsNull() {
+		model.WorkingDirectory = types.StringValue("")
+	}
+	if model.SearchInterval.IsUnknown() || model.SearchInterval.IsNull() {
+		model.SearchInterval = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ProfileDirectory.IsUnknown() || model.ProfileDirectory.IsNull() {
+		model.ProfileDirectory = types.StringValue("")
+	}
+	if model.RetainFileAge.IsUnknown() || model.RetainFileAge.IsNull() {
+		model.RetainFileAge = types.StringValue("")
+	}
+	if model.EncryptionPassphraseFile.IsUnknown() || model.EncryptionPassphraseFile.IsNull() {
+		model.EncryptionPassphraseFile = types.StringValue("")
+	}
+	if model.TimestampFormat.IsUnknown() || model.TimestampFormat.IsNull() {
+		model.TimestampFormat = types.StringValue("")
+	}
+	if model.RetainPreviousFullBackupAge.IsUnknown() || model.RetainPreviousFullBackupAge.IsNull() {
+		model.RetainPreviousFullBackupAge = types.StringValue("")
+	}
+	if model.SearchTimeLimit.IsUnknown() || model.SearchTimeLimit.IsNull() {
+		model.SearchTimeLimit = types.StringValue("")
+	}
+	if model.LogFileTailCollectionSize.IsUnknown() || model.LogFileTailCollectionSize.IsNull() {
+		model.LogFileTailCollectionSize = types.StringValue("")
+	}
+	if model.CommandOutputFileBaseName.IsUnknown() || model.CommandOutputFileBaseName.IsNull() {
+		model.CommandOutputFileBaseName = types.StringValue("")
+	}
+	if model.LogDuration.IsUnknown() || model.LogDuration.IsNull() {
+		model.LogDuration = types.StringValue("")
+	}
+	if model.RetainPreviousLDIFExportAge.IsUnknown() || model.RetainPreviousLDIFExportAge.IsNull() {
+		model.RetainPreviousLDIFExportAge = types.StringValue("")
+	}
+	if model.CommandPath.IsUnknown() || model.CommandPath.IsNull() {
+		model.CommandPath = types.StringValue("")
 	}
 }
 
@@ -1947,7 +2000,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a LeaveLockdownModeRecurringTaskResponse object into the model struct
@@ -1965,7 +2018,7 @@ func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.L
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a BackupRecurringTaskResponse object into the model struct
@@ -1994,7 +2047,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a DelayRecurringTaskResponse object into the model struct
@@ -2019,7 +2072,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_search_to_return_entries",
 		expectedValues.DurationToWaitForSearchToReturnEntries, state.DurationToWaitForSearchToReturnEntries, diagnostics)
 	state.TaskReturnStateIfTimeoutIsEncountered = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), internaltypes.IsEmptyString(expectedValues.TaskReturnStateIfTimeoutIsEncountered))
+		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
@@ -2029,7 +2082,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a StaticallyDefinedRecurringTaskResponse object into the model struct
@@ -2049,7 +2102,7 @@ func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.S
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a CollectSupportDataRecurringTaskResponse object into the model struct
@@ -2065,7 +2118,7 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.IncludeExtensionSource = internaltypes.BoolTypeOrNil(r.IncludeExtensionSource)
 	state.UseSequentialMode = internaltypes.BoolTypeOrNil(r.UseSequentialMode)
 	state.SecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), internaltypes.IsEmptyString(expectedValues.SecurityLevel))
+		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), true)
 	state.JstackCount = internaltypes.Int64TypeOrNil(r.JstackCount)
 	state.ReportCount = internaltypes.Int64TypeOrNil(r.ReportCount)
 	state.ReportIntervalSeconds = internaltypes.Int64TypeOrNil(r.ReportIntervalSeconds)
@@ -2092,7 +2145,7 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a LdifExportRecurringTaskResponse object into the model struct
@@ -2121,7 +2174,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a EnterLockdownModeRecurringTaskResponse object into the model struct
@@ -2139,7 +2192,7 @@ func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.E
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a AuditDataSecurityRecurringTaskResponse object into the model struct
@@ -2164,7 +2217,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a ExecRecurringTaskResponse object into the model struct
@@ -2181,7 +2234,7 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 		expectedValues.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, diagnostics)
 	state.LogCommandOutput = internaltypes.BoolTypeOrNil(r.LogCommandOutput)
 	state.TaskCompletionStateForNonzeroExitCode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), internaltypes.IsEmptyString(expectedValues.TaskCompletionStateForNonzeroExitCode))
+		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), true)
 	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, internaltypes.IsEmptyString(expectedValues.WorkingDirectory))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
@@ -2192,7 +2245,7 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a FileRetentionRecurringTaskResponse object into the model struct
@@ -2219,7 +2272,7 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Read a ThirdPartyRecurringTaskResponse object into the model struct
@@ -2238,7 +2291,7 @@ func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPar
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskUnknownValues(ctx, state)
+	populateRecurringTaskUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -3006,6 +3059,7 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3085,6 +3139,10 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 	if readResponse.ThirdPartyRecurringTaskResponse != nil {
 		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

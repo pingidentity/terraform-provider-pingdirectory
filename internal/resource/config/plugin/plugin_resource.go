@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -577,10 +578,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_request_control": schema.SetAttribute{
 				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
@@ -765,10 +762,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"search_base_dn": schema.StringAttribute{
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -793,10 +786,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"custom_timezone": schema.StringAttribute{
 				Description: "Specifies the time zone to use when generating a date string using the configured custom-datetime-format value. The provided value must be accepted by java.util.TimeZone.getTimeZone.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"expiration_offset": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `purge-expired-data`: The duration to wait after the value specified in datetime-attribute (and optionally datetime-json-field) before purging the data. When the `type` attribute is set to `clean-up-inactive-pingfederate-persistent-sessions`: Sessions whose last activity timestamp is older than this offset will be removed.",
@@ -982,10 +971,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"previous_file_extension": schema.StringAttribute{
 				Description: "An extension that should be appended to the name of an existing output file rather than deleting it. If a file already exists with the full previous file name, then it will be deleted before the current file is renamed to become the previous file.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"api_url": schema.StringAttribute{
 				Description: "Specifies the API endpoint for the PingOne web service.",
@@ -1015,10 +1000,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the PingOne service. When the `type` attribute is set to `pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to an alternate server. When the `type` attribute is set to `pluggable-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
@@ -1153,10 +1134,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"peer_server_priority_index": schema.Int64Attribute{
 				Description: "In a replicated environment, this determines the order in which peer servers should attempt to purge data.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
@@ -1344,7 +1321,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
 		}
@@ -1352,165 +1331,78 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["profile_sample_interval"] = schema.StringAttribute{
 			Description: "Specifies the sample interval in milliseconds to be used when capturing profiling information in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["exclude_attribute"] = schema.SetAttribute{
 			Description: "Specifies the name or OID of an attribute type which may be updated in a modify or modify DN operation without causing the modifiersName and modifyTimestamp values to be updated for that entry.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["profile_directory"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory where profile information is to be written. This path may be either an absolute path or a path that is relative to the root of the Directory Server instance.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["enable_profiling_on_startup"] = schema.BoolAttribute{
 			Description: "Indicates whether the profiler plug-in is to start collecting data automatically when the Directory Server is started.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["profile_action"] = schema.StringAttribute{
 			Description: "Specifies the action that should be taken by the profiler.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_user_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of the password storage schemes to be used for encoding passwords contained in attributes with the user password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy is to be used to govern them.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_auth_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of password storage schemes that to be used for encoding passwords contained in attributes with the auth password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy should be used to govern them.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["retain_files_sparsely_by_age"] = schema.BoolAttribute{
 			Description: "Retain some older files to give greater perspective on how monitoring information has changed over time.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["sanitize"] = schema.BoolAttribute{
 			Description: "Server monitoring data can include a small amount of personally identifiable information in the form of LDAP DNs and search filters. Setting this property to true will redact this information from the monitor files. This should only be used when necessary, as it reduces the information available in the archive and can increase the time to find the source of support issues.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["encryption_settings_definition_id"] = schema.StringAttribute{
 			Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["changelog_password_encryption_key"] = schema.StringAttribute{
 			Description: "A passphrase that may be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["histogram_category_boundary"] = schema.SetAttribute{
 			Description: "Specifies the boundary values that will be used to separate the processing times into categories. Values should be specified as durations, and all values must be greater than zero.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["include_queue_time"] = schema.BoolAttribute{
 			Description: "Indicates whether operation processing times should include the time spent waiting on the work queue. This will only be available if the work queue is configured to monitor the queue time.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["separate_monitor_entry_per_tracked_application"] = schema.BoolAttribute{
 			Description: "When enabled, separate monitor entries will be included for each application defined in the Global Configuration's tracked-application property.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["changelog_password_encryption_key_passphrase_provider"] = schema.StringAttribute{
 			Description: "A passphrase provider that may be used to obtain the passphrase that will be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["sample_interval"] = schema.StringAttribute{
 			Description: "The duration between statistics collections. Setting this value too small can have an impact on performance. This value should be a multiple of collection-interval.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldap_info"] = schema.StringAttribute{
 			Description: "Specifies the level of detail to include about the LDAP connection handlers.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["server_info"] = schema.StringAttribute{
 			Description: "Specifies whether statistics related to resource utilization such as JVM memory and CPU/Network/Disk utilization.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["generate_collector_files"] = schema.BoolAttribute{
 			Description: "Indicates whether this plugin should store metric samples on disk for use by the Data Metrics Server. If the Stats Collector Plugin is only being used to collect metrics for one or more StatsD Monitoring Endpoints, then this can be set to false to prevent unnecessary I/O.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_update_frequency"] = schema.StringAttribute{
 			Description: "Specifies the maximum frequency with which last access time values should be written for an entry. This may help limit the rate of internal write operations processed in the server.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["operation_type"] = schema.SetAttribute{
 			Description: "Specifies the types of operations that should result in access time updates.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["invoke_for_failed_binds"] = schema.BoolAttribute{
 			Description: "Indicates whether to update the last access time for an entry targeted by a bind operation if the bind is unsuccessful.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_search_result_entries_to_update"] = schema.Int64Attribute{
 			Description: "Specifies the maximum number of entries that should be updated in a search operation. Only search result entries actually returned to the client may have their last access time updated, but because a single search operation may return a very large number of entries, the plugin will only update entries if no more than a specified number of entries are updated.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type"})
 	}
@@ -1609,524 +1501,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("additional_user_mapping_scim_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("api_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("gauge_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_op_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_attribute_removal_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("type"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("polling_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_control_mapping"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper", "attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("connection_criteria"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("request_criteria"),
 			path.MatchRoot("resource_type"),
 			[]string{"last-access-time", "ping-one-pass-through-authentication", "sub-operation-timing", "third-party", "pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "delay", "groovy-scripted", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_local_entry_base_dn"),
+			path.MatchRoot("invoke_for_internal_operations"),
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("value_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("session_timeout"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_value_pattern_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("context_name"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("plugin_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_filter_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("updated_entry_newly_matches_criteria_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("purge_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_attribute_mapping"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_delete_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("referral_base_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"referral-on-update"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay"),
-			path.MatchRoot("resource_type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("per_application_ldap_stats"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter_suffix"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("resource_type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pass_through_authentication_handler"),
-			path.MatchRoot("resource_type"),
-			[]string{"pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown", "last-mod"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("updated_entry_no_longer_matches_criteria_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("lines_between_header"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_json_field"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("agentx_port"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_source_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_local_password_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("lower_bound"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn_map"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("peer_server_priority_index"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("environment_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("resource_type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("resource_type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("local_db_backend_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history", "referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("try_local_bind"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_worker_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_ldap_stat"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("header_prefix_per_column"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_attribute_exists_during_initial_population_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_secret"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("previous_file_extension"),
-			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_gc_day_of_week"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auth_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_access_mode"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_target_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connections"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_resource_stat"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("expiration_offset"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("custom_timezone"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_if_idle"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_request_control"),
-			path.MatchRoot("resource_type"),
-			[]string{"coalesce-modifications"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multi_valued_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("entry_cache_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("agentx_address"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("attribute_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter_prefix"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_ldap_application"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay_after_alert"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_local_password"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("custom_datetime_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ignored_password_policy_state_error_condition"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_listener"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("map_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("status_summary_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
-			path.MatchRoot("resource_type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("collection_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("empty_instead_of_zero"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_policy"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("logging_error_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ping_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
+			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("description"),
@@ -2134,19 +1516,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("host_info"),
+			path.MatchRoot("collection_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("upper_bound"),
+			path.MatchRoot("per_application_ldap_stats"),
 			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_updates_per_second"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_changelog_info"),
@@ -2154,7 +1531,197 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("status_summary_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("local_db_backend_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("entry_cache_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("host_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_ldap_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("plugin_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("lower_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("upper_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_prefix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_suffix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("polling_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("peer_server_priority_index"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_updates_per_second"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_delete_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_day_of_week"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_time_utc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_after_alert"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_post_gc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("api_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auth_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oauth_client_secret_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_local_entry_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("try_local_bind"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ignored_password_policy_state_error_condition"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_local_attribute"),
 			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
 		),
@@ -2164,14 +1731,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"ping-one-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_mapping_local_attribute"),
+			path.MatchRoot("additional_user_mapping_scim_filter"),
 			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("connect_retry_max_wait"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("scope"),
@@ -2179,9 +1741,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"search-shutdown"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("override_local_password"),
+			path.MatchRoot("include_attribute"),
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"search-shutdown", "last-mod"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("output_file"),
@@ -2189,34 +1751,69 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"search-shutdown"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
+			path.MatchRoot("previous_file_extension"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"periodic-stats-logger", "monitor-history"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_internal_operations"),
+			path.MatchRoot("suppress_if_idle"),
 			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("initial_connections"),
+			path.MatchRoot("header_prefix_per_column"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay_post_gc"),
+			path.MatchRoot("empty_instead_of_zero"),
 			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_most_expensive_phases_shown"),
+			path.MatchRoot("lines_between_header"),
 			path.MatchRoot("resource_type"),
-			[]string{"sub-operation-timing"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("always_map_responses"),
+			path.MatchRoot("included_ldap_stat"),
 			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper", "attribute-mapper"},
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_resource_stat"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_op_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gauge_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history", "referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_file_permissions"),
@@ -2229,9 +1826,304 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_gc_time_utc"),
+			path.MatchRoot("rotation_policy"),
 			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("logging_error_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_json_field"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_timezone"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expiration_offset"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("purge_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_most_expensive_phases_shown"),
+			path.MatchRoot("resource_type"),
+			[]string{"sub-operation-timing"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_filter_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_attribute_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("map_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_control_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_map_responses"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("referral_base_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"referral-on-update"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("context_name"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_address"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_port"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_worker_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("session_timeout"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connect_retry_max_wait"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ping_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_request_control"),
+			path.MatchRoot("resource_type"),
+			[]string{"coalesce-modifications"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_value_pattern_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multi_valued_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute_exists_during_initial_population_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_source_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute_removal_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_target_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_newly_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_no_longer_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay"),
+			path.MatchRoot("resource_type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pass_through_authentication_handler"),
+			path.MatchRoot("resource_type"),
+			[]string{"pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
 		),
 	}
 }
@@ -2245,77 +2137,12 @@ func (r pluginResource) ConfigValidators(ctx context.Context) []resource.ConfigV
 func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_auth_password_storage_scheme"),
+			path.MatchRoot("max_update_frequency"),
 			path.MatchRoot("resource_type"),
-			[]string{"password-policy-import"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sample_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
-			path.MatchRoot("resource_type"),
-			[]string{"changelog-password-encryption"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_queue_time"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_profiling_on_startup"),
-			path.MatchRoot("resource_type"),
-			[]string{"profiler"},
+			[]string{"last-access-time"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("operation_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_search_result_entries_to_update"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_files_sparsely_by_age"),
-			path.MatchRoot("resource_type"),
-			[]string{"monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-mod"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"encrypt-attribute-values"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("profile_directory"),
-			path.MatchRoot("resource_type"),
-			[]string{"profiler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_category_boundary"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sanitize"),
-			path.MatchRoot("resource_type"),
-			[]string{"monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("separate_monitor_entry_per_tracked_application"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_update_frequency"),
 			path.MatchRoot("resource_type"),
 			[]string{"last-access-time"},
 		),
@@ -2325,12 +2152,27 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"last-access-time"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_user_password_storage_scheme"),
+			path.MatchRoot("max_search_result_entries_to_update"),
 			path.MatchRoot("resource_type"),
-			[]string{"password-policy-import"},
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generate_collector_files"),
 			path.MatchRoot("resource_type"),
 			[]string{"stats-collector"},
 		),
@@ -2340,14 +2182,64 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"changelog-password-encryption"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"changelog-password-encryption"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_category_boundary"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_queue_time"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("separate_monitor_entry_per_tracked_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"encrypt-attribute-values"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_files_sparsely_by_age"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sanitize"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_user_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_auth_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("profile_sample_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generate_collector_files"),
+			path.MatchRoot("profile_directory"),
 			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_profiling_on_startup"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("profile_action"),
@@ -2355,9 +2247,9 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_info"),
+			path.MatchRoot("exclude_attribute"),
 			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
+			[]string{"last-mod"},
 		),
 	}
 	return append(configValidatorsPlugin(), validators...)
@@ -3512,102 +3404,201 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+func populatePluginUnknownValues(model *pluginResourceModel) {
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCDayOfWeek.ElementType(ctx) == nil {
-		model.InvokeGCDayOfWeek = types.SetNull(types.StringType)
+	if model.InvokeGCDayOfWeek.IsUnknown() || model.InvokeGCDayOfWeek.IsNull() {
+		model.InvokeGCDayOfWeek, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IgnoredPasswordPolicyStateErrorCondition.ElementType(ctx) == nil {
-		model.IgnoredPasswordPolicyStateErrorCondition = types.SetNull(types.StringType)
+	if model.IgnoredPasswordPolicyStateErrorCondition.IsUnknown() || model.IgnoredPasswordPolicyStateErrorCondition.IsNull() {
+		model.IgnoredPasswordPolicyStateErrorCondition, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPApplication.ElementType(ctx) == nil {
-		model.IncludedLDAPApplication = types.SetNull(types.StringType)
+	if model.IncludedLDAPApplication.IsUnknown() || model.IncludedLDAPApplication.IsNull() {
+		model.IncludedLDAPApplication, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLocalEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedLocalEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedLocalEntryBaseDN.IsUnknown() || model.IncludedLocalEntryBaseDN.IsNull() {
+		model.IncludedLocalEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferralBaseURL.ElementType(ctx) == nil {
-		model.ReferralBaseURL = types.SetNull(types.StringType)
+	if model.ReferralBaseURL.IsUnknown() || model.ReferralBaseURL.IsNull() {
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeFilter.ElementType(ctx) == nil {
-		model.ExcludeFilter = types.SetNull(types.StringType)
+	if model.ExcludeFilter.IsUnknown() || model.ExcludeFilter.IsNull() {
+		model.ExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttribute.ElementType(ctx) == nil {
-		model.IncludeAttribute = types.SetNull(types.StringType)
+	if model.IncludeAttribute.IsUnknown() || model.IncludeAttribute.IsNull() {
+		model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AttributeType.ElementType(ctx) == nil {
-		model.AttributeType = types.SetNull(types.StringType)
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPStat.ElementType(ctx) == nil {
-		model.IncludedLDAPStat = types.SetNull(types.StringType)
+	if model.IncludedLDAPStat.IsUnknown() || model.IncludedLDAPStat.IsNull() {
+		model.IncludedLDAPStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedResourceStat.ElementType(ctx) == nil {
-		model.IncludedResourceStat = types.SetNull(types.StringType)
+	if model.IncludedResourceStat.IsUnknown() || model.IncludedResourceStat.IsNull() {
+		model.IncludedResourceStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeBaseDN.ElementType(ctx) == nil {
-		model.IncludeBaseDN = types.SetNull(types.StringType)
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedRequestControl.ElementType(ctx) == nil {
-		model.AllowedRequestControl = types.SetNull(types.StringType)
+	if model.AllowedRequestControl.IsUnknown() || model.AllowedRequestControl.IsNull() {
+		model.AllowedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
-		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
+	if model.InvokeGCTimeUtc.IsUnknown() || model.InvokeGCTimeUtc.IsNull() {
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PluginType.ElementType(ctx) == nil {
-		model.PluginType = types.SetNull(types.StringType)
+	if model.PluginType.IsUnknown() || model.PluginType.IsNull() {
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramOpType.ElementType(ctx) == nil {
-		model.HistogramOpType = types.SetNull(types.StringType)
+	if model.HistogramOpType.IsUnknown() || model.HistogramOpType.IsNull() {
+		model.HistogramOpType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MapAttribute.ElementType(ctx) == nil {
-		model.MapAttribute = types.SetNull(types.StringType)
+	if model.MapAttribute.IsUnknown() || model.MapAttribute.IsNull() {
+		model.MapAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Type.ElementType(ctx) == nil {
-		model.Type = types.SetNull(types.StringType)
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBaseDN.ElementType(ctx) == nil {
-		model.ExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeBaseDN.IsUnknown() || model.ExcludeBaseDN.IsNull() {
+		model.ExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HostInfo.ElementType(ctx) == nil {
-		model.HostInfo = types.SetNull(types.StringType)
+	if model.HostInfo.IsUnknown() || model.HostInfo.IsNull() {
+		model.HostInfo, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
+	}
+	if model.ConnectRetryMaxWait.IsUnknown() || model.ConnectRetryMaxWait.IsNull() {
+		model.ConnectRetryMaxWait = types.StringValue("")
+	}
+	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
+		model.StatusSummaryInfo = types.StringValue("")
+	}
+	if model.HistogramFormat.IsUnknown() || model.HistogramFormat.IsNull() {
+		model.HistogramFormat = types.StringValue("")
+	}
+	if model.PerApplicationLDAPStats.IsUnknown() || model.PerApplicationLDAPStats.IsNull() {
+		model.PerApplicationLDAPStats = types.StringValue("")
+	}
+	if model.UpdateTargetAttributeBehavior.IsUnknown() || model.UpdateTargetAttributeBehavior.IsNull() {
+		model.UpdateTargetAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.EntryCacheInfo.IsUnknown() || model.EntryCacheInfo.IsNull() {
+		model.EntryCacheInfo = types.StringValue("")
+	}
+	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
+		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.SessionTimeout.IsUnknown() || model.SessionTimeout.IsNull() {
+		model.SessionTimeout = types.StringValue("")
+	}
+	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
+		model.MultipleValuePatternBehavior = types.StringValue("")
+	}
+	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
+		model.GaugeInfo = types.StringValue("")
+	}
+	if model.CollectionInterval.IsUnknown() || model.CollectionInterval.IsNull() {
+		model.CollectionInterval = types.StringValue("")
+	}
+	if model.LdapChangelogInfo.IsUnknown() || model.LdapChangelogInfo.IsNull() {
+		model.LdapChangelogInfo = types.StringValue("")
+	}
+	if model.LocalDBBackendInfo.IsUnknown() || model.LocalDBBackendInfo.IsNull() {
+		model.LocalDBBackendInfo = types.StringValue("")
+	}
+	if model.TargetAttributeExistsDuringInitialPopulationBehavior.IsUnknown() || model.TargetAttributeExistsDuringInitialPopulationBehavior.IsNull() {
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.MultipleAttributeBehavior.IsUnknown() || model.MultipleAttributeBehavior.IsNull() {
+		model.MultipleAttributeBehavior = types.StringValue("")
+	}
+	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
+		model.LogFileFormat = types.StringValue("")
+	}
+	if model.AgentxAddress.IsUnknown() || model.AgentxAddress.IsNull() {
+		model.AgentxAddress = types.StringValue("")
+	}
+	if model.SourceAttributeRemovalBehavior.IsUnknown() || model.SourceAttributeRemovalBehavior.IsNull() {
+		model.SourceAttributeRemovalBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.LogInterval.IsUnknown() || model.LogInterval.IsNull() {
+		model.LogInterval = types.StringValue("")
+	}
+	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
+		model.DatetimeFormat = types.StringValue("")
+	}
+	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
+		model.MultiValuedAttributeBehavior = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.DelayAfterAlert.IsUnknown() || model.DelayAfterAlert.IsNull() {
+		model.DelayAfterAlert = types.StringValue("")
+	}
+	if model.DelayPostGC.IsUnknown() || model.DelayPostGC.IsNull() {
+		model.DelayPostGC = types.StringValue("")
+	}
+	if model.PingInterval.IsUnknown() || model.PingInterval.IsNull() {
+		model.PingInterval = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.ReplicationInfo.IsUnknown() || model.ReplicationInfo.IsNull() {
+		model.ReplicationInfo = types.StringValue("")
+	}
+	if model.PollingInterval.IsUnknown() || model.PollingInterval.IsNull() {
+		model.PollingInterval = types.StringValue("")
 	}
 	if model.OAuthClientSecret.IsUnknown() {
 		model.OAuthClientSecret = types.StringNull()
@@ -3615,123 +3606,351 @@ func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPluginResourceModel) {
-	if model.ValuePattern.ElementType(ctx) == nil {
-		model.ValuePattern = types.SetNull(types.StringType)
+func populatePluginUnknownValuesDefault(model *defaultPluginResourceModel) {
+	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
-		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	if model.UserMappingRemoteJSONField.IsUnknown() || model.UserMappingRemoteJSONField.IsNull() {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCDayOfWeek.ElementType(ctx) == nil {
-		model.InvokeGCDayOfWeek = types.SetNull(types.StringType)
+	if model.InvokeGCDayOfWeek.IsUnknown() || model.InvokeGCDayOfWeek.IsNull() {
+		model.InvokeGCDayOfWeek, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Server.ElementType(ctx) == nil {
-		model.Server = types.SetNull(types.StringType)
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IgnoredPasswordPolicyStateErrorCondition.ElementType(ctx) == nil {
-		model.IgnoredPasswordPolicyStateErrorCondition = types.SetNull(types.StringType)
+	if model.IgnoredPasswordPolicyStateErrorCondition.IsUnknown() || model.IgnoredPasswordPolicyStateErrorCondition.IsNull() {
+		model.IgnoredPasswordPolicyStateErrorCondition, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPApplication.ElementType(ctx) == nil {
-		model.IncludedLDAPApplication = types.SetNull(types.StringType)
+	if model.IncludedLDAPApplication.IsUnknown() || model.IncludedLDAPApplication.IsNull() {
+		model.IncludedLDAPApplication, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLocalEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedLocalEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedLocalEntryBaseDN.IsUnknown() || model.IncludedLocalEntryBaseDN.IsNull() {
+		model.IncludedLocalEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationPolicy.ElementType(ctx) == nil {
-		model.RotationPolicy = types.SetNull(types.StringType)
+	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
+		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ReferralBaseURL.ElementType(ctx) == nil {
-		model.ReferralBaseURL = types.SetNull(types.StringType)
+	if model.ReferralBaseURL.IsUnknown() || model.ReferralBaseURL.IsNull() {
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeFilter.ElementType(ctx) == nil {
-		model.ExcludeFilter = types.SetNull(types.StringType)
+	if model.ExcludeFilter.IsUnknown() || model.ExcludeFilter.IsNull() {
+		model.ExcludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttribute.ElementType(ctx) == nil {
-		model.IncludeAttribute = types.SetNull(types.StringType)
+	if model.IncludeAttribute.IsUnknown() || model.IncludeAttribute.IsNull() {
+		model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
-		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	if model.UserMappingLocalAttribute.IsUnknown() || model.UserMappingLocalAttribute.IsNull() {
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultAuthPasswordStorageScheme.ElementType(ctx) == nil {
-		model.DefaultAuthPasswordStorageScheme = types.SetNull(types.StringType)
+	if model.DefaultAuthPasswordStorageScheme.IsUnknown() || model.DefaultAuthPasswordStorageScheme.IsNull() {
+		model.DefaultAuthPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramCategoryBoundary.ElementType(ctx) == nil {
-		model.HistogramCategoryBoundary = types.SetNull(types.StringType)
+	if model.HistogramCategoryBoundary.IsUnknown() || model.HistogramCategoryBoundary.IsNull() {
+		model.HistogramCategoryBoundary, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AttributeType.ElementType(ctx) == nil {
-		model.AttributeType = types.SetNull(types.StringType)
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedLDAPStat.ElementType(ctx) == nil {
-		model.IncludedLDAPStat = types.SetNull(types.StringType)
+	if model.IncludedLDAPStat.IsUnknown() || model.IncludedLDAPStat.IsNull() {
+		model.IncludedLDAPStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.ElementType(ctx) == nil {
-		model.RotationListener = types.SetNull(types.StringType)
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
+	if model.BaseDN.IsUnknown() || model.BaseDN.IsNull() {
+		model.BaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedResourceStat.ElementType(ctx) == nil {
-		model.IncludedResourceStat = types.SetNull(types.StringType)
+	if model.IncludedResourceStat.IsUnknown() || model.IncludedResourceStat.IsNull() {
+		model.IncludedResourceStat, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeBaseDN.ElementType(ctx) == nil {
-		model.IncludeBaseDN = types.SetNull(types.StringType)
+	if model.IncludeBaseDN.IsUnknown() || model.IncludeBaseDN.IsNull() {
+		model.IncludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DnMap.ElementType(ctx) == nil {
-		model.DnMap = types.SetNull(types.StringType)
+	if model.DnMap.IsUnknown() || model.DnMap.IsNull() {
+		model.DnMap, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedRequestControl.ElementType(ctx) == nil {
-		model.AllowedRequestControl = types.SetNull(types.StringType)
+	if model.AllowedRequestControl.IsUnknown() || model.AllowedRequestControl.IsNull() {
+		model.AllowedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
-		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
+	if model.InvokeGCTimeUtc.IsUnknown() || model.InvokeGCTimeUtc.IsNull() {
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PluginType.ElementType(ctx) == nil {
-		model.PluginType = types.SetNull(types.StringType)
+	if model.PluginType.IsUnknown() || model.PluginType.IsNull() {
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HistogramOpType.ElementType(ctx) == nil {
-		model.HistogramOpType = types.SetNull(types.StringType)
+	if model.HistogramOpType.IsUnknown() || model.HistogramOpType.IsNull() {
+		model.HistogramOpType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RetentionPolicy.ElementType(ctx) == nil {
-		model.RetentionPolicy = types.SetNull(types.StringType)
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MapAttribute.ElementType(ctx) == nil {
-		model.MapAttribute = types.SetNull(types.StringType)
+	if model.MapAttribute.IsUnknown() || model.MapAttribute.IsNull() {
+		model.MapAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeAttribute.ElementType(ctx) == nil {
-		model.ExcludeAttribute = types.SetNull(types.StringType)
+	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
+		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Type.ElementType(ctx) == nil {
-		model.Type = types.SetNull(types.StringType)
+	if model.Type.IsUnknown() || model.Type.IsNull() {
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeBaseDN.ElementType(ctx) == nil {
-		model.ExcludeBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeBaseDN.IsUnknown() || model.ExcludeBaseDN.IsNull() {
+		model.ExcludeBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultUserPasswordStorageScheme.ElementType(ctx) == nil {
-		model.DefaultUserPasswordStorageScheme = types.SetNull(types.StringType)
+	if model.DefaultUserPasswordStorageScheme.IsUnknown() || model.DefaultUserPasswordStorageScheme.IsNull() {
+		model.DefaultUserPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OperationType.ElementType(ctx) == nil {
-		model.OperationType = types.SetNull(types.StringType)
+	if model.OperationType.IsUnknown() || model.OperationType.IsNull() {
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HostInfo.ElementType(ctx) == nil {
-		model.HostInfo = types.SetNull(types.StringType)
+	if model.HostInfo.IsUnknown() || model.HostInfo.IsNull() {
+		model.HostInfo, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
+	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
+		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OAuthClientSecret.IsUnknown() {
-		model.OAuthClientSecret = types.StringNull()
+	if model.ConnectRetryMaxWait.IsUnknown() || model.ConnectRetryMaxWait.IsNull() {
+		model.ConnectRetryMaxWait = types.StringValue("")
 	}
-	if model.ChangelogPasswordEncryptionKey.IsUnknown() {
-		model.ChangelogPasswordEncryptionKey = types.StringNull()
+	if model.UpdateLocalPasswordDN.IsUnknown() || model.UpdateLocalPasswordDN.IsNull() {
+		model.UpdateLocalPasswordDN = types.StringValue("")
+	}
+	if model.EncryptionSettingsDefinitionID.IsUnknown() || model.EncryptionSettingsDefinitionID.IsNull() {
+		model.EncryptionSettingsDefinitionID = types.StringValue("")
+	}
+	if model.HistogramFormat.IsUnknown() || model.HistogramFormat.IsNull() {
+		model.HistogramFormat = types.StringValue("")
+	}
+	if model.LdapInfo.IsUnknown() || model.LdapInfo.IsNull() {
+		model.LdapInfo = types.StringValue("")
+	}
+	if model.PerApplicationLDAPStats.IsUnknown() || model.PerApplicationLDAPStats.IsNull() {
+		model.PerApplicationLDAPStats = types.StringValue("")
+	}
+	if model.Delay.IsUnknown() || model.Delay.IsNull() {
+		model.Delay = types.StringValue("")
+	}
+	if model.UpdateTargetAttributeBehavior.IsUnknown() || model.UpdateTargetAttributeBehavior.IsNull() {
+		model.UpdateTargetAttributeBehavior = types.StringValue("")
+	}
+	if model.EntryCacheInfo.IsUnknown() || model.EntryCacheInfo.IsNull() {
+		model.EntryCacheInfo = types.StringValue("")
+	}
+	if model.OAuthClientSecret.IsUnknown() || model.OAuthClientSecret.IsNull() {
+		model.OAuthClientSecret = types.StringValue("")
+	}
+	if model.OAuthClientSecretPassphraseProvider.IsUnknown() || model.OAuthClientSecretPassphraseProvider.IsNull() {
+		model.OAuthClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.PurgeBehavior.IsUnknown() || model.PurgeBehavior.IsNull() {
+		model.PurgeBehavior = types.StringValue("")
+	}
+	if model.SessionTimeout.IsUnknown() || model.SessionTimeout.IsNull() {
+		model.SessionTimeout = types.StringValue("")
+	}
+	if model.BindDNPattern.IsUnknown() || model.BindDNPattern.IsNull() {
+		model.BindDNPattern = types.StringValue("")
+	}
+	if model.CollectionInterval.IsUnknown() || model.CollectionInterval.IsNull() {
+		model.CollectionInterval = types.StringValue("")
+	}
+	if model.LdapChangelogInfo.IsUnknown() || model.LdapChangelogInfo.IsNull() {
+		model.LdapChangelogInfo = types.StringValue("")
+	}
+	if model.LocalDBBackendInfo.IsUnknown() || model.LocalDBBackendInfo.IsNull() {
+		model.LocalDBBackendInfo = types.StringValue("")
+	}
+	if model.TargetAttributeExistsDuringInitialPopulationBehavior.IsUnknown() || model.TargetAttributeExistsDuringInitialPopulationBehavior.IsNull() {
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("")
+	}
+	if model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNewlyMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.MultipleAttributeBehavior.IsUnknown() || model.MultipleAttributeBehavior.IsNull() {
+		model.MultipleAttributeBehavior = types.StringValue("")
+	}
+	if model.AgentxAddress.IsUnknown() || model.AgentxAddress.IsNull() {
+		model.AgentxAddress = types.StringValue("")
+	}
+	if model.SourceAttributeRemovalBehavior.IsUnknown() || model.SourceAttributeRemovalBehavior.IsNull() {
+		model.SourceAttributeRemovalBehavior = types.StringValue("")
+	}
+	if model.AuthURL.IsUnknown() || model.AuthURL.IsNull() {
+		model.AuthURL = types.StringValue("")
+	}
+	if model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsUnknown() || model.UpdatedEntryNoLongerMatchesCriteriaBehavior.IsNull() {
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("")
+	}
+	if model.LogInterval.IsUnknown() || model.LogInterval.IsNull() {
+		model.LogInterval = types.StringValue("")
+	}
+	if model.DelayAfterAlert.IsUnknown() || model.DelayAfterAlert.IsNull() {
+		model.DelayAfterAlert = types.StringValue("")
+	}
+	if model.DelayPostGC.IsUnknown() || model.DelayPostGC.IsNull() {
+		model.DelayPostGC = types.StringValue("")
+	}
+	if model.EnvironmentID.IsUnknown() || model.EnvironmentID.IsNull() {
+		model.EnvironmentID = types.StringValue("")
+	}
+	if model.PingInterval.IsUnknown() || model.PingInterval.IsNull() {
+		model.PingInterval = types.StringValue("")
+	}
+	if model.ChangelogPasswordEncryptionKey.IsUnknown() || model.ChangelogPasswordEncryptionKey.IsNull() {
+		model.ChangelogPasswordEncryptionKey = types.StringValue("")
+	}
+	if model.LoggingErrorBehavior.IsUnknown() || model.LoggingErrorBehavior.IsNull() {
+		model.LoggingErrorBehavior = types.StringValue("")
+	}
+	if model.SampleInterval.IsUnknown() || model.SampleInterval.IsNull() {
+		model.SampleInterval = types.StringValue("")
+	}
+	if model.ReplicationInfo.IsUnknown() || model.ReplicationInfo.IsNull() {
+		model.ReplicationInfo = types.StringValue("")
+	}
+	if model.AdditionalUserMappingSCIMFilter.IsUnknown() || model.AdditionalUserMappingSCIMFilter.IsNull() {
+		model.AdditionalUserMappingSCIMFilter = types.StringValue("")
+	}
+	if model.PollingInterval.IsUnknown() || model.PollingInterval.IsNull() {
+		model.PollingInterval = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.PassThroughAuthenticationHandler.IsUnknown() || model.PassThroughAuthenticationHandler.IsNull() {
+		model.PassThroughAuthenticationHandler = types.StringValue("")
+	}
+	if model.CustomDatetimeFormat.IsUnknown() || model.CustomDatetimeFormat.IsNull() {
+		model.CustomDatetimeFormat = types.StringValue("")
+	}
+	if model.ProfileSampleInterval.IsUnknown() || model.ProfileSampleInterval.IsNull() {
+		model.ProfileSampleInterval = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
+		model.ServerAccessMode = types.StringValue("")
+	}
+	if model.ServerInfo.IsUnknown() || model.ServerInfo.IsNull() {
+		model.ServerInfo = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.StatusSummaryInfo.IsUnknown() || model.StatusSummaryInfo.IsNull() {
+		model.StatusSummaryInfo = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
+		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.SourceAttribute.IsUnknown() || model.SourceAttribute.IsNull() {
+		model.SourceAttribute = types.StringValue("")
+	}
+	if model.UpdateSourceAttributeBehavior.IsUnknown() || model.UpdateSourceAttributeBehavior.IsNull() {
+		model.UpdateSourceAttributeBehavior = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.ApiURL.IsUnknown() || model.ApiURL.IsNull() {
+		model.ApiURL = types.StringValue("")
+	}
+	if model.LogFilePermissions.IsUnknown() || model.LogFilePermissions.IsNull() {
+		model.LogFilePermissions = types.StringValue("")
+	}
+	if model.DatetimeJSONField.IsUnknown() || model.DatetimeJSONField.IsNull() {
+		model.DatetimeJSONField = types.StringValue("")
+	}
+	if model.MultipleValuePatternBehavior.IsUnknown() || model.MultipleValuePatternBehavior.IsNull() {
+		model.MultipleValuePatternBehavior = types.StringValue("")
+	}
+	if model.CustomTimezone.IsUnknown() || model.CustomTimezone.IsNull() {
+		model.CustomTimezone = types.StringValue("")
+	}
+	if model.GaugeInfo.IsUnknown() || model.GaugeInfo.IsNull() {
+		model.GaugeInfo = types.StringValue("")
+	}
+	if model.OutputFile.IsUnknown() || model.OutputFile.IsNull() {
+		model.OutputFile = types.StringValue("")
+	}
+	if model.DatetimeAttribute.IsUnknown() || model.DatetimeAttribute.IsNull() {
+		model.DatetimeAttribute = types.StringValue("")
+	}
+	if model.ChangelogPasswordEncryptionKeyPassphraseProvider.IsUnknown() || model.ChangelogPasswordEncryptionKeyPassphraseProvider.IsNull() {
+		model.ChangelogPasswordEncryptionKeyPassphraseProvider = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.LogFileFormat.IsUnknown() || model.LogFileFormat.IsNull() {
+		model.LogFileFormat = types.StringValue("")
+	}
+	if model.DatetimeFormat.IsUnknown() || model.DatetimeFormat.IsNull() {
+		model.DatetimeFormat = types.StringValue("")
+	}
+	if model.ProfileDirectory.IsUnknown() || model.ProfileDirectory.IsNull() {
+		model.ProfileDirectory = types.StringValue("")
+	}
+	if model.SearchBaseDN.IsUnknown() || model.SearchBaseDN.IsNull() {
+		model.SearchBaseDN = types.StringValue("")
+	}
+	if model.MultiValuedAttributeBehavior.IsUnknown() || model.MultiValuedAttributeBehavior.IsNull() {
+		model.MultiValuedAttributeBehavior = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.ProfileAction.IsUnknown() || model.ProfileAction.IsNull() {
+		model.ProfileAction = types.StringValue("")
+	}
+	if model.MaxUpdateFrequency.IsUnknown() || model.MaxUpdateFrequency.IsNull() {
+		model.MaxUpdateFrequency = types.StringValue("")
+	}
+	if model.PreviousFileExtension.IsUnknown() || model.PreviousFileExtension.IsNull() {
+		model.PreviousFileExtension = types.StringValue("")
+	}
+	if model.Scope.IsUnknown() || model.Scope.IsNull() {
+		model.Scope = types.StringValue("")
+	}
+	if model.SourceDN.IsUnknown() || model.SourceDN.IsNull() {
+		model.SourceDN = types.StringValue("")
+	}
+	if model.FilterSuffix.IsUnknown() || model.FilterSuffix.IsNull() {
+		model.FilterSuffix = types.StringValue("")
+	}
+	if model.TargetDN.IsUnknown() || model.TargetDN.IsNull() {
+		model.TargetDN = types.StringValue("")
+	}
+	if model.ExpirationOffset.IsUnknown() || model.ExpirationOffset.IsNull() {
+		model.ExpirationOffset = types.StringValue("")
+	}
+	if model.TargetAttribute.IsUnknown() || model.TargetAttribute.IsNull() {
+		model.TargetAttribute = types.StringValue("")
+	}
+	if model.OAuthClientID.IsUnknown() || model.OAuthClientID.IsNull() {
+		model.OAuthClientID = types.StringValue("")
+	}
+	if model.FilterPrefix.IsUnknown() || model.FilterPrefix.IsNull() {
+		model.FilterPrefix = types.StringValue("")
+	}
+	if model.ContextName.IsUnknown() || model.ContextName.IsNull() {
+		model.ContextName = types.StringValue("")
 	}
 }
 
@@ -3740,19 +3959,19 @@ func readLastAccessTimePluginResponseDefault(ctx context.Context, r *client.Last
 	state.ResourceType = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, internaltypes.IsEmptyString(expectedValues.MaxUpdateFrequency))
+	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, true)
 	config.CheckMismatchedPDFormattedAttributes("max_update_frequency",
 		expectedValues.MaxUpdateFrequency, state.MaxUpdateFrequency, diagnostics)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginOperationTypeProp(r.OperationType))
 	state.InvokeForFailedBinds = internaltypes.BoolTypeOrNil(r.InvokeForFailedBinds)
 	state.MaxSearchResultEntriesToUpdate = internaltypes.Int64TypeOrNil(r.MaxSearchResultEntriesToUpdate)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a StatsCollectorPluginResponse object into the model struct
@@ -3767,29 +3986,29 @@ func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.Stat
 	config.CheckMismatchedPDFormattedAttributes("collection_interval",
 		expectedValues.CollectionInterval, state.CollectionInterval, diagnostics)
 	state.LdapInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapInfoProp(r.LdapInfo), internaltypes.IsEmptyString(expectedValues.LdapInfo))
+		client.StringPointerEnumpluginLdapInfoProp(r.LdapInfo), true)
 	state.ServerInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginServerInfoProp(r.ServerInfo), internaltypes.IsEmptyString(expectedValues.ServerInfo))
+		client.StringPointerEnumpluginServerInfoProp(r.ServerInfo), true)
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.GenerateCollectorFiles = internaltypes.BoolTypeOrNil(r.GenerateCollectorFiles)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -3810,7 +4029,7 @@ func readInternalSearchRatePluginResponse(ctx context.Context, r *client.Interna
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -3826,12 +4045,12 @@ func readInternalSearchRatePluginResponseDefault(ctx context.Context, r *client.
 	state.LowerBound = internaltypes.Int64TypeOrNil(r.LowerBound)
 	state.UpperBound = internaltypes.Int64TypeOrNil(r.UpperBound)
 	state.FilterPrefix = types.StringValue(r.FilterPrefix)
-	state.FilterSuffix = internaltypes.StringTypeOrNil(r.FilterSuffix, internaltypes.IsEmptyString(expectedValues.FilterSuffix))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.FilterSuffix = internaltypes.StringTypeOrNil(r.FilterSuffix, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ModifiablePasswordPolicyStatePluginResponse object into the model struct
@@ -3844,7 +4063,7 @@ func readModifiablePasswordPolicyStatePluginResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a ModifiablePasswordPolicyStatePluginResponse object into the model struct
@@ -3854,10 +4073,10 @@ func readModifiablePasswordPolicyStatePluginResponseDefault(ctx context.Context,
 	state.Name = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a SevenBitCleanPluginResponse object into the model struct
@@ -3873,7 +4092,7 @@ func readSevenBitCleanPluginResponse(ctx context.Context, r *client.SevenBitClea
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a SevenBitCleanPluginResponse object into the model struct
@@ -3885,11 +4104,11 @@ func readSevenBitCleanPluginResponseDefault(ctx context.Context, r *client.Seven
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse object into the model struct
@@ -3911,7 +4130,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx cont
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse object into the model struct
@@ -3933,7 +4152,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(c
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PeriodicGcPluginResponse object into the model struct
@@ -3946,17 +4165,17 @@ func readPeriodicGcPluginResponse(ctx context.Context, r *client.PeriodicGcPlugi
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginInvokeGCDayOfWeekProp(r.InvokeGCDayOfWeek))
 	state.InvokeGCTimeUtc = internaltypes.GetStringSet(r.InvokeGCTimeUtc)
-	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, internaltypes.IsEmptyString(expectedValues.DelayAfterAlert))
+	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_after_alert",
 		expectedValues.DelayAfterAlert, state.DelayAfterAlert, diagnostics)
-	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, internaltypes.IsEmptyString(expectedValues.DelayPostGC))
+	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_post_gc",
 		expectedValues.DelayPostGC, state.DelayPostGC, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PeriodicGcPluginResponse object into the model struct
@@ -3969,17 +4188,17 @@ func readPeriodicGcPluginResponseDefault(ctx context.Context, r *client.Periodic
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginInvokeGCDayOfWeekProp(r.InvokeGCDayOfWeek))
 	state.InvokeGCTimeUtc = internaltypes.GetStringSet(r.InvokeGCTimeUtc)
-	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, internaltypes.IsEmptyString(expectedValues.DelayAfterAlert))
+	state.DelayAfterAlert = internaltypes.StringTypeOrNil(r.DelayAfterAlert, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_after_alert",
 		expectedValues.DelayAfterAlert, state.DelayAfterAlert, diagnostics)
-	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, internaltypes.IsEmptyString(expectedValues.DelayPostGC))
+	state.DelayPostGC = internaltypes.StringTypeOrNil(r.DelayPostGC, true)
 	config.CheckMismatchedPDFormattedAttributes("delay_post_gc",
 		expectedValues.DelayPostGC, state.DelayPostGC, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PingOnePassThroughAuthenticationPluginResponse object into the model struct
@@ -4010,7 +4229,7 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PingOnePassThroughAuthenticationPluginResponse object into the model struct
@@ -4021,27 +4240,27 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
-	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
+	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, true)
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
-	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.TryLocalBind = internaltypes.BoolTypeOrNil(r.TryLocalBind)
 	state.OverrideLocalPassword = internaltypes.BoolTypeOrNil(r.OverrideLocalPassword)
 	state.UpdateLocalPassword = internaltypes.BoolTypeOrNil(r.UpdateLocalPassword)
-	state.UpdateLocalPasswordDN = internaltypes.StringTypeOrNil(r.UpdateLocalPasswordDN, internaltypes.IsEmptyString(expectedValues.UpdateLocalPasswordDN))
+	state.UpdateLocalPasswordDN = internaltypes.StringTypeOrNil(r.UpdateLocalPasswordDN, true)
 	state.AllowLaxPassThroughAuthenticationPasswords = internaltypes.BoolTypeOrNil(r.AllowLaxPassThroughAuthenticationPasswords)
 	state.IgnoredPasswordPolicyStateErrorCondition = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginIgnoredPasswordPolicyStateErrorConditionProp(r.IgnoredPasswordPolicyStateErrorCondition))
 	state.UserMappingLocalAttribute = internaltypes.GetStringSet(r.UserMappingLocalAttribute)
 	state.UserMappingRemoteJSONField = internaltypes.GetStringSet(r.UserMappingRemoteJSONField)
-	state.AdditionalUserMappingSCIMFilter = internaltypes.StringTypeOrNil(r.AdditionalUserMappingSCIMFilter, internaltypes.IsEmptyString(expectedValues.AdditionalUserMappingSCIMFilter))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.AdditionalUserMappingSCIMFilter = internaltypes.StringTypeOrNil(r.AdditionalUserMappingSCIMFilter, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ChangelogPasswordEncryptionPluginResponse object into the model struct
@@ -4049,14 +4268,14 @@ func readChangelogPasswordEncryptionPluginResponseDefault(ctx context.Context, r
 	state.ResourceType = types.StringValue("changelog-password-encryption")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ChangelogPasswordEncryptionKeyPassphraseProvider))
+	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, true)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ProcessingTimeHistogramPluginResponse object into the model struct
@@ -4069,11 +4288,11 @@ func readProcessingTimeHistogramPluginResponseDefault(ctx context.Context, r *cl
 	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
 	state.IncludeQueueTime = internaltypes.BoolTypeOrNil(r.IncludeQueueTime)
 	state.SeparateMonitorEntryPerTrackedApplication = internaltypes.BoolTypeOrNil(r.SeparateMonitorEntryPerTrackedApplication)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a SearchShutdownPluginResponse object into the model struct
@@ -4096,7 +4315,7 @@ func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutd
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a SearchShutdownPluginResponse object into the model struct
@@ -4115,11 +4334,11 @@ func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.Sear
 	state.Filter = internaltypes.GetStringSet(filterValues)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.OutputFile = types.StringValue(r.OutputFile)
-	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, internaltypes.IsEmptyString(expectedValues.PreviousFileExtension))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.PreviousFileExtension = internaltypes.StringTypeOrNil(r.PreviousFileExtension, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PeriodicStatsLoggerPluginResponse object into the model struct
@@ -4145,15 +4364,15 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.HistogramOpType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHistogramOpTypeProp(r.HistogramOpType))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), internaltypes.IsEmptyString(expectedValues.GaugeInfo))
+		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), internaltypes.IsEmptyString(expectedValues.LogFileFormat))
+		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
@@ -4161,20 +4380,20 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PeriodicStatsLoggerPluginResponse object into the model struct
@@ -4200,15 +4419,15 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 	state.HistogramOpType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHistogramOpTypeProp(r.HistogramOpType))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), internaltypes.IsEmptyString(expectedValues.LdapChangelogInfo))
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), internaltypes.IsEmptyString(expectedValues.GaugeInfo))
+		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), internaltypes.IsEmptyString(expectedValues.LogFileFormat))
+		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.Append = internaltypes.BoolTypeOrNil(r.Append)
@@ -4216,20 +4435,20 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 	state.RotationListener = internaltypes.GetStringSet(r.RotationListener)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), internaltypes.IsEmptyString(expectedValues.LocalDBBackendInfo))
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), true)
 	state.ReplicationInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), internaltypes.IsEmptyString(expectedValues.ReplicationInfo))
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), true)
 	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), internaltypes.IsEmptyString(expectedValues.EntryCacheInfo))
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), true)
 	state.HostInfo = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PurgeExpiredDataPluginResponse object into the model struct
@@ -4268,7 +4487,7 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PurgeExpiredDataPluginResponse object into the model struct
@@ -4277,15 +4496,15 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DatetimeAttribute = types.StringValue(r.DatetimeAttribute)
-	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
+	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, true)
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
-	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, internaltypes.IsEmptyString(expectedValues.CustomDatetimeFormat))
-	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, internaltypes.IsEmptyString(expectedValues.CustomTimezone))
+	state.CustomDatetimeFormat = internaltypes.StringTypeOrNil(r.CustomDatetimeFormat, true)
+	state.CustomTimezone = internaltypes.StringTypeOrNil(r.CustomTimezone, true)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
 	state.PurgeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPurgeBehaviorProp(r.PurgeBehavior), internaltypes.IsEmptyString(expectedValues.PurgeBehavior))
+		client.StringPointerEnumpluginPurgeBehaviorProp(r.PurgeBehavior), true)
 	baseDNValues := []string{}
 	baseDNType := internaltypes.StringTypeOrNil(r.BaseDN, false)
 	if !baseDNType.IsNull() {
@@ -4304,10 +4523,10 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 	state.MaxUpdatesPerSecond = types.Int64Value(r.MaxUpdatesPerSecond)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ChangeSubscriptionNotificationPluginResponse object into the model struct
@@ -4317,11 +4536,11 @@ func readChangeSubscriptionNotificationPluginResponseDefault(ctx context.Context
 	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a SubOperationTimingPluginResponse object into the model struct
@@ -4337,7 +4556,7 @@ func readSubOperationTimingPluginResponse(ctx context.Context, r *client.SubOper
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a SubOperationTimingPluginResponse object into the model struct
@@ -4347,13 +4566,13 @@ func readSubOperationTimingPluginResponseDefault(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.NumMostExpensivePhasesShown = types.Int64Value(r.NumMostExpensivePhasesShown)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartyPluginResponse object into the model struct
@@ -4370,7 +4589,7 @@ func readThirdPartyPluginResponse(ctx context.Context, r *client.ThirdPartyPlugi
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a ThirdPartyPluginResponse object into the model struct
@@ -4380,14 +4599,14 @@ func readThirdPartyPluginResponseDefault(ctx context.Context, r *client.ThirdPar
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a EncryptAttributeValuesPluginResponse object into the model struct
@@ -4399,12 +4618,12 @@ func readEncryptAttributeValuesPluginResponseDefault(ctx context.Context, r *cli
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginAttributeTypeProp(r.AttributeType))
-	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PassThroughAuthenticationPluginResponse object into the model struct
@@ -4433,7 +4652,7 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PassThroughAuthenticationPluginResponse object into the model struct
@@ -4450,19 +4669,19 @@ func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *
 	state.AllowLaxPassThroughAuthenticationPasswords = internaltypes.BoolTypeOrNil(r.AllowLaxPassThroughAuthenticationPasswords)
 	state.ServerAccessMode = types.StringValue(r.ServerAccessMode.String())
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
-	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
-	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
-	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
+	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, true)
+	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, true)
+	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, true)
 	state.InitialConnections = types.Int64Value(r.InitialConnections)
 	state.MaxConnections = types.Int64Value(r.MaxConnections)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a DnMapperPluginResponse object into the model struct
@@ -4482,7 +4701,7 @@ func readDnMapperPluginResponse(ctx context.Context, r *client.DnMapperPluginRes
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a DnMapperPluginResponse object into the model struct
@@ -4498,11 +4717,11 @@ func readDnMapperPluginResponseDefault(ctx context.Context, r *client.DnMapperPl
 	state.MapAttribute = internaltypes.GetStringSet(r.MapAttribute)
 	state.EnableControlMapping = types.BoolValue(r.EnableControlMapping)
 	state.AlwaysMapResponses = types.BoolValue(r.AlwaysMapResponses)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a MonitorHistoryPluginResponse object into the model struct
@@ -4516,14 +4735,14 @@ func readMonitorHistoryPluginResponseDefault(ctx context.Context, r *client.Moni
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), internaltypes.IsEmptyString(expectedValues.LoggingErrorBehavior))
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
 	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
 	state.RetainFilesSparselyByAge = internaltypes.BoolTypeOrNil(r.RetainFilesSparselyByAge)
 	state.Sanitize = internaltypes.BoolTypeOrNil(r.Sanitize)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ReferralOnUpdatePluginResponse object into the model struct
@@ -4539,7 +4758,7 @@ func readReferralOnUpdatePluginResponse(ctx context.Context, r *client.ReferralO
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a ReferralOnUpdatePluginResponse object into the model struct
@@ -4552,10 +4771,10 @@ func readReferralOnUpdatePluginResponseDefault(ctx context.Context, r *client.Re
 	state.ReferralBaseURL = internaltypes.GetStringSet(r.ReferralBaseURL)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a SimpleToExternalBindPluginResponse object into the model struct
@@ -4568,7 +4787,7 @@ func readSimpleToExternalBindPluginResponse(ctx context.Context, r *client.Simpl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a SimpleToExternalBindPluginResponse object into the model struct
@@ -4576,12 +4795,12 @@ func readSimpleToExternalBindPluginResponseDefault(ctx context.Context, r *clien
 	state.ResourceType = types.StringValue("simple-to-external-bind")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a CustomPluginResponse object into the model struct
@@ -4589,13 +4808,13 @@ func readCustomPluginResponseDefault(ctx context.Context, r *client.CustomPlugin
 	state.ResourceType = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a SnmpSubagentPluginResponse object into the model struct
@@ -4607,20 +4826,20 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
-	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, internaltypes.IsEmptyString(expectedValues.SessionTimeout))
+	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("session_timeout",
 		expectedValues.SessionTimeout, state.SessionTimeout, diagnostics)
-	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, internaltypes.IsEmptyString(expectedValues.ConnectRetryMaxWait))
+	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_retry_max_wait",
 		expectedValues.ConnectRetryMaxWait, state.ConnectRetryMaxWait, diagnostics)
-	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, internaltypes.IsEmptyString(expectedValues.PingInterval))
+	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("ping_interval",
 		expectedValues.PingInterval, state.PingInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a SnmpSubagentPluginResponse object into the model struct
@@ -4628,24 +4847,24 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
+	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, true)
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
-	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, internaltypes.IsEmptyString(expectedValues.SessionTimeout))
+	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("session_timeout",
 		expectedValues.SessionTimeout, state.SessionTimeout, diagnostics)
-	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, internaltypes.IsEmptyString(expectedValues.ConnectRetryMaxWait))
+	state.ConnectRetryMaxWait = internaltypes.StringTypeOrNil(r.ConnectRetryMaxWait, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_retry_max_wait",
 		expectedValues.ConnectRetryMaxWait, state.ConnectRetryMaxWait, diagnostics)
-	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, internaltypes.IsEmptyString(expectedValues.PingInterval))
+	state.PingInterval = internaltypes.StringTypeOrNil(r.PingInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("ping_interval",
 		expectedValues.PingInterval, state.PingInterval, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a CoalesceModificationsPluginResponse object into the model struct
@@ -4659,7 +4878,7 @@ func readCoalesceModificationsPluginResponse(ctx context.Context, r *client.Coal
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a CoalesceModificationsPluginResponse object into the model struct
@@ -4670,10 +4889,10 @@ func readCoalesceModificationsPluginResponseDefault(ctx context.Context, r *clie
 	state.RequestCriteria = types.StringValue(r.RequestCriteria)
 	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PasswordPolicyImportPluginResponse object into the model struct
@@ -4684,10 +4903,10 @@ func readPasswordPolicyImportPluginResponseDefault(ctx context.Context, r *clien
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.DefaultUserPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultUserPasswordStorageScheme)
 	state.DefaultAuthPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultAuthPasswordStorageScheme)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ProfilerPluginResponse object into the model struct
@@ -4701,11 +4920,11 @@ func readProfilerPluginResponseDefault(ctx context.Context, r *client.ProfilerPl
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.EnableProfilingOnStartup = types.BoolValue(r.EnableProfilingOnStartup)
 	state.ProfileAction = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginProfileActionProp(r.ProfileAction), internaltypes.IsEmptyString(expectedValues.ProfileAction))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+		client.StringPointerEnumpluginProfileActionProp(r.ProfileAction), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a CleanUpInactivePingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4730,7 +4949,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx context
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a CleanUpInactivePingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4755,7 +4974,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx 
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ComposedAttributePluginResponse object into the model struct
@@ -4769,30 +4988,30 @@ func readComposedAttributePluginResponse(ctx context.Context, r *client.Composed
 	state.AttributeType = internaltypes.GetStringSet(attributeTypeValues)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.MultipleValuePatternBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), internaltypes.IsEmptyString(expectedValues.MultipleValuePatternBehavior))
+		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), true)
 	state.MultiValuedAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultiValuedAttributeBehavior))
+		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), true)
 	state.TargetAttributeExistsDuringInitialPopulationBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), internaltypes.IsEmptyString(expectedValues.TargetAttributeExistsDuringInitialPopulationBehavior))
+		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), true)
 	state.UpdateSourceAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateSourceAttributeBehavior))
+		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), true)
 	state.SourceAttributeRemovalBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), internaltypes.IsEmptyString(expectedValues.SourceAttributeRemovalBehavior))
+		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), true)
 	state.UpdateTargetAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateTargetAttributeBehavior))
+		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), true)
 	state.IncludeBaseDN = internaltypes.GetStringSet(r.IncludeBaseDN)
 	state.ExcludeBaseDN = internaltypes.GetStringSet(r.ExcludeBaseDN)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ExcludeFilter = internaltypes.GetStringSet(r.ExcludeFilter)
 	state.UpdatedEntryNewlyMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNewlyMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), true)
 	state.UpdatedEntryNoLongerMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNoLongerMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a ComposedAttributePluginResponse object into the model struct
@@ -4806,30 +5025,30 @@ func readComposedAttributePluginResponseDefault(ctx context.Context, r *client.C
 	state.AttributeType = internaltypes.GetStringSet(attributeTypeValues)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.MultipleValuePatternBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), internaltypes.IsEmptyString(expectedValues.MultipleValuePatternBehavior))
+		client.StringPointerEnumpluginMultipleValuePatternBehaviorProp(r.MultipleValuePatternBehavior), true)
 	state.MultiValuedAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultiValuedAttributeBehavior))
+		client.StringPointerEnumpluginMultiValuedAttributeBehaviorProp(r.MultiValuedAttributeBehavior), true)
 	state.TargetAttributeExistsDuringInitialPopulationBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), internaltypes.IsEmptyString(expectedValues.TargetAttributeExistsDuringInitialPopulationBehavior))
+		client.StringPointerEnumpluginTargetAttributeExistsDuringInitialPopulationBehaviorProp(r.TargetAttributeExistsDuringInitialPopulationBehavior), true)
 	state.UpdateSourceAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateSourceAttributeBehavior))
+		client.StringPointerEnumpluginUpdateSourceAttributeBehaviorProp(r.UpdateSourceAttributeBehavior), true)
 	state.SourceAttributeRemovalBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), internaltypes.IsEmptyString(expectedValues.SourceAttributeRemovalBehavior))
+		client.StringPointerEnumpluginSourceAttributeRemovalBehaviorProp(r.SourceAttributeRemovalBehavior), true)
 	state.UpdateTargetAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), internaltypes.IsEmptyString(expectedValues.UpdateTargetAttributeBehavior))
+		client.StringPointerEnumpluginUpdateTargetAttributeBehaviorProp(r.UpdateTargetAttributeBehavior), true)
 	state.IncludeBaseDN = internaltypes.GetStringSet(r.IncludeBaseDN)
 	state.ExcludeBaseDN = internaltypes.GetStringSet(r.ExcludeBaseDN)
 	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
 	state.ExcludeFilter = internaltypes.GetStringSet(r.ExcludeFilter)
 	state.UpdatedEntryNewlyMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNewlyMatchesCriteriaBehavior))
+		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), true)
 	state.UpdatedEntryNoLongerMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), internaltypes.IsEmptyString(expectedValues.UpdatedEntryNoLongerMatchesCriteriaBehavior))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a LdapResultCodeTrackerPluginResponse object into the model struct
@@ -4839,11 +5058,11 @@ func readLdapResultCodeTrackerPluginResponseDefault(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a AttributeMapperPluginResponse object into the model struct
@@ -4861,7 +5080,7 @@ func readAttributeMapperPluginResponse(ctx context.Context, r *client.AttributeM
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a AttributeMapperPluginResponse object into the model struct
@@ -4875,11 +5094,11 @@ func readAttributeMapperPluginResponseDefault(ctx context.Context, r *client.Att
 	state.TargetAttribute = types.StringValue(r.TargetAttribute)
 	state.EnableControlMapping = types.BoolValue(r.EnableControlMapping)
 	state.AlwaysMapResponses = types.BoolValue(r.AlwaysMapResponses)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a DelayPluginResponse object into the model struct
@@ -4898,7 +5117,7 @@ func readDelayPluginResponse(ctx context.Context, r *client.DelayPluginResponse,
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a DelayPluginResponse object into the model struct
@@ -4911,13 +5130,13 @@ func readDelayPluginResponseDefault(ctx context.Context, r *client.DelayPluginRe
 	state.Delay = types.StringValue(r.Delay)
 	config.CheckMismatchedPDFormattedAttributes("delay",
 		expectedValues.Delay, state.Delay, diagnostics)
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4939,7 +5158,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx context.
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4961,7 +5180,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx c
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a GroovyScriptedPluginResponse object into the model struct
@@ -4978,7 +5197,7 @@ func readGroovyScriptedPluginResponse(ctx context.Context, r *client.GroovyScrip
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a GroovyScriptedPluginResponse object into the model struct
@@ -4987,15 +5206,15 @@ func readGroovyScriptedPluginResponseDefault(ctx context.Context, r *client.Groo
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a LastModPluginResponse object into the model struct
@@ -5007,11 +5226,11 @@ func readLastModPluginResponseDefault(ctx context.Context, r *client.LastModPlug
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.ExcludeAttribute = internaltypes.GetStringSet(r.ExcludeAttribute)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a PluggablePassThroughAuthenticationPluginResponse object into the model struct
@@ -5034,7 +5253,7 @@ func readPluggablePassThroughAuthenticationPluginResponse(ctx context.Context, r
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a PluggablePassThroughAuthenticationPluginResponse object into the model struct
@@ -5044,20 +5263,20 @@ func readPluggablePassThroughAuthenticationPluginResponseDefault(ctx context.Con
 	state.Name = types.StringValue(r.Id)
 	state.PassThroughAuthenticationHandler = types.StringValue(r.PassThroughAuthenticationHandler)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
 	state.TryLocalBind = internaltypes.BoolTypeOrNil(r.TryLocalBind)
 	state.OverrideLocalPassword = internaltypes.BoolTypeOrNil(r.OverrideLocalPassword)
 	state.UpdateLocalPassword = internaltypes.BoolTypeOrNil(r.UpdateLocalPassword)
-	state.UpdateLocalPasswordDN = internaltypes.StringTypeOrNil(r.UpdateLocalPasswordDN, internaltypes.IsEmptyString(expectedValues.UpdateLocalPasswordDN))
+	state.UpdateLocalPasswordDN = internaltypes.StringTypeOrNil(r.UpdateLocalPasswordDN, true)
 	state.AllowLaxPassThroughAuthenticationPasswords = internaltypes.BoolTypeOrNil(r.AllowLaxPassThroughAuthenticationPasswords)
 	state.IgnoredPasswordPolicyStateErrorCondition = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginIgnoredPasswordPolicyStateErrorConditionProp(r.IgnoredPasswordPolicyStateErrorCondition))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a ReferentialIntegrityPluginResponse object into the model struct
@@ -5069,15 +5288,15 @@ func readReferentialIntegrityPluginResponse(ctx context.Context, r *client.Refer
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a ReferentialIntegrityPluginResponse object into the model struct
@@ -5089,15 +5308,15 @@ func readReferentialIntegrityPluginResponseDefault(ctx context.Context, r *clien
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a UniqueAttributePluginResponse object into the model struct
@@ -5109,7 +5328,7 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), true)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}
@@ -5122,7 +5341,7 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValues(ctx, state)
+	populatePluginUnknownValues(state)
 }
 
 // Read a UniqueAttributePluginResponse object into the model struct
@@ -5134,7 +5353,7 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), true)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}
@@ -5143,11 +5362,11 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 		filterValues = append(filterValues, filterType.ValueString())
 	}
 	state.Filter = internaltypes.GetStringSet(filterValues)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginUnknownValuesDefault(ctx, state)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

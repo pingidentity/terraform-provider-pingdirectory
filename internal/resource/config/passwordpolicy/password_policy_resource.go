@@ -410,10 +410,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"failure_lockout_action": schema.StringAttribute{
 				Description: "The action that the server should take for authentication attempts that target a user with more than the configured number of outstanding authentication failures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"idle_lockout_interval": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that an account may remain idle (that is, the associated user does not authenticate to the server) before that user is locked out.",
@@ -505,34 +501,18 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"maximum_recent_login_history_successful_authentication_count": schema.Int64Attribute{
 				Description: "The maximum number of successful authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_successful_authentication_duration": schema.StringAttribute{
 				Description: "The maximum age of successful authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_failed_authentication_count": schema.Int64Attribute{
 				Description: "The maximum number of failed authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_failed_authentication_duration": schema.StringAttribute{
 				Description: "The maximum age of failed authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"recent_login_history_similar_attempt_behavior": schema.StringAttribute{
 				Description: "The behavior that the server will exhibit when multiple similar authentication attempts (with the same values for the successful, authentication-method, client-ip-address, and failure-reason fields) are processed for an account.",
@@ -576,6 +556,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -807,6 +790,85 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.StateUpdateFailurePolicy.IsUnknown() || model.StateUpdateFailurePolicy.IsNull() {
+		model.StateUpdateFailurePolicy = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.LockoutDuration.IsUnknown() || model.LockoutDuration.IsNull() {
+		model.LockoutDuration = types.StringValue("")
+	}
+	if model.RequireChangeByTime.IsUnknown() || model.RequireChangeByTime.IsNull() {
+		model.RequireChangeByTime = types.StringValue("")
+	}
+	if model.MaximumRecentLoginHistoryFailedAuthenticationDuration.IsUnknown() || model.MaximumRecentLoginHistoryFailedAuthenticationDuration.IsNull() {
+		model.MaximumRecentLoginHistoryFailedAuthenticationDuration = types.StringValue("")
+	}
+	if model.PasswordHistoryDuration.IsUnknown() || model.PasswordHistoryDuration.IsNull() {
+		model.PasswordHistoryDuration = types.StringValue("")
+	}
+	if model.BindPasswordValidationFailureAction.IsUnknown() || model.BindPasswordValidationFailureAction.IsNull() {
+		model.BindPasswordValidationFailureAction = types.StringValue("")
+	}
+	if model.IdleLockoutInterval.IsUnknown() || model.IdleLockoutInterval.IsNull() {
+		model.IdleLockoutInterval = types.StringValue("")
+	}
+	if model.LastLoginTimeAttribute.IsUnknown() || model.LastLoginTimeAttribute.IsNull() {
+		model.LastLoginTimeAttribute = types.StringValue("")
+	}
+	if model.MaxPasswordResetAge.IsUnknown() || model.MaxPasswordResetAge.IsNull() {
+		model.MaxPasswordResetAge = types.StringValue("")
+	}
+	if model.MinPasswordAge.IsUnknown() || model.MinPasswordAge.IsNull() {
+		model.MinPasswordAge = types.StringValue("")
+	}
+	if model.PasswordGenerator.IsUnknown() || model.PasswordGenerator.IsNull() {
+		model.PasswordGenerator = types.StringValue("")
+	}
+	if model.LastLoginTimeFormat.IsUnknown() || model.LastLoginTimeFormat.IsNull() {
+		model.LastLoginTimeFormat = types.StringValue("")
+	}
+	if model.MinimumBindPasswordValidationFrequency.IsUnknown() || model.MinimumBindPasswordValidationFrequency.IsNull() {
+		model.MinimumBindPasswordValidationFrequency = types.StringValue("")
+	}
+	if model.PasswordAttribute.IsUnknown() || model.PasswordAttribute.IsNull() {
+		model.PasswordAttribute = types.StringValue("")
+	}
+	if model.MaxRetiredPasswordAge.IsUnknown() || model.MaxRetiredPasswordAge.IsNull() {
+		model.MaxRetiredPasswordAge = types.StringValue("")
+	}
+	if model.PasswordExpirationWarningInterval.IsUnknown() || model.PasswordExpirationWarningInterval.IsNull() {
+		model.PasswordExpirationWarningInterval = types.StringValue("")
+	}
+	if model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration.IsUnknown() || model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration.IsNull() {
+		model.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = types.StringValue("")
+	}
+	if model.RecentLoginHistorySimilarAttemptBehavior.IsUnknown() || model.RecentLoginHistorySimilarAttemptBehavior.IsNull() {
+		model.RecentLoginHistorySimilarAttemptBehavior = types.StringValue("")
+	}
+	if model.FailureLockoutAction.IsUnknown() || model.FailureLockoutAction.IsNull() {
+		model.FailureLockoutAction = types.StringValue("")
+	}
+	if model.MaxPasswordAge.IsUnknown() || model.MaxPasswordAge.IsNull() {
+		model.MaxPasswordAge = types.StringValue("")
+	}
+	if model.LastLoginIPAddressAttribute.IsUnknown() || model.LastLoginIPAddressAttribute.IsNull() {
+		model.LastLoginIPAddressAttribute = types.StringValue("")
+	}
+	if model.AllowPreEncodedPasswords.IsUnknown() || model.AllowPreEncodedPasswords.IsNull() {
+		model.AllowPreEncodedPasswords = types.StringValue("")
+	}
+	if model.ReturnPasswordExpirationControls.IsUnknown() || model.ReturnPasswordExpirationControls.IsNull() {
+		model.ReturnPasswordExpirationControls = types.StringValue("")
+	}
+	if model.LockoutFailureExpirationInterval.IsUnknown() || model.LockoutFailureExpirationInterval.IsNull() {
+		model.LockoutFailureExpirationInterval = types.StringValue("")
+	}
+}
+
 // Read a PasswordPolicyResponse object into the model struct
 func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyResponse, state *passwordPolicyResourceModel, expectedValues *passwordPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-policy")
@@ -817,65 +879,65 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.RequireSecurePasswordChanges = internaltypes.BoolTypeOrNil(r.RequireSecurePasswordChanges)
 	state.AccountStatusNotificationHandler = internaltypes.GetStringSet(r.AccountStatusNotificationHandler)
 	state.StateUpdateFailurePolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyStateUpdateFailurePolicyProp(r.StateUpdateFailurePolicy), internaltypes.IsEmptyString(expectedValues.StateUpdateFailurePolicy))
+		client.StringPointerEnumpasswordPolicyStateUpdateFailurePolicyProp(r.StateUpdateFailurePolicy), true)
 	state.EnableDebug = internaltypes.BoolTypeOrNil(r.EnableDebug)
 	state.PasswordAttribute = types.StringValue(r.PasswordAttribute)
 	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
 	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
 	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
 	state.AllowPreEncodedPasswords = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), internaltypes.IsEmptyString(expectedValues.AllowPreEncodedPasswords))
+		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), true)
 	state.PasswordValidator = internaltypes.GetStringSet(r.PasswordValidator)
 	state.BindPasswordValidator = internaltypes.GetStringSet(r.BindPasswordValidator)
-	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, internaltypes.IsEmptyString(expectedValues.MinimumBindPasswordValidationFrequency))
+	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, true)
 	config.CheckMismatchedPDFormattedAttributes("minimum_bind_password_validation_frequency",
 		expectedValues.MinimumBindPasswordValidationFrequency, state.MinimumBindPasswordValidationFrequency, diagnostics)
 	state.BindPasswordValidationFailureAction = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyBindPasswordValidationFailureActionProp(r.BindPasswordValidationFailureAction), internaltypes.IsEmptyString(expectedValues.BindPasswordValidationFailureAction))
+		client.StringPointerEnumpasswordPolicyBindPasswordValidationFailureActionProp(r.BindPasswordValidationFailureAction), true)
 	state.PasswordGenerator = internaltypes.StringTypeOrNil(r.PasswordGenerator, internaltypes.IsEmptyString(expectedValues.PasswordGenerator))
 	state.PasswordHistoryCount = internaltypes.Int64TypeOrNil(r.PasswordHistoryCount)
-	state.PasswordHistoryDuration = internaltypes.StringTypeOrNil(r.PasswordHistoryDuration, internaltypes.IsEmptyString(expectedValues.PasswordHistoryDuration))
+	state.PasswordHistoryDuration = internaltypes.StringTypeOrNil(r.PasswordHistoryDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("password_history_duration",
 		expectedValues.PasswordHistoryDuration, state.PasswordHistoryDuration, diagnostics)
-	state.MinPasswordAge = internaltypes.StringTypeOrNil(r.MinPasswordAge, internaltypes.IsEmptyString(expectedValues.MinPasswordAge))
+	state.MinPasswordAge = internaltypes.StringTypeOrNil(r.MinPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("min_password_age",
 		expectedValues.MinPasswordAge, state.MinPasswordAge, diagnostics)
-	state.MaxPasswordAge = internaltypes.StringTypeOrNil(r.MaxPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordAge))
+	state.MaxPasswordAge = internaltypes.StringTypeOrNil(r.MaxPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_password_age",
 		expectedValues.MaxPasswordAge, state.MaxPasswordAge, diagnostics)
-	state.PasswordExpirationWarningInterval = internaltypes.StringTypeOrNil(r.PasswordExpirationWarningInterval, internaltypes.IsEmptyString(expectedValues.PasswordExpirationWarningInterval))
+	state.PasswordExpirationWarningInterval = internaltypes.StringTypeOrNil(r.PasswordExpirationWarningInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("password_expiration_warning_interval",
 		expectedValues.PasswordExpirationWarningInterval, state.PasswordExpirationWarningInterval, diagnostics)
 	state.ExpirePasswordsWithoutWarning = internaltypes.BoolTypeOrNil(r.ExpirePasswordsWithoutWarning)
 	state.ReturnPasswordExpirationControls = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyReturnPasswordExpirationControlsProp(r.ReturnPasswordExpirationControls), internaltypes.IsEmptyString(expectedValues.ReturnPasswordExpirationControls))
+		client.StringPointerEnumpasswordPolicyReturnPasswordExpirationControlsProp(r.ReturnPasswordExpirationControls), true)
 	state.AllowExpiredPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowExpiredPasswordChanges)
 	state.GraceLoginCount = internaltypes.Int64TypeOrNil(r.GraceLoginCount)
 	state.RequireChangeByTime = internaltypes.StringTypeOrNil(r.RequireChangeByTime, internaltypes.IsEmptyString(expectedValues.RequireChangeByTime))
 	state.LockoutFailureCount = internaltypes.Int64TypeOrNil(r.LockoutFailureCount)
-	state.LockoutDuration = internaltypes.StringTypeOrNil(r.LockoutDuration, internaltypes.IsEmptyString(expectedValues.LockoutDuration))
+	state.LockoutDuration = internaltypes.StringTypeOrNil(r.LockoutDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("lockout_duration",
 		expectedValues.LockoutDuration, state.LockoutDuration, diagnostics)
-	state.LockoutFailureExpirationInterval = internaltypes.StringTypeOrNil(r.LockoutFailureExpirationInterval, internaltypes.IsEmptyString(expectedValues.LockoutFailureExpirationInterval))
+	state.LockoutFailureExpirationInterval = internaltypes.StringTypeOrNil(r.LockoutFailureExpirationInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("lockout_failure_expiration_interval",
 		expectedValues.LockoutFailureExpirationInterval, state.LockoutFailureExpirationInterval, diagnostics)
 	state.IgnoreDuplicatePasswordFailures = internaltypes.BoolTypeOrNil(r.IgnoreDuplicatePasswordFailures)
 	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, internaltypes.IsEmptyString(expectedValues.FailureLockoutAction))
-	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, internaltypes.IsEmptyString(expectedValues.IdleLockoutInterval))
+	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("idle_lockout_interval",
 		expectedValues.IdleLockoutInterval, state.IdleLockoutInterval, diagnostics)
 	state.AllowUserPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowUserPasswordChanges)
 	state.PasswordChangeRequiresCurrentPassword = internaltypes.BoolTypeOrNil(r.PasswordChangeRequiresCurrentPassword)
 	state.PasswordRetirementBehavior = internaltypes.GetStringSet(
 		client.StringSliceEnumpasswordPolicyPasswordRetirementBehaviorProp(r.PasswordRetirementBehavior))
-	state.MaxRetiredPasswordAge = internaltypes.StringTypeOrNil(r.MaxRetiredPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxRetiredPasswordAge))
+	state.MaxRetiredPasswordAge = internaltypes.StringTypeOrNil(r.MaxRetiredPasswordAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_retired_password_age",
 		expectedValues.MaxRetiredPasswordAge, state.MaxRetiredPasswordAge, diagnostics)
 	state.AllowedPasswordResetTokenUseCondition = internaltypes.GetStringSet(
 		client.StringSliceEnumpasswordPolicyAllowedPasswordResetTokenUseConditionProp(r.AllowedPasswordResetTokenUseCondition))
 	state.ForceChangeOnAdd = internaltypes.BoolTypeOrNil(r.ForceChangeOnAdd)
 	state.ForceChangeOnReset = internaltypes.BoolTypeOrNil(r.ForceChangeOnReset)
-	state.MaxPasswordResetAge = internaltypes.StringTypeOrNil(r.MaxPasswordResetAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordResetAge))
+	state.MaxPasswordResetAge = internaltypes.StringTypeOrNil(r.MaxPasswordResetAge, true)
 	config.CheckMismatchedPDFormattedAttributes("max_password_reset_age",
 		expectedValues.MaxPasswordResetAge, state.MaxPasswordResetAge, diagnostics)
 	state.SkipValidationForAdministrators = internaltypes.BoolTypeOrNil(r.SkipValidationForAdministrators)
@@ -888,9 +950,9 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_failed_authentication_duration",
 		expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, diagnostics)
 	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), internaltypes.IsEmptyString(expectedValues.RecentLoginHistorySimilarAttemptBehavior))
+		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), true)
 	state.LastLoginIPAddressAttribute = internaltypes.StringTypeOrNil(r.LastLoginIPAddressAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginIPAddressAttribute))
-	state.LastLoginTimeAttribute = internaltypes.StringTypeOrNil(r.LastLoginTimeAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginTimeAttribute))
+	state.LastLoginTimeAttribute = internaltypes.StringTypeOrNil(r.LastLoginTimeAttribute, true)
 	state.LastLoginTimeFormat = internaltypes.StringTypeOrNil(r.LastLoginTimeFormat, internaltypes.IsEmptyString(expectedValues.LastLoginTimeFormat))
 	state.PreviousLastLoginTimeFormat = internaltypes.GetStringSet(r.PreviousLastLoginTimeFormat)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1073,6 +1135,7 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1118,6 +1181,10 @@ func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *res
 
 	// Read the response into the state
 	readPasswordPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

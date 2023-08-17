@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -191,7 +192,9 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -204,6 +207,21 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 func configValidatorsUncachedAttributeCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("min_value_count"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
@@ -214,29 +232,14 @@ func configValidatorsUncachedAttributeCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -301,15 +304,31 @@ func addOptionalThirdPartyUncachedAttributeCriteriaFields(ctx context.Context, a
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateUncachedAttributeCriteriaUnknownValues(ctx context.Context, model *uncachedAttributeCriteriaResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populateUncachedAttributeCriteriaUnknownValues(model *uncachedAttributeCriteriaResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AttributeType.ElementType(ctx) == nil {
-		model.AttributeType = types.SetNull(types.StringType)
+	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.MinTotalValueSize.IsUnknown() || model.MinTotalValueSize.IsNull() {
+		model.MinTotalValueSize = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *uncachedAttributeCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -321,7 +340,7 @@ func readDefaultUncachedAttributeCriteriaResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a GroovyScriptedUncachedAttributeCriteriaResponse object into the model struct
@@ -334,7 +353,7 @@ func readGroovyScriptedUncachedAttributeCriteriaResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a SimpleUncachedAttributeCriteriaResponse object into the model struct
@@ -344,13 +363,13 @@ func readSimpleUncachedAttributeCriteriaResponse(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.MinValueCount = internaltypes.Int64TypeOrNil(r.MinValueCount)
-	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, internaltypes.IsEmptyString(expectedValues.MinTotalValueSize))
+	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, true)
 	config.CheckMismatchedPDFormattedAttributes("min_total_value_size",
 		expectedValues.MinTotalValueSize, state.MinTotalValueSize, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyUncachedAttributeCriteriaResponse object into the model struct
@@ -363,7 +382,7 @@ func readThirdPartyUncachedAttributeCriteriaResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedAttributeCriteriaUnknownValues(ctx, state)
+	populateUncachedAttributeCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -648,6 +667,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -703,6 +723,10 @@ func readUncachedAttributeCriteria(ctx context.Context, req resource.ReadRequest
 	}
 	if readResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

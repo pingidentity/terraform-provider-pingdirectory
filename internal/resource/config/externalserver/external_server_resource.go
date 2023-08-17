@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -187,10 +188,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"conjur_server_base_uri": schema.SetAttribute{
 				Description: "The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol (\"http\" or \"https\"), the server address (resolvable name or IP address), and the port number. For example, \"https://conjur.example.com:8443/\".",
@@ -265,10 +262,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The certificate alias within the keystore to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"response_timeout": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne. When the `type` attribute is set to `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
@@ -282,18 +275,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"basic_authentication_username": schema.StringAttribute{
 				Description: "The username to use to authenticate to the HTTP Proxy External Server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"basic_authentication_passphrase_provider": schema.StringAttribute{
 				Description: "A passphrase provider that provides access to the password to use to authenticate to the HTTP Proxy External Server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
@@ -404,10 +389,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"health_check_connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_connection_age": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections. When the `type` attribute is set to `syslog`: The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
@@ -447,10 +428,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store. When the `type` attribute is set to `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.\n  - `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security. When the `type` attribute is set to `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption. When the `type` attribute is set to `ping-one-http`: The trust manager provider to use for HTTPS connection-level security. When the `type` attribute is set to `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
@@ -532,7 +509,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -591,17 +570,42 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("smtp_connection_properties"),
+			path.MatchRoot("server_host_name"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_security"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connections"),
+			path.MatchRoot("user_name"),
 			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			[]string{"smtp", "jdbc"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("smtp_security"),
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_timeout"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("smtp_connection_properties"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
 		),
@@ -611,219 +615,9 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password"),
-			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("abandon_on_timeout"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("basic_authentication_username"),
-			path.MatchRoot("type"),
-			[]string{"http-proxy"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_host_name"),
-			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connection_age"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_server_base_uri"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_file"),
-			path.MatchRoot("type"),
-			[]string{"conjur", "vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("hostname_verification_method"),
-			path.MatchRoot("type"),
-			[]string{"ping-one-http", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_url"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("defunct_connection_result_code"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("validation_query"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jdbc_driver_type"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_name"),
-			path.MatchRoot("type"),
-			[]string{"smtp", "jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_access_key_id"),
-			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory", "amazon-aws"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jdbc_driver_url"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("health_check_connect_timeout"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("use_administrative_operation_control"),
 			path.MatchRoot("type"),
 			[]string{"nokia-ds", "ping-identity-ds", "ping-identity-proxy-server", "nokia-proxy-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("smtp_timeout"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("validation_query_timeout"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin"),
-			path.MatchRoot("type"),
-			[]string{"conjur", "vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_region_name"),
-			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_port"),
-			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "http", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("response_timeout"),
-			path.MatchRoot("type"),
-			[]string{"ping-one-http", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_account_name"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"conjur", "vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("basic_authentication_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"http-proxy"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("transaction_isolation_level"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_expired_connection_disconnect_interval"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jdbc_connection_properties"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("initial_connections"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("connect_timeout"),
-			path.MatchRoot("type"),
-			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_server_base_uri"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_secret_access_key"),
-			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("database_name"),
-			path.MatchRoot("type"),
-			[]string{"jdbc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_cert_nickname"),
-			path.MatchRoot("type"),
-			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("location"),
@@ -831,7 +625,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_response_size"),
+			path.MatchRoot("bind_dn"),
 			path.MatchRoot("type"),
 			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
@@ -841,9 +635,194 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory", "amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("health_check_connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connection_age"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_expired_connection_disconnect_interval"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_response_size"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("defunct_connection_result_code"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("abandon_on_timeout"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_driver_type"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_driver_url"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("database_name"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validation_query"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validation_query_timeout"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jdbc_connection_properties"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("transaction_isolation_level"),
+			path.MatchRoot("type"),
+			[]string{"jdbc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("transport_mechanism"),
 			path.MatchRoot("type"),
 			[]string{"syslog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("basic_authentication_username"),
+			path.MatchRoot("type"),
+			[]string{"http-proxy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("basic_authentication_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"http-proxy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hostname_verification_method"),
+			path.MatchRoot("type"),
+			[]string{"ping-one-http", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("response_timeout"),
+			path.MatchRoot("type"),
+			[]string{"ping-one-http", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_url"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_account_name"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_access_key_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_secret_access_key"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_region_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
 		),
 	}
 }
@@ -1963,21 +1942,66 @@ func addOptionalVaultExternalServerFields(ctx context.Context, addRequest *clien
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateExternalServerUnknownValues(ctx context.Context, model *externalServerResourceModel) {
-	if model.VaultServerBaseURI.ElementType(ctx) == nil {
-		model.VaultServerBaseURI = types.SetNull(types.StringType)
+func populateExternalServerUnknownValues(model *externalServerResourceModel) {
+	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ConjurServerBaseURI.ElementType(ctx) == nil {
-		model.ConjurServerBaseURI = types.SetNull(types.StringType)
+	if model.ConjurServerBaseURI.IsUnknown() || model.ConjurServerBaseURI.IsNull() {
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefunctConnectionResultCode.ElementType(ctx) == nil {
-		model.DefunctConnectionResultCode = types.SetNull(types.StringType)
+	if model.DefunctConnectionResultCode.IsUnknown() || model.DefunctConnectionResultCode.IsNull() {
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SmtpConnectionProperties.ElementType(ctx) == nil {
-		model.SmtpConnectionProperties = types.SetNull(types.StringType)
+	if model.SmtpConnectionProperties.IsUnknown() || model.SmtpConnectionProperties.IsNull() {
+		model.SmtpConnectionProperties, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JdbcConnectionProperties.ElementType(ctx) == nil {
-		model.JdbcConnectionProperties = types.SetNull(types.StringType)
+	if model.JdbcConnectionProperties.IsUnknown() || model.JdbcConnectionProperties.IsNull() {
+		model.JdbcConnectionProperties, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ConnectTimeout.IsUnknown() || model.ConnectTimeout.IsNull() {
+		model.ConnectTimeout = types.StringValue("")
+	}
+	if model.MaxResponseSize.IsUnknown() || model.MaxResponseSize.IsNull() {
+		model.MaxResponseSize = types.StringValue("")
+	}
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.HostnameVerificationMethod.IsUnknown() || model.HostnameVerificationMethod.IsNull() {
+		model.HostnameVerificationMethod = types.StringValue("")
+	}
+	if model.ValidationQueryTimeout.IsUnknown() || model.ValidationQueryTimeout.IsNull() {
+		model.ValidationQueryTimeout = types.StringValue("")
+	}
+	if model.SmtpSecurity.IsUnknown() || model.SmtpSecurity.IsNull() {
+		model.SmtpSecurity = types.StringValue("")
+	}
+	if model.AuthenticationMethod.IsUnknown() || model.AuthenticationMethod.IsNull() {
+		model.AuthenticationMethod = types.StringValue("")
+	}
+	if model.VerifyCredentialsMethod.IsUnknown() || model.VerifyCredentialsMethod.IsNull() {
+		model.VerifyCredentialsMethod = types.StringValue("")
+	}
+	if model.TransactionIsolationLevel.IsUnknown() || model.TransactionIsolationLevel.IsNull() {
+		model.TransactionIsolationLevel = types.StringValue("")
+	}
+	if model.ConnectionSecurity.IsUnknown() || model.ConnectionSecurity.IsNull() {
+		model.ConnectionSecurity = types.StringValue("")
+	}
+	if model.ResponseTimeout.IsUnknown() || model.ResponseTimeout.IsNull() {
+		model.ResponseTimeout = types.StringValue("")
+	}
+	if model.SmtpTimeout.IsUnknown() || model.SmtpTimeout.IsNull() {
+		model.SmtpTimeout = types.StringValue("")
+	}
+	if model.MinExpiredConnectionDisconnectInterval.IsUnknown() || model.MinExpiredConnectionDisconnectInterval.IsNull() {
+		model.MinExpiredConnectionDisconnectInterval = types.StringValue("")
+	}
+	if model.MaxConnectionAge.IsUnknown() || model.MaxConnectionAge.IsNull() {
+		model.MaxConnectionAge = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
@@ -1990,6 +2014,82 @@ func populateExternalServerUnknownValues(ctx context.Context, model *externalSer
 	}
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *externalServerResourceModel) populateAllComputedStringAttributes() {
+	if model.UserName.IsUnknown() || model.UserName.IsNull() {
+		model.UserName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.BasicAuthenticationPassphraseProvider.IsUnknown() || model.BasicAuthenticationPassphraseProvider.IsNull() {
+		model.BasicAuthenticationPassphraseProvider = types.StringValue("")
+	}
+	if model.AwsRegionName.IsUnknown() || model.AwsRegionName.IsNull() {
+		model.AwsRegionName = types.StringValue("")
+	}
+	if model.VaultAuthenticationMethod.IsUnknown() || model.VaultAuthenticationMethod.IsNull() {
+		model.VaultAuthenticationMethod = types.StringValue("")
+	}
+	if model.ConjurAccountName.IsUnknown() || model.ConjurAccountName.IsNull() {
+		model.ConjurAccountName = types.StringValue("")
+	}
+	if model.JdbcDriverType.IsUnknown() || model.JdbcDriverType.IsNull() {
+		model.JdbcDriverType = types.StringValue("")
+	}
+	if model.HealthCheckConnectTimeout.IsUnknown() || model.HealthCheckConnectTimeout.IsNull() {
+		model.HealthCheckConnectTimeout = types.StringValue("")
+	}
+	if model.DatabaseName.IsUnknown() || model.DatabaseName.IsNull() {
+		model.DatabaseName = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.ConjurAuthenticationMethod.IsUnknown() || model.ConjurAuthenticationMethod.IsNull() {
+		model.ConjurAuthenticationMethod = types.StringValue("")
+	}
+	if model.ValidationQuery.IsUnknown() || model.ValidationQuery.IsNull() {
+		model.ValidationQuery = types.StringValue("")
+	}
+	if model.TransportMechanism.IsUnknown() || model.TransportMechanism.IsNull() {
+		model.TransportMechanism = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.JdbcDriverURL.IsUnknown() || model.JdbcDriverURL.IsNull() {
+		model.JdbcDriverURL = types.StringValue("")
+	}
+	if model.BasicAuthenticationUsername.IsUnknown() || model.BasicAuthenticationUsername.IsNull() {
+		model.BasicAuthenticationUsername = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
+	if model.PassphraseProvider.IsUnknown() || model.PassphraseProvider.IsNull() {
+		model.PassphraseProvider = types.StringValue("")
+	}
+	if model.BaseURL.IsUnknown() || model.BaseURL.IsNull() {
+		model.BaseURL = types.StringValue("")
+	}
+	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
+		model.AwsAccessKeyID = types.StringValue("")
+	}
+	if model.BindDN.IsUnknown() || model.BindDN.IsNull() {
+		model.BindDN = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.Location.IsUnknown() || model.Location.IsNull() {
+		model.Location = types.StringValue("")
+	}
+}
+
 // Read a SmtpExternalServerResponse object into the model struct
 func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
@@ -1998,16 +2098,16 @@ func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalS
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.SmtpSecurity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerSmtpSecurityProp(r.SmtpSecurity), internaltypes.IsEmptyString(expectedValues.SmtpSecurity))
+		client.StringPointerEnumexternalServerSmtpSecurityProp(r.SmtpSecurity), true)
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
-	state.SmtpTimeout = internaltypes.StringTypeOrNil(r.SmtpTimeout, internaltypes.IsEmptyString(expectedValues.SmtpTimeout))
+	state.SmtpTimeout = internaltypes.StringTypeOrNil(r.SmtpTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("smtp_timeout",
 		expectedValues.SmtpTimeout, state.SmtpTimeout, diagnostics)
 	state.SmtpConnectionProperties = internaltypes.GetStringSet(r.SmtpConnectionProperties)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a NokiaDsExternalServerResponse object into the model struct
@@ -2030,7 +2130,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2040,7 +2140,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2048,7 +2148,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingIdentityDsExternalServerResponse object into the model struct
@@ -2071,7 +2171,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2081,7 +2181,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2089,7 +2189,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a ActiveDirectoryExternalServerResponse object into the model struct
@@ -2111,7 +2211,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2121,7 +2221,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2129,7 +2229,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a JdbcExternalServerResponse object into the model struct
@@ -2145,15 +2245,15 @@ func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalS
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ValidationQuery = internaltypes.StringTypeOrNil(r.ValidationQuery, internaltypes.IsEmptyString(expectedValues.ValidationQuery))
-	state.ValidationQueryTimeout = internaltypes.StringTypeOrNil(r.ValidationQueryTimeout, internaltypes.IsEmptyString(expectedValues.ValidationQueryTimeout))
+	state.ValidationQueryTimeout = internaltypes.StringTypeOrNil(r.ValidationQueryTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("validation_query_timeout",
 		expectedValues.ValidationQueryTimeout, state.ValidationQueryTimeout, diagnostics)
 	state.JdbcConnectionProperties = internaltypes.GetStringSet(r.JdbcConnectionProperties)
 	state.TransactionIsolationLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerTransactionIsolationLevelProp(r.TransactionIsolationLevel), internaltypes.IsEmptyString(expectedValues.TransactionIsolationLevel))
+		client.StringPointerEnumexternalServerTransactionIsolationLevelProp(r.TransactionIsolationLevel), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a SyslogExternalServerResponse object into the model struct
@@ -2173,7 +2273,7 @@ func readSyslogExternalServerResponse(ctx context.Context, r *client.SyslogExter
 	state.TrustManagerProvider = types.StringValue(r.TrustManagerProvider)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingIdentityProxyServerExternalServerResponse object into the model struct
@@ -2196,7 +2296,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2206,7 +2306,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2214,7 +2314,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a HttpProxyExternalServerResponse object into the model struct
@@ -2228,7 +2328,7 @@ func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProx
 	state.BasicAuthenticationPassphraseProvider = internaltypes.StringTypeOrNil(r.BasicAuthenticationPassphraseProvider, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a NokiaProxyServerExternalServerResponse object into the model struct
@@ -2251,7 +2351,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2261,7 +2361,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2269,7 +2369,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a OpendjExternalServerResponse object into the model struct
@@ -2291,7 +2391,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2301,7 +2401,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2309,7 +2409,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a LdapExternalServerResponse object into the model struct
@@ -2331,7 +2431,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2341,7 +2441,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2349,7 +2449,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a PingOneHttpExternalServerResponse object into the model struct
@@ -2358,17 +2458,17 @@ func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOn
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
-	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, internaltypes.IsEmptyString(expectedValues.ConnectTimeout))
+		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), true)
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_timeout",
 		expectedValues.ConnectTimeout, state.ConnectTimeout, diagnostics)
-	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, internaltypes.IsEmptyString(expectedValues.ResponseTimeout))
+	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("response_timeout",
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a HttpExternalServerResponse object into the model struct
@@ -2378,19 +2478,19 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 	state.Name = types.StringValue(r.Id)
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
+		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), true)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
-	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, internaltypes.IsEmptyString(expectedValues.ConnectTimeout))
+	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("connect_timeout",
 		expectedValues.ConnectTimeout, state.ConnectTimeout, diagnostics)
-	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, internaltypes.IsEmptyString(expectedValues.ResponseTimeout))
+	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("response_timeout",
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a OracleUnifiedDirectoryExternalServerResponse object into the model struct
@@ -2412,7 +2512,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.MaxConnectionAge = types.StringValue(r.MaxConnectionAge)
 	config.CheckMismatchedPDFormattedAttributes("max_connection_age",
 		expectedValues.MaxConnectionAge, state.MaxConnectionAge, diagnostics)
-	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, internaltypes.IsEmptyString(expectedValues.MinExpiredConnectionDisconnectInterval))
+	state.MinExpiredConnectionDisconnectInterval = internaltypes.StringTypeOrNil(r.MinExpiredConnectionDisconnectInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("min_expired_connection_disconnect_interval",
 		expectedValues.MinExpiredConnectionDisconnectInterval, state.MinExpiredConnectionDisconnectInterval, diagnostics)
 	state.ConnectTimeout = types.StringValue(r.ConnectTimeout)
@@ -2422,7 +2522,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	config.CheckMismatchedPDFormattedAttributes("max_response_size",
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -2430,7 +2530,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.AbandonOnTimeout = internaltypes.BoolTypeOrNil(r.AbandonOnTimeout)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a ConjurExternalServerResponse object into the model struct
@@ -2442,10 +2542,10 @@ func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExter
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a AmazonAwsExternalServerResponse object into the model struct
@@ -2455,12 +2555,12 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 	state.Name = types.StringValue(r.Id)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), internaltypes.IsEmptyString(expectedValues.AuthenticationMethod))
+		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), true)
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
 	state.AwsRegionName = types.StringValue(r.AwsRegionName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Read a VaultExternalServerResponse object into the model struct
@@ -2471,10 +2571,10 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExternalServerUnknownValues(ctx, state)
+	populateExternalServerUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -3497,6 +3597,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3591,6 +3692,10 @@ func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 	if readResponse.VaultExternalServerResponse != nil {
 		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

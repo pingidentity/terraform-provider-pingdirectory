@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -211,7 +212,9 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -224,42 +227,12 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 func configValidatorsPasswordGenerator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dictionary_file"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_format"),
+			path.MatchRoot("password_character_set"),
 			path.MatchRoot("type"),
 			[]string{"random"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_password_characters"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_password_words"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_character_set"),
+			path.MatchRoot("password_format"),
 			path.MatchRoot("type"),
 			[]string{"random"},
 		),
@@ -269,9 +242,39 @@ func configValidatorsPasswordGenerator() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dictionary_file"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_characters"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_words"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("capitalize_words"),
 			path.MatchRoot("type"),
 			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -338,15 +341,34 @@ func addOptionalThirdPartyPasswordGeneratorFields(ctx context.Context, addReques
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populatePasswordGeneratorUnknownValues(ctx context.Context, model *passwordGeneratorResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+func populatePasswordGeneratorUnknownValues(model *passwordGeneratorResourceModel) {
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PasswordCharacterSet.ElementType(ctx) == nil {
-		model.PasswordCharacterSet = types.SetNull(types.StringType)
+	if model.PasswordCharacterSet.IsUnknown() || model.PasswordCharacterSet.IsNull() {
+		model.PasswordCharacterSet, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passwordGeneratorResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.PasswordFormat.IsUnknown() || model.PasswordFormat.IsNull() {
+		model.PasswordFormat = types.StringValue("")
+	}
+	if model.DictionaryFile.IsUnknown() || model.DictionaryFile.IsNull() {
+		model.DictionaryFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
 	}
 }
 
@@ -360,7 +382,7 @@ func readRandomPasswordGeneratorResponse(ctx context.Context, r *client.RandomPa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a GroovyScriptedPasswordGeneratorResponse object into the model struct
@@ -373,7 +395,7 @@ func readGroovyScriptedPasswordGeneratorResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a PassphrasePasswordGeneratorResponse object into the model struct
@@ -388,7 +410,7 @@ func readPassphrasePasswordGeneratorResponse(ctx context.Context, r *client.Pass
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Read a ThirdPartyPasswordGeneratorResponse object into the model struct
@@ -401,7 +423,7 @@ func readThirdPartyPasswordGeneratorResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePasswordGeneratorUnknownValues(ctx, state)
+	populatePasswordGeneratorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -691,6 +713,7 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -746,6 +769,10 @@ func readPasswordGenerator(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.ThirdPartyPasswordGeneratorResponse != nil {
 		readThirdPartyPasswordGeneratorResponse(ctx, readResponse.ThirdPartyPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

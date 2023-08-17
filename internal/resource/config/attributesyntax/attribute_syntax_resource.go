@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -83,6 +85,9 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"attribute-type-description", "directory-string", "telephone-number", "distinguished-name", "generalized-time", "integer", "uuid", "generic", "json-object", "user-password", "boolean", "hex-string", "bit-string", "ldap-url", "name-and-optional-uid"}...),
 				},
@@ -164,14 +169,19 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("strip_syntax_min_upper_bound"),
+			path.MatchRoot("type"),
+			[]string{"attribute-type-description"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_zero_length_values"),
+			path.MatchRoot("type"),
+			[]string{"directory-string"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("strict_format"),
 			path.MatchRoot("type"),
 			[]string{"telephone-number", "ldap-url"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute_from_compaction"),
-			path.MatchRoot("type"),
-			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("enable_compaction"),
@@ -184,25 +194,20 @@ func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resourc
 			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("strip_syntax_min_upper_bound"),
+			path.MatchRoot("exclude_attribute_from_compaction"),
 			path.MatchRoot("type"),
-			[]string{"attribute-type-description"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_zero_length_values"),
-			path.MatchRoot("type"),
-			[]string{"directory-string"},
+			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAttributeSyntaxUnknownValues(ctx context.Context, model *attributeSyntaxResourceModel) {
-	if model.ExcludeAttributeFromCompaction.ElementType(ctx) == nil {
-		model.ExcludeAttributeFromCompaction = types.SetNull(types.StringType)
+func populateAttributeSyntaxUnknownValues(model *attributeSyntaxResourceModel) {
+	if model.ExcludeAttributeFromCompaction.IsUnknown() || model.ExcludeAttributeFromCompaction.IsNull() {
+		model.ExcludeAttributeFromCompaction, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeAttributeInCompaction.ElementType(ctx) == nil {
-		model.IncludeAttributeInCompaction = types.SetNull(types.StringType)
+	if model.IncludeAttributeInCompaction.IsUnknown() || model.IncludeAttributeInCompaction.IsNull() {
+		model.IncludeAttributeInCompaction, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 
@@ -215,7 +220,7 @@ func readAttributeTypeDescriptionAttributeSyntaxResponse(ctx context.Context, r 
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a DirectoryStringAttributeSyntaxResponse object into the model struct
@@ -227,7 +232,7 @@ func readDirectoryStringAttributeSyntaxResponse(ctx context.Context, r *client.D
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a TelephoneNumberAttributeSyntaxResponse object into the model struct
@@ -239,7 +244,7 @@ func readTelephoneNumberAttributeSyntaxResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a DistinguishedNameAttributeSyntaxResponse object into the model struct
@@ -253,7 +258,7 @@ func readDistinguishedNameAttributeSyntaxResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a GeneralizedTimeAttributeSyntaxResponse object into the model struct
@@ -267,7 +272,7 @@ func readGeneralizedTimeAttributeSyntaxResponse(ctx context.Context, r *client.G
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a IntegerAttributeSyntaxResponse object into the model struct
@@ -281,7 +286,7 @@ func readIntegerAttributeSyntaxResponse(ctx context.Context, r *client.IntegerAt
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a UuidAttributeSyntaxResponse object into the model struct
@@ -295,7 +300,7 @@ func readUuidAttributeSyntaxResponse(ctx context.Context, r *client.UuidAttribut
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a GenericAttributeSyntaxResponse object into the model struct
@@ -306,7 +311,7 @@ func readGenericAttributeSyntaxResponse(ctx context.Context, r *client.GenericAt
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a JsonObjectAttributeSyntaxResponse object into the model struct
@@ -317,7 +322,7 @@ func readJsonObjectAttributeSyntaxResponse(ctx context.Context, r *client.JsonOb
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a UserPasswordAttributeSyntaxResponse object into the model struct
@@ -331,7 +336,7 @@ func readUserPasswordAttributeSyntaxResponse(ctx context.Context, r *client.User
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a BooleanAttributeSyntaxResponse object into the model struct
@@ -345,7 +350,7 @@ func readBooleanAttributeSyntaxResponse(ctx context.Context, r *client.BooleanAt
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a HexStringAttributeSyntaxResponse object into the model struct
@@ -356,7 +361,7 @@ func readHexStringAttributeSyntaxResponse(ctx context.Context, r *client.HexStri
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a BitStringAttributeSyntaxResponse object into the model struct
@@ -370,7 +375,7 @@ func readBitStringAttributeSyntaxResponse(ctx context.Context, r *client.BitStri
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a LdapUrlAttributeSyntaxResponse object into the model struct
@@ -382,7 +387,7 @@ func readLdapUrlAttributeSyntaxResponse(ctx context.Context, r *client.LdapUrlAt
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Read a NameAndOptionalUidAttributeSyntaxResponse object into the model struct
@@ -396,7 +401,7 @@ func readNameAndOptionalUidAttributeSyntaxResponse(ctx context.Context, r *clien
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxUnknownValues(ctx, state)
+	populateAttributeSyntaxUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan

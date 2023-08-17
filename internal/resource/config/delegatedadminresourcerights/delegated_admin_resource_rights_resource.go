@@ -187,6 +187,9 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "rest_resource_type", "delegated_admin_rights_name"})
@@ -235,6 +238,19 @@ func addOptionalDelegatedAdminResourceRightsFields(ctx context.Context, addReque
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *delegatedAdminResourceRightsResourceModel) populateAllComputedStringAttributes() {
+	if model.RestResourceType.IsUnknown() || model.RestResourceType.IsNull() {
+		model.RestResourceType = types.StringValue("")
+	}
+	if model.AdminScope.IsUnknown() || model.AdminScope.IsNull() {
+		model.AdminScope = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+}
+
 // Read a DelegatedAdminResourceRightsResponse object into the model struct
 func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.DelegatedAdminResourceRightsResponse, state *delegatedAdminResourceRightsResourceModel, expectedValues *delegatedAdminResourceRightsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin-resource-rights")
@@ -245,7 +261,7 @@ func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.Del
 	state.AdminPermission = internaltypes.GetStringSet(
 		client.StringSliceEnumdelegatedAdminResourceRightsAdminPermissionProp(r.AdminPermission))
 	state.AdminScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminResourceRightsAdminScopeProp(r.AdminScope), internaltypes.IsEmptyString(expectedValues.AdminScope))
+		client.StringPointerEnumdelegatedAdminResourceRightsAdminScopeProp(r.AdminScope), true)
 	state.ResourceSubtree = internaltypes.GetStringSet(r.ResourceSubtree)
 	state.ResourcesInGroup = internaltypes.GetStringSet(r.ResourcesInGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -392,6 +408,7 @@ func (r *defaultDelegatedAdminResourceRightsResource) Create(ctx context.Context
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -437,6 +454,10 @@ func readDelegatedAdminResourceRights(ctx context.Context, req resource.ReadRequ
 
 	// Read the response into the state
 	readDelegatedAdminResourceRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

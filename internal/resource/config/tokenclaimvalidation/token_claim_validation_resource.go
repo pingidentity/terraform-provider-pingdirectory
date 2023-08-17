@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -167,7 +168,9 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "id_token_validator_name"})
@@ -188,6 +191,11 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_required_value"),
+			path.MatchRoot("type"),
+			[]string{"string-array"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_required_value"),
 			path.MatchRoot("type"),
 			[]string{"string-array", "string"},
@@ -196,11 +204,6 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			path.MatchRoot("required_value"),
 			path.MatchRoot("type"),
 			[]string{"boolean"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_required_value"),
-			path.MatchRoot("type"),
-			[]string{"string-array"},
 		),
 	}
 }
@@ -250,12 +253,25 @@ func addOptionalStringTokenClaimValidationFields(ctx context.Context, addRequest
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateTokenClaimValidationUnknownValues(ctx context.Context, model *tokenClaimValidationResourceModel) {
-	if model.AnyRequiredValue.ElementType(ctx) == nil {
-		model.AnyRequiredValue = types.SetNull(types.StringType)
+func populateTokenClaimValidationUnknownValues(model *tokenClaimValidationResourceModel) {
+	if model.AnyRequiredValue.IsUnknown() || model.AnyRequiredValue.IsNull() {
+		model.AnyRequiredValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllRequiredValue.ElementType(ctx) == nil {
-		model.AllRequiredValue = types.SetNull(types.StringType)
+	if model.AllRequiredValue.IsUnknown() || model.AllRequiredValue.IsNull() {
+		model.AllRequiredValue, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *tokenClaimValidationResourceModel) populateAllComputedStringAttributes() {
+	if model.ClaimName.IsUnknown() || model.ClaimName.IsNull() {
+		model.ClaimName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.RequiredValue.IsUnknown() || model.RequiredValue.IsNull() {
+		model.RequiredValue = types.StringValue("")
 	}
 }
 
@@ -269,7 +285,7 @@ func readStringArrayTokenClaimValidationResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationUnknownValues(ctx, state)
+	populateTokenClaimValidationUnknownValues(state)
 }
 
 // Read a BooleanTokenClaimValidationResponse object into the model struct
@@ -281,7 +297,7 @@ func readBooleanTokenClaimValidationResponse(ctx context.Context, r *client.Bool
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationUnknownValues(ctx, state)
+	populateTokenClaimValidationUnknownValues(state)
 }
 
 // Read a StringTokenClaimValidationResponse object into the model struct
@@ -293,7 +309,7 @@ func readStringTokenClaimValidationResponse(ctx context.Context, r *client.Strin
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationUnknownValues(ctx, state)
+	populateTokenClaimValidationUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -542,6 +558,7 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -594,6 +611,10 @@ func readTokenClaimValidation(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.StringTokenClaimValidationResponse != nil {
 		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

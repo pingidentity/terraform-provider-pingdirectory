@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -148,18 +149,10 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_configuration_file": schema.StringAttribute{
 				Description: "The path to the file to use to configure the security provider that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_key_store_type": schema.StringAttribute{
 				Description: "The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.",
@@ -229,7 +222,9 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -268,12 +263,42 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("private_key_pin_passphrase_provider"),
+			path.MatchRoot("key_store_file"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("private_key_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_passphrase_provider"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
@@ -283,39 +308,19 @@ func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_key_store_type"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("pkcs11_provider_configuration_file"),
 			path.MatchRoot("type"),
 			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_type"),
+			path.MatchRoot("pkcs11_key_store_type"),
 			path.MatchRoot("type"),
-			[]string{"file-based"},
+			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("pkcs11_max_cache_duration"),
 			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin"),
-			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
+			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -323,19 +328,9 @@ func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("private_key_pin_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_max_cache_duration"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -436,15 +431,55 @@ func addOptionalThirdPartyKeyManagerProviderFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyManagerProviderResourceModel) {
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+func populateKeyManagerProviderUnknownValues(model *keyManagerProviderResourceModel) {
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
+	}
+	if model.Pkcs11MaxCacheDuration.IsUnknown() || model.Pkcs11MaxCacheDuration.IsNull() {
+		model.Pkcs11MaxCacheDuration = types.StringValue("")
 	}
 	if model.KeyStorePin.IsUnknown() {
 		model.KeyStorePin = types.StringNull()
 	}
 	if model.PrivateKeyPin.IsUnknown() {
 		model.PrivateKeyPin = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *keyManagerProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.KeyStoreType.IsUnknown() || model.KeyStoreType.IsNull() {
+		model.KeyStoreType = types.StringValue("")
+	}
+	if model.PrivateKeyPinFile.IsUnknown() || model.PrivateKeyPinFile.IsNull() {
+		model.PrivateKeyPinFile = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.Pkcs11ProviderClass.IsUnknown() || model.Pkcs11ProviderClass.IsNull() {
+		model.Pkcs11ProviderClass = types.StringValue("")
+	}
+	if model.KeyStorePinFile.IsUnknown() || model.KeyStorePinFile.IsNull() {
+		model.KeyStorePinFile = types.StringValue("")
+	}
+	if model.PrivateKeyPinPassphraseProvider.IsUnknown() || model.PrivateKeyPinPassphraseProvider.IsNull() {
+		model.PrivateKeyPinPassphraseProvider = types.StringValue("")
+	}
+	if model.Pkcs11ProviderConfigurationFile.IsUnknown() || model.Pkcs11ProviderConfigurationFile.IsNull() {
+		model.Pkcs11ProviderConfigurationFile = types.StringValue("")
+	}
+	if model.KeyStorePinPassphraseProvider.IsUnknown() || model.KeyStorePinPassphraseProvider.IsNull() {
+		model.KeyStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.KeyStoreFile.IsUnknown() || model.KeyStoreFile.IsNull() {
+		model.KeyStoreFile = types.StringValue("")
 	}
 }
 
@@ -462,7 +497,7 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a CustomKeyManagerProviderResponse object into the model struct
@@ -473,7 +508,7 @@ func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomK
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a Pkcs11KeyManagerProviderResponse object into the model struct
@@ -483,8 +518,8 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Name = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
-	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
-	state.Pkcs11MaxCacheDuration = internaltypes.StringTypeOrNil(r.Pkcs11MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.Pkcs11MaxCacheDuration))
+	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, true)
+	state.Pkcs11MaxCacheDuration = internaltypes.StringTypeOrNil(r.Pkcs11MaxCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("pkcs11_max_cache_duration",
 		expectedValues.Pkcs11MaxCacheDuration, state.Pkcs11MaxCacheDuration, diagnostics)
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
@@ -492,7 +527,7 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyKeyManagerProviderResponse object into the model struct
@@ -505,7 +540,7 @@ func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderUnknownValues(ctx, state)
+	populateKeyManagerProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -767,6 +802,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -822,6 +858,10 @@ func readKeyManagerProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
 		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

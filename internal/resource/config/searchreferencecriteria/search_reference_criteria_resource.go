@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -227,7 +228,9 @@ func searchReferenceCriteriaSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -240,19 +243,19 @@ func searchReferenceCriteriaSchema(ctx context.Context, req resource.SchemaReque
 func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_search_reference_criteria"),
+			path.MatchRoot("request_criteria"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_reference_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_search_reference_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("not_all_included_reference_control"),
@@ -265,14 +268,19 @@ func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_criteria"),
+			path.MatchRoot("all_included_search_reference_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("any_included_search_reference_criteria"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("none_included_search_reference_criteria"),
@@ -285,14 +293,9 @@ func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_reference_control"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_search_reference_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -381,33 +384,46 @@ func addOptionalThirdPartySearchReferenceCriteriaFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *searchReferenceCriteriaResourceModel) {
-	if model.AllIncludedReferenceControl.ElementType(ctx) == nil {
-		model.AllIncludedReferenceControl = types.SetNull(types.StringType)
+func populateSearchReferenceCriteriaUnknownValues(model *searchReferenceCriteriaResourceModel) {
+	if model.AllIncludedReferenceControl.IsUnknown() || model.AllIncludedReferenceControl.IsNull() {
+		model.AllIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedSearchReferenceCriteria.IsUnknown() || model.AnyIncludedSearchReferenceCriteria.IsNull() {
+		model.AnyIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedSearchReferenceCriteria.IsUnknown() || model.NotAllIncludedSearchReferenceCriteria.IsNull() {
+		model.NotAllIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedReferenceControl.ElementType(ctx) == nil {
-		model.NoneIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.NoneIncludedReferenceControl.IsUnknown() || model.NoneIncludedReferenceControl.IsNull() {
+		model.NoneIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedReferenceControl.ElementType(ctx) == nil {
-		model.NotAllIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedReferenceControl.IsUnknown() || model.NotAllIncludedReferenceControl.IsNull() {
+		model.NotAllIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedSearchReferenceCriteria.IsUnknown() || model.NoneIncludedSearchReferenceCriteria.IsNull() {
+		model.NoneIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedReferenceControl.ElementType(ctx) == nil {
-		model.AnyIncludedReferenceControl = types.SetNull(types.StringType)
+	if model.AnyIncludedReferenceControl.IsUnknown() || model.AnyIncludedReferenceControl.IsNull() {
+		model.AnyIncludedReferenceControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedSearchReferenceCriteria.ElementType(ctx) == nil {
-		model.AllIncludedSearchReferenceCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedSearchReferenceCriteria.IsUnknown() || model.AllIncludedSearchReferenceCriteria.IsNull() {
+		model.AllIncludedSearchReferenceCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *searchReferenceCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 }
 
@@ -423,7 +439,7 @@ func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.Si
 	state.NoneIncludedReferenceControl = internaltypes.GetStringSet(r.NoneIncludedReferenceControl)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Read a AggregateSearchReferenceCriteriaResponse object into the model struct
@@ -437,7 +453,7 @@ func readAggregateSearchReferenceCriteriaResponse(ctx context.Context, r *client
 	state.NoneIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchReferenceCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartySearchReferenceCriteriaResponse object into the model struct
@@ -449,7 +465,7 @@ func readThirdPartySearchReferenceCriteriaResponse(ctx context.Context, r *clien
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaUnknownValues(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -684,6 +700,7 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -736,6 +753,10 @@ func readSearchReferenceCriteria(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 		readThirdPartySearchReferenceCriteriaResponse(ctx, readResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

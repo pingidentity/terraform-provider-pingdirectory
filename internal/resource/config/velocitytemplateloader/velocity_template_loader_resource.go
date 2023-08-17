@@ -157,10 +157,6 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			"mime_type": schema.StringAttribute{
 				Description: "Specifies a the value that will be used in the response's Content-Type header that indicates the type of content to return.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"template_suffix": schema.StringAttribute{
 				Description: "Specifies the suffix to append to the requested resource name when searching for the template file with which to form a response.",
@@ -169,10 +165,6 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			"template_directory": schema.StringAttribute{
 				Description: "Specifies the directory in which to search for the template files.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -181,6 +173,9 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "http_servlet_extension_name"})
@@ -208,6 +203,22 @@ func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *cl
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TemplateDirectory) {
 		addRequest.TemplateDirectory = plan.TemplateDirectory.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *velocityTemplateLoaderResourceModel) populateAllComputedStringAttributes() {
+	if model.MimeTypeMatcher.IsUnknown() || model.MimeTypeMatcher.IsNull() {
+		model.MimeTypeMatcher = types.StringValue("")
+	}
+	if model.TemplateDirectory.IsUnknown() || model.TemplateDirectory.IsNull() {
+		model.TemplateDirectory = types.StringValue("")
+	}
+	if model.TemplateSuffix.IsUnknown() || model.TemplateSuffix.IsNull() {
+		model.TemplateSuffix = types.StringValue("")
+	}
+	if model.MimeType.IsUnknown() || model.MimeType.IsNull() {
+		model.MimeType = types.StringValue("")
 	}
 }
 
@@ -361,6 +372,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -406,6 +418,10 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 
 	// Read the response into the state
 	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

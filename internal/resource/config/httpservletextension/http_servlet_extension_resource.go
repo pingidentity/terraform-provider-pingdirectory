@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -397,10 +398,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"entity_tag_ldap_attribute": schema.StringAttribute{
 				Description: "Specifies the LDAP attribute whose value should be used as the entity tag value to enable SCIM resource versioning support.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to create temporary files containing SCIM request data.",
@@ -488,10 +485,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `velocity`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file. When the `type` attribute is set to `file-server`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `velocity`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file.\n  - `file-server`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_mime_type": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `velocity`: Specifies the default value that will be used in the response's Content-Type header that indicates the type of content to return. When the `type` attribute is set to `file-server`: Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
@@ -613,10 +606,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description:         "When the `type` attribute is set to `delegated-admin`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `velocity`: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries. When the `type` attribute is set to `consent`: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs. When the `type` attribute is set to `ldap-mapped-scim`: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory. When the `type` attribute is set to `file-server`: The identity mapper that will be used to identify the entry with which a username is associated. When the `type` attribute is set to `config`: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `directory-rest-api`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names.\n  - `velocity`: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries.\n  - `consent`: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs.\n  - `ldap-mapped-scim`: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory.\n  - `file-server`: The identity mapper that will be used to identify the entry with which a username is associated.\n  - `config`: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names.\n  - `directory-rest-api`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_token_validator": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `delegated-admin`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Delegated Admin HTTP Servlet Extension. When the `type` attribute is set to `consent`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Consent HTTP Servlet Extension. When the `type` attribute is set to `file-server`: The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token. When the `type` attribute is set to `scim2`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this SCIM2 HTTP Servlet Extension. When the `type` attribute is set to `directory-rest-api`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Directory REST API HTTP Servlet Extension.",
@@ -635,10 +624,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"cross_origin_policy": schema.StringAttribute{
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"response_header": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to  one of [`delegated-admin`, `quickstart`, `availability-state`, `prometheus-monitoring`, `consent`, `ldap-mapped-scim`, `groovy-scripted`, `file-server`, `config`, `scim2`, `directory-rest-api`, `third-party`]: Specifies HTTP header fields and values added to response headers for all requests. When the `type` attribute is set to `velocity`: Specifies HTTP header fields and values added to response headers for all template page requests.",
@@ -653,10 +638,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -665,7 +646,9 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"delegated-admin", "quickstart", "availability-state", "prometheus-monitoring", "velocity", "consent", "ldap-mapped-scim", "groovy-scripted", "file-server", "config", "scim2", "directory-rest-api", "third-party"}...),
 		}
@@ -673,179 +656,74 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["map_access_tokens_to_local_users"] = schema.StringAttribute{
 			Description: "Indicates whether the SCIM2 servlet should attempt to map the presented access token to a local user.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["max_page_size"] = schema.Int64Attribute{
 			Description: "The maximum number of entries to be returned in one page of search results.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["schemas_endpoint_objectclass"] = schema.SetAttribute{
 			Description: "The list of object classes which will be returned by the schemas endpoint.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_operational_attribute"] = schema.SetAttribute{
 			Description: "A set of operational attributes that will be returned with entries by default.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["reject_expansion_attribute"] = schema.SetAttribute{
 			Description: "A set of attributes which the client is not allowed to provide for the expand query parameters. This should be used for attributes that could either have a large number of values or that reference entries that are very large like groups.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["always_use_permissive_modify"] = schema.BoolAttribute{
 			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allowed_control"] = schema.SetAttribute{
 			Description: "Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["swagger_enabled"] = schema.BoolAttribute{
 			Description: "Indicates whether the SCIM2 HTTP Servlet Extension will generate a Swagger specification document.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["bearer_token_auth_enabled"] = schema.BoolAttribute{
 			Description: "Enables HTTP bearer token authentication.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_context_path"] = schema.StringAttribute{
 			Description: "The path below the base context path by which static, non-template content such as images, CSS, and Javascript files are accessible.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_content_directory"] = schema.StringAttribute{
 			Description: "Specifies the base directory in which static, non-template content such as images, CSS, and Javascript files are stored on the filesystem.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_custom_directory"] = schema.StringAttribute{
 			Description: "Specifies the base directory in which custom static, non-template content such as images, CSS, and Javascript files are stored on the filesystem. Files in this directory will override those with the same name in the directory specified by the static-content-directory property.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["template_directory"] = schema.SetAttribute{
 			Description: "Specifies an ordered list of directories in which to search for the template files.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_request_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether the HTTP request will be exposed to templates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_session_attributes"] = schema.BoolAttribute{
 			Description: "Specifies whether the HTTP session will be exposed to templates.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["expose_server_context"] = schema.BoolAttribute{
 			Description: "Specifies whether a server context will be exposed under context key 'ubid_server' for all template contexts.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["allow_context_override"] = schema.BoolAttribute{
 			Description: "Indicates whether context providers may override existing context objects with new values.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["character_encoding"] = schema.StringAttribute{
 			Description: "Specifies the value that will be used for all responses' Content-Type headers' charset parameter that indicates the character encoding of the document.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["static_response_header"] = schema.SetAttribute{
 			Description: "Specifies HTTP header fields and values added to response headers for static content requests such as images and scripts.",
-			Optional:    true,
-			Computed:    true,
 			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["access_token_scope"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension. When the `type` attribute is set to `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension.\n  - `directory-rest-api`: The name of a scope that must be present in an access token accepted by the Directory REST API HTTP Servlet Extension.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["audience"] = schema.StringAttribute{
 			Description:         "When the `type` attribute is set to `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization. When the `type` attribute is set to `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
 			MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.\n  - `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.",
-			Optional:            true,
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -904,9 +782,14 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("basic_auth_enabled"),
 			path.MatchRoot("type"),
-			[]string{"file-server"},
+			[]string{"delegated-admin", "consent", "ldap-mapped-scim", "directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "velocity", "consent", "ldap-mapped-scim", "file-server", "config", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("access_token_validator"),
@@ -914,29 +797,14 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			[]string{"delegated-admin", "consent", "file-server", "scim2", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("label_name_value_pair"),
+			path.MatchRoot("server"),
 			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
+			[]string{"quickstart"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_ldap_base_dn"),
+			path.MatchRoot("base_context_path"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("additional_response_contents"),
-			path.MatchRoot("type"),
-			[]string{"availability-state"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_file_servlet_access_privilege"),
-			path.MatchRoot("type"),
-			[]string{"file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("degraded_status_code"),
-			path.MatchRoot("type"),
-			[]string{"availability-state"},
+			[]string{"availability-state", "prometheus-monitoring", "velocity", "ldap-mapped-scim", "file-server", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("available_status_code"),
@@ -944,54 +812,19 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			[]string{"availability-state"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_authentication"),
+			path.MatchRoot("degraded_status_code"),
 			path.MatchRoot("type"),
-			[]string{"velocity", "file-server"},
+			[]string{"availability-state"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_directory_indexing"),
+			path.MatchRoot("unavailable_status_code"),
 			path.MatchRoot("type"),
-			[]string{"file-server"},
+			[]string{"availability-state"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_monitor_attribute_name_label"),
+			path.MatchRoot("override_status_code"),
 			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bulk_max_payload_size"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_authentication_type"),
-			path.MatchRoot("type"),
-			[]string{"file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("resource_mapping_file"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bulk_max_concurrent_requests"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_location_name_label"),
-			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
+			[]string{"availability-state"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_response_body"),
@@ -999,9 +832,94 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			[]string{"availability-state"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
+			path.MatchRoot("additional_response_contents"),
 			path.MatchRoot("type"),
-			[]string{"quickstart"},
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_instance_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_product_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_location_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_include_monitor_entry_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_object_class_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_attribute_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("label_name_value_pair"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mime_types_file"),
+			path.MatchRoot("type"),
+			[]string{"velocity", "file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_mime_type"),
+			path.MatchRoot("type"),
+			[]string{"velocity", "file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_authentication"),
+			path.MatchRoot("type"),
+			[]string{"velocity", "file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_token_handler"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("resource_mapping_file"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_ldap_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_ldap_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_ldap_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_ldap_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("entity_tag_ldap_attribute"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("temporary_directory"),
@@ -1019,104 +937,24 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			[]string{"ldap-mapped-scim"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_operations"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_payload_size"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_concurrent_requests"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("debug_enabled"),
 			path.MatchRoot("type"),
 			[]string{"ldap-mapped-scim", "scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_context_path"),
-			path.MatchRoot("type"),
-			[]string{"availability-state", "prometheus-monitoring", "velocity", "ldap-mapped-scim", "file-server", "scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("document_root_directory"),
-			path.MatchRoot("type"),
-			[]string{"file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_product_name_label"),
-			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("basic_auth_enabled"),
-			path.MatchRoot("type"),
-			[]string{"delegated-admin", "consent", "ldap-mapped-scim", "directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_file"),
-			path.MatchRoot("type"),
-			[]string{"file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_monitor_object_class_name_label"),
-			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_group"),
-			path.MatchRoot("type"),
-			[]string{"file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mime_types_file"),
-			path.MatchRoot("type"),
-			[]string{"velocity", "file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_stack_trace"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim", "scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_instance_name_label"),
-			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("override_status_code"),
-			path.MatchRoot("type"),
-			[]string{"availability-state"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("debug_type"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim", "scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("always_include_monitor_entry_name_label"),
-			path.MatchRoot("type"),
-			[]string{"prometheus-monitoring"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("entity_tag_ldap_attribute"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("identity_mapper"),
-			path.MatchRoot("type"),
-			[]string{"delegated-admin", "velocity", "consent", "ldap-mapped-scim", "file-server", "config", "directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_mime_type"),
-			path.MatchRoot("type"),
-			[]string{"velocity", "file-server"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_ldap_objectclass"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("debug_level"),
@@ -1124,29 +962,69 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_ldap_objectclass"),
+			path.MatchRoot("debug_type"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_ldap_base_dn"),
+			path.MatchRoot("include_stack_trace"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bulk_max_operations"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("unavailable_status_code"),
+			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
-			[]string{"availability-state"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_token_handler"),
+			path.MatchRoot("document_root_directory"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapped-scim"},
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_directory_indexing"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_file"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_file_servlet_access_privilege"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_group"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -1160,29 +1038,9 @@ func (r httpServletExtensionResource) ConfigValidators(ctx context.Context) []re
 func (r defaultHttpServletExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("static_content_directory"),
+			path.MatchRoot("access_token_scope"),
 			path.MatchRoot("type"),
-			[]string{"velocity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("map_access_tokens_to_local_users"),
-			path.MatchRoot("type"),
-			[]string{"scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("expose_session_attributes"),
-			path.MatchRoot("type"),
-			[]string{"velocity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("swagger_enabled"),
-			path.MatchRoot("type"),
-			[]string{"scim2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bearer_token_auth_enabled"),
-			path.MatchRoot("type"),
-			[]string{"consent"},
+			[]string{"delegated-admin", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("audience"),
@@ -1190,22 +1048,32 @@ func (r defaultHttpServletExtensionResource) ConfigValidators(ctx context.Contex
 			[]string{"delegated-admin", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("expose_request_attributes"),
-			path.MatchRoot("type"),
-			[]string{"velocity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("static_context_path"),
 			path.MatchRoot("type"),
 			[]string{"velocity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("reject_expansion_attribute"),
+			path.MatchRoot("static_content_directory"),
 			path.MatchRoot("type"),
-			[]string{"directory-rest-api"},
+			[]string{"velocity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_context_override"),
+			path.MatchRoot("static_custom_directory"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("template_directory"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expose_request_attributes"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expose_session_attributes"),
 			path.MatchRoot("type"),
 			[]string{"velocity"},
 		),
@@ -1215,22 +1083,7 @@ func (r defaultHttpServletExtensionResource) ConfigValidators(ctx context.Contex
 			[]string{"velocity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("schemas_endpoint_objectclass"),
-			path.MatchRoot("type"),
-			[]string{"directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("access_token_scope"),
-			path.MatchRoot("type"),
-			[]string{"delegated-admin", "directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("always_use_permissive_modify"),
-			path.MatchRoot("type"),
-			[]string{"directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("static_custom_directory"),
+			path.MatchRoot("allow_context_override"),
 			path.MatchRoot("type"),
 			[]string{"velocity"},
 		),
@@ -1240,27 +1093,52 @@ func (r defaultHttpServletExtensionResource) ConfigValidators(ctx context.Contex
 			[]string{"velocity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_operational_attribute"),
-			path.MatchRoot("type"),
-			[]string{"directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_control"),
-			path.MatchRoot("type"),
-			[]string{"directory-rest-api"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("template_directory"),
-			path.MatchRoot("type"),
-			[]string{"velocity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("static_response_header"),
 			path.MatchRoot("type"),
 			[]string{"velocity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bearer_token_auth_enabled"),
+			path.MatchRoot("type"),
+			[]string{"consent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("map_access_tokens_to_local_users"),
+			path.MatchRoot("type"),
+			[]string{"scim2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("swagger_enabled"),
+			path.MatchRoot("type"),
+			[]string{"scim2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_page_size"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("schemas_endpoint_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_operational_attribute"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("reject_expansion_attribute"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_use_permissive_modify"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_control"),
 			path.MatchRoot("type"),
 			[]string{"directory-rest-api"},
 		),
@@ -1619,106 +1497,196 @@ func addOptionalThirdPartyHttpServletExtensionFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateHttpServletExtensionUnknownValues(ctx context.Context, model *httpServletExtensionResourceModel) {
-	if model.ExcludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.ExcludeLDAPObjectclass = types.SetNull(types.StringType)
+func populateHttpServletExtensionUnknownValues(model *httpServletExtensionResourceModel) {
+	if model.ExcludeLDAPObjectclass.IsUnknown() || model.ExcludeLDAPObjectclass.IsNull() {
+		model.ExcludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.ExcludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeLDAPBaseDN.IsUnknown() || model.ExcludeLDAPBaseDN.IsNull() {
+		model.ExcludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexFile.ElementType(ctx) == nil {
-		model.IndexFile = types.SetNull(types.StringType)
+	if model.IndexFile.IsUnknown() || model.IndexFile.IsNull() {
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LabelNameValuePair.ElementType(ctx) == nil {
-		model.LabelNameValuePair = types.SetNull(types.StringType)
+	if model.LabelNameValuePair.IsUnknown() || model.LabelNameValuePair.IsNull() {
+		model.LabelNameValuePair, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugType.ElementType(ctx) == nil {
-		model.DebugType = types.SetNull(types.StringType)
+	if model.DebugType.IsUnknown() || model.DebugType.IsNull() {
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.IncludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.IncludeLDAPObjectclass.IsUnknown() || model.IncludeLDAPObjectclass.IsNull() {
+		model.IncludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RequireGroup.ElementType(ctx) == nil {
-		model.RequireGroup = types.SetNull(types.StringType)
+	if model.RequireGroup.IsUnknown() || model.RequireGroup.IsNull() {
+		model.RequireGroup, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedAuthenticationType.ElementType(ctx) == nil {
-		model.AllowedAuthenticationType = types.SetNull(types.StringType)
+	if model.AllowedAuthenticationType.IsUnknown() || model.AllowedAuthenticationType.IsNull() {
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.IncludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.IncludeLDAPBaseDN.IsUnknown() || model.IncludeLDAPBaseDN.IsNull() {
+		model.IncludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
+		model.BaseContextPath = types.StringValue("")
+	}
+	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
+		model.ResourceMappingFile = types.StringValue("")
+	}
+	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
+		model.DefaultMIMEType = types.StringValue("")
+	}
+	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
+		model.TemporaryDirectory = types.StringValue("")
+	}
+	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
+		model.TemporaryDirectoryPermissions = types.StringValue("")
+	}
+	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
+		model.BulkMaxPayloadSize = types.StringValue("")
+	}
+	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
+		model.DebugLevel = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateHttpServletExtensionUnknownValuesDefault(ctx context.Context, model *defaultHttpServletExtensionResourceModel) {
-	if model.ExcludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.ExcludeLDAPObjectclass = types.SetNull(types.StringType)
+func populateHttpServletExtensionUnknownValuesDefault(model *defaultHttpServletExtensionResourceModel) {
+	if model.ExcludeLDAPObjectclass.IsUnknown() || model.ExcludeLDAPObjectclass.IsNull() {
+		model.ExcludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.ExcludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.ExcludeLDAPBaseDN.IsUnknown() || model.ExcludeLDAPBaseDN.IsNull() {
+		model.ExcludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IndexFile.ElementType(ctx) == nil {
-		model.IndexFile = types.SetNull(types.StringType)
+	if model.IndexFile.IsUnknown() || model.IndexFile.IsNull() {
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SchemasEndpointObjectclass.ElementType(ctx) == nil {
-		model.SchemasEndpointObjectclass = types.SetNull(types.StringType)
+	if model.SchemasEndpointObjectclass.IsUnknown() || model.SchemasEndpointObjectclass.IsNull() {
+		model.SchemasEndpointObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LabelNameValuePair.ElementType(ctx) == nil {
-		model.LabelNameValuePair = types.SetNull(types.StringType)
+	if model.LabelNameValuePair.IsUnknown() || model.LabelNameValuePair.IsNull() {
+		model.LabelNameValuePair, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DebugType.ElementType(ctx) == nil {
-		model.DebugType = types.SetNull(types.StringType)
+	if model.DebugType.IsUnknown() || model.DebugType.IsNull() {
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IdTokenValidator.ElementType(ctx) == nil {
-		model.IdTokenValidator = types.SetNull(types.StringType)
+	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
+		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RejectExpansionAttribute.ElementType(ctx) == nil {
-		model.RejectExpansionAttribute = types.SetNull(types.StringType)
+	if model.RejectExpansionAttribute.IsUnknown() || model.RejectExpansionAttribute.IsNull() {
+		model.RejectExpansionAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedControl.ElementType(ctx) == nil {
-		model.AllowedControl = types.SetNull(types.StringType)
+	if model.AllowedControl.IsUnknown() || model.AllowedControl.IsNull() {
+		model.AllowedControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AccessTokenValidator.ElementType(ctx) == nil {
-		model.AccessTokenValidator = types.SetNull(types.StringType)
+	if model.AccessTokenValidator.IsUnknown() || model.AccessTokenValidator.IsNull() {
+		model.AccessTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOperationalAttribute.ElementType(ctx) == nil {
-		model.DefaultOperationalAttribute = types.SetNull(types.StringType)
+	if model.DefaultOperationalAttribute.IsUnknown() || model.DefaultOperationalAttribute.IsNull() {
+		model.DefaultOperationalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TemplateDirectory.ElementType(ctx) == nil {
-		model.TemplateDirectory = types.SetNull(types.StringType)
+	if model.TemplateDirectory.IsUnknown() || model.TemplateDirectory.IsNull() {
+		model.TemplateDirectory, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
+	if model.ScriptArgument.IsUnknown() || model.ScriptArgument.IsNull() {
+		model.ScriptArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPObjectclass.ElementType(ctx) == nil {
-		model.IncludeLDAPObjectclass = types.SetNull(types.StringType)
+	if model.IncludeLDAPObjectclass.IsUnknown() || model.IncludeLDAPObjectclass.IsNull() {
+		model.IncludeLDAPObjectclass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RequireGroup.ElementType(ctx) == nil {
-		model.RequireGroup = types.SetNull(types.StringType)
+	if model.RequireGroup.IsUnknown() || model.RequireGroup.IsNull() {
+		model.RequireGroup, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedAuthenticationType.ElementType(ctx) == nil {
-		model.AllowedAuthenticationType = types.SetNull(types.StringType)
+	if model.AllowedAuthenticationType.IsUnknown() || model.AllowedAuthenticationType.IsNull() {
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludeLDAPBaseDN.ElementType(ctx) == nil {
-		model.IncludeLDAPBaseDN = types.SetNull(types.StringType)
+	if model.IncludeLDAPBaseDN.IsUnknown() || model.IncludeLDAPBaseDN.IsNull() {
+		model.IncludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.StaticResponseHeader.ElementType(ctx) == nil {
-		model.StaticResponseHeader = types.SetNull(types.StringType)
+	if model.StaticResponseHeader.IsUnknown() || model.StaticResponseHeader.IsNull() {
+		model.StaticResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
+		model.ResourceMappingFile = types.StringValue("")
+	}
+	if model.StaticContextPath.IsUnknown() || model.StaticContextPath.IsNull() {
+		model.StaticContextPath = types.StringValue("")
+	}
+	if model.Server.IsUnknown() || model.Server.IsNull() {
+		model.Server = types.StringValue("")
+	}
+	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
+		model.DefaultMIMEType = types.StringValue("")
+	}
+	if model.Audience.IsUnknown() || model.Audience.IsNull() {
+		model.Audience = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.OAuthTokenHandler.IsUnknown() || model.OAuthTokenHandler.IsNull() {
+		model.OAuthTokenHandler = types.StringValue("")
+	}
+	if model.StaticContentDirectory.IsUnknown() || model.StaticContentDirectory.IsNull() {
+		model.StaticContentDirectory = types.StringValue("")
+	}
+	if model.MimeTypesFile.IsUnknown() || model.MimeTypesFile.IsNull() {
+		model.MimeTypesFile = types.StringValue("")
+	}
+	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
+		model.TemporaryDirectory = types.StringValue("")
+	}
+	if model.AccessTokenScope.IsUnknown() || model.AccessTokenScope.IsNull() {
+		model.AccessTokenScope = types.StringValue("")
+	}
+	if model.EntityTagLDAPAttribute.IsUnknown() || model.EntityTagLDAPAttribute.IsNull() {
+		model.EntityTagLDAPAttribute = types.StringValue("")
+	}
+	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
+		model.BaseContextPath = types.StringValue("")
+	}
+	if model.MapAccessTokensToLocalUsers.IsUnknown() || model.MapAccessTokensToLocalUsers.IsNull() {
+		model.MapAccessTokensToLocalUsers = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.DocumentRootDirectory.IsUnknown() || model.DocumentRootDirectory.IsNull() {
+		model.DocumentRootDirectory = types.StringValue("")
+	}
+	if model.CharacterEncoding.IsUnknown() || model.CharacterEncoding.IsNull() {
+		model.CharacterEncoding = types.StringValue("")
+	}
+	if model.AdditionalResponseContents.IsUnknown() || model.AdditionalResponseContents.IsNull() {
+		model.AdditionalResponseContents = types.StringValue("")
+	}
+	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
+		model.TemporaryDirectoryPermissions = types.StringValue("")
+	}
+	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
+		model.ScriptClass = types.StringValue("")
+	}
+	if model.StaticCustomDirectory.IsUnknown() || model.StaticCustomDirectory.IsNull() {
+		model.StaticCustomDirectory = types.StringValue("")
+	}
+	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
+		model.BulkMaxPayloadSize = types.StringValue("")
+	}
+	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
+		model.DebugLevel = types.StringValue("")
 	}
 }
 
@@ -1728,16 +1696,16 @@ func readDelegatedAdminHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
-	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, internaltypes.IsEmptyString(expectedValues.AccessTokenScope))
-	state.Audience = internaltypes.StringTypeOrNil(r.Audience, internaltypes.IsEmptyString(expectedValues.Audience))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, true)
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a QuickstartHttpServletExtensionResponse object into the model struct
@@ -1751,7 +1719,7 @@ func readQuickstartHttpServletExtensionResponse(ctx context.Context, r *client.Q
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a QuickstartHttpServletExtensionResponse object into the model struct
@@ -1759,13 +1727,13 @@ func readQuickstartHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.Type = types.StringValue("quickstart")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Server = internaltypes.StringTypeOrNil(r.Server, internaltypes.IsEmptyString(expectedValues.Server))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Server = internaltypes.StringTypeOrNil(r.Server, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a AvailabilityStateHttpServletExtensionResponse object into the model struct
@@ -1785,7 +1753,7 @@ func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *c
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a AvailabilityStateHttpServletExtensionResponse object into the model struct
@@ -1799,13 +1767,13 @@ func readAvailabilityStateHttpServletExtensionResponseDefault(ctx context.Contex
 	state.UnavailableStatusCode = types.Int64Value(r.UnavailableStatusCode)
 	state.OverrideStatusCode = internaltypes.Int64TypeOrNil(r.OverrideStatusCode)
 	state.IncludeResponseBody = internaltypes.BoolTypeOrNil(r.IncludeResponseBody)
-	state.AdditionalResponseContents = internaltypes.StringTypeOrNil(r.AdditionalResponseContents, internaltypes.IsEmptyString(expectedValues.AdditionalResponseContents))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.AdditionalResponseContents = internaltypes.StringTypeOrNil(r.AdditionalResponseContents, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a PrometheusMonitoringHttpServletExtensionResponse object into the model struct
@@ -1826,7 +1794,7 @@ func readPrometheusMonitoringHttpServletExtensionResponse(ctx context.Context, r
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a PrometheusMonitoringHttpServletExtensionResponse object into the model struct
@@ -1842,12 +1810,12 @@ func readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx context.Con
 	state.IncludeMonitorObjectClassNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorObjectClassNameLabel)
 	state.IncludeMonitorAttributeNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorAttributeNameLabel)
 	state.LabelNameValuePair = internaltypes.GetStringSet(r.LabelNameValuePair)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a VelocityHttpServletExtensionResponse object into the model struct
@@ -1856,26 +1824,26 @@ func readVelocityHttpServletExtensionResponseDefault(ctx context.Context, r *cli
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
-	state.StaticContextPath = internaltypes.StringTypeOrNil(r.StaticContextPath, internaltypes.IsEmptyString(expectedValues.StaticContextPath))
-	state.StaticContentDirectory = internaltypes.StringTypeOrNil(r.StaticContentDirectory, internaltypes.IsEmptyString(expectedValues.StaticContentDirectory))
-	state.StaticCustomDirectory = internaltypes.StringTypeOrNil(r.StaticCustomDirectory, internaltypes.IsEmptyString(expectedValues.StaticCustomDirectory))
+	state.StaticContextPath = internaltypes.StringTypeOrNil(r.StaticContextPath, true)
+	state.StaticContentDirectory = internaltypes.StringTypeOrNil(r.StaticContentDirectory, true)
+	state.StaticCustomDirectory = internaltypes.StringTypeOrNil(r.StaticCustomDirectory, true)
 	state.TemplateDirectory = internaltypes.GetStringSet(r.TemplateDirectory)
 	state.ExposeRequestAttributes = internaltypes.BoolTypeOrNil(r.ExposeRequestAttributes)
 	state.ExposeSessionAttributes = internaltypes.BoolTypeOrNil(r.ExposeSessionAttributes)
 	state.ExposeServerContext = internaltypes.BoolTypeOrNil(r.ExposeServerContext)
 	state.AllowContextOverride = internaltypes.BoolTypeOrNil(r.AllowContextOverride)
-	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
-	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, internaltypes.IsEmptyString(expectedValues.DefaultMIMEType))
-	state.CharacterEncoding = internaltypes.StringTypeOrNil(r.CharacterEncoding, internaltypes.IsEmptyString(expectedValues.CharacterEncoding))
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, true)
+	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
+	state.CharacterEncoding = internaltypes.StringTypeOrNil(r.CharacterEncoding, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.StaticResponseHeader = internaltypes.GetStringSet(r.StaticResponseHeader)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a ConsentHttpServletExtensionResponse object into the model struct
@@ -1885,14 +1853,14 @@ func readConsentHttpServletExtensionResponseDefault(ctx context.Context, r *clie
 	state.Name = types.StringValue(r.Id)
 	state.BearerTokenAuthEnabled = internaltypes.BoolTypeOrNil(r.BearerTokenAuthEnabled)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a LdapMappedScimHttpServletExtensionResponse object into the model struct
@@ -1903,7 +1871,7 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, internaltypes.IsEmptyString(expectedValues.ResourceMappingFile))
+	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, true)
 	state.IncludeLDAPObjectclass = internaltypes.GetStringSet(r.IncludeLDAPObjectclass)
 	state.ExcludeLDAPObjectclass = internaltypes.GetStringSet(r.ExcludeLDAPObjectclass)
 	state.IncludeLDAPBaseDN = internaltypes.GetStringSet(r.IncludeLDAPBaseDN)
@@ -1914,7 +1882,7 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.TemporaryDirectoryPermissions = types.StringValue(r.TemporaryDirectoryPermissions)
 	state.MaxResults = internaltypes.Int64TypeOrNil(r.MaxResults)
 	state.BulkMaxOperations = internaltypes.Int64TypeOrNil(r.BulkMaxOperations)
-	state.BulkMaxPayloadSize = internaltypes.StringTypeOrNil(r.BulkMaxPayloadSize, internaltypes.IsEmptyString(expectedValues.BulkMaxPayloadSize))
+	state.BulkMaxPayloadSize = internaltypes.StringTypeOrNil(r.BulkMaxPayloadSize, true)
 	config.CheckMismatchedPDFormattedAttributes("bulk_max_payload_size",
 		expectedValues.BulkMaxPayloadSize, state.BulkMaxPayloadSize, diagnostics)
 	state.BulkMaxConcurrentRequests = internaltypes.Int64TypeOrNil(r.BulkMaxConcurrentRequests)
@@ -1928,7 +1896,7 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a LdapMappedScimHttpServletExtensionResponse object into the model struct
@@ -1936,21 +1904,21 @@ func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.Type = types.StringValue("ldap-mapped-scim")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
+	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, true)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, internaltypes.IsEmptyString(expectedValues.ResourceMappingFile))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.ResourceMappingFile = internaltypes.StringTypeOrNil(r.ResourceMappingFile, true)
 	state.IncludeLDAPObjectclass = internaltypes.GetStringSet(r.IncludeLDAPObjectclass)
 	state.ExcludeLDAPObjectclass = internaltypes.GetStringSet(r.ExcludeLDAPObjectclass)
 	state.IncludeLDAPBaseDN = internaltypes.GetStringSet(r.IncludeLDAPBaseDN)
 	state.ExcludeLDAPBaseDN = internaltypes.GetStringSet(r.ExcludeLDAPBaseDN)
-	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, internaltypes.IsEmptyString(expectedValues.EntityTagLDAPAttribute))
+	state.EntityTagLDAPAttribute = internaltypes.StringTypeOrNil(r.EntityTagLDAPAttribute, true)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.TemporaryDirectory = types.StringValue(r.TemporaryDirectory)
 	state.TemporaryDirectoryPermissions = types.StringValue(r.TemporaryDirectoryPermissions)
 	state.MaxResults = internaltypes.Int64TypeOrNil(r.MaxResults)
 	state.BulkMaxOperations = internaltypes.Int64TypeOrNil(r.BulkMaxOperations)
-	state.BulkMaxPayloadSize = internaltypes.StringTypeOrNil(r.BulkMaxPayloadSize, internaltypes.IsEmptyString(expectedValues.BulkMaxPayloadSize))
+	state.BulkMaxPayloadSize = internaltypes.StringTypeOrNil(r.BulkMaxPayloadSize, true)
 	config.CheckMismatchedPDFormattedAttributes("bulk_max_payload_size",
 		expectedValues.BulkMaxPayloadSize, state.BulkMaxPayloadSize, diagnostics)
 	state.BulkMaxConcurrentRequests = internaltypes.Int64TypeOrNil(r.BulkMaxConcurrentRequests)
@@ -1959,12 +1927,12 @@ func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.DebugType = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionDebugTypeProp(r.DebugType))
 	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a GroovyScriptedHttpServletExtensionResponse object into the model struct
@@ -1979,7 +1947,7 @@ func readGroovyScriptedHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a GroovyScriptedHttpServletExtensionResponse object into the model struct
@@ -1989,12 +1957,12 @@ func readGroovyScriptedHttpServletExtensionResponseDefault(ctx context.Context, 
 	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a FileServerHttpServletExtensionResponse object into the model struct
@@ -2007,7 +1975,7 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
 	state.IndexFile = internaltypes.GetStringSet(r.IndexFile)
 	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
-	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, internaltypes.IsEmptyString(expectedValues.DefaultMIMEType))
+	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
 	state.AllowedAuthenticationType = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionAllowedAuthenticationTypeProp(r.AllowedAuthenticationType))
@@ -2021,7 +1989,7 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a FileServerHttpServletExtensionResponse object into the model struct
@@ -2033,8 +2001,8 @@ func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
 	state.IndexFile = internaltypes.GetStringSet(r.IndexFile)
-	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, internaltypes.IsEmptyString(expectedValues.MimeTypesFile))
-	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, internaltypes.IsEmptyString(expectedValues.DefaultMIMEType))
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, true)
+	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, true)
 	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
 	state.AllowedAuthenticationType = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionAllowedAuthenticationTypeProp(r.AllowedAuthenticationType))
@@ -2042,13 +2010,13 @@ func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireFileServletAccessPrivilege = internaltypes.BoolTypeOrNil(r.RequireFileServletAccessPrivilege)
 	state.RequireGroup = internaltypes.GetStringSet(r.RequireGroup)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a ConfigHttpServletExtensionResponse object into the model struct
@@ -2056,13 +2024,13 @@ func readConfigHttpServletExtensionResponseDefault(ctx context.Context, r *clien
 	state.Type = types.StringValue("config")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a Scim2HttpServletExtensionResponse object into the model struct
@@ -2073,19 +2041,19 @@ func readScim2HttpServletExtensionResponseDefault(ctx context.Context, r *client
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.MapAccessTokensToLocalUsers = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumhttpServletExtensionMapAccessTokensToLocalUsersProp(r.MapAccessTokensToLocalUsers), internaltypes.IsEmptyString(expectedValues.MapAccessTokensToLocalUsers))
+		client.StringPointerEnumhttpServletExtensionMapAccessTokensToLocalUsersProp(r.MapAccessTokensToLocalUsers), true)
 	state.DebugEnabled = internaltypes.BoolTypeOrNil(r.DebugEnabled)
 	state.DebugLevel = types.StringValue(r.DebugLevel.String())
 	state.DebugType = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionDebugTypeProp(r.DebugType))
 	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
 	state.SwaggerEnabled = internaltypes.BoolTypeOrNil(r.SwaggerEnabled)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a DirectoryRestApiHttpServletExtensionResponse object into the model struct
@@ -2094,10 +2062,10 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, true)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
-	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, internaltypes.IsEmptyString(expectedValues.AccessTokenScope))
-	state.Audience = internaltypes.StringTypeOrNil(r.Audience, internaltypes.IsEmptyString(expectedValues.Audience))
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, true)
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, true)
 	state.MaxPageSize = internaltypes.Int64TypeOrNil(r.MaxPageSize)
 	state.SchemasEndpointObjectclass = internaltypes.GetStringSet(r.SchemasEndpointObjectclass)
 	state.DefaultOperationalAttribute = internaltypes.GetStringSet(r.DefaultOperationalAttribute)
@@ -2105,12 +2073,12 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 	state.AlwaysUsePermissiveModify = internaltypes.BoolTypeOrNil(r.AlwaysUsePermissiveModify)
 	state.AllowedControl = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionAllowedControlProp(r.AllowedControl))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartyHttpServletExtensionResponse object into the model struct
@@ -2125,7 +2093,7 @@ func readThirdPartyHttpServletExtensionResponse(ctx context.Context, r *client.T
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValues(ctx, state)
+	populateHttpServletExtensionUnknownValues(state)
 }
 
 // Read a ThirdPartyHttpServletExtensionResponse object into the model struct
@@ -2135,12 +2103,12 @@ func readThirdPartyHttpServletExtensionResponseDefault(ctx context.Context, r *c
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, true)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateHttpServletExtensionUnknownValuesDefault(ctx, state)
+	populateHttpServletExtensionUnknownValuesDefault(state)
 }
 
 // Create any update operations necessary to make the state match the plan

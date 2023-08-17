@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -430,7 +431,9 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -443,112 +446,7 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 func configValidatorsConnectionCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_connection_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_connection_handler"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_user_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_user_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("authentication_security_level"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_connection_handler"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_protocol"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_user_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_user_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_user_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_user_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_connection_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_user_sasl_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_auth_type"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("included_client_address"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_connection_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_protocol"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_connection_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_user_sasl_mechanism"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -558,17 +456,22 @@ func configValidatorsConnectionCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_user_privilege"),
+			path.MatchRoot("included_connection_handler"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_user_filter"),
+			path.MatchRoot("excluded_connection_handler"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_user_group_dn"),
+			path.MatchRoot("included_protocol"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_protocol"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -578,14 +481,39 @@ func configValidatorsConnectionCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_auth_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_security_level"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("excluded_user_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
+			path.MatchRoot("all_included_user_group_dn"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_user_group_dn"),
@@ -593,9 +521,84 @@ func configValidatorsConnectionCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("none_included_user_filter"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -834,90 +837,106 @@ func addOptionalThirdPartyConnectionCriteriaFields(ctx context.Context, addReque
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connectionCriteriaResourceModel) {
-	if model.ExcludedClientAddress.ElementType(ctx) == nil {
-		model.ExcludedClientAddress = types.SetNull(types.StringType)
+func populateConnectionCriteriaUnknownValues(model *connectionCriteriaResourceModel) {
+	if model.ExcludedClientAddress.IsUnknown() || model.ExcludedClientAddress.IsNull() {
+		model.ExcludedClientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedClientAddress.ElementType(ctx) == nil {
-		model.IncludedClientAddress = types.SetNull(types.StringType)
+	if model.IncludedClientAddress.IsUnknown() || model.IncludedClientAddress.IsNull() {
+		model.IncludedClientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.AllIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.AllIncludedUserPrivilege.IsUnknown() || model.AllIncludedUserPrivilege.IsNull() {
+		model.AllIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedUserFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserFilter.IsUnknown() || model.NotAllIncludedUserFilter.IsNull() {
+		model.NotAllIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedUserGroupDN.IsUnknown() || model.AllIncludedUserGroupDN.IsNull() {
+		model.AllIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserSASLMechanism.ElementType(ctx) == nil {
-		model.ExcludedUserSASLMechanism = types.SetNull(types.StringType)
+	if model.ExcludedUserSASLMechanism.IsUnknown() || model.ExcludedUserSASLMechanism.IsNull() {
+		model.ExcludedUserSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedConnectionCriteria.IsUnknown() || model.AnyIncludedConnectionCriteria.IsNull() {
+		model.AnyIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedConnectionHandler.ElementType(ctx) == nil {
-		model.ExcludedConnectionHandler = types.SetNull(types.StringType)
+	if model.ExcludedConnectionHandler.IsUnknown() || model.ExcludedConnectionHandler.IsNull() {
+		model.ExcludedConnectionHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedConnectionCriteria.IsUnknown() || model.NotAllIncludedConnectionCriteria.IsNull() {
+		model.NotAllIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedUserFilter.ElementType(ctx) == nil {
-		model.AllIncludedUserFilter = types.SetNull(types.StringType)
+	if model.AllIncludedUserFilter.IsUnknown() || model.AllIncludedUserFilter.IsNull() {
+		model.AllIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.NoneIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.NoneIncludedUserPrivilege.IsUnknown() || model.NoneIncludedUserPrivilege.IsNull() {
+		model.NoneIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.NotAllIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserPrivilege.IsUnknown() || model.NotAllIncludedUserPrivilege.IsNull() {
+		model.NotAllIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedUserBaseDN.IsUnknown() || model.ExcludedUserBaseDN.IsNull() {
+		model.ExcludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedUserGroupDN.IsUnknown() || model.NotAllIncludedUserGroupDN.IsNull() {
+		model.NotAllIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedProtocol.ElementType(ctx) == nil {
-		model.IncludedProtocol = types.SetNull(types.StringType)
+	if model.IncludedProtocol.IsUnknown() || model.IncludedProtocol.IsNull() {
+		model.IncludedProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserPrivilege.ElementType(ctx) == nil {
-		model.AnyIncludedUserPrivilege = types.SetNull(types.StringType)
+	if model.AnyIncludedUserPrivilege.IsUnknown() || model.AnyIncludedUserPrivilege.IsNull() {
+		model.AnyIncludedUserPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedUserGroupDN.IsUnknown() || model.AnyIncludedUserGroupDN.IsNull() {
+		model.AnyIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UserAuthType.ElementType(ctx) == nil {
-		model.UserAuthType = types.SetNull(types.StringType)
+	if model.UserAuthType.IsUnknown() || model.UserAuthType.IsNull() {
+		model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserSASLMechanism.ElementType(ctx) == nil {
-		model.IncludedUserSASLMechanism = types.SetNull(types.StringType)
+	if model.IncludedUserSASLMechanism.IsUnknown() || model.IncludedUserSASLMechanism.IsNull() {
+		model.IncludedUserSASLMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedConnectionHandler.ElementType(ctx) == nil {
-		model.IncludedConnectionHandler = types.SetNull(types.StringType)
+	if model.IncludedConnectionHandler.IsUnknown() || model.IncludedConnectionHandler.IsNull() {
+		model.IncludedConnectionHandler, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedUserBaseDN.IsUnknown() || model.IncludedUserBaseDN.IsNull() {
+		model.IncludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserFilter.ElementType(ctx) == nil {
-		model.NoneIncludedUserFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedUserFilter.IsUnknown() || model.NoneIncludedUserFilter.IsNull() {
+		model.NoneIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.AllIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedConnectionCriteria.IsUnknown() || model.AllIncludedConnectionCriteria.IsNull() {
+		model.AllIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedProtocol.ElementType(ctx) == nil {
-		model.ExcludedProtocol = types.SetNull(types.StringType)
+	if model.ExcludedProtocol.IsUnknown() || model.ExcludedProtocol.IsNull() {
+		model.ExcludedProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedUserFilter.ElementType(ctx) == nil {
-		model.AnyIncludedUserFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedUserFilter.IsUnknown() || model.AnyIncludedUserFilter.IsNull() {
+		model.AnyIncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedConnectionCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedConnectionCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedConnectionCriteria.IsUnknown() || model.NoneIncludedConnectionCriteria.IsNull() {
+		model.NoneIncludedConnectionCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedUserGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedUserGroupDN.IsUnknown() || model.NoneIncludedUserGroupDN.IsNull() {
+		model.NoneIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CommunicationSecurityLevel.IsUnknown() || model.CommunicationSecurityLevel.IsNull() {
+		model.CommunicationSecurityLevel = types.StringValue("")
+	}
+	if model.AuthenticationSecurityLevel.IsUnknown() || model.AuthenticationSecurityLevel.IsNull() {
+		model.AuthenticationSecurityLevel = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 }
 
@@ -933,11 +952,11 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 	state.IncludedProtocol = internaltypes.GetStringSet(r.IncludedProtocol)
 	state.ExcludedProtocol = internaltypes.GetStringSet(r.ExcludedProtocol)
 	state.CommunicationSecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionCriteriaCommunicationSecurityLevelProp(r.CommunicationSecurityLevel), internaltypes.IsEmptyString(expectedValues.CommunicationSecurityLevel))
+		client.StringPointerEnumconnectionCriteriaCommunicationSecurityLevelProp(r.CommunicationSecurityLevel), true)
 	state.UserAuthType = internaltypes.GetStringSet(
 		client.StringSliceEnumconnectionCriteriaUserAuthTypeProp(r.UserAuthType))
 	state.AuthenticationSecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionCriteriaAuthenticationSecurityLevelProp(r.AuthenticationSecurityLevel), internaltypes.IsEmptyString(expectedValues.AuthenticationSecurityLevel))
+		client.StringPointerEnumconnectionCriteriaAuthenticationSecurityLevelProp(r.AuthenticationSecurityLevel), true)
 	state.IncludedUserSASLMechanism = internaltypes.GetStringSet(r.IncludedUserSASLMechanism)
 	state.ExcludedUserSASLMechanism = internaltypes.GetStringSet(r.ExcludedUserSASLMechanism)
 	state.IncludedUserBaseDN = internaltypes.GetStringSet(r.IncludedUserBaseDN)
@@ -960,7 +979,7 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 		client.StringSliceEnumconnectionCriteriaNoneIncludedUserPrivilegeProp(r.NoneIncludedUserPrivilege))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Read a AggregateConnectionCriteriaResponse object into the model struct
@@ -974,7 +993,7 @@ func readAggregateConnectionCriteriaResponse(ctx context.Context, r *client.Aggr
 	state.NoneIncludedConnectionCriteria = internaltypes.GetStringSet(r.NoneIncludedConnectionCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyConnectionCriteriaResponse object into the model struct
@@ -986,7 +1005,7 @@ func readThirdPartyConnectionCriteriaResponse(ctx context.Context, r *client.Thi
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaUnknownValues(ctx, state)
+	populateConnectionCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1253,6 +1272,7 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1305,6 +1325,10 @@ func readConnectionCriteria(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	if readResponse.ThirdPartyConnectionCriteriaResponse != nil {
 		readThirdPartyConnectionCriteriaResponse(ctx, readResponse.ThirdPartyConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

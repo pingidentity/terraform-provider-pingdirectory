@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -239,7 +240,9 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "http_servlet_extension_name"})
@@ -252,9 +255,9 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_method"),
+			path.MatchRoot("request_tool"),
 			path.MatchRoot("type"),
-			[]string{"custom", "third-party"},
+			[]string{"velocity-tools"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("session_tool"),
@@ -262,9 +265,14 @@ func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 			[]string{"velocity-tools"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("application_tool"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"velocity-tools"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_method"),
+			path.MatchRoot("type"),
+			[]string{"custom", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -272,14 +280,9 @@ func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_tool"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"velocity-tools"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("application_tool"),
-			path.MatchRoot("type"),
-			[]string{"velocity-tools"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -382,21 +385,31 @@ func addOptionalThirdPartyVelocityContextProviderFields(ctx context.Context, add
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVelocityContextProviderUnknownValues(ctx context.Context, model *velocityContextProviderResourceModel) {
-	if model.RequestTool.ElementType(ctx) == nil {
-		model.RequestTool = types.SetNull(types.StringType)
+func populateVelocityContextProviderUnknownValues(model *velocityContextProviderResourceModel) {
+	if model.RequestTool.IsUnknown() || model.RequestTool.IsNull() {
+		model.RequestTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ApplicationTool.ElementType(ctx) == nil {
-		model.ApplicationTool = types.SetNull(types.StringType)
+	if model.ApplicationTool.IsUnknown() || model.ApplicationTool.IsNull() {
+		model.ApplicationTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SessionTool.ElementType(ctx) == nil {
-		model.SessionTool = types.SetNull(types.StringType)
+	if model.SessionTool.IsUnknown() || model.SessionTool.IsNull() {
+		model.SessionTool, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpMethod.ElementType(ctx) == nil {
-		model.HttpMethod = types.SetNull(types.StringType)
+	if model.HttpMethod.IsUnknown() || model.HttpMethod.IsNull() {
+		model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *velocityContextProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.ObjectScope.IsUnknown() || model.ObjectScope.IsNull() {
+		model.ObjectScope = types.StringValue("")
 	}
 }
 
@@ -410,12 +423,12 @@ func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *cl
 	state.ApplicationTool = internaltypes.GetStringSet(r.ApplicationTool)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Read a CustomVelocityContextProviderResponse object into the model struct
@@ -425,13 +438,13 @@ func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.Cu
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyVelocityContextProviderResponse object into the model struct
@@ -443,13 +456,13 @@ func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *clien
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
+		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), true)
 	state.IncludedView = internaltypes.GetStringSet(r.IncludedView)
 	state.ExcludedView = internaltypes.GetStringSet(r.ExcludedView)
 	state.HttpMethod = internaltypes.GetStringSet(r.HttpMethod)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVelocityContextProviderUnknownValues(ctx, state)
+	populateVelocityContextProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -662,6 +675,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -714,6 +728,10 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 	}
 	if readResponse.ThirdPartyVelocityContextProviderResponse != nil {
 		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

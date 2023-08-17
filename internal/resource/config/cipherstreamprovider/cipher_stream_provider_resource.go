@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -225,18 +226,10 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_configuration_file": schema.StringAttribute{
 				Description: "The path to the file to use to configure the security provider that implements support for interacting with PKCS #11 tokens.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_store_pin": schema.StringAttribute{
 				Description: "The clear-text user PIN needed to interact with the PKCS #11 token.",
@@ -294,10 +287,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
@@ -381,7 +370,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -448,154 +439,14 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_field_name"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_encryption_metadata_file"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin_environment_variable"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_version_id"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_region_name"),
+			path.MatchRoot("encrypted_passphrase_file"),
 			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("wait_for_password_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_provider_configuration_file"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_external_server"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("kms_encryption_key_arn"),
-			path.MatchRoot("type"),
-			[]string{"amazon-key-management-service"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("iteration_count"),
-			path.MatchRoot("type"),
-			[]string{"amazon-key-management-service", "amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11", "vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_vault_uri"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_file"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("azure_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_version_stage"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_external_server"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_provider_class"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("aws_external_server"),
 			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service", "amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_metadata_file"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_key_store_type"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_secret_field_name"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_secret_path"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_name"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_server_base_uri"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("secret_id"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("aws_access_key_id"),
@@ -608,19 +459,79 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 			[]string{"amazon-key-management-service"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("vault_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encrypted_passphrase_file"),
+			path.MatchRoot("aws_region_name"),
 			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("kms_encryption_key_arn"),
 			path.MatchRoot("type"),
-			[]string{"pkcs11"},
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service", "amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_stage"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_metadata_file"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_name"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("wait_for_password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("conjur_secret_relative_path"),
@@ -628,14 +539,94 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 			[]string{"conjur"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
+			path.MatchRoot("pkcs11_provider_class"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_configuration_file"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("key_store_pin_file"),
 			path.MatchRoot("type"),
 			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_environment_variable"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_external_server"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_path"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_encryption_metadata_file"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -857,12 +848,27 @@ func addOptionalThirdPartyCipherStreamProviderFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateCipherStreamProviderUnknownValues(ctx context.Context, model *cipherStreamProviderResourceModel) {
-	if model.VaultServerBaseURI.ElementType(ctx) == nil {
-		model.VaultServerBaseURI = types.SetNull(types.StringType)
+func populateCipherStreamProviderUnknownValues(model *cipherStreamProviderResourceModel) {
+	if model.VaultServerBaseURI.IsUnknown() || model.VaultServerBaseURI.IsNull() {
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.VaultEncryptionMetadataFile.IsUnknown() || model.VaultEncryptionMetadataFile.IsNull() {
+		model.VaultEncryptionMetadataFile = types.StringValue("")
+	}
+	if model.EncryptedPassphraseFile.IsUnknown() || model.EncryptedPassphraseFile.IsNull() {
+		model.EncryptedPassphraseFile = types.StringValue("")
+	}
+	if model.EncryptionMetadataFile.IsUnknown() || model.EncryptionMetadataFile.IsNull() {
+		model.EncryptionMetadataFile = types.StringValue("")
+	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 	if model.AwsSecretAccessKey.IsUnknown() {
 		model.AwsSecretAccessKey = types.StringNull()
@@ -872,6 +878,91 @@ func populateCipherStreamProviderUnknownValues(ctx context.Context, model *ciphe
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttributes() {
+	if model.VaultSecretFieldName.IsUnknown() || model.VaultSecretFieldName.IsNull() {
+		model.VaultSecretFieldName = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SecretVersionID.IsUnknown() || model.SecretVersionID.IsNull() {
+		model.SecretVersionID = types.StringValue("")
+	}
+	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
+		model.PasswordFile = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
+	}
+	if model.KeyStorePinFile.IsUnknown() || model.KeyStorePinFile.IsNull() {
+		model.KeyStorePinFile = types.StringValue("")
+	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.ConjurSecretRelativePath.IsUnknown() || model.ConjurSecretRelativePath.IsNull() {
+		model.ConjurSecretRelativePath = types.StringValue("")
+	}
+	if model.KmsEncryptionKeyArn.IsUnknown() || model.KmsEncryptionKeyArn.IsNull() {
+		model.KmsEncryptionKeyArn = types.StringValue("")
+	}
+	if model.SecretID.IsUnknown() || model.SecretID.IsNull() {
+		model.SecretID = types.StringValue("")
+	}
+	if model.VaultSecretPath.IsUnknown() || model.VaultSecretPath.IsNull() {
+		model.VaultSecretPath = types.StringValue("")
+	}
+	if model.Pkcs11ProviderConfigurationFile.IsUnknown() || model.Pkcs11ProviderConfigurationFile.IsNull() {
+		model.Pkcs11ProviderConfigurationFile = types.StringValue("")
+	}
+	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
+		model.AwsAccessKeyID = types.StringValue("")
+	}
+	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
+		model.VaultExternalServer = types.StringValue("")
+	}
+	if model.SecretVersionStage.IsUnknown() || model.SecretVersionStage.IsNull() {
+		model.SecretVersionStage = types.StringValue("")
+	}
+	if model.AwsRegionName.IsUnknown() || model.AwsRegionName.IsNull() {
+		model.AwsRegionName = types.StringValue("")
+	}
+	if model.VaultAuthenticationMethod.IsUnknown() || model.VaultAuthenticationMethod.IsNull() {
+		model.VaultAuthenticationMethod = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.Pkcs11ProviderClass.IsUnknown() || model.Pkcs11ProviderClass.IsNull() {
+		model.Pkcs11ProviderClass = types.StringValue("")
+	}
+	if model.AzureAuthenticationMethod.IsUnknown() || model.AzureAuthenticationMethod.IsNull() {
+		model.AzureAuthenticationMethod = types.StringValue("")
+	}
+	if model.SecretFieldName.IsUnknown() || model.SecretFieldName.IsNull() {
+		model.SecretFieldName = types.StringValue("")
+	}
+	if model.SecretName.IsUnknown() || model.SecretName.IsNull() {
+		model.SecretName = types.StringValue("")
+	}
+	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
+		model.ConjurExternalServer = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.KeyStorePinEnvironmentVariable.IsUnknown() || model.KeyStorePinEnvironmentVariable.IsNull() {
+		model.KeyStorePinEnvironmentVariable = types.StringValue("")
+	}
+	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
+		model.KeyVaultURI = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
 	}
 }
 
@@ -889,7 +980,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a AmazonSecretsManagerCipherStreamProviderResponse object into the model struct
@@ -907,7 +998,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a AzureKeyVaultCipherStreamProviderResponse object into the model struct
@@ -924,7 +1015,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a FileBasedCipherStreamProviderResponse object into the model struct
@@ -934,12 +1025,12 @@ func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.Fi
 	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.WaitForPasswordFile = internaltypes.BoolTypeOrNil(r.WaitForPasswordFile)
-	state.EncryptionMetadataFile = internaltypes.StringTypeOrNil(r.EncryptionMetadataFile, internaltypes.IsEmptyString(expectedValues.EncryptionMetadataFile))
+	state.EncryptionMetadataFile = internaltypes.StringTypeOrNil(r.EncryptionMetadataFile, true)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a WaitForPassphraseCipherStreamProviderResponse object into the model struct
@@ -950,7 +1041,7 @@ func readWaitForPassphraseCipherStreamProviderResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a ConjurCipherStreamProviderResponse object into the model struct
@@ -965,7 +1056,7 @@ func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.Conju
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a Pkcs11CipherStreamProviderResponse object into the model struct
@@ -977,14 +1068,14 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
 	state.KeyStorePinEnvironmentVariable = internaltypes.StringTypeOrNil(r.KeyStorePinEnvironmentVariable, internaltypes.IsEmptyString(expectedValues.KeyStorePinEnvironmentVariable))
-	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
+	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, true)
 	state.SslCertNickname = types.StringValue(r.SslCertNickname)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a VaultCipherStreamProviderResponse object into the model struct
@@ -999,12 +1090,12 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
 	state.VaultEncryptionMetadataFile = types.StringValue(r.VaultEncryptionMetadataFile)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Read a ThirdPartyCipherStreamProviderResponse object into the model struct
@@ -1017,7 +1108,7 @@ func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderUnknownValues(ctx, state)
+	populateCipherStreamProviderUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -1588,6 +1679,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1658,6 +1750,10 @@ func readCipherStreamProvider(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.ThirdPartyCipherStreamProviderResponse != nil {
 		readThirdPartyCipherStreamProviderResponse(ctx, readResponse.ThirdPartyCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

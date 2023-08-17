@@ -137,6 +137,9 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "schema_urn"})
@@ -154,6 +157,19 @@ func addOptionalScimSchemaFields(ctx context.Context, addRequest *client.AddScim
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DisplayName) {
 		addRequest.DisplayName = plan.DisplayName.ValueStringPointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *scimSchemaResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SchemaURN.IsUnknown() || model.SchemaURN.IsNull() {
+		model.SchemaURN = types.StringValue("")
+	}
+	if model.DisplayName.IsUnknown() || model.DisplayName.IsNull() {
+		model.DisplayName = types.StringValue("")
 	}
 }
 
@@ -290,6 +306,7 @@ func (r *defaultScimSchemaResource) Create(ctx context.Context, req resource.Cre
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -335,6 +352,10 @@ func readScimSchema(ctx context.Context, req resource.ReadRequest, resp *resourc
 
 	// Read the response into the state
 	readScimSchemaResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

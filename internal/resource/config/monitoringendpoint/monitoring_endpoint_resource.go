@@ -147,10 +147,6 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL over TCP is to be used for connection-level security.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"additional_tags": schema.SetAttribute{
 				Description: "Specifies any optional additional tags to include in StatsD messages. Any additional tags will be appended to the end of each StatsD message, separated by commas. Tags should be written in a [key]:[value] format (\"host:server1\", for example).",
@@ -172,6 +168,9 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -203,6 +202,19 @@ func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *
 		addRequest.AdditionalTags = slice
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *monitoringEndpointResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.ConnectionType.IsUnknown() || model.ConnectionType.IsNull() {
+		model.ConnectionType = types.StringValue("")
+	}
+	if model.Hostname.IsUnknown() || model.Hostname.IsNull() {
+		model.Hostname = types.StringValue("")
+	}
 }
 
 // Read a StatsdMonitoringEndpointResponse object into the model struct
@@ -351,6 +363,7 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -396,6 +409,10 @@ func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

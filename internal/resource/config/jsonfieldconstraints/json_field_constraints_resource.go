@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -208,10 +207,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that may contain a particular value for the target field before the server will stop maintaining the index for that value.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_index": schema.BoolAttribute{
 				Description: "Indicates whether backends that support database priming should load the contents of the associated JSON index into memory whenever the backend is opened.",
@@ -225,10 +220,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"tokenize_values": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to assign a compact token for each distinct value for the target field in an attempt to reduce the encoded size of the field in JSON objects. These tokens would be assigned prior to using any from the token set used for automatic compaction of some JSON string values.",
@@ -288,6 +279,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "json_field", "json_attribute_constraints_name"})
@@ -372,6 +366,31 @@ func addOptionalJsonFieldConstraintsFields(ctx context.Context, addRequest *clie
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *jsonFieldConstraintsResourceModel) populateAllComputedStringAttributes() {
+	if model.MinimumNumericValue.IsUnknown() || model.MinimumNumericValue.IsNull() {
+		model.MinimumNumericValue = types.StringValue("")
+	}
+	if model.JsonField.IsUnknown() || model.JsonField.IsNull() {
+		model.JsonField = types.StringValue("")
+	}
+	if model.IsArray.IsUnknown() || model.IsArray.IsNull() {
+		model.IsArray = types.StringValue("")
+	}
+	if model.MaximumNumericValue.IsUnknown() || model.MaximumNumericValue.IsNull() {
+		model.MaximumNumericValue = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ValueType.IsUnknown() || model.ValueType.IsNull() {
+		model.ValueType = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
+}
+
 // Read a JsonFieldConstraintsResponse object into the model struct
 func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldConstraintsResponse, state *jsonFieldConstraintsResourceModel, expectedValues *jsonFieldConstraintsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-field-constraints")
@@ -381,7 +400,7 @@ func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldCo
 	state.ValueType = types.StringValue(r.ValueType.String())
 	state.IsRequired = internaltypes.BoolTypeOrNil(r.IsRequired)
 	state.IsArray = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumjsonFieldConstraintsIsArrayProp(r.IsArray), internaltypes.IsEmptyString(expectedValues.IsArray))
+		client.StringPointerEnumjsonFieldConstraintsIsArrayProp(r.IsArray), true)
 	state.AllowNullValue = internaltypes.BoolTypeOrNil(r.AllowNullValue)
 	state.AllowEmptyObject = internaltypes.BoolTypeOrNil(r.AllowEmptyObject)
 	state.IndexValues = internaltypes.BoolTypeOrNil(r.IndexValues)
@@ -560,6 +579,7 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -605,6 +625,10 @@ func readJsonFieldConstraints(ctx context.Context, req resource.ReadRequest, res
 
 	// Read the response into the state
 	readJsonFieldConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

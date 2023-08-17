@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -155,10 +156,6 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to the JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming ID token. This path is relative to the base_url property defined for the validator's OpenID Connect provider. If jwks-endpoint-path is specified, the OpenID Connect ID Token Validator will not consult locally stored certificates for validating token signatures.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"openid_connect_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one`: Specifies HTTPS connection settings for the PingOne OpenID Connect provider. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider that issues ID tokens handled by this OpenID Connect ID Token Validator. This property is used in conjunction with the jwks-endpoint-path property.",
@@ -225,7 +222,9 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -237,6 +236,11 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("openid_connect_metadata_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allowed_signing_algorithm"),
 			path.MatchRoot("type"),
@@ -251,11 +255,6 @@ func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 			path.MatchRoot("jwks_endpoint_path"),
 			path.MatchRoot("type"),
 			[]string{"openid-connect"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("openid_connect_metadata_cache_duration"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
 		),
 	}
 }
@@ -332,12 +331,43 @@ func addOptionalOpenidConnectIdTokenValidatorFields(ctx context.Context, addRequ
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenValidatorResourceModel) {
-	if model.SigningCertificate.ElementType(ctx) == nil {
-		model.SigningCertificate = types.SetNull(types.StringType)
+func populateIdTokenValidatorUnknownValues(model *idTokenValidatorResourceModel) {
+	if model.SigningCertificate.IsUnknown() || model.SigningCertificate.IsNull() {
+		model.SigningCertificate, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
-		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
+	if model.AllowedSigningAlgorithm.IsUnknown() || model.AllowedSigningAlgorithm.IsNull() {
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.OpenIDConnectMetadataCacheDuration.IsUnknown() || model.OpenIDConnectMetadataCacheDuration.IsNull() {
+		model.OpenIDConnectMetadataCacheDuration = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *idTokenValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
+		model.JwksEndpointPath = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.IssuerURL.IsUnknown() || model.IssuerURL.IsNull() {
+		model.IssuerURL = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.SubjectClaimName.IsUnknown() || model.SubjectClaimName.IsNull() {
+		model.SubjectClaimName = types.StringValue("")
+	}
+	if model.OpenIDConnectProvider.IsUnknown() || model.OpenIDConnectProvider.IsNull() {
+		model.OpenIDConnectProvider = types.StringValue("")
+	}
+	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
+		model.ClockSkewGracePeriod = types.StringValue("")
+	}
+	if model.JwksCacheDuration.IsUnknown() || model.JwksCacheDuration.IsNull() {
+		model.JwksCacheDuration = types.StringValue("")
 	}
 }
 
@@ -348,22 +378,22 @@ func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneI
 	state.Name = types.StringValue(r.Id)
 	state.IssuerURL = types.StringValue(r.IssuerURL)
 	state.OpenIDConnectProvider = types.StringValue(r.OpenIDConnectProvider)
-	state.OpenIDConnectMetadataCacheDuration = internaltypes.StringTypeOrNil(r.OpenIDConnectMetadataCacheDuration, internaltypes.IsEmptyString(expectedValues.OpenIDConnectMetadataCacheDuration))
+	state.OpenIDConnectMetadataCacheDuration = internaltypes.StringTypeOrNil(r.OpenIDConnectMetadataCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("openid_connect_metadata_cache_duration",
 		expectedValues.OpenIDConnectMetadataCacheDuration, state.OpenIDConnectMetadataCacheDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
-	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
+	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, true)
 	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
 		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
-	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, internaltypes.IsEmptyString(expectedValues.JwksCacheDuration))
+	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("jwks_cache_duration",
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorUnknownValues(ctx, state)
+	populateIdTokenValidatorUnknownValues(state)
 }
 
 // Read a OpenidConnectIdTokenValidatorResponse object into the model struct
@@ -374,22 +404,22 @@ func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.Op
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumidTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
-	state.OpenIDConnectProvider = internaltypes.StringTypeOrNil(r.OpenIDConnectProvider, internaltypes.IsEmptyString(expectedValues.OpenIDConnectProvider))
+	state.OpenIDConnectProvider = internaltypes.StringTypeOrNil(r.OpenIDConnectProvider, true)
 	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, internaltypes.IsEmptyString(expectedValues.JwksEndpointPath))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, true)
 	state.IssuerURL = types.StringValue(r.IssuerURL)
-	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
+	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, true)
 	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
 		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
-	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, internaltypes.IsEmptyString(expectedValues.JwksCacheDuration))
+	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("jwks_cache_duration",
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorUnknownValues(ctx, state)
+	populateIdTokenValidatorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -590,6 +620,7 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -639,6 +670,10 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 	if readResponse.OpenidConnectIdTokenValidatorResponse != nil {
 		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

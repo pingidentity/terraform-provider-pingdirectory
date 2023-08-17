@@ -155,11 +155,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"private_key": schema.StringAttribute{
 				Description: "The base64-encoded private key that is encrypted using the preferred encryption settings definition.",
 				Optional:    true,
-				Computed:    true,
 				Sensitive:   true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -168,6 +164,9 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -206,9 +205,25 @@ func addOptionalKeyPairFields(ctx context.Context, addRequest *client.AddKeyPair
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateKeyPairUnknownValues(ctx context.Context, model *keyPairResourceModel) {
+func populateKeyPairUnknownValues(model *keyPairResourceModel) {
 	if model.PrivateKey.IsUnknown() {
 		model.PrivateKey = types.StringNull()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *keyPairResourceModel) populateAllComputedStringAttributes() {
+	if model.SelfSignedCertificateValidity.IsUnknown() || model.SelfSignedCertificateValidity.IsNull() {
+		model.SelfSignedCertificateValidity = types.StringValue("")
+	}
+	if model.CertificateChain.IsUnknown() || model.CertificateChain.IsNull() {
+		model.CertificateChain = types.StringValue("")
+	}
+	if model.SubjectDN.IsUnknown() || model.SubjectDN.IsNull() {
+		model.SubjectDN = types.StringValue("")
+	}
+	if model.KeyAlgorithm.IsUnknown() || model.KeyAlgorithm.IsNull() {
+		model.KeyAlgorithm = types.StringValue("")
 	}
 }
 
@@ -218,13 +233,13 @@ func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())
-	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, internaltypes.IsEmptyString(expectedValues.SelfSignedCertificateValidity))
+	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, true)
 	config.CheckMismatchedPDFormattedAttributes("self_signed_certificate_validity",
 		expectedValues.SelfSignedCertificateValidity, state.SelfSignedCertificateValidity, diagnostics)
-	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, internaltypes.IsEmptyString(expectedValues.SubjectDN))
-	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, internaltypes.IsEmptyString(expectedValues.CertificateChain))
+	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, true)
+	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyPairUnknownValues(ctx, state)
+	populateKeyPairUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
@@ -365,6 +380,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -410,6 +426,10 @@ func readKeyPair(ctx context.Context, req resource.ReadRequest, resp *resource.R
 
 	// Read the response into the state
 	readKeyPairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -84,6 +84,9 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ldap", "http"}...),
 				},
@@ -154,16 +157,6 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 func (r serverInstanceListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_http_port"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("listen_address"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_ldap_port"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
@@ -172,6 +165,16 @@ func (r serverInstanceListenerResource) ConfigValidators(ctx context.Context) []
 			path.MatchRoot("listener_certificate"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_address"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_http_port"),
+			path.MatchRoot("type"),
+			[]string{"http"},
 		),
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -265,7 +266,9 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -342,49 +345,14 @@ func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 			[]string{"expired-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_privilege"),
-			path.MatchRoot("type"),
-			[]string{"privilege"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_idle_time"),
-			path.MatchRoot("type"),
-			[]string{"locked-account"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("idle_account_warning_interval"),
 			path.MatchRoot("type"),
 			[]string{"idle-account"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_expiration_warning_interval"),
-			path.MatchRoot("type"),
-			[]string{"account-validity-window"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter"),
-			path.MatchRoot("type"),
-			[]string{"filter"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("idle_account_error_interval"),
 			path.MatchRoot("type"),
 			[]string{"idle-account"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("weak_password_storage_scheme"),
-			path.MatchRoot("type"),
-			[]string{"weakly-encoded-password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("never_logged_in_account_warning_interval"),
@@ -397,9 +365,44 @@ func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 			[]string{"idle-account"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_password_storage_scheme"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("weak_crypt_encoding"),
 			path.MatchRoot("type"),
 			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_privilege"),
+			path.MatchRoot("type"),
+			[]string{"privilege"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_idle_time"),
+			path.MatchRoot("type"),
+			[]string{"locked-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_expiration_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"account-validity-window"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -887,21 +890,55 @@ func addOptionalThirdPartyDataSecurityAuditorFields(ctx context.Context, addRequ
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateDataSecurityAuditorUnknownValues(ctx context.Context, model *dataSecurityAuditorResourceModel) {
-	if model.WeakCryptEncoding.ElementType(ctx) == nil {
-		model.WeakCryptEncoding = types.SetNull(types.StringType)
+func populateDataSecurityAuditorUnknownValues(model *dataSecurityAuditorResourceModel) {
+	if model.WeakCryptEncoding.IsUnknown() || model.WeakCryptEncoding.IsNull() {
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludePrivilege.ElementType(ctx) == nil {
-		model.IncludePrivilege = types.SetNull(types.StringType)
+	if model.IncludePrivilege.IsUnknown() || model.IncludePrivilege.IsNull() {
+		model.IncludePrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Filter.ElementType(ctx) == nil {
-		model.Filter = types.SetNull(types.StringType)
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.WeakPasswordStorageScheme.ElementType(ctx) == nil {
-		model.WeakPasswordStorageScheme = types.SetNull(types.StringType)
+	if model.WeakPasswordStorageScheme.IsUnknown() || model.WeakPasswordStorageScheme.IsNull() {
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *dataSecurityAuditorResourceModel) populateAllComputedStringAttributes() {
+	if model.IdleAccountWarningInterval.IsUnknown() || model.IdleAccountWarningInterval.IsNull() {
+		model.IdleAccountWarningInterval = types.StringValue("")
+	}
+	if model.PasswordEvaluationAge.IsUnknown() || model.PasswordEvaluationAge.IsNull() {
+		model.PasswordEvaluationAge = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.IdleAccountErrorInterval.IsUnknown() || model.IdleAccountErrorInterval.IsNull() {
+		model.IdleAccountErrorInterval = types.StringValue("")
+	}
+	if model.ReportFile.IsUnknown() || model.ReportFile.IsNull() {
+		model.ReportFile = types.StringValue("")
+	}
+	if model.NeverLoggedInAccountWarningInterval.IsUnknown() || model.NeverLoggedInAccountWarningInterval.IsNull() {
+		model.NeverLoggedInAccountWarningInterval = types.StringValue("")
+	}
+	if model.MaximumIdleTime.IsUnknown() || model.MaximumIdleTime.IsNull() {
+		model.MaximumIdleTime = types.StringValue("")
+	}
+	if model.AuditSeverity.IsUnknown() || model.AuditSeverity.IsNull() {
+		model.AuditSeverity = types.StringValue("")
+	}
+	if model.NeverLoggedInAccountErrorInterval.IsUnknown() || model.NeverLoggedInAccountErrorInterval.IsNull() {
+		model.NeverLoggedInAccountErrorInterval = types.StringValue("")
+	}
+	if model.AccountExpirationWarningInterval.IsUnknown() || model.AccountExpirationWarningInterval.IsNull() {
+		model.AccountExpirationWarningInterval = types.StringValue("")
 	}
 }
 
@@ -918,9 +955,9 @@ func readExpiredPasswordDataSecurityAuditorResponse(ctx context.Context, r *clie
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a IdleAccountDataSecurityAuditorResponse object into the model struct
@@ -945,9 +982,9 @@ func readIdleAccountDataSecurityAuditorResponse(ctx context.Context, r *client.I
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a DisabledAccountDataSecurityAuditorResponse object into the model struct
@@ -960,9 +997,9 @@ func readDisabledAccountDataSecurityAuditorResponse(ctx context.Context, r *clie
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a WeaklyEncodedPasswordDataSecurityAuditorResponse object into the model struct
@@ -978,9 +1015,9 @@ func readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx context.Context, r
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a PrivilegeDataSecurityAuditorResponse object into the model struct
@@ -995,9 +1032,9 @@ func readPrivilegeDataSecurityAuditorResponse(ctx context.Context, r *client.Pri
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a AccountUsabilityIssuesDataSecurityAuditorResponse object into the model struct
@@ -1010,9 +1047,9 @@ func readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx context.Context, 
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a LockedAccountDataSecurityAuditorResponse object into the model struct
@@ -1028,9 +1065,9 @@ func readLockedAccountDataSecurityAuditorResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a FilterDataSecurityAuditorResponse object into the model struct
@@ -1044,9 +1081,9 @@ func readFilterDataSecurityAuditorResponse(ctx context.Context, r *client.Filter
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a AccountValidityWindowDataSecurityAuditorResponse object into the model struct
@@ -1062,9 +1099,9 @@ func readAccountValidityWindowDataSecurityAuditorResponse(ctx context.Context, r
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a MultiplePasswordDataSecurityAuditorResponse object into the model struct
@@ -1077,9 +1114,9 @@ func readMultiplePasswordDataSecurityAuditorResponse(ctx context.Context, r *cli
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse object into the model struct
@@ -1092,9 +1129,9 @@ func readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx context.
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a NonexistentPasswordPolicyDataSecurityAuditorResponse object into the model struct
@@ -1107,9 +1144,9 @@ func readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx context.Contex
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a AccessControlDataSecurityAuditorResponse object into the model struct
@@ -1122,9 +1159,9 @@ func readAccessControlDataSecurityAuditorResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Read a ThirdPartyDataSecurityAuditorResponse object into the model struct
@@ -1139,9 +1176,9 @@ func readThirdPartyDataSecurityAuditorResponse(ctx context.Context, r *client.Th
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AuditBackend = internaltypes.GetStringSet(r.AuditBackend)
 	state.AuditSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), internaltypes.IsEmptyString(expectedValues.AuditSeverity))
+		client.StringPointerEnumdataSecurityAuditorAuditSeverityProp(r.AuditSeverity), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDataSecurityAuditorUnknownValues(ctx, state)
+	populateDataSecurityAuditorUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1939,6 +1976,7 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2024,6 +2062,10 @@ func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp
 	}
 	if readResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 		readThirdPartyDataSecurityAuditorResponse(ctx, readResponse.ThirdPartyDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

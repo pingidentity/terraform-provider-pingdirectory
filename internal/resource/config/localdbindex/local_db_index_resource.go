@@ -155,10 +155,6 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"substring_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies, for substring indexes, the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained. Setting a large limit can dramatically increase the database size on disk and have a big impact on server performance if the indexed attribute is modified frequently. When a very large limit is required, creating a dedicated composite index with an index-filter-pattern of (attr=*?*) will give the best balance between search and update performance.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maintain_match_count_for_keys_exceeding_entry_limit": schema.BoolAttribute{
 				Description: "Indicates whether to continue to maintain a count of the number of matching entries for an index key even after that count exceeds the index entry limit.",
@@ -222,10 +218,6 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index. This controls how much database cache memory can be consumed by this index.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -234,6 +226,9 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute", "backend_name"})
@@ -279,6 +274,16 @@ func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLo
 		addRequest.CacheMode = cacheMode
 	}
 	return nil
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *localDbIndexResourceModel) populateAllComputedStringAttributes() {
+	if model.Attribute.IsUnknown() || model.Attribute.IsNull() {
+		model.Attribute = types.StringValue("")
+	}
+	if model.CacheMode.IsUnknown() || model.CacheMode.IsNull() {
+		model.CacheMode = types.StringValue("")
+	}
 }
 
 // Read a LocalDbIndexResponse object into the model struct
@@ -449,6 +454,7 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -494,6 +500,10 @@ func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resou
 
 	// Read the response into the state
 	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -590,7 +591,9 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -630,104 +633,19 @@ func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanReques
 func configValidatorsResultCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_entry_returned_criteria"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_authz_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("assurance_behavior_altered_by_control"),
-			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_reference_returned_criteria"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("referral_returned"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"successful-bind"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("assurance_satisfied"),
-			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("request_criteria"),
 			path.MatchRoot("type"),
 			[]string{"successful-bind", "simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_user_filter"),
+			path.MatchRoot("include_anonymous_binds"),
 			path.MatchRoot("type"),
 			[]string{"successful-bind"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_authz_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_authz_user_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("used_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_user_group_dn"),
+			path.MatchRoot("included_user_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"successful-bind"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("result_code_value"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_authz_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("used_any_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("processing_time_value"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_authz_user_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("queue_time_criteria"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("excluded_user_base_dn"),
@@ -735,37 +653,22 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"successful-bind"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_response_control"),
+			path.MatchRoot("included_user_filter"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"successful-bind"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
+			path.MatchRoot("excluded_user_filter"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"successful-bind"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_response_control"),
+			path.MatchRoot("included_user_group_dn"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"successful-bind"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("missing_any_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_authz_user_group_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_anonymous_binds"),
+			path.MatchRoot("excluded_user_group_dn"),
 			path.MatchRoot("type"),
 			[]string{"successful-bind"},
 		),
@@ -775,7 +678,7 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_response_control"),
+			path.MatchRoot("result_code_value"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -785,64 +688,14 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_response_control"),
+			path.MatchRoot("processing_time_value"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_indexed_criteria"),
+			path.MatchRoot("queue_time_criteria"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("used_alternate_authzid"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_user_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"successful-bind"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("assurance_timeout_criteria"),
-			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("missing_privilege"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("local_assurance_level"),
-			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_user_filter"),
-			path.MatchRoot("type"),
-			[]string{"successful-bind"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("response_delayed_by_assurance"),
-			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("queue_time_value"),
@@ -850,9 +703,54 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("remote_assurance_level"),
+			path.MatchRoot("referral_returned"),
 			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_alternate_authzid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_any_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("missing_any_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("missing_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("retired_password_used_for_bind"),
@@ -860,9 +758,9 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("assurance_timeout_value"),
+			path.MatchRoot("search_entry_returned_criteria"),
 			path.MatchRoot("type"),
-			[]string{"replication-assurance"},
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("search_entry_returned_count"),
@@ -870,9 +768,114 @@ func configValidatorsResultCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_returned_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("search_reference_returned_count"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_indexed_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_authz_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_authz_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("local_assurance_level"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("remote_assurance_level"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_timeout_criteria"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_timeout_value"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("response_delayed_by_assurance"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_behavior_altered_by_control"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_satisfied"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -1252,84 +1255,151 @@ func addOptionalThirdPartyResultCriteriaFields(ctx context.Context, addRequest *
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateResultCriteriaUnknownValues(ctx context.Context, model *resultCriteriaResourceModel) {
-	if model.NoneIncludedResponseControl.ElementType(ctx) == nil {
-		model.NoneIncludedResponseControl = types.SetNull(types.StringType)
+func populateResultCriteriaUnknownValues(model *resultCriteriaResourceModel) {
+	if model.NoneIncludedResponseControl.IsUnknown() || model.NoneIncludedResponseControl.IsNull() {
+		model.NoneIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedResultCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedResultCriteria.IsUnknown() || model.NotAllIncludedResultCriteria.IsNull() {
+		model.NotAllIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedAuthzUserGroupDN.IsUnknown() || model.AnyIncludedAuthzUserGroupDN.IsNull() {
+		model.AnyIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.LocalAssuranceLevel.ElementType(ctx) == nil {
-		model.LocalAssuranceLevel = types.SetNull(types.StringType)
+	if model.LocalAssuranceLevel.IsUnknown() || model.LocalAssuranceLevel.IsNull() {
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserGroupDN.ElementType(ctx) == nil {
-		model.ExcludedUserGroupDN = types.SetNull(types.StringType)
+	if model.ExcludedUserGroupDN.IsUnknown() || model.ExcludedUserGroupDN.IsNull() {
+		model.ExcludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedResponseControl.ElementType(ctx) == nil {
-		model.AllIncludedResponseControl = types.SetNull(types.StringType)
+	if model.AllIncludedResponseControl.IsUnknown() || model.AllIncludedResponseControl.IsNull() {
+		model.AllIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedAuthzUserGroupDN.IsUnknown() || model.NotAllIncludedAuthzUserGroupDN.IsNull() {
+		model.NotAllIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ResultCodeValue.ElementType(ctx) == nil {
-		model.ResultCodeValue = types.SetNull(types.StringType)
+	if model.ResultCodeValue.IsUnknown() || model.ResultCodeValue.IsNull() {
+		model.ResultCodeValue, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedResultCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedResultCriteria.IsUnknown() || model.AnyIncludedResultCriteria.IsNull() {
+		model.AnyIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedResponseControl.ElementType(ctx) == nil {
-		model.NotAllIncludedResponseControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedResponseControl.IsUnknown() || model.NotAllIncludedResponseControl.IsNull() {
+		model.NotAllIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedAuthzUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedAuthzUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedAuthzUserBaseDN.IsUnknown() || model.IncludedAuthzUserBaseDN.IsNull() {
+		model.IncludedAuthzUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedUserBaseDN.IsUnknown() || model.ExcludedUserBaseDN.IsNull() {
+		model.ExcludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedUserFilter.ElementType(ctx) == nil {
-		model.ExcludedUserFilter = types.SetNull(types.StringType)
+	if model.ExcludedUserFilter.IsUnknown() || model.ExcludedUserFilter.IsNull() {
+		model.ExcludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.AllIncludedAuthzUserGroupDN.IsUnknown() || model.AllIncludedAuthzUserGroupDN.IsNull() {
+		model.AllIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserGroupDN.ElementType(ctx) == nil {
-		model.IncludedUserGroupDN = types.SetNull(types.StringType)
+	if model.IncludedUserGroupDN.IsUnknown() || model.IncludedUserGroupDN.IsNull() {
+		model.IncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserFilter.ElementType(ctx) == nil {
-		model.IncludedUserFilter = types.SetNull(types.StringType)
+	if model.IncludedUserFilter.IsUnknown() || model.IncludedUserFilter.IsNull() {
+		model.IncludedUserFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedResultCriteria.ElementType(ctx) == nil {
-		model.AllIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedResultCriteria.IsUnknown() || model.AllIncludedResultCriteria.IsNull() {
+		model.AllIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedUserBaseDN.ElementType(ctx) == nil {
-		model.IncludedUserBaseDN = types.SetNull(types.StringType)
+	if model.IncludedUserBaseDN.IsUnknown() || model.IncludedUserBaseDN.IsNull() {
+		model.IncludedUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedAuthzUserGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedAuthzUserGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedAuthzUserGroupDN.IsUnknown() || model.NoneIncludedAuthzUserGroupDN.IsNull() {
+		model.NoneIncludedAuthzUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UsedPrivilege.ElementType(ctx) == nil {
-		model.UsedPrivilege = types.SetNull(types.StringType)
+	if model.UsedPrivilege.IsUnknown() || model.UsedPrivilege.IsNull() {
+		model.UsedPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedResultCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedResultCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedResultCriteria.IsUnknown() || model.NoneIncludedResultCriteria.IsNull() {
+		model.NoneIncludedResultCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedResponseControl.ElementType(ctx) == nil {
-		model.AnyIncludedResponseControl = types.SetNull(types.StringType)
+	if model.AnyIncludedResponseControl.IsUnknown() || model.AnyIncludedResponseControl.IsNull() {
+		model.AnyIncludedResponseControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedAuthzUserBaseDN.ElementType(ctx) == nil {
-		model.ExcludedAuthzUserBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedAuthzUserBaseDN.IsUnknown() || model.ExcludedAuthzUserBaseDN.IsNull() {
+		model.ExcludedAuthzUserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MissingPrivilege.ElementType(ctx) == nil {
-		model.MissingPrivilege = types.SetNull(types.StringType)
+	if model.MissingPrivilege.IsUnknown() || model.MissingPrivilege.IsNull() {
+		model.MissingPrivilege, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RemoteAssuranceLevel.ElementType(ctx) == nil {
-		model.RemoteAssuranceLevel = types.SetNull(types.StringType)
+	if model.RemoteAssuranceLevel.IsUnknown() || model.RemoteAssuranceLevel.IsNull() {
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ResultCodeCriteria.IsUnknown() || model.ResultCodeCriteria.IsNull() {
+		model.ResultCodeCriteria = types.StringValue("")
+	}
+	if model.ReferralReturned.IsUnknown() || model.ReferralReturned.IsNull() {
+		model.ReferralReturned = types.StringValue("")
+	}
+	if model.SearchIndexedCriteria.IsUnknown() || model.SearchIndexedCriteria.IsNull() {
+		model.SearchIndexedCriteria = types.StringValue("")
+	}
+	if model.AssuranceTimeoutValue.IsUnknown() || model.AssuranceTimeoutValue.IsNull() {
+		model.AssuranceTimeoutValue = types.StringValue("")
+	}
+	if model.QueueTimeCriteria.IsUnknown() || model.QueueTimeCriteria.IsNull() {
+		model.QueueTimeCriteria = types.StringValue("")
+	}
+	if model.UsedAlternateAuthzid.IsUnknown() || model.UsedAlternateAuthzid.IsNull() {
+		model.UsedAlternateAuthzid = types.StringValue("")
+	}
+	if model.AssuranceBehaviorAlteredByControl.IsUnknown() || model.AssuranceBehaviorAlteredByControl.IsNull() {
+		model.AssuranceBehaviorAlteredByControl = types.StringValue("")
+	}
+	if model.ProcessingTimeValue.IsUnknown() || model.ProcessingTimeValue.IsNull() {
+		model.ProcessingTimeValue = types.StringValue("")
+	}
+	if model.QueueTimeValue.IsUnknown() || model.QueueTimeValue.IsNull() {
+		model.QueueTimeValue = types.StringValue("")
+	}
+	if model.SearchEntryReturnedCriteria.IsUnknown() || model.SearchEntryReturnedCriteria.IsNull() {
+		model.SearchEntryReturnedCriteria = types.StringValue("")
+	}
+	if model.AssuranceTimeoutCriteria.IsUnknown() || model.AssuranceTimeoutCriteria.IsNull() {
+		model.AssuranceTimeoutCriteria = types.StringValue("")
+	}
+	if model.ProcessingTimeCriteria.IsUnknown() || model.ProcessingTimeCriteria.IsNull() {
+		model.ProcessingTimeCriteria = types.StringValue("")
+	}
+	if model.SearchReferenceReturnedCriteria.IsUnknown() || model.SearchReferenceReturnedCriteria.IsNull() {
+		model.SearchReferenceReturnedCriteria = types.StringValue("")
+	}
+	if model.UsedAnyPrivilege.IsUnknown() || model.UsedAnyPrivilege.IsNull() {
+		model.UsedAnyPrivilege = types.StringValue("")
+	}
+	if model.AssuranceSatisfied.IsUnknown() || model.AssuranceSatisfied.IsNull() {
+		model.AssuranceSatisfied = types.StringValue("")
+	}
+	if model.RetiredPasswordUsedForBind.IsUnknown() || model.RetiredPasswordUsedForBind.IsNull() {
+		model.RetiredPasswordUsedForBind = types.StringValue("")
+	}
+	if model.MissingAnyPrivilege.IsUnknown() || model.MissingAnyPrivilege.IsNull() {
+		model.MissingAnyPrivilege = types.StringValue("")
+	}
+	if model.ResponseDelayedByAssurance.IsUnknown() || model.ResponseDelayedByAssurance.IsNull() {
+		model.ResponseDelayedByAssurance = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *resultCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 }
 
@@ -1348,7 +1418,7 @@ func readSuccessfulBindResultCriteriaResponse(ctx context.Context, r *client.Suc
 	state.ExcludedUserGroupDN = internaltypes.GetStringSet(r.ExcludedUserGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaUnknownValues(ctx, state)
+	populateResultCriteriaUnknownValues(state)
 }
 
 // Read a SimpleResultCriteriaResponse object into the model struct
@@ -1358,45 +1428,45 @@ func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResul
 	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.ResultCodeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), internaltypes.IsEmptyString(expectedValues.ResultCodeCriteria))
+		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), true)
 	state.ResultCodeValue = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaResultCodeValueProp(r.ResultCodeValue))
 	state.ProcessingTimeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaProcessingTimeCriteriaProp(r.ProcessingTimeCriteria), internaltypes.IsEmptyString(expectedValues.ProcessingTimeCriteria))
-	state.ProcessingTimeValue = internaltypes.StringTypeOrNil(r.ProcessingTimeValue, internaltypes.IsEmptyString(expectedValues.ProcessingTimeValue))
+		client.StringPointerEnumresultCriteriaProcessingTimeCriteriaProp(r.ProcessingTimeCriteria), true)
+	state.ProcessingTimeValue = internaltypes.StringTypeOrNil(r.ProcessingTimeValue, true)
 	config.CheckMismatchedPDFormattedAttributes("processing_time_value",
 		expectedValues.ProcessingTimeValue, state.ProcessingTimeValue, diagnostics)
 	state.QueueTimeCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaQueueTimeCriteriaProp(r.QueueTimeCriteria), internaltypes.IsEmptyString(expectedValues.QueueTimeCriteria))
-	state.QueueTimeValue = internaltypes.StringTypeOrNil(r.QueueTimeValue, internaltypes.IsEmptyString(expectedValues.QueueTimeValue))
+		client.StringPointerEnumresultCriteriaQueueTimeCriteriaProp(r.QueueTimeCriteria), true)
+	state.QueueTimeValue = internaltypes.StringTypeOrNil(r.QueueTimeValue, true)
 	config.CheckMismatchedPDFormattedAttributes("queue_time_value",
 		expectedValues.QueueTimeValue, state.QueueTimeValue, diagnostics)
 	state.ReferralReturned = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaReferralReturnedProp(r.ReferralReturned), internaltypes.IsEmptyString(expectedValues.ReferralReturned))
+		client.StringPointerEnumresultCriteriaReferralReturnedProp(r.ReferralReturned), true)
 	state.AllIncludedResponseControl = internaltypes.GetStringSet(r.AllIncludedResponseControl)
 	state.AnyIncludedResponseControl = internaltypes.GetStringSet(r.AnyIncludedResponseControl)
 	state.NotAllIncludedResponseControl = internaltypes.GetStringSet(r.NotAllIncludedResponseControl)
 	state.NoneIncludedResponseControl = internaltypes.GetStringSet(r.NoneIncludedResponseControl)
 	state.UsedAlternateAuthzid = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaUsedAlternateAuthzidProp(r.UsedAlternateAuthzid), internaltypes.IsEmptyString(expectedValues.UsedAlternateAuthzid))
+		client.StringPointerEnumresultCriteriaUsedAlternateAuthzidProp(r.UsedAlternateAuthzid), true)
 	state.UsedAnyPrivilege = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaUsedAnyPrivilegeProp(r.UsedAnyPrivilege), internaltypes.IsEmptyString(expectedValues.UsedAnyPrivilege))
+		client.StringPointerEnumresultCriteriaUsedAnyPrivilegeProp(r.UsedAnyPrivilege), true)
 	state.UsedPrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaUsedPrivilegeProp(r.UsedPrivilege))
 	state.MissingAnyPrivilege = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaMissingAnyPrivilegeProp(r.MissingAnyPrivilege), internaltypes.IsEmptyString(expectedValues.MissingAnyPrivilege))
+		client.StringPointerEnumresultCriteriaMissingAnyPrivilegeProp(r.MissingAnyPrivilege), true)
 	state.MissingPrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaMissingPrivilegeProp(r.MissingPrivilege))
 	state.RetiredPasswordUsedForBind = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaRetiredPasswordUsedForBindProp(r.RetiredPasswordUsedForBind), internaltypes.IsEmptyString(expectedValues.RetiredPasswordUsedForBind))
+		client.StringPointerEnumresultCriteriaRetiredPasswordUsedForBindProp(r.RetiredPasswordUsedForBind), true)
 	state.SearchEntryReturnedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchEntryReturnedCriteriaProp(r.SearchEntryReturnedCriteria), internaltypes.IsEmptyString(expectedValues.SearchEntryReturnedCriteria))
+		client.StringPointerEnumresultCriteriaSearchEntryReturnedCriteriaProp(r.SearchEntryReturnedCriteria), true)
 	state.SearchEntryReturnedCount = internaltypes.Int64TypeOrNil(r.SearchEntryReturnedCount)
 	state.SearchReferenceReturnedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchReferenceReturnedCriteriaProp(r.SearchReferenceReturnedCriteria), internaltypes.IsEmptyString(expectedValues.SearchReferenceReturnedCriteria))
+		client.StringPointerEnumresultCriteriaSearchReferenceReturnedCriteriaProp(r.SearchReferenceReturnedCriteria), true)
 	state.SearchReferenceReturnedCount = internaltypes.Int64TypeOrNil(r.SearchReferenceReturnedCount)
 	state.SearchIndexedCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaSearchIndexedCriteriaProp(r.SearchIndexedCriteria), internaltypes.IsEmptyString(expectedValues.SearchIndexedCriteria))
+		client.StringPointerEnumresultCriteriaSearchIndexedCriteriaProp(r.SearchIndexedCriteria), true)
 	state.IncludedAuthzUserBaseDN = internaltypes.GetStringSet(r.IncludedAuthzUserBaseDN)
 	state.ExcludedAuthzUserBaseDN = internaltypes.GetStringSet(r.ExcludedAuthzUserBaseDN)
 	state.AllIncludedAuthzUserGroupDN = internaltypes.GetStringSet(r.AllIncludedAuthzUserGroupDN)
@@ -1405,7 +1475,7 @@ func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResul
 	state.NoneIncludedAuthzUserGroupDN = internaltypes.GetStringSet(r.NoneIncludedAuthzUserGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaUnknownValues(ctx, state)
+	populateResultCriteriaUnknownValues(state)
 }
 
 // Read a AggregateResultCriteriaResponse object into the model struct
@@ -1419,7 +1489,7 @@ func readAggregateResultCriteriaResponse(ctx context.Context, r *client.Aggregat
 	state.NoneIncludedResultCriteria = internaltypes.GetStringSet(r.NoneIncludedResultCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaUnknownValues(ctx, state)
+	populateResultCriteriaUnknownValues(state)
 }
 
 // Read a ReplicationAssuranceResultCriteriaResponse object into the model struct
@@ -1432,19 +1502,19 @@ func readReplicationAssuranceResultCriteriaResponse(ctx context.Context, r *clie
 	state.RemoteAssuranceLevel = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaRemoteAssuranceLevelProp(r.RemoteAssuranceLevel))
 	state.AssuranceTimeoutCriteria = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceTimeoutCriteriaProp(r.AssuranceTimeoutCriteria), internaltypes.IsEmptyString(expectedValues.AssuranceTimeoutCriteria))
-	state.AssuranceTimeoutValue = internaltypes.StringTypeOrNil(r.AssuranceTimeoutValue, internaltypes.IsEmptyString(expectedValues.AssuranceTimeoutValue))
+		client.StringPointerEnumresultCriteriaAssuranceTimeoutCriteriaProp(r.AssuranceTimeoutCriteria), true)
+	state.AssuranceTimeoutValue = internaltypes.StringTypeOrNil(r.AssuranceTimeoutValue, true)
 	config.CheckMismatchedPDFormattedAttributes("assurance_timeout_value",
 		expectedValues.AssuranceTimeoutValue, state.AssuranceTimeoutValue, diagnostics)
 	state.ResponseDelayedByAssurance = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaResponseDelayedByAssuranceProp(r.ResponseDelayedByAssurance), internaltypes.IsEmptyString(expectedValues.ResponseDelayedByAssurance))
+		client.StringPointerEnumresultCriteriaResponseDelayedByAssuranceProp(r.ResponseDelayedByAssurance), true)
 	state.AssuranceBehaviorAlteredByControl = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceBehaviorAlteredByControlProp(r.AssuranceBehaviorAlteredByControl), internaltypes.IsEmptyString(expectedValues.AssuranceBehaviorAlteredByControl))
+		client.StringPointerEnumresultCriteriaAssuranceBehaviorAlteredByControlProp(r.AssuranceBehaviorAlteredByControl), true)
 	state.AssuranceSatisfied = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumresultCriteriaAssuranceSatisfiedProp(r.AssuranceSatisfied), internaltypes.IsEmptyString(expectedValues.AssuranceSatisfied))
+		client.StringPointerEnumresultCriteriaAssuranceSatisfiedProp(r.AssuranceSatisfied), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaUnknownValues(ctx, state)
+	populateResultCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartyResultCriteriaResponse object into the model struct
@@ -1456,7 +1526,7 @@ func readThirdPartyResultCriteriaResponse(ctx context.Context, r *client.ThirdPa
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaUnknownValues(ctx, state)
+	populateResultCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1839,6 +1909,7 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1897,6 +1968,10 @@ func readResultCriteria(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 	if readResponse.ThirdPartyResultCriteriaResponse != nil {
 		readThirdPartyResultCriteriaResponse(ctx, readResponse.ThirdPartyResultCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

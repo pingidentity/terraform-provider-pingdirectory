@@ -39,6 +39,7 @@ provider "pingdirectory" {
 resource "pingdirectory_backend" "myBackend" {
   type                  = "local-db"
   base_dn               = ["dc=example1,dc=com"]
+  backend_id            = "myId"
   writability_mode      = "enabled"
   db_directory          = "db"
   import_temp_directory = "tmp"
@@ -51,12 +52,12 @@ resource "pingdirectory_backend" "myBackend" {
 
 ### Required
 
+- `backend_id` (String) Specifies a name to identify the associated backend.
 - `enabled` (Boolean) Indicates whether the backend is enabled in the server.
 - `type` (String) The type of Backend resource. Options are ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm', 'metrics']
 
 ### Optional
 
-- `backend_id` (String) Specifies a name to identify the associated backend.
 - `background_prime` (Boolean) Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.
 - `base_dn` (Set of String) Specifies the base DN(s) for the data that the backend handles.
 - `compact_common_parent_dn` (Set of String) Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.

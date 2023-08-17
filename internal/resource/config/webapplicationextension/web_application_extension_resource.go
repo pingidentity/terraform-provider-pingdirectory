@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -175,18 +174,10 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 			"deployment_descriptor_file": schema.StringAttribute{
 				Description: "Specifies the path to the deployment descriptor file when used with document-root-directory.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the path to the directory that may be used to store temporary files such as extracted WAR files and compiled JSP files.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"init_parameter": schema.SetAttribute{
 				Description: "Specifies an initialization parameter to pass into the web application during startup.",
@@ -204,7 +195,9 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"console", "generic"}...),
 		}
@@ -212,92 +205,52 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["sso_enabled"] = schema.BoolAttribute{
 			Description: "Indicates that SSO login into the Administrative Console is enabled.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["oidc_client_id"] = schema.StringAttribute{
 			Description: "The client ID to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_client_secret"] = schema.StringAttribute{
 			Description: "The client secret to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 			Sensitive:   true,
 		}
 		schemaDef.Attributes["oidc_client_secret_passphrase_provider"] = schema.StringAttribute{
 			Description: "A passphrase provider that may be used to obtain the client secret to use when authenticating to the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_issuer_url"] = schema.StringAttribute{
 			Description: "The issuer URL of the OpenID Connect provider.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the truststore file used by this application to evaluate OIDC provider certificates. If this field is left blank, the default JVM trust store will be used.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the OIDC trust store file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with OIDC providers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["oidc_strict_hostname_verification"] = schema.BoolAttribute{
 			Description: "Controls whether or not hostname verification is performed, which checks if the hostname of the OIDC provider matches the name(s) stored inside the certificate it provides. This property should only be set to false for testing purposes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["oidc_trust_all"] = schema.BoolAttribute{
 			Description: "Controls whether or not this application will always trust any certificate that is presented to it, regardless of its contents. This property should only be set to true for testing purposes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["ldap_server"] = schema.StringAttribute{
 			Description: "The LDAP URL used to connect to the managed server.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the truststore file, which is used by this application to establish trust of managed servers.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
 			Description: "Specifies the format for the data in the trust store file.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["trust_store_pin_passphrase_provider"] = schema.StringAttribute{
 			Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with managed LDAP servers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["log_file"] = schema.StringAttribute{
 			Description: "The path to the log file for the web application.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["complexity"] = schema.StringAttribute{
 			Description: "Specifies the maximum complexity level for managed configuration elements.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -332,22 +285,7 @@ func (r webApplicationExtensionResource) ConfigValidators(ctx context.Context) [
 func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("complexity"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_all"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("sso_enabled"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_issuer_url"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -357,32 +295,7 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_strict_hostname_verification"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oidc_client_secret"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_file"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -392,12 +305,7 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_store_type"),
+			path.MatchRoot("oidc_issuer_url"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -407,7 +315,52 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_strict_hostname_verification"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_all"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_server"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("complexity"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -446,9 +399,45 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, model *defaultWebApplicationExtensionResourceModel) {
-	if model.OidcClientSecret.IsUnknown() {
-		model.OidcClientSecret = types.StringNull()
+func populateWebApplicationExtensionUnknownValuesDefault(model *defaultWebApplicationExtensionResourceModel) {
+	if model.OidcClientSecretPassphraseProvider.IsUnknown() || model.OidcClientSecretPassphraseProvider.IsNull() {
+		model.OidcClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.OidcTrustStoreFile.IsUnknown() || model.OidcTrustStoreFile.IsNull() {
+		model.OidcTrustStoreFile = types.StringValue("")
+	}
+	if model.OidcClientSecret.IsUnknown() || model.OidcClientSecret.IsNull() {
+		model.OidcClientSecret = types.StringValue("")
+	}
+	if model.Complexity.IsUnknown() || model.Complexity.IsNull() {
+		model.Complexity = types.StringValue("")
+	}
+	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
+		model.LogFile = types.StringValue("")
+	}
+	if model.LdapServer.IsUnknown() || model.LdapServer.IsNull() {
+		model.LdapServer = types.StringValue("")
+	}
+	if model.OidcIssuerURL.IsUnknown() || model.OidcIssuerURL.IsNull() {
+		model.OidcIssuerURL = types.StringValue("")
+	}
+	if model.OidcTrustStoreType.IsUnknown() || model.OidcTrustStoreType.IsNull() {
+		model.OidcTrustStoreType = types.StringValue("")
+	}
+	if model.OidcClientID.IsUnknown() || model.OidcClientID.IsNull() {
+		model.OidcClientID = types.StringValue("")
+	}
+	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
+		model.TrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.OidcTrustStorePinPassphraseProvider.IsUnknown() || model.OidcTrustStorePinPassphraseProvider.IsNull() {
+		model.OidcTrustStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
+		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 
@@ -458,30 +447,30 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.SsoEnabled = internaltypes.BoolTypeOrNil(r.SsoEnabled)
-	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, internaltypes.IsEmptyString(expectedValues.OidcClientID))
-	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OidcClientSecretPassphraseProvider))
-	state.OidcIssuerURL = internaltypes.StringTypeOrNil(r.OidcIssuerURL, internaltypes.IsEmptyString(expectedValues.OidcIssuerURL))
-	state.OidcTrustStoreFile = internaltypes.StringTypeOrNil(r.OidcTrustStoreFile, internaltypes.IsEmptyString(expectedValues.OidcTrustStoreFile))
-	state.OidcTrustStoreType = internaltypes.StringTypeOrNil(r.OidcTrustStoreType, internaltypes.IsEmptyString(expectedValues.OidcTrustStoreType))
-	state.OidcTrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcTrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OidcTrustStorePinPassphraseProvider))
+	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, true)
+	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, true)
+	state.OidcIssuerURL = internaltypes.StringTypeOrNil(r.OidcIssuerURL, true)
+	state.OidcTrustStoreFile = internaltypes.StringTypeOrNil(r.OidcTrustStoreFile, true)
+	state.OidcTrustStoreType = internaltypes.StringTypeOrNil(r.OidcTrustStoreType, true)
+	state.OidcTrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcTrustStorePinPassphraseProvider, true)
 	state.OidcStrictHostnameVerification = internaltypes.BoolTypeOrNil(r.OidcStrictHostnameVerification)
 	state.OidcTrustAll = internaltypes.BoolTypeOrNil(r.OidcTrustAll)
-	state.LdapServer = internaltypes.StringTypeOrNil(r.LdapServer, internaltypes.IsEmptyString(expectedValues.LdapServer))
-	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
-	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
-	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, internaltypes.IsEmptyString(expectedValues.LogFile))
+	state.LdapServer = internaltypes.StringTypeOrNil(r.LdapServer, true)
+	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, true)
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
+	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, true)
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
 	state.Complexity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), internaltypes.IsEmptyString(expectedValues.Complexity))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
-	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
-	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, internaltypes.IsEmptyString(expectedValues.DocumentRootDirectory))
-	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, internaltypes.IsEmptyString(expectedValues.DeploymentDescriptorFile))
-	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
+	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, true)
+	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, true)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, true)
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
+	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Read a GenericWebApplicationExtensionResponse object into the model struct
@@ -504,15 +493,15 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
-	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
-	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, internaltypes.IsEmptyString(expectedValues.DocumentRootDirectory))
-	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, internaltypes.IsEmptyString(expectedValues.DeploymentDescriptorFile))
-	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
+	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, true)
+	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, true)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, true)
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
+	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

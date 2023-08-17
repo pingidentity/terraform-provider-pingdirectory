@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -327,7 +328,9 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -340,24 +343,39 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("not_all_included_entry_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_entry_filter"),
+			path.MatchRoot("none_included_entry_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_entry_group_dn"),
+			path.MatchRoot("included_entry_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_search_entry_criteria"),
+			path.MatchRoot("excluded_entry_base_dn"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_entry_filter"),
@@ -370,12 +388,27 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_search_entry_criteria"),
+			path.MatchRoot("not_all_included_entry_filter"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_entry_group_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -385,39 +418,24 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_entry_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_entry_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_entry_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_search_entry_criteria"),
 			path.MatchRoot("type"),
 			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_entry_control"),
+			path.MatchRoot("any_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_criteria"),
+			path.MatchRoot("not_all_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("none_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -425,24 +443,9 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_entry_group_dn"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_entry_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_search_entry_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -581,63 +584,76 @@ func addOptionalThirdPartySearchEntryCriteriaFields(ctx context.Context, addRequ
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *searchEntryCriteriaResourceModel) {
-	if model.AllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedEntryGroupDN = types.SetNull(types.StringType)
+func populateSearchEntryCriteriaUnknownValues(model *searchEntryCriteriaResourceModel) {
+	if model.AllIncludedEntryGroupDN.IsUnknown() || model.AllIncludedEntryGroupDN.IsNull() {
+		model.AllIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedEntryBaseDN.ElementType(ctx) == nil {
-		model.ExcludedEntryBaseDN = types.SetNull(types.StringType)
+	if model.ExcludedEntryBaseDN.IsUnknown() || model.ExcludedEntryBaseDN.IsNull() {
+		model.ExcludedEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.AnyIncludedSearchEntryCriteria.IsUnknown() || model.AnyIncludedSearchEntryCriteria.IsNull() {
+		model.AnyIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AnyIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryFilter.IsUnknown() || model.AnyIncludedEntryFilter.IsNull() {
+		model.AnyIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedEntryControl.ElementType(ctx) == nil {
-		model.AllIncludedEntryControl = types.SetNull(types.StringType)
+	if model.AllIncludedEntryControl.IsUnknown() || model.AllIncludedEntryControl.IsNull() {
+		model.AllIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedEntryBaseDN = types.SetNull(types.StringType)
+	if model.IncludedEntryBaseDN.IsUnknown() || model.IncludedEntryBaseDN.IsNull() {
+		model.IncludedEntryBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.NoneIncludedSearchEntryCriteria.IsUnknown() || model.NoneIncludedSearchEntryCriteria.IsNull() {
+		model.NoneIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryControl.ElementType(ctx) == nil {
-		model.AnyIncludedEntryControl = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryControl.IsUnknown() || model.AnyIncludedEntryControl.IsNull() {
+		model.AnyIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.AllIncludedSearchEntryCriteria.IsUnknown() || model.AllIncludedSearchEntryCriteria.IsNull() {
+		model.AllIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AllIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.AllIncludedEntryFilter.IsUnknown() || model.AllIncludedEntryFilter.IsNull() {
+		model.AllIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NoneIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryFilter.IsUnknown() || model.NoneIncludedEntryFilter.IsNull() {
+		model.NoneIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryControl.ElementType(ctx) == nil {
-		model.NoneIncludedEntryControl = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryControl.IsUnknown() || model.NoneIncludedEntryControl.IsNull() {
+		model.NoneIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryGroupDN.IsUnknown() || model.NotAllIncludedEntryGroupDN.IsNull() {
+		model.NotAllIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryControl.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryControl = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryControl.IsUnknown() || model.NotAllIncludedEntryControl.IsNull() {
+		model.NotAllIncludedEntryControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryFilter = types.SetNull(types.StringType)
+	if model.NotAllIncludedEntryFilter.IsUnknown() || model.NotAllIncludedEntryFilter.IsNull() {
+		model.NotAllIncludedEntryFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AnyIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.AnyIncludedEntryGroupDN.IsUnknown() || model.AnyIncludedEntryGroupDN.IsNull() {
+		model.AnyIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NotAllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
+	if model.NotAllIncludedSearchEntryCriteria.IsUnknown() || model.NotAllIncludedSearchEntryCriteria.IsNull() {
+		model.NotAllIncludedSearchEntryCriteria, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.NoneIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedEntryGroupDN = types.SetNull(types.StringType)
+	if model.NoneIncludedEntryGroupDN.IsUnknown() || model.NoneIncludedEntryGroupDN.IsNull() {
+		model.NoneIncludedEntryGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *searchEntryCriteriaResourceModel) populateAllComputedStringAttributes() {
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 }
 
@@ -663,7 +679,7 @@ func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.Simple
 	state.NoneIncludedEntryGroupDN = internaltypes.GetStringSet(r.NoneIncludedEntryGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Read a AggregateSearchEntryCriteriaResponse object into the model struct
@@ -677,7 +693,7 @@ func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.Agg
 	state.NoneIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchEntryCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Read a ThirdPartySearchEntryCriteriaResponse object into the model struct
@@ -689,7 +705,7 @@ func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.Th
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaUnknownValues(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -934,6 +950,7 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -986,6 +1003,10 @@ func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp
 	}
 	if readResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

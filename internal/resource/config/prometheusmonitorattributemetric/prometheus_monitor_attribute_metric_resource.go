@@ -173,6 +173,9 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "metric_name", "http_servlet_extension_name"})
@@ -209,6 +212,28 @@ func addOptionalPrometheusMonitorAttributeMetricFields(ctx context.Context, addR
 		var slice []string
 		plan.LabelNameValuePair.ElementsAs(ctx, &slice, false)
 		addRequest.LabelNameValuePair = slice
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *prometheusMonitorAttributeMetricResourceModel) populateAllComputedStringAttributes() {
+	if model.MetricName.IsUnknown() || model.MetricName.IsNull() {
+		model.MetricName = types.StringValue("")
+	}
+	if model.Filter.IsUnknown() || model.Filter.IsNull() {
+		model.Filter = types.StringValue("")
+	}
+	if model.MetricType.IsUnknown() || model.MetricType.IsNull() {
+		model.MetricType = types.StringValue("")
+	}
+	if model.MonitorAttributeName.IsUnknown() || model.MonitorAttributeName.IsNull() {
+		model.MonitorAttributeName = types.StringValue("")
+	}
+	if model.MetricDescription.IsUnknown() || model.MetricDescription.IsNull() {
+		model.MetricDescription = types.StringValue("")
+	}
+	if model.MonitorObjectClassName.IsUnknown() || model.MonitorObjectClassName.IsNull() {
+		model.MonitorObjectClassName = types.StringValue("")
 	}
 }
 
@@ -370,6 +395,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -415,6 +441,10 @@ func readPrometheusMonitorAttributeMetric(ctx context.Context, req resource.Read
 
 	// Read the response into the state
 	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

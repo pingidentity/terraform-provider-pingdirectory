@@ -9,7 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -123,6 +125,9 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -133,6 +138,13 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 
 // Add optional fields to create request for trusted-certificate trusted-certificate
 func addOptionalTrustedCertificateFields(ctx context.Context, addRequest *client.AddTrustedCertificateRequest, plan trustedCertificateResourceModel) {
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *trustedCertificateResourceModel) populateAllComputedStringAttributes() {
+	if model.Certificate.IsUnknown() || model.Certificate.IsNull() {
+		model.Certificate = types.StringValue("")
+	}
 }
 
 // Read a TrustedCertificateResponse object into the model struct
@@ -265,6 +277,7 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -310,6 +323,10 @@ func readTrustedCertificate(ctx context.Context, req resource.ReadRequest, resp 
 
 	// Read the response into the state
 	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

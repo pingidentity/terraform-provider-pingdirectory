@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -244,18 +245,10 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 			"connection_criteria": schema.StringAttribute{
 				Description: "A set of criteria that client connections must satisfy before they will be allowed to request the associated extended operations.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"request_criteria": schema.StringAttribute{
 				Description: "A set of criteria that the extended requests must satisfy before they will be processed by the server.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"shared_secret_attribute_type": schema.StringAttribute{
 				Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
@@ -304,7 +297,9 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"cancel", "validate-totp-password", "replace-certificate", "get-connection-id", "multi-update", "notification-subscription", "password-modify", "custom", "collect-support-data", "export-reversible-passwords", "batched-transactions", "get-changelog-batch", "get-supported-otp-delivery-mechanisms", "single-use-tokens", "generate-password", "who-am-i", "start-tls", "deliver-password-reset-token", "password-policy-state", "get-password-quality-requirements", "deliver-otp", "third-party"}...),
 		}
@@ -312,31 +307,15 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["default_password_policy"] = schema.StringAttribute{
 			Description: "The default password policy that should be used when generating and validating passwords if the request does not specify an alternate policy. If this is not provided, then this Generate Password Extended Operation Handler will use the default password policy defined in the global configuration.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["default_password_generator"] = schema.StringAttribute{
 			Description: "The default password generator that will be used if the selected password policy is not configured with a password generator.",
-			Optional:    true,
 		}
 		schemaDef.Attributes["maximum_passwords_per_request"] = schema.Int64Attribute{
 			Description: "The maximum number of passwords that may be generated and returned to the client for a single request.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["maximum_validation_attempts_per_password"] = schema.Int64Attribute{
 			Description: "The maximum number of attempts that the server may use to generate a password that passes validation.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
@@ -348,24 +327,19 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("shared_secret_attribute_type"),
 			path.MatchRoot("type"),
 			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_generator"),
+			path.MatchRoot("time_interval_duration"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens", "deliver-password-reset-token", "deliver-otp"},
+			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_single_use_token_validity_duration"),
+			path.MatchRoot("adjacent_intervals_to_check"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("identity_mapper"),
-			path.MatchRoot("type"),
-			[]string{"password-modify", "deliver-otp"},
+			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("prevent_totp_reuse"),
@@ -373,9 +347,14 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_otp_delivery_mechanism"),
+			path.MatchRoot("allow_remotely_provided_certificates"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens", "deliver-otp"},
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_operation"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_criteria"),
@@ -388,19 +367,29 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"replace-certificate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("time_interval_duration"),
+			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"validate-totp-password"},
+			[]string{"password-modify", "deliver-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("password_generator"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"single-use-tokens", "deliver-password-reset-token", "deliver-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_remotely_provided_certificates"),
+			path.MatchRoot("default_otp_delivery_mechanism"),
 			path.MatchRoot("type"),
-			[]string{"replace-certificate"},
+			[]string{"single-use-tokens", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_single_use_token_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"single-use-tokens"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_token_delivery_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"deliver-password-reset-token"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_reset_token_validity_duration"),
@@ -413,19 +402,9 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_operation"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"replace-certificate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_token_delivery_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"deliver-password-reset-token"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("shared_secret_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"validate-totp-password"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -449,12 +428,12 @@ func (r defaultExtendedOperationHandlerResource) ConfigValidators(ctx context.Co
 			[]string{"generate-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_validation_attempts_per_password"),
+			path.MatchRoot("maximum_passwords_per_request"),
 			path.MatchRoot("type"),
 			[]string{"generate-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_passwords_per_request"),
+			path.MatchRoot("maximum_validation_attempts_per_password"),
 			path.MatchRoot("type"),
 			[]string{"generate-password"},
 		),
@@ -586,34 +565,79 @@ func addOptionalThirdPartyExtendedOperationHandlerFields(ctx context.Context, ad
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateExtendedOperationHandlerUnknownValues(ctx context.Context, model *extendedOperationHandlerResourceModel) {
-	if model.DefaultTokenDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultTokenDeliveryMechanism = types.SetNull(types.StringType)
+func populateExtendedOperationHandlerUnknownValues(model *extendedOperationHandlerResourceModel) {
+	if model.DefaultTokenDeliveryMechanism.IsUnknown() || model.DefaultTokenDeliveryMechanism.IsNull() {
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedOperation.ElementType(ctx) == nil {
-		model.AllowedOperation = types.SetNull(types.StringType)
+	if model.AllowedOperation.IsUnknown() || model.AllowedOperation.IsNull() {
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOTPDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultOTPDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
+		model.PasswordResetTokenValidityDuration = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
+		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateExtendedOperationHandlerUnknownValuesDefault(ctx context.Context, model *defaultExtendedOperationHandlerResourceModel) {
-	if model.DefaultTokenDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultTokenDeliveryMechanism = types.SetNull(types.StringType)
+func populateExtendedOperationHandlerUnknownValuesDefault(model *defaultExtendedOperationHandlerResourceModel) {
+	if model.DefaultTokenDeliveryMechanism.IsUnknown() || model.DefaultTokenDeliveryMechanism.IsNull() {
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedOperation.ElementType(ctx) == nil {
-		model.AllowedOperation = types.SetNull(types.StringType)
+	if model.AllowedOperation.IsUnknown() || model.AllowedOperation.IsNull() {
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DefaultOTPDeliveryMechanism.ElementType(ctx) == nil {
-		model.DefaultOTPDeliveryMechanism = types.SetNull(types.StringType)
+	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
+		model.TimeIntervalDuration = types.StringValue("")
+	}
+	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
+		model.PasswordResetTokenValidityDuration = types.StringValue("")
+	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
+	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
+		model.SharedSecretAttributeType = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
+		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
+	}
+	if model.PasswordGenerator.IsUnknown() || model.PasswordGenerator.IsNull() {
+		model.PasswordGenerator = types.StringValue("")
+	}
+	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
+		model.ConnectionCriteria = types.StringValue("")
+	}
+	if model.DefaultPasswordPolicy.IsUnknown() || model.DefaultPasswordPolicy.IsNull() {
+		model.DefaultPasswordPolicy = types.StringValue("")
+	}
+	if model.DefaultPasswordGenerator.IsUnknown() || model.DefaultPasswordGenerator.IsNull() {
+		model.DefaultPasswordGenerator = types.StringValue("")
 	}
 }
 
@@ -622,10 +646,10 @@ func readCancelExtendedOperationHandlerResponseDefault(ctx context.Context, r *c
 	state.Type = types.StringValue("cancel")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a ValidateTotpPasswordExtendedOperationHandlerResponse object into the model struct
@@ -633,8 +657,8 @@ func readValidateTotpPasswordExtendedOperationHandlerResponse(ctx context.Contex
 	state.Type = types.StringValue("validate-totp-password")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, internaltypes.IsEmptyString(expectedValues.SharedSecretAttributeType))
-	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, internaltypes.IsEmptyString(expectedValues.TimeIntervalDuration))
+	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, true)
+	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval_duration",
 		expectedValues.TimeIntervalDuration, state.TimeIntervalDuration, diagnostics)
 	state.AdjacentIntervalsToCheck = internaltypes.Int64TypeOrNil(r.AdjacentIntervalsToCheck)
@@ -642,7 +666,7 @@ func readValidateTotpPasswordExtendedOperationHandlerResponse(ctx context.Contex
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a ValidateTotpPasswordExtendedOperationHandlerResponse object into the model struct
@@ -650,16 +674,16 @@ func readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx context
 	state.Type = types.StringValue("validate-totp-password")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, internaltypes.IsEmptyString(expectedValues.SharedSecretAttributeType))
-	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, internaltypes.IsEmptyString(expectedValues.TimeIntervalDuration))
+	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, true)
+	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("time_interval_duration",
 		expectedValues.TimeIntervalDuration, state.TimeIntervalDuration, diagnostics)
 	state.AdjacentIntervalsToCheck = internaltypes.Int64TypeOrNil(r.AdjacentIntervalsToCheck)
 	state.PreventTOTPReuse = internaltypes.BoolTypeOrNil(r.PreventTOTPReuse)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a ReplaceCertificateExtendedOperationHandlerResponse object into the model struct
@@ -675,7 +699,7 @@ func readReplaceCertificateExtendedOperationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a ReplaceCertificateExtendedOperationHandlerResponse object into the model struct
@@ -686,12 +710,12 @@ func readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx context.C
 	state.AllowRemotelyProvidedCertificates = internaltypes.BoolTypeOrNil(r.AllowRemotelyProvidedCertificates)
 	state.AllowedOperation = internaltypes.GetStringSet(
 		client.StringSliceEnumextendedOperationHandlerAllowedOperationProp(r.AllowedOperation))
-	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, true)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a GetConnectionIdExtendedOperationHandlerResponse object into the model struct
@@ -699,10 +723,10 @@ func readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx context.Cont
 	state.Type = types.StringValue("get-connection-id")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a MultiUpdateExtendedOperationHandlerResponse object into the model struct
@@ -710,10 +734,10 @@ func readMultiUpdateExtendedOperationHandlerResponseDefault(ctx context.Context,
 	state.Type = types.StringValue("multi-update")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a NotificationSubscriptionExtendedOperationHandlerResponse object into the model struct
@@ -721,10 +745,10 @@ func readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx con
 	state.Type = types.StringValue("notification-subscription")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a PasswordModifyExtendedOperationHandlerResponse object into the model struct
@@ -733,10 +757,10 @@ func readPasswordModifyExtendedOperationHandlerResponseDefault(ctx context.Conte
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a CustomExtendedOperationHandlerResponse object into the model struct
@@ -744,10 +768,10 @@ func readCustomExtendedOperationHandlerResponseDefault(ctx context.Context, r *c
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a CollectSupportDataExtendedOperationHandlerResponse object into the model struct
@@ -758,7 +782,7 @@ func readCollectSupportDataExtendedOperationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a CollectSupportDataExtendedOperationHandlerResponse object into the model struct
@@ -766,10 +790,10 @@ func readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx context.C
 	state.Type = types.StringValue("collect-support-data")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a ExportReversiblePasswordsExtendedOperationHandlerResponse object into the model struct
@@ -780,7 +804,7 @@ func readExportReversiblePasswordsExtendedOperationHandlerResponse(ctx context.C
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a ExportReversiblePasswordsExtendedOperationHandlerResponse object into the model struct
@@ -788,10 +812,10 @@ func readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx co
 	state.Type = types.StringValue("export-reversible-passwords")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a BatchedTransactionsExtendedOperationHandlerResponse object into the model struct
@@ -799,10 +823,10 @@ func readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx context.
 	state.Type = types.StringValue("batched-transactions")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a GetChangelogBatchExtendedOperationHandlerResponse object into the model struct
@@ -810,10 +834,10 @@ func readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx context.Co
 	state.Type = types.StringValue("get-changelog-batch")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse object into the model struct
@@ -821,10 +845,10 @@ func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefaul
 	state.Type = types.StringValue("get-supported-otp-delivery-mechanisms")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
@@ -834,13 +858,13 @@ func readSingleUseTokensExtendedOperationHandlerResponse(ctx context.Context, r 
 	state.Name = types.StringValue(r.Id)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultOTPDeliveryMechanism = internaltypes.GetStringSet(r.DefaultOTPDeliveryMechanism)
-	state.DefaultSingleUseTokenValidityDuration = internaltypes.StringTypeOrNil(r.DefaultSingleUseTokenValidityDuration, internaltypes.IsEmptyString(expectedValues.DefaultSingleUseTokenValidityDuration))
+	state.DefaultSingleUseTokenValidityDuration = internaltypes.StringTypeOrNil(r.DefaultSingleUseTokenValidityDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("default_single_use_token_validity_duration",
 		expectedValues.DefaultSingleUseTokenValidityDuration, state.DefaultSingleUseTokenValidityDuration, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
@@ -850,13 +874,13 @@ func readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx context.Cont
 	state.Name = types.StringValue(r.Id)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultOTPDeliveryMechanism = internaltypes.GetStringSet(r.DefaultOTPDeliveryMechanism)
-	state.DefaultSingleUseTokenValidityDuration = internaltypes.StringTypeOrNil(r.DefaultSingleUseTokenValidityDuration, internaltypes.IsEmptyString(expectedValues.DefaultSingleUseTokenValidityDuration))
+	state.DefaultSingleUseTokenValidityDuration = internaltypes.StringTypeOrNil(r.DefaultSingleUseTokenValidityDuration, true)
 	config.CheckMismatchedPDFormattedAttributes("default_single_use_token_validity_duration",
 		expectedValues.DefaultSingleUseTokenValidityDuration, state.DefaultSingleUseTokenValidityDuration, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a GeneratePasswordExtendedOperationHandlerResponse object into the model struct
@@ -864,14 +888,14 @@ func readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx context.Con
 	state.Type = types.StringValue("generate-password")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, internaltypes.IsEmptyString(expectedValues.DefaultPasswordPolicy))
+	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, true)
 	state.DefaultPasswordGenerator = types.StringValue(r.DefaultPasswordGenerator)
 	state.MaximumPasswordsPerRequest = internaltypes.Int64TypeOrNil(r.MaximumPasswordsPerRequest)
 	state.MaximumValidationAttemptsPerPassword = internaltypes.Int64TypeOrNil(r.MaximumValidationAttemptsPerPassword)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a WhoAmIExtendedOperationHandlerResponse object into the model struct
@@ -879,10 +903,10 @@ func readWhoAmIExtendedOperationHandlerResponseDefault(ctx context.Context, r *c
 	state.Type = types.StringValue("who-am-i")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a StartTlsExtendedOperationHandlerResponse object into the model struct
@@ -890,10 +914,10 @@ func readStartTlsExtendedOperationHandlerResponseDefault(ctx context.Context, r 
 	state.Type = types.StringValue("start-tls")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a DeliverPasswordResetTokenExtendedOperationHandlerResponse object into the model struct
@@ -909,7 +933,7 @@ func readDeliverPasswordResetTokenExtendedOperationHandlerResponse(ctx context.C
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a DeliverPasswordResetTokenExtendedOperationHandlerResponse object into the model struct
@@ -922,10 +946,10 @@ func readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx co
 	state.PasswordResetTokenValidityDuration = types.StringValue(r.PasswordResetTokenValidityDuration)
 	config.CheckMismatchedPDFormattedAttributes("password_reset_token_validity_duration",
 		expectedValues.PasswordResetTokenValidityDuration, state.PasswordResetTokenValidityDuration, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a PasswordPolicyStateExtendedOperationHandlerResponse object into the model struct
@@ -933,10 +957,10 @@ func readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx context.
 	state.Type = types.StringValue("password-policy-state")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a GetPasswordQualityRequirementsExtendedOperationHandlerResponse object into the model struct
@@ -944,10 +968,10 @@ func readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(c
 	state.Type = types.StringValue("get-password-quality-requirements")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a DeliverOtpExtendedOperationHandlerResponse object into the model struct
@@ -961,7 +985,7 @@ func readDeliverOtpExtendedOperationHandlerResponse(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a DeliverOtpExtendedOperationHandlerResponse object into the model struct
@@ -972,10 +996,10 @@ func readDeliverOtpExtendedOperationHandlerResponseDefault(ctx context.Context, 
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultOTPDeliveryMechanism = internaltypes.GetStringSet(r.DefaultOTPDeliveryMechanism)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Read a ThirdPartyExtendedOperationHandlerResponse object into the model struct
@@ -988,7 +1012,7 @@ func readThirdPartyExtendedOperationHandlerResponse(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
+	populateExtendedOperationHandlerUnknownValues(state)
 }
 
 // Read a ThirdPartyExtendedOperationHandlerResponse object into the model struct
@@ -998,10 +1022,10 @@ func readThirdPartyExtendedOperationHandlerResponseDefault(ctx context.Context, 
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValuesDefault(ctx, state)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
 // Create any update operations necessary to make the state match the plan

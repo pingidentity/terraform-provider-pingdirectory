@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -81,6 +82,9 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"json", "attribute-based", "generic"}...),
 				},
@@ -147,9 +151,9 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_sensitive_attribute"),
+			path.MatchRoot("included_sensitive_field"),
 			path.MatchRoot("type"),
-			[]string{"attribute-based"},
+			[]string{"json"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("excluded_sensitive_field"),
@@ -162,26 +166,26 @@ func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"attribute-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_sensitive_field"),
+			path.MatchRoot("excluded_sensitive_attribute"),
 			path.MatchRoot("type"),
-			[]string{"json"},
+			[]string{"attribute-based"},
 		),
 	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogFieldSyntaxUnknownValues(ctx context.Context, model *logFieldSyntaxResourceModel) {
-	if model.IncludedSensitiveAttribute.ElementType(ctx) == nil {
-		model.IncludedSensitiveAttribute = types.SetNull(types.StringType)
+func populateLogFieldSyntaxUnknownValues(model *logFieldSyntaxResourceModel) {
+	if model.IncludedSensitiveAttribute.IsUnknown() || model.IncludedSensitiveAttribute.IsNull() {
+		model.IncludedSensitiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedSensitiveAttribute.ElementType(ctx) == nil {
-		model.ExcludedSensitiveAttribute = types.SetNull(types.StringType)
+	if model.ExcludedSensitiveAttribute.IsUnknown() || model.ExcludedSensitiveAttribute.IsNull() {
+		model.ExcludedSensitiveAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExcludedSensitiveField.ElementType(ctx) == nil {
-		model.ExcludedSensitiveField = types.SetNull(types.StringType)
+	if model.ExcludedSensitiveField.IsUnknown() || model.ExcludedSensitiveField.IsNull() {
+		model.ExcludedSensitiveField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.IncludedSensitiveField.ElementType(ctx) == nil {
-		model.IncludedSensitiveField = types.SetNull(types.StringType)
+	if model.IncludedSensitiveField.IsUnknown() || model.IncludedSensitiveField.IsNull() {
+		model.IncludedSensitiveField, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 
@@ -196,7 +200,7 @@ func readJsonLogFieldSyntaxResponse(ctx context.Context, r *client.JsonLogFieldS
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Read a AttributeBasedLogFieldSyntaxResponse object into the model struct
@@ -210,7 +214,7 @@ func readAttributeBasedLogFieldSyntaxResponse(ctx context.Context, r *client.Att
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Read a GenericLogFieldSyntaxResponse object into the model struct
@@ -222,7 +226,7 @@ func readGenericLogFieldSyntaxResponse(ctx context.Context, r *client.GenericLog
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFieldSyntaxUnknownValues(ctx, state)
+	populateLogFieldSyntaxUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan

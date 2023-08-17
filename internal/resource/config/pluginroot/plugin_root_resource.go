@@ -122,6 +122,9 @@ func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"plugin-root"}...),
 				},

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -150,69 +149,37 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"critical_exit_value": schema.Float64Attribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'critical'.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"major_value": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"major_exit_value": schema.Float64Attribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'major'.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"minor_value": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"minor_exit_value": schema.Float64Attribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'minor'.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"warning_value": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'. When the `type` attribute is set to `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `indicator`: A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.\n  - `numeric`: A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"warning_exit_value": schema.Float64Attribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'warning'.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Gauge",
@@ -230,10 +197,6 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 			"override_severity": schema.StringAttribute{
 				Description: "When defined, causes this Gauge to assume the specified severity, overriding its computed severity. This is useful for testing alarms generated by Gauges as well as suppressing alarms for known conditions.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by this Gauge.",
@@ -299,7 +262,9 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -312,17 +277,17 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 func configValidatorsGauge() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minor_exit_value"),
-			path.MatchRoot("type"),
-			[]string{"numeric"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("critical_exit_value"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("major_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minor_exit_value"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),
@@ -522,6 +487,43 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	return nil
 }
 
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *gaugeResourceModel) populateAllComputedStringAttributes() {
+	if model.CriticalValue.IsUnknown() || model.CriticalValue.IsNull() {
+		model.CriticalValue = types.StringValue("")
+	}
+	if model.MinorValue.IsUnknown() || model.MinorValue.IsNull() {
+		model.MinorValue = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
+		model.OverrideSeverity = types.StringValue("")
+	}
+	if model.ServerDegradedSeverityLevel.IsUnknown() || model.ServerDegradedSeverityLevel.IsNull() {
+		model.ServerDegradedSeverityLevel = types.StringValue("")
+	}
+	if model.GaugeDataSource.IsUnknown() || model.GaugeDataSource.IsNull() {
+		model.GaugeDataSource = types.StringValue("")
+	}
+	if model.AlertLevel.IsUnknown() || model.AlertLevel.IsNull() {
+		model.AlertLevel = types.StringValue("")
+	}
+	if model.UpdateInterval.IsUnknown() || model.UpdateInterval.IsNull() {
+		model.UpdateInterval = types.StringValue("")
+	}
+	if model.ServerUnavailableSeverityLevel.IsUnknown() || model.ServerUnavailableSeverityLevel.IsNull() {
+		model.ServerUnavailableSeverityLevel = types.StringValue("")
+	}
+	if model.WarningValue.IsUnknown() || model.WarningValue.IsNull() {
+		model.WarningValue = types.StringValue("")
+	}
+	if model.MajorValue.IsUnknown() || model.MajorValue.IsNull() {
+		model.MajorValue = types.StringValue("")
+	}
+}
+
 // Read a IndicatorGaugeResponse object into the model struct
 func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
@@ -538,16 +540,16 @@ func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeRes
 		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
 	state.AlertLevel = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
 	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), true)
 	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -587,16 +589,16 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
 	state.AlertLevel = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, true)
 	config.CheckMismatchedPDFormattedAttributes("update_interval",
 		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
 	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), true)
 	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -803,6 +805,7 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -852,6 +855,10 @@ func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	}
 	if readResponse.NumericGaugeResponse != nil {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

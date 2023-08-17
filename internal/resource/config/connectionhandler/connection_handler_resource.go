@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -241,10 +242,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description:         "When the `type` attribute is set to `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication. When the `type` attribute is set to `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication. When the `type` attribute is set to `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.\n  - `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication.\n  - `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `jmx`: Specifies the name of the key manager that should be used with this JMX Connection Handler . When the `type` attribute is set to `ldap`: Specifies the name of the key manager that should be used with this LDAP Connection Handler . When the `type` attribute is set to `http`: Specifies the key manager provider that will be used to obtain the certificate to present to HTTPS clients.",
@@ -522,7 +519,9 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -543,14 +542,49 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("keep_stats"),
+			path.MatchRoot("listen_port"),
 			path.MatchRoot("type"),
-			[]string{"http"},
+			[]string{"jmx", "ldap", "http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_multipart_mime_parameters"),
+			path.MatchRoot("use_ssl"),
 			path.MatchRoot("type"),
-			[]string{"http"},
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("denied_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_address"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_start_tls"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_ldap_v2"),
@@ -558,9 +592,94 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_tcp_keep_alive"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("send_rejection_notice"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("failed_bind_response_delay"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_request_size"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_cancel_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_accept_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_request_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_client_auth_policy"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("accept_backlog"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_protocol"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ssl_cipher_suite"),
 			path.MatchRoot("type"),
 			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_blocked_write_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_authenticate_using_client_certificate"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_when_unavailable"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_on_explicit_gc"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("poll_interval"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_servlet_extension"),
+			path.MatchRoot("type"),
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("web_application_extension"),
@@ -573,157 +692,12 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_accept_handlers"),
+			path.MatchRoot("keep_stats"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("send_rejection_notice"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("poll_interval"),
-			path.MatchRoot("type"),
-			[]string{"ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("accept_backlog"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("denied_client"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_tcp_reuse_address"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_resources_idle_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlation_id_response_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("listen_port"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_ssl"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("response_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_client"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_request_size"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_blocked_write_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlation_id_request_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("close_connections_when_unavailable"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("listen_address"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_cancel_handlers"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_servlet_extension"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auto_authenticate_using_client_certificate"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_resources_connection_threshold"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_client_auth_policy"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_forwarded_headers"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_protocol"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_start_tls"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_tcp_keep_alive"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_directory"),
-			path.MatchRoot("type"),
-			[]string{"ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_cert_nickname"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_correlation_id_header"),
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
@@ -733,24 +707,49 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_connection_threshold"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_idle_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_multipart_mime_parameters"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_forwarded_headers"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("http_request_header_size"),
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("failed_bind_response_delay"),
+			path.MatchRoot("response_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("close_connections_on_explicit_gc"),
+			path.MatchRoot("use_correlation_id_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_request_handlers"),
+			path.MatchRoot("correlation_id_response_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlation_id_request_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
 		),
 	}
 }
@@ -1035,36 +1034,79 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConnectionHandlerUnknownValues(ctx context.Context, model *connectionHandlerResourceModel) {
-	if model.SslCipherSuite.ElementType(ctx) == nil {
-		model.SslCipherSuite = types.SetNull(types.StringType)
+func populateConnectionHandlerUnknownValues(model *connectionHandlerResourceModel) {
+	if model.SslCipherSuite.IsUnknown() || model.SslCipherSuite.IsNull() {
+		model.SslCipherSuite, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SslProtocol.ElementType(ctx) == nil {
-		model.SslProtocol = types.SetNull(types.StringType)
+	if model.SslProtocol.IsUnknown() || model.SslProtocol.IsNull() {
+		model.SslProtocol, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ResponseHeader.ElementType(ctx) == nil {
-		model.ResponseHeader = types.SetNull(types.StringType)
+	if model.ResponseHeader.IsUnknown() || model.ResponseHeader.IsNull() {
+		model.ResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.AllowedClient.ElementType(ctx) == nil {
-		model.AllowedClient = types.SetNull(types.StringType)
+	if model.AllowedClient.IsUnknown() || model.AllowedClient.IsNull() {
+		model.AllowedClient, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.WebApplicationExtension.ElementType(ctx) == nil {
-		model.WebApplicationExtension = types.SetNull(types.StringType)
+	if model.WebApplicationExtension.IsUnknown() || model.WebApplicationExtension.IsNull() {
+		model.WebApplicationExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpServletExtension.ElementType(ctx) == nil {
-		model.HttpServletExtension = types.SetNull(types.StringType)
+	if model.HttpServletExtension.IsUnknown() || model.HttpServletExtension.IsNull() {
+		model.HttpServletExtension, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ListenAddress.ElementType(ctx) == nil {
-		model.ListenAddress = types.SetNull(types.StringType)
+	if model.ListenAddress.IsUnknown() || model.ListenAddress.IsNull() {
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CorrelationIDRequestHeader.ElementType(ctx) == nil {
-		model.CorrelationIDRequestHeader = types.SetNull(types.StringType)
+	if model.CorrelationIDRequestHeader.IsUnknown() || model.CorrelationIDRequestHeader.IsNull() {
+		model.CorrelationIDRequestHeader, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.HttpOperationLogPublisher.ElementType(ctx) == nil {
-		model.HttpOperationLogPublisher = types.SetNull(types.StringType)
+	if model.HttpOperationLogPublisher.IsUnknown() || model.HttpOperationLogPublisher.IsNull() {
+		model.HttpOperationLogPublisher, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DeniedClient.ElementType(ctx) == nil {
-		model.DeniedClient = types.SetNull(types.StringType)
+	if model.DeniedClient.IsUnknown() || model.DeniedClient.IsNull() {
+		model.DeniedClient, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.CorrelationIDResponseHeader.IsUnknown() || model.CorrelationIDResponseHeader.IsNull() {
+		model.CorrelationIDResponseHeader = types.StringValue("")
+	}
+	if model.LowResourcesIdleTimeLimit.IsUnknown() || model.LowResourcesIdleTimeLimit.IsNull() {
+		model.LowResourcesIdleTimeLimit = types.StringValue("")
+	}
+	if model.FailedBindResponseDelay.IsUnknown() || model.FailedBindResponseDelay.IsNull() {
+		model.FailedBindResponseDelay = types.StringValue("")
+	}
+	if model.MaxBlockedWriteTimeLimit.IsUnknown() || model.MaxBlockedWriteTimeLimit.IsNull() {
+		model.MaxBlockedWriteTimeLimit = types.StringValue("")
+	}
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.PollInterval.IsUnknown() || model.PollInterval.IsNull() {
+		model.PollInterval = types.StringValue("")
+	}
+	if model.MaxRequestSize.IsUnknown() || model.MaxRequestSize.IsNull() {
+		model.MaxRequestSize = types.StringValue("")
+	}
+	if model.SslClientAuthPolicy.IsUnknown() || model.SslClientAuthPolicy.IsNull() {
+		model.SslClientAuthPolicy = types.StringValue("")
+	}
+	if model.IdleTimeLimit.IsUnknown() || model.IdleTimeLimit.IsNull() {
+		model.IdleTimeLimit = types.StringValue("")
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
+	}
+	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
+		model.SslCertNickname = types.StringValue("")
+	}
+	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
+		model.KeyManagerProvider = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
 	}
 }
 
@@ -1082,7 +1124,7 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a LdapConnectionHandlerResponse object into the model struct
@@ -1100,21 +1142,21 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.AllowLDAPV2 = internaltypes.BoolTypeOrNil(r.AllowLDAPV2)
 	state.UseTCPKeepAlive = internaltypes.BoolTypeOrNil(r.UseTCPKeepAlive)
 	state.SendRejectionNotice = internaltypes.BoolTypeOrNil(r.SendRejectionNotice)
-	state.FailedBindResponseDelay = internaltypes.StringTypeOrNil(r.FailedBindResponseDelay, internaltypes.IsEmptyString(expectedValues.FailedBindResponseDelay))
+	state.FailedBindResponseDelay = internaltypes.StringTypeOrNil(r.FailedBindResponseDelay, true)
 	config.CheckMismatchedPDFormattedAttributes("failed_bind_response_delay",
 		expectedValues.FailedBindResponseDelay, state.FailedBindResponseDelay, diagnostics)
-	state.MaxRequestSize = internaltypes.StringTypeOrNil(r.MaxRequestSize, internaltypes.IsEmptyString(expectedValues.MaxRequestSize))
+	state.MaxRequestSize = internaltypes.StringTypeOrNil(r.MaxRequestSize, true)
 	config.CheckMismatchedPDFormattedAttributes("max_request_size",
 		expectedValues.MaxRequestSize, state.MaxRequestSize, diagnostics)
 	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
 	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
 	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
 	state.SslProtocol = internaltypes.GetStringSet(r.SslProtocol)
 	state.SslCipherSuite = internaltypes.GetStringSet(r.SslCipherSuite)
-	state.MaxBlockedWriteTimeLimit = internaltypes.StringTypeOrNil(r.MaxBlockedWriteTimeLimit, internaltypes.IsEmptyString(expectedValues.MaxBlockedWriteTimeLimit))
+	state.MaxBlockedWriteTimeLimit = internaltypes.StringTypeOrNil(r.MaxBlockedWriteTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("max_blocked_write_time_limit",
 		expectedValues.MaxBlockedWriteTimeLimit, state.MaxBlockedWriteTimeLimit, diagnostics)
 	state.AutoAuthenticateUsingClientCertificate = internaltypes.BoolTypeOrNil(r.AutoAuthenticateUsingClientCertificate)
@@ -1125,7 +1167,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a LdifConnectionHandlerResponse object into the model struct
@@ -1142,7 +1184,7 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Read a HttpConnectionHandlerResponse object into the model struct
@@ -1170,11 +1212,11 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.KeepStats = internaltypes.BoolTypeOrNil(r.KeepStats)
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
 	state.AllowTCPReuseAddress = internaltypes.BoolTypeOrNil(r.AllowTCPReuseAddress)
-	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, internaltypes.IsEmptyString(expectedValues.IdleTimeLimit))
+	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("idle_time_limit",
 		expectedValues.IdleTimeLimit, state.IdleTimeLimit, diagnostics)
 	state.LowResourcesConnectionThreshold = internaltypes.Int64TypeOrNil(r.LowResourcesConnectionThreshold)
-	state.LowResourcesIdleTimeLimit = internaltypes.StringTypeOrNil(r.LowResourcesIdleTimeLimit, internaltypes.IsEmptyString(expectedValues.LowResourcesIdleTimeLimit))
+	state.LowResourcesIdleTimeLimit = internaltypes.StringTypeOrNil(r.LowResourcesIdleTimeLimit, true)
 	config.CheckMismatchedPDFormattedAttributes("low_resources_idle_time_limit",
 		expectedValues.LowResourcesIdleTimeLimit, state.LowResourcesIdleTimeLimit, diagnostics)
 	state.EnableMultipartMIMEParameters = internaltypes.BoolTypeOrNil(r.EnableMultipartMIMEParameters)
@@ -1182,14 +1224,14 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.HttpRequestHeaderSize = internaltypes.Int64TypeOrNil(r.HttpRequestHeaderSize)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.UseCorrelationIDHeader = internaltypes.BoolTypeOrNil(r.UseCorrelationIDHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, true)
 	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerUnknownValues(ctx, state)
+	populateConnectionHandlerUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1523,6 +1565,7 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1578,6 +1621,10 @@ func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.HttpConnectionHandlerResponse != nil {
 		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state

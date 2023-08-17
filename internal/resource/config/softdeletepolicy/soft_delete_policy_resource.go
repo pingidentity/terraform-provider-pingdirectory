@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -126,34 +125,18 @@ func softDeletePolicySchema(ctx context.Context, req resource.SchemaRequest, res
 			"auto_soft_delete_connection_criteria": schema.StringAttribute{
 				Description: "Connection criteria used to automatically identify a delete operation for processing as a soft delete request.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"auto_soft_delete_request_criteria": schema.StringAttribute{
 				Description: "Request criteria used to automatically identify a delete operation for processing as a soft delete request.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"soft_delete_retention_time": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that soft delete entries are retained before they are eligible to purged automatically.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"soft_delete_retain_number_of_entries": schema.Int64Attribute{
 				Description: "Specifies the number of soft deleted entries to retain before the oldest entries are purged.",
 				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -162,6 +145,9 @@ func softDeletePolicySchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -190,6 +176,22 @@ func addOptionalSoftDeletePolicyFields(ctx context.Context, addRequest *client.A
 	}
 	if internaltypes.IsDefined(plan.SoftDeleteRetainNumberOfEntries) {
 		addRequest.SoftDeleteRetainNumberOfEntries = plan.SoftDeleteRetainNumberOfEntries.ValueInt64Pointer()
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *softDeletePolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.SoftDeleteRetentionTime.IsUnknown() || model.SoftDeleteRetentionTime.IsNull() {
+		model.SoftDeleteRetentionTime = types.StringValue("")
+	}
+	if model.AutoSoftDeleteRequestCriteria.IsUnknown() || model.AutoSoftDeleteRequestCriteria.IsNull() {
+		model.AutoSoftDeleteRequestCriteria = types.StringValue("")
+	}
+	if model.AutoSoftDeleteConnectionCriteria.IsUnknown() || model.AutoSoftDeleteConnectionCriteria.IsNull() {
+		model.AutoSoftDeleteConnectionCriteria = types.StringValue("")
 	}
 }
 
@@ -332,6 +334,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -377,6 +380,10 @@ func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *r
 
 	// Read the response into the state
 	readSoftDeletePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

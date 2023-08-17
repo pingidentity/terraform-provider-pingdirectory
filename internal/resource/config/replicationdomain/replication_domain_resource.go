@@ -85,6 +85,9 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"replication-domain"}...),
 				},

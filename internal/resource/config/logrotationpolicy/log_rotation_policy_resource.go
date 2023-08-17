@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -147,7 +148,9 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
-		typeAttr.PlanModifiers = []planmodifier.String{}
+		typeAttr.PlanModifiers = []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
@@ -165,14 +168,14 @@ func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
 			[]string{"time-limit"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("file_size_limit"),
-			path.MatchRoot("type"),
-			[]string{"size-limit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("time_of_day"),
 			path.MatchRoot("type"),
 			[]string{"fixed-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("file_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"size-limit"},
 		),
 	}
 }
@@ -220,9 +223,22 @@ func addOptionalSizeLimitLogRotationPolicyFields(ctx context.Context, addRequest
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateLogRotationPolicyUnknownValues(ctx context.Context, model *logRotationPolicyResourceModel) {
-	if model.TimeOfDay.ElementType(ctx) == nil {
-		model.TimeOfDay = types.SetNull(types.StringType)
+func populateLogRotationPolicyUnknownValues(model *logRotationPolicyResourceModel) {
+	if model.TimeOfDay.IsUnknown() || model.TimeOfDay.IsNull() {
+		model.TimeOfDay, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *logRotationPolicyResourceModel) populateAllComputedStringAttributes() {
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.RotationInterval.IsUnknown() || model.RotationInterval.IsNull() {
+		model.RotationInterval = types.StringValue("")
+	}
+	if model.FileSizeLimit.IsUnknown() || model.FileSizeLimit.IsNull() {
+		model.FileSizeLimit = types.StringValue("")
 	}
 }
 
@@ -236,7 +252,7 @@ func readTimeLimitLogRotationPolicyResponse(ctx context.Context, r *client.TimeL
 		expectedValues.RotationInterval, state.RotationInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyUnknownValues(ctx, state)
+	populateLogRotationPolicyUnknownValues(state)
 }
 
 // Read a FixedTimeLogRotationPolicyResponse object into the model struct
@@ -247,7 +263,7 @@ func readFixedTimeLogRotationPolicyResponse(ctx context.Context, r *client.Fixed
 	state.TimeOfDay = internaltypes.GetStringSet(r.TimeOfDay)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyUnknownValues(ctx, state)
+	populateLogRotationPolicyUnknownValues(state)
 }
 
 // Read a NeverRotateLogRotationPolicyResponse object into the model struct
@@ -257,7 +273,7 @@ func readNeverRotateLogRotationPolicyResponse(ctx context.Context, r *client.Nev
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyUnknownValues(ctx, state)
+	populateLogRotationPolicyUnknownValues(state)
 }
 
 // Read a SizeLimitLogRotationPolicyResponse object into the model struct
@@ -270,7 +286,7 @@ func readSizeLimitLogRotationPolicyResponse(ctx context.Context, r *client.SizeL
 		expectedValues.FileSizeLimit, state.FileSizeLimit, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyUnknownValues(ctx, state)
+	populateLogRotationPolicyUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -546,6 +562,7 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.populateAllComputedStringAttributes()
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -601,6 +618,10 @@ func readLogRotationPolicy(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	if readResponse.SizeLimitLogRotationPolicyResponse != nil {
 		readSizeLimitLogRotationPolicyResponse(ctx, readResponse.SizeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	if isDefault {
+		state.populateAllComputedStringAttributes()
 	}
 
 	// Set refreshed state
