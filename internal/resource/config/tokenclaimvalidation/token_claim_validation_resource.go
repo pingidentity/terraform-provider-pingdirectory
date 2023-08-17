@@ -191,6 +191,11 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_required_value"),
+			path.MatchRoot("type"),
+			[]string{"string-array"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_required_value"),
 			path.MatchRoot("type"),
 			[]string{"string-array", "string"},
@@ -199,11 +204,6 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			path.MatchRoot("required_value"),
 			path.MatchRoot("type"),
 			[]string{"boolean"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_required_value"),
-			path.MatchRoot("type"),
-			[]string{"string-array"},
 		),
 	}
 }

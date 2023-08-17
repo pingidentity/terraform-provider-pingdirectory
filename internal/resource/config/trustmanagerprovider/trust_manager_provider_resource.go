@@ -194,7 +194,12 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("include_jvm_default_issuers"),
+			path.MatchRoot("type"),
+			[]string{"blind", "file-based", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
@@ -204,24 +209,9 @@ func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
 			[]string{"file-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("trust_store_pin"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_jvm_default_issuers"),
-			path.MatchRoot("type"),
-			[]string{"blind", "file-based", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_store_pin_file"),
@@ -232,6 +222,16 @@ func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
 			path.MatchRoot("trust_store_pin_passphrase_provider"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

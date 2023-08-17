@@ -151,9 +151,9 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_sensitive_attribute"),
+			path.MatchRoot("included_sensitive_field"),
 			path.MatchRoot("type"),
-			[]string{"attribute-based"},
+			[]string{"json"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("excluded_sensitive_field"),
@@ -166,9 +166,9 @@ func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"attribute-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_sensitive_field"),
+			path.MatchRoot("excluded_sensitive_attribute"),
 			path.MatchRoot("type"),
-			[]string{"json"},
+			[]string{"attribute-based"},
 		),
 	}
 }

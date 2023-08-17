@@ -345,49 +345,14 @@ func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 			[]string{"expired-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_privilege"),
-			path.MatchRoot("type"),
-			[]string{"privilege"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_idle_time"),
-			path.MatchRoot("type"),
-			[]string{"locked-account"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("idle_account_warning_interval"),
 			path.MatchRoot("type"),
 			[]string{"idle-account"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_expiration_warning_interval"),
-			path.MatchRoot("type"),
-			[]string{"account-validity-window"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter"),
-			path.MatchRoot("type"),
-			[]string{"filter"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("idle_account_error_interval"),
 			path.MatchRoot("type"),
 			[]string{"idle-account"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("weak_password_storage_scheme"),
-			path.MatchRoot("type"),
-			[]string{"weakly-encoded-password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("never_logged_in_account_warning_interval"),
@@ -400,9 +365,44 @@ func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 			[]string{"idle-account"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_password_storage_scheme"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("weak_crypt_encoding"),
 			path.MatchRoot("type"),
 			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_privilege"),
+			path.MatchRoot("type"),
+			[]string{"privilege"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_idle_time"),
+			path.MatchRoot("type"),
+			[]string{"locked-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_expiration_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"account-validity-window"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

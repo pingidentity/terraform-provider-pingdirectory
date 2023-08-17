@@ -166,9 +166,9 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generate_account_status_notification"),
+			path.MatchRoot("delay"),
 			path.MatchRoot("type"),
-			[]string{"delay-bind-response", "no-operation"},
+			[]string{"delay-bind-response"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_blocking_delay"),
@@ -176,9 +176,9 @@ func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 			[]string{"delay-bind-response"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay"),
+			path.MatchRoot("generate_account_status_notification"),
 			path.MatchRoot("type"),
-			[]string{"delay-bind-response"},
+			[]string{"delay-bind-response", "no-operation"},
 		),
 	}
 }

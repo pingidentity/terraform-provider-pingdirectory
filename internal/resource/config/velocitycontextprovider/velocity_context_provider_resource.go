@@ -255,9 +255,9 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_method"),
+			path.MatchRoot("request_tool"),
 			path.MatchRoot("type"),
-			[]string{"custom", "third-party"},
+			[]string{"velocity-tools"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("session_tool"),
@@ -265,9 +265,14 @@ func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 			[]string{"velocity-tools"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("application_tool"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"velocity-tools"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_method"),
+			path.MatchRoot("type"),
+			[]string{"custom", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -275,14 +280,9 @@ func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_tool"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"velocity-tools"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("application_tool"),
-			path.MatchRoot("type"),
-			[]string{"velocity-tools"},
+			[]string{"third-party"},
 		),
 	}
 }

@@ -542,14 +542,49 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("keep_stats"),
+			path.MatchRoot("listen_port"),
 			path.MatchRoot("type"),
-			[]string{"http"},
+			[]string{"jmx", "ldap", "http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_multipart_mime_parameters"),
+			path.MatchRoot("use_ssl"),
 			path.MatchRoot("type"),
-			[]string{"http"},
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("denied_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_address"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_start_tls"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_ldap_v2"),
@@ -557,9 +592,94 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_tcp_keep_alive"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("send_rejection_notice"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("failed_bind_response_delay"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_request_size"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_cancel_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_accept_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_request_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_client_auth_policy"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("accept_backlog"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_protocol"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ssl_cipher_suite"),
 			path.MatchRoot("type"),
 			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_blocked_write_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_authenticate_using_client_certificate"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_when_unavailable"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_on_explicit_gc"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("poll_interval"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_servlet_extension"),
+			path.MatchRoot("type"),
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("web_application_extension"),
@@ -572,157 +692,12 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_accept_handlers"),
+			path.MatchRoot("keep_stats"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("send_rejection_notice"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("poll_interval"),
-			path.MatchRoot("type"),
-			[]string{"ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("accept_backlog"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("denied_client"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_tcp_reuse_address"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_resources_idle_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlation_id_response_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("listen_port"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_ssl"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("response_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_client"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_request_size"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_blocked_write_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlation_id_request_header"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("close_connections_when_unavailable"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("listen_address"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_cancel_handlers"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_servlet_extension"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auto_authenticate_using_client_certificate"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_resources_connection_threshold"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_client_auth_policy"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_forwarded_headers"),
-			path.MatchRoot("type"),
-			[]string{"http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_protocol"),
-			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_start_tls"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_tcp_keep_alive"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_directory"),
-			path.MatchRoot("type"),
-			[]string{"ldif"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ssl_cert_nickname"),
-			path.MatchRoot("type"),
-			[]string{"jmx", "ldap", "http"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_correlation_id_header"),
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
@@ -732,24 +707,49 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_connection_threshold"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_idle_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_multipart_mime_parameters"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_forwarded_headers"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("http_request_header_size"),
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("failed_bind_response_delay"),
+			path.MatchRoot("response_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("close_connections_on_explicit_gc"),
+			path.MatchRoot("use_correlation_id_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_request_handlers"),
+			path.MatchRoot("correlation_id_response_header"),
 			path.MatchRoot("type"),
-			[]string{"ldap", "http"},
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlation_id_request_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
 		),
 	}
 }

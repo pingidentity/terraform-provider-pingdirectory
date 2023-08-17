@@ -953,14 +953,14 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
@@ -968,59 +968,9 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 func configValidatorsBackend() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_directory_permissions"),
+			path.MatchRoot("base_dn"),
 			path.MatchRoot("type"),
-			[]string{"changelog", "local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2children_index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("composite_index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("process_filters_with_undefined_attribute_types"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_method"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_all_indexes"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("single_writer_lock_behavior"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compact_common_parent_dn"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2entry_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_entry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
+			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("writability_mode"),
@@ -1028,69 +978,9 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"schema", "backup", "ldif", "trust-store", "custom", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("return_unavailable_for_untrusted_index"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
+			path.MatchRoot("set_degraded_alert_when_disabled"),
 			path.MatchRoot("type"),
 			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_cleaner_min_utilization"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("import_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("export_thread_count"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compress_entries"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("offline_process_database_open_timeout"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("deadlock_retry_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prime_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("external_txn_default_backend_lock_behavior"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("system_index_to_prime"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn2uri_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_import_cache_percent"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("is_private_backend"),
@@ -1098,47 +988,17 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"ldif", "local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_num_cleaner_threads"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2subtree_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_log_file_max"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("hash_entries"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_cache_mode"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("uncached_attribute_criteria"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_checkpointer_wakeup_interval"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_use_thread_local_handles"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("db_directory"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_directory_permissions"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cache_percent"),
 			path.MatchRoot("type"),
 			[]string{"changelog", "local-db"},
 		),
@@ -1153,37 +1013,7 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_logging_level"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subtree_delete_size_limit"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("set_degraded_alert_when_disabled"),
-			path.MatchRoot("type"),
-			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_cache_percent"),
-			path.MatchRoot("type"),
-			[]string{"changelog", "local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_evictor_critical_percentage"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("system_index_to_prime_internal_nodes_only"),
-			path.MatchRoot("type"),
-			[]string{"local-db"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("db_txn_write_no_sync"),
+			path.MatchRoot("uncached_attribute_criteria"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1193,12 +1023,52 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_recent_changes"),
+			path.MatchRoot("set_degraded_alert_for_untrusted_index"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("background_prime"),
+			path.MatchRoot("return_unavailable_for_untrusted_index"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("process_filters_with_undefined_attribute_types"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compact_common_parent_dn"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hash_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_num_cleaner_threads"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cleaner_min_utilization"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_evictor_critical_percentage"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_checkpointer_wakeup_interval"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1208,12 +1078,27 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id2subtree_index_entry_limit"),
+			path.MatchRoot("db_use_thread_local_handles"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("import_temp_directory"),
+			path.MatchRoot("db_log_file_max"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_logging_level"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2entry_cache_mode"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1228,7 +1113,122 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			[]string{"local-db"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("set_degraded_alert_for_untrusted_index"),
+			path.MatchRoot("id2subtree_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn2uri_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_method"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_all_indexes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime_internal_nodes_only"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("background_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("composite_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2children_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2subtree_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_temp_directory"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("export_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_import_cache_percent"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_txn_write_no_sync"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("deadlock_retry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("external_txn_default_backend_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("single_writer_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subtree_delete_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_recent_changes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("offline_process_database_open_timeout"),
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
@@ -1244,49 +1244,14 @@ func (r backendResource) ConfigValidators(ctx context.Context) []resource.Config
 func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_maximum_age"),
+			path.MatchRoot("schema_entry_dn"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_exclude_base_dn"),
+			path.MatchRoot("show_all_attributes"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_search_timeout"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_alarms"),
-			path.MatchRoot("type"),
-			[]string{"alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_virtual_attributes"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_initial_task_log_messages_to_retain"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("alarm_retention_time"),
-			path.MatchRoot("type"),
-			[]string{"alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_file"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
+			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("read_only_schema_file"),
@@ -1294,49 +1259,9 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"schema"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("backup_file_permissions"),
 			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("soft_delete_entry_included_operation"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("notification_sender_address"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_exclude_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_file"),
-			path.MatchRoot("type"),
-			[]string{"ldif", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_backing_file"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("write_lastmod_attributes"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("schema_entry_dn"),
-			path.MatchRoot("type"),
-			[]string{"schema"},
+			[]string{"schema", "encryption-settings", "ldif", "trust-store", "custom", "config-file-handler", "task", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("backup_directory"),
@@ -1344,54 +1269,9 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("ldif_file"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sample_flush_interval"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backup_file_permissions"),
-			path.MatchRoot("type"),
-			[]string{"schema", "encryption-settings", "ldif", "trust-store", "custom", "config-file-handler", "task", "alert", "alarm"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_include_key_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("insignificant_config_archive_attribute"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_deleted_entry_include_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disabled_alert_type"),
-			path.MatchRoot("type"),
-			[]string{"alert"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_entry_update_timeout"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_include_attribute"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_include_filter"),
-			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"ldif", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_store_file"),
@@ -1399,17 +1279,27 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_include_attribute"),
+			path.MatchRoot("trust_store_type"),
 			path.MatchRoot("type"),
-			[]string{"changelog"},
+			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maintain_config_archive"),
+			path.MatchRoot("trust_store_pin"),
 			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
+			[]string{"trust-store"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("report_excluded_changelog_attributes"),
+			path.MatchRoot("trust_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_write_batch_size"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1419,17 +1309,42 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("storage_dir"),
+			path.MatchRoot("changelog_write_queue_capacity"),
 			path.MatchRoot("type"),
-			[]string{"metrics"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("show_all_attributes"),
+			path.MatchRoot("index_include_attribute"),
 			path.MatchRoot("type"),
-			[]string{"schema"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_write_batch_size"),
+			path.MatchRoot("index_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_maximum_age"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_database_size"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_exclude_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_filter"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1439,9 +1354,19 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("mirrored_subtree_peer_polling_interval"),
+			path.MatchRoot("changelog_include_attribute"),
 			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_deleted_entry_include_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("changelog_deleted_entry_exclude_attribute"),
@@ -1449,62 +1374,27 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_alerts"),
-			path.MatchRoot("type"),
-			[]string{"alert"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_database_size"),
+			path.MatchRoot("changelog_include_key_attribute"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_write_queue_capacity"),
+			path.MatchRoot("changelog_max_before_after_values"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_retention_time"),
-			path.MatchRoot("type"),
-			[]string{"task"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("index_exclude_attribute"),
+			path.MatchRoot("write_lastmod_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("alert_retention_time"),
+			path.MatchRoot("use_reversible_form"),
 			path.MatchRoot("type"),
-			[]string{"alert"},
+			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"trust-store"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("insignificant_config_archive_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_config_archive_count"),
-			path.MatchRoot("type"),
-			[]string{"config-file-handler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("metrics_dir"),
-			path.MatchRoot("type"),
-			[]string{"metrics"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_entry_include_base_dn"),
+			path.MatchRoot("include_virtual_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
 		),
@@ -1514,9 +1404,119 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"changelog"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_max_before_after_values"),
+			path.MatchRoot("report_excluded_changelog_attributes"),
 			path.MatchRoot("type"),
 			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_included_operation"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_attribute"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maintain_config_archive"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_config_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_peer_polling_interval"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_entry_update_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_search_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_backing_file"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_initial_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("notification_sender_address"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alert_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alerts"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disabled_alert_type"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alarm_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alarms"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("storage_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("metrics_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_flush_interval"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
 		),
 	}
 	return append(configValidatorsBackend(), validators...)

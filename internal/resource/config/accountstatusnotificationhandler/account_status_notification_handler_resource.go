@@ -416,24 +416,9 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_address"),
+			path.MatchRoot("email_address_attribute_type"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_unlocked_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("must_change_password_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_password_failed_validation_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("email_address_json_field"),
@@ -441,19 +426,29 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("email_address_json_object_filter"),
 			path.MatchRoot("type"),
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_status_notification_type"),
+			path.MatchRoot("recipient_address"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert", "error-log"},
+			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_deleted_message_template"),
+			path.MatchRoot("send_message_without_end_user_address"),
 			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("message_template_file"),
@@ -461,34 +456,19 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_expired_message_template"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_expiring_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_idle_locked_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_not_yet_active_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
 			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_status_notification_type"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert", "error-log"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("account_temporarily_failure_locked_message_template"),
@@ -501,12 +481,7 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_expired_message_template"),
-			path.MatchRoot("type"),
-			[]string{"multi-part-email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_reset_message_template"),
+			path.MatchRoot("account_idle_locked_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
@@ -516,24 +491,44 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_unlocked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_disabled_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("account_enabled_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_address"),
+			path.MatchRoot("account_not_yet_active_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("account_expired_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_subject"),
+			path.MatchRoot("password_expired_message_template"),
 			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_expiring_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_reset_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_changed_message_template"),
@@ -551,7 +546,7 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("account_disabled_message_template"),
+			path.MatchRoot("account_deleted_message_template"),
 			path.MatchRoot("type"),
 			[]string{"multi-part-email"},
 		),
@@ -561,19 +556,24 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			[]string{"multi-part-email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_password_failed_validation_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("must_change_password_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("send_message_without_end_user_address"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
+			[]string{"third-party"},
 		),
 	}
 }

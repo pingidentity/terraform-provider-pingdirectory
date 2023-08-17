@@ -156,22 +156,22 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn"),
-			path.MatchRoot("type"),
-			[]string{"password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password"),
-			path.MatchRoot("type"),
-			[]string{"password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("authentication_type"),
 			path.MatchRoot("type"),
 			[]string{"password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
 			path.MatchRoot("type"),
 			[]string{"password"},
 		),

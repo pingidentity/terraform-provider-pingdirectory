@@ -280,6 +280,11 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 func configValidatorsMonitorProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("check_frequency"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("prolonged_outage_duration"),
 			path.MatchRoot("type"),
 			[]string{"encryption-settings-database-accessibility"},
@@ -290,19 +295,14 @@ func configValidatorsMonitorProvider() []resource.ConfigValidator {
 			[]string{"encryption-settings-database-accessibility"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("check_frequency"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"encryption-settings-database-accessibility"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -316,9 +316,14 @@ func (r monitorProviderResource) ConfigValidators(ctx context.Context) []resourc
 func (r defaultMonitorProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_space_warning_size_threshold"),
+			path.MatchRoot("disk_devices"),
 			path.MatchRoot("type"),
-			[]string{"disk-space-usage"},
+			[]string{"host-system"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("network_devices"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("system_utilization_monitor_log_directory"),
@@ -326,7 +331,22 @@ func (r defaultMonitorProviderResource) ConfigValidators(ctx context.Context) []
 			[]string{"host-system"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_warning_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("low_space_warning_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_percent_threshold"),
 			path.MatchRoot("type"),
 			[]string{"disk-space-usage"},
 		),
@@ -344,26 +364,6 @@ func (r defaultMonitorProviderResource) ConfigValidators(ctx context.Context) []
 			path.MatchRoot("alert_frequency"),
 			path.MatchRoot("type"),
 			[]string{"disk-space-usage"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disk_devices"),
-			path.MatchRoot("type"),
-			[]string{"host-system"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_space_error_size_threshold"),
-			path.MatchRoot("type"),
-			[]string{"disk-space-usage"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("low_space_error_percent_threshold"),
-			path.MatchRoot("type"),
-			[]string{"disk-space-usage"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("network_devices"),
-			path.MatchRoot("type"),
-			[]string{"host-system"},
 		),
 	}
 	return append(configValidatorsMonitorProvider(), validators...)

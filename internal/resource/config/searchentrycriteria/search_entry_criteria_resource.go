@@ -343,24 +343,39 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_entry_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("not_all_included_entry_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_entry_filter"),
+			path.MatchRoot("none_included_entry_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_entry_group_dn"),
+			path.MatchRoot("included_entry_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_search_entry_criteria"),
+			path.MatchRoot("excluded_entry_base_dn"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_entry_filter"),
@@ -373,12 +388,27 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_search_entry_criteria"),
+			path.MatchRoot("not_all_included_entry_filter"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_entry_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_entry_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_entry_group_dn"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
 		),
@@ -388,39 +418,24 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_entry_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_entry_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("none_included_entry_control"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("all_included_search_entry_criteria"),
 			path.MatchRoot("type"),
 			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_entry_control"),
+			path.MatchRoot("any_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_criteria"),
+			path.MatchRoot("not_all_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("none_included_search_entry_criteria"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -428,24 +443,9 @@ func configValidatorsSearchEntryCriteria() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_entry_group_dn"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_entry_filter"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_entry_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_search_entry_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"third-party"},
 		),
 	}
 }

@@ -198,14 +198,24 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_time_threshold"),
+			path.MatchRoot("type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("filter"),
 			path.MatchRoot("type"),
 			[]string{"filter-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("filter_identifies_uncached_entries"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"filter-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
@@ -218,19 +228,9 @@ func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("access_time_threshold"),
-			path.MatchRoot("type"),
-			[]string{"last-access-time"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter_identifies_uncached_entries"),
-			path.MatchRoot("type"),
-			[]string{"filter-based"},
+			[]string{"third-party"},
 		),
 	}
 }

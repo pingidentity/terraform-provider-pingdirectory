@@ -292,37 +292,12 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_address"),
-			path.MatchRoot("type"),
-			[]string{"email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_text_before_otp"),
-			path.MatchRoot("type"),
-			[]string{"twilio", "email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_json_field"),
-			path.MatchRoot("type"),
-			[]string{"email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("email_address_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("twilio_account_sid"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
 		),
@@ -332,7 +307,57 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			[]string{"twilio"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_field"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_before_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_after_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_field"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
 			path.MatchRoot("type"),
 			[]string{"email"},
 		),
@@ -342,39 +367,14 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			[]string{"email"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_json_field"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_text_after_otp"),
-			path.MatchRoot("type"),
-			[]string{"twilio", "email"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_phone_number"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("phone_number_json_object_filter"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"twilio"},
+			[]string{"third-party"},
 		),
 	}
 }

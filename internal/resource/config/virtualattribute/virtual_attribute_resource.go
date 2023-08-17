@@ -514,54 +514,9 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_explicit_request_by_name"),
+			path.MatchRoot("conflict_behavior"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "replication-state-detail", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_source_attribute"),
-			path.MatchRoot("type"),
-			[]string{"equality-join"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_match_all"),
-			path.MatchRoot("type"),
-			[]string{"equality-join"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("referenced_by_attribute"),
-			path.MatchRoot("type"),
-			[]string{"identify-references"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("direct_memberships_only"),
-			path.MatchRoot("type"),
-			[]string{"is-member-of"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("description"),
-			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bypass_access_control_for_searches"),
-			path.MatchRoot("type"),
-			[]string{"mirror"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_attribute"),
-			path.MatchRoot("type"),
-			[]string{"reverse-dn-join", "equality-join", "dn-join"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_virtual_attribute_evaluation_order_index"),
-			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_entry_dn_map"),
-			path.MatchRoot("type"),
-			[]string{"mirror"},
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("source_attribute"),
@@ -569,24 +524,24 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"mirror"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("source_entry_dn_attribute"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"mirror"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
+			path.MatchRoot("source_entry_dn_map"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
+			[]string{"mirror"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("value_pattern"),
+			path.MatchRoot("bypass_access_control_for_searches"),
 			path.MatchRoot("type"),
-			[]string{"constructed"},
+			[]string{"mirror"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_scope"),
+			path.MatchRoot("description"),
 			path.MatchRoot("type"),
-			[]string{"reverse-dn-join", "equality-join", "dn-join"},
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("attribute_type"),
@@ -594,19 +549,64 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_base_dn_type"),
+			path.MatchRoot("base_dn"),
 			path.MatchRoot("type"),
-			[]string{"reverse-dn-join", "equality-join", "dn-join"},
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_entry_dn_attribute"),
+			path.MatchRoot("group_dn"),
 			path.MatchRoot("type"),
-			[]string{"mirror"},
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("value"),
+			path.MatchRoot("filter"),
 			path.MatchRoot("type"),
-			[]string{"user-defined"},
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_connection_policy"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_explicit_request_by_name"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "replication-state-detail", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_virtual_attribute_evaluation_order_index"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_virtual_attribute_merge_behavior"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_index_conflicts"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value_pattern"),
+			path.MatchRoot("type"),
+			[]string{"constructed"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("direct_memberships_only"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_group_filter"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rewrite_search_filters"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_dn_attribute"),
@@ -614,7 +614,7 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"reverse-dn-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_size_limit"),
+			path.MatchRoot("join_base_dn_type"),
 			path.MatchRoot("type"),
 			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
@@ -624,9 +624,14 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conflict_behavior"),
+			path.MatchRoot("join_scope"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_filter"),
@@ -634,44 +639,14 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_connection_policy"),
+			path.MatchRoot("join_attribute"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
+			path.MatchRoot("referenced_by_attribute"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("join_target_attribute"),
-			path.MatchRoot("type"),
-			[]string{"equality-join"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter"),
-			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_group_filter"),
-			path.MatchRoot("type"),
-			[]string{"is-member-of"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("group_dn"),
-			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_retrieving_membership"),
-			path.MatchRoot("type"),
-			[]string{"member"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rewrite_search_filters"),
-			path.MatchRoot("type"),
-			[]string{"is-member-of"},
+			[]string{"identify-references"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("reference_search_base_dn"),
@@ -679,14 +654,24 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"identify-references"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
+			path.MatchRoot("value"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"user-defined"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_virtual_attribute_merge_behavior"),
+			path.MatchRoot("join_source_attribute"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+			[]string{"equality-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"equality-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_match_all"),
+			path.MatchRoot("type"),
+			[]string{"equality-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_class"),
@@ -694,9 +679,24 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_index_conflicts"),
+			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
-			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_retrieving_membership"),
+			path.MatchRoot("type"),
+			[]string{"member"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
@@ -710,14 +710,14 @@ func (r virtualAttributeResource) ConfigValidators(ctx context.Context) []resour
 func (r defaultVirtualAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_attribute"),
+			path.MatchRoot("exclude_operational_attributes"),
 			path.MatchRoot("type"),
 			[]string{"entry-checksum"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sequence_number_attribute"),
+			path.MatchRoot("excluded_attribute"),
 			path.MatchRoot("type"),
-			[]string{"short-unique-id"},
+			[]string{"entry-checksum"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("return_utc_time"),
@@ -730,9 +730,9 @@ func (r defaultVirtualAttributeResource) ConfigValidators(ctx context.Context) [
 			[]string{"current-time"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_operational_attributes"),
+			path.MatchRoot("sequence_number_attribute"),
 			path.MatchRoot("type"),
-			[]string{"entry-checksum"},
+			[]string{"short-unique-id"},
 		),
 	}
 	return append(configValidatorsVirtualAttribute(), validators...)

@@ -358,24 +358,39 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("parallelism_factor"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("memory_usage_kb"),
 			path.MatchRoot("type"),
 			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_field"),
+			path.MatchRoot("derived_key_length_bytes"),
 			path.MatchRoot("type"),
-			[]string{"vault", "amazon-secrets-manager"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("password_encoding_mechanism"),
 			path.MatchRoot("type"),
-			[]string{"scrypt"},
+			[]string{"crypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("num_digest_rounds"),
 			path.MatchRoot("type"),
-			[]string{"pbkdf2"},
+			[]string{"crypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_password_length"),
@@ -388,74 +403,9 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 			[]string{"vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("iteration_count"),
+			path.MatchRoot("default_field"),
 			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_encoding_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"crypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_vault_uri"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party", "third-party-enhanced"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("azure_authentication_method"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("parallelism_factor"),
-			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("conjur_external_server"),
-			path.MatchRoot("type"),
-			[]string{"conjur"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("derived_key_length_bytes"),
-			path.MatchRoot("type"),
-			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("aws_external_server"),
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"azure-key-vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_parallelization_parameter"),
-			path.MatchRoot("type"),
-			[]string{"scrypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"aes-256"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
-			path.MatchRoot("type"),
-			[]string{"scrypt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_digest_rounds"),
-			path.MatchRoot("type"),
-			[]string{"crypt"},
+			[]string{"vault", "amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -463,14 +413,64 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 			[]string{"third-party", "third-party-enhanced"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
+			[]string{"third-party", "third-party-enhanced"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"aes-256"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("bcrypt_cost_factor"),
 			path.MatchRoot("type"),
 			[]string{"bcrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_parallelization_parameter"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
 		),
 	}
 }

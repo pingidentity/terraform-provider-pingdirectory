@@ -321,7 +321,22 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_secret"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("client_secret_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_aud_parameter"),
 			path.MatchRoot("type"),
 			[]string{"ping-federate"},
 		),
@@ -331,9 +346,14 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"ping-federate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_content_encryption_algorithm"),
+			path.MatchRoot("endpoint_cache_refresh"),
 			path.MatchRoot("type"),
-			[]string{"jwt"},
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authorization_server"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate", "jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allowed_signing_algorithm"),
@@ -346,9 +366,9 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scope_claim_name"),
+			path.MatchRoot("jwks_endpoint_path"),
 			path.MatchRoot("type"),
-			[]string{"jwt", "mock"},
+			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("encryption_key_pair"),
@@ -356,34 +376,14 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("endpoint_cache_refresh"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("allowed_key_encryption_algorithm"),
 			path.MatchRoot("type"),
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_aud_parameter"),
+			path.MatchRoot("allowed_content_encryption_algorithm"),
 			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_secret"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("authorization_server"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate", "jwt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("clock_skew_grace_period"),
@@ -391,24 +391,24 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			[]string{"jwt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scope_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_key_encryption_algorithm"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"jwt"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_id"),
-			path.MatchRoot("type"),
-			[]string{"ping-federate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("client_id_claim_name"),
-			path.MatchRoot("type"),
-			[]string{"jwt", "mock"},
+			[]string{"third-party"},
 		),
 	}
 }

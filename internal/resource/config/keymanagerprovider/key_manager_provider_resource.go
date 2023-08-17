@@ -263,12 +263,42 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("private_key_pin_passphrase_provider"),
+			path.MatchRoot("key_store_file"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("private_key_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_passphrase_provider"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
@@ -278,39 +308,19 @@ func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_key_store_type"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("pkcs11_provider_configuration_file"),
 			path.MatchRoot("type"),
 			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_type"),
+			path.MatchRoot("pkcs11_key_store_type"),
 			path.MatchRoot("type"),
-			[]string{"file-based"},
+			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("pkcs11_max_cache_duration"),
 			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin"),
-			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
+			[]string{"pkcs11"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -318,19 +328,9 @@ func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"file-based", "pkcs11"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("private_key_pin_file"),
-			path.MatchRoot("type"),
-			[]string{"file-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pkcs11_max_cache_duration"),
-			path.MatchRoot("type"),
-			[]string{"pkcs11"},
+			[]string{"third-party"},
 		),
 	}
 }

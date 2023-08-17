@@ -1454,6 +1454,22 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1465,7 +1481,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1480,80 +1496,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("dn_map"),
 				path.MatchRoot("search_filter_pattern"),
 			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
-			),
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("additional_user_mapping_scim_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("api_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("gauge_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_op_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_attribute_removal_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("type"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("polling_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_control_mapping"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper", "attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("connection_criteria"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("request_criteria"),
@@ -1561,464 +1506,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"last-access-time", "ping-one-pass-through-authentication", "sub-operation-timing", "third-party", "pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "delay", "groovy-scripted", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_local_entry_base_dn"),
+			path.MatchRoot("invoke_for_internal_operations"),
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("value_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("session_timeout"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_value_pattern_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("context_name"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("plugin_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_filter_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("updated_entry_newly_matches_criteria_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("purge_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_attribute_mapping"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_delete_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("referral_base_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"referral-on-update"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay"),
-			path.MatchRoot("resource_type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("per_application_ldap_stats"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter_suffix"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("resource_type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pass_through_authentication_handler"),
-			path.MatchRoot("resource_type"),
-			[]string{"pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown", "last-mod"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("updated_entry_no_longer_matches_criteria_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("lines_between_header"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_json_field"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("agentx_port"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("datetime_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_source_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_local_password_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("lower_bound"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn_map"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("peer_server_priority_index"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("environment_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("resource_type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("resource_type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("local_db_backend_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history", "referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("try_local_bind"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_worker_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_ldap_stat"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("header_prefix_per_column"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multiple_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_attribute_exists_during_initial_population_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_secret"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_filter"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("previous_file_extension"),
-			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_gc_day_of_week"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auth_url"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_access_mode"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_target_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connections"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_base_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_resource_stat"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("expiration_offset"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("custom_timezone"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_if_idle"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_request_control"),
-			path.MatchRoot("resource_type"),
-			[]string{"coalesce-modifications"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("multi_valued_attribute_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"composed-attribute"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("entry_cache_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("agentx_address"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("attribute_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("filter_prefix"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_ldap_application"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay_after_alert"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("update_local_password"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("custom_datetime_format"),
-			path.MatchRoot("resource_type"),
-			[]string{"purge-expired-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_threads"),
-			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ignored_password_policy_state_error_condition"),
-			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_listener"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("map_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("status_summary_info"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
-			path.MatchRoot("resource_type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("collection_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector", "periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("empty_instead_of_zero"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn_pattern"),
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("source_dn"),
-			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_policy"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("logging_error_behavior"),
-			path.MatchRoot("resource_type"),
-			[]string{"periodic-stats-logger", "monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ping_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
+			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("description"),
@@ -2026,19 +1516,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("host_info"),
+			path.MatchRoot("collection_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("upper_bound"),
+			path.MatchRoot("per_application_ldap_stats"),
 			path.MatchRoot("resource_type"),
-			[]string{"internal-search-rate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_updates_per_second"),
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_changelog_info"),
@@ -2046,7 +1531,197 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"stats-collector", "periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("status_summary_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("local_db_backend_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("entry_cache_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("host_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_ldap_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("plugin_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("lower_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("upper_bound"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_prefix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_suffix"),
+			path.MatchRoot("resource_type"),
+			[]string{"internal-search-rate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("polling_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("peer_server_priority_index"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_updates_per_second"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_delete_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_day_of_week"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_gc_time_utc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_after_alert"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay_post_gc"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-gc"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("api_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auth_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_client_secret"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oauth_client_secret_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_local_entry_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("try_local_bind"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_local_password_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ignored_password_policy_state_error_condition"),
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_mapping_local_attribute"),
 			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
 		),
@@ -2056,14 +1731,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"ping-one-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_mapping_local_attribute"),
+			path.MatchRoot("additional_user_mapping_scim_filter"),
 			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("connect_retry_max_wait"),
-			path.MatchRoot("resource_type"),
-			[]string{"snmp-subagent"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("scope"),
@@ -2071,9 +1741,9 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"search-shutdown"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("override_local_password"),
+			path.MatchRoot("include_attribute"),
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"search-shutdown", "last-mod"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("output_file"),
@@ -2081,34 +1751,69 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"search-shutdown"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
+			path.MatchRoot("previous_file_extension"),
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"periodic-stats-logger", "monitor-history"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_internal_operations"),
+			path.MatchRoot("suppress_if_idle"),
 			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("initial_connections"),
+			path.MatchRoot("header_prefix_per_column"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("delay_post_gc"),
+			path.MatchRoot("empty_instead_of_zero"),
 			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("num_most_expensive_phases_shown"),
+			path.MatchRoot("lines_between_header"),
 			path.MatchRoot("resource_type"),
-			[]string{"sub-operation-timing"},
+			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("always_map_responses"),
+			path.MatchRoot("included_ldap_stat"),
 			path.MatchRoot("resource_type"),
-			[]string{"dn-mapper", "attribute-mapper"},
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_resource_stat"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_op_type"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gauge_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history", "referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_file_permissions"),
@@ -2121,9 +1826,304 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"periodic-stats-logger"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_gc_time_utc"),
+			path.MatchRoot("rotation_policy"),
 			path.MatchRoot("resource_type"),
-			[]string{"periodic-gc"},
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("logging_error_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger", "monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_json_field"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_datetime_format"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("custom_timezone"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expiration_offset"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("purge_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"purge-expired-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_most_expensive_phases_shown"),
+			path.MatchRoot("resource_type"),
+			[]string{"sub-operation-timing"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_filter_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("initial_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_attribute_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("map_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_control_mapping"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_map_responses"),
+			path.MatchRoot("resource_type"),
+			[]string{"dn-mapper", "attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("referral_base_url"),
+			path.MatchRoot("resource_type"),
+			[]string{"referral-on-update"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("context_name"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_address"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("agentx_port"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_worker_threads"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("session_timeout"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connect_retry_max_wait"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ping_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"snmp-subagent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_request_control"),
+			path.MatchRoot("resource_type"),
+			[]string{"coalesce-modifications"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value_pattern"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_value_pattern_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multi_valued_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute_exists_during_initial_population_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_source_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute_removal_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_target_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_base_dn"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_filter"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_newly_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("updated_entry_no_longer_matches_criteria_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"composed-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_attribute"),
+			path.MatchRoot("resource_type"),
+			[]string{"attribute-mapper"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("delay"),
+			path.MatchRoot("resource_type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("resource_type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pass_through_authentication_handler"),
+			path.MatchRoot("resource_type"),
+			[]string{"pluggable-pass-through-authentication"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("update_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_attribute_behavior"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
+			path.MatchRoot("resource_type"),
+			[]string{"unique-attribute"},
 		),
 	}
 }
@@ -2137,77 +2137,12 @@ func (r pluginResource) ConfigValidators(ctx context.Context) []resource.ConfigV
 func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_auth_password_storage_scheme"),
+			path.MatchRoot("max_update_frequency"),
 			path.MatchRoot("resource_type"),
-			[]string{"password-policy-import"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sample_interval"),
-			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
-			path.MatchRoot("resource_type"),
-			[]string{"changelog-password-encryption"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_queue_time"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_profiling_on_startup"),
-			path.MatchRoot("resource_type"),
-			[]string{"profiler"},
+			[]string{"last-access-time"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("operation_type"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_search_result_entries_to_update"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_files_sparsely_by_age"),
-			path.MatchRoot("resource_type"),
-			[]string{"monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-mod"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("resource_type"),
-			[]string{"encrypt-attribute-values"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("profile_directory"),
-			path.MatchRoot("resource_type"),
-			[]string{"profiler"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("histogram_category_boundary"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sanitize"),
-			path.MatchRoot("resource_type"),
-			[]string{"monitor-history"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("separate_monitor_entry_per_tracked_application"),
-			path.MatchRoot("resource_type"),
-			[]string{"processing-time-histogram"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_update_frequency"),
 			path.MatchRoot("resource_type"),
 			[]string{"last-access-time"},
 		),
@@ -2217,12 +2152,27 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"last-access-time"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_user_password_storage_scheme"),
+			path.MatchRoot("max_search_result_entries_to_update"),
 			path.MatchRoot("resource_type"),
-			[]string{"password-policy-import"},
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_interval"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"stats-collector"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generate_collector_files"),
 			path.MatchRoot("resource_type"),
 			[]string{"stats-collector"},
 		),
@@ -2232,14 +2182,64 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"changelog-password-encryption"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
+			path.MatchRoot("resource_type"),
+			[]string{"changelog-password-encryption"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("histogram_category_boundary"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_queue_time"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("separate_monitor_entry_per_tracked_application"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("resource_type"),
+			[]string{"encrypt-attribute-values"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_files_sparsely_by_age"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sanitize"),
+			path.MatchRoot("resource_type"),
+			[]string{"monitor-history"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_user_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_auth_password_storage_scheme"),
+			path.MatchRoot("resource_type"),
+			[]string{"password-policy-import"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("profile_sample_interval"),
 			path.MatchRoot("resource_type"),
 			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generate_collector_files"),
+			path.MatchRoot("profile_directory"),
 			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
+			[]string{"profiler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_profiling_on_startup"),
+			path.MatchRoot("resource_type"),
+			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("profile_action"),
@@ -2247,9 +2247,9 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"profiler"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_info"),
+			path.MatchRoot("exclude_attribute"),
 			path.MatchRoot("resource_type"),
-			[]string{"stats-collector"},
+			[]string{"last-mod"},
 		),
 	}
 	return append(configValidatorsPlugin(), validators...)

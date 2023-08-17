@@ -746,10 +746,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -762,12 +763,31 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("profile_directory"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_count"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_profile_age"),
+			path.MatchRoot("type"),
+			[]string{"generate-server-profile"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("reason"),
@@ -775,24 +795,34 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"leave-lockdown-mode", "enter-lockdown-mode"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_report_age"),
+			path.MatchRoot("backup_directory"),
 			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backend_id"),
+			path.MatchRoot("included_backend_id"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_head_collection_size"),
+			path.MatchRoot("excluded_backend_id"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_ldif_export_count"),
+			path.MatchRoot("compress"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("sign"),
@@ -800,29 +830,29 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_attribute_value"),
+			path.MatchRoot("retain_previous_full_backup_count"),
 			path.MatchRoot("type"),
-			[]string{"statically-defined"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_duration"),
+			path.MatchRoot("retain_previous_full_backup_age"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_directory"),
+			path.MatchRoot("max_megabytes_per_second"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"backup", "ldif-export"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_output_file_count"),
+			path.MatchRoot("sleep_duration"),
 			path.MatchRoot("type"),
-			[]string{"exec"},
+			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_aggregate_file_size"),
+			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
+			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
@@ -830,24 +860,74 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("report_count"),
+			path.MatchRoot("search_interval"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("duration_to_wait_for_search_to_return_entries"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_return_state_if_timeout_is_encountered"),
+			path.MatchRoot("type"),
+			[]string{"delay"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_java_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_object_class"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_attribute_value"),
+			path.MatchRoot("type"),
+			[]string{"statically-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_directory"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_support_data_archive_age"),
+			path.MatchRoot("encryption_passphrase_file"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("include_expensive_data"),
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_output_directory"),
+			path.MatchRoot("include_replication_state_dump"),
 			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_binary_files"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extension_source"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_sequential_mode"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("security_level"),
@@ -860,84 +940,9 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_tail_collection_size"),
+			path.MatchRoot("report_count"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compress"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_expensive_data"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_file_age"),
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_filter"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_command_output"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("duration_to_wait_for_search_to_return_entries"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("excluded_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_passphrase_file"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_path"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_extension_source"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_profile_age"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_support_data_archive_count"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_return_state_if_timeout_is_encountered"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("report_interval_seconds"),
@@ -945,12 +950,132 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_binary_files"),
+			path.MatchRoot("log_duration"),
 			path.MatchRoot("type"),
 			[]string{"collect-support-data"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_file_count"),
+			path.MatchRoot("log_file_head_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_tail_collection_size"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("comment"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_support_data_archive_age"),
+			path.MatchRoot("type"),
+			[]string{"collect-support-data"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_backend_id"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_count"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_output_directory"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("data_security_auditor"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backend"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_filter"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_count"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_report_age"),
+			path.MatchRoot("type"),
+			[]string{"audit-data-security"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_path"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_arguments"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_output_file_base_name"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_count"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_previous_output_file_age"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_command_output"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_completion_state_for_nonzero_exit_code"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("working_directory"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_directory"),
 			path.MatchRoot("type"),
 			[]string{"file-retention"},
 		),
@@ -960,159 +1085,34 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			[]string{"file-retention"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("target_directory"),
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_java_class"),
-			path.MatchRoot("type"),
-			[]string{"statically-defined"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_full_backup_count"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_time_limit"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("included_backend_id"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_full_backup_age"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_report_count"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_completion_state_for_nonzero_exit_code"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_megabytes_per_second"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encrypt"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_output_file_age"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backend"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_arguments"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retain_previous_profile_count"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("backup_directory"),
-			path.MatchRoot("type"),
-			[]string{"backup"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_sequential_mode"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_interval"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sleep_duration"),
-			path.MatchRoot("type"),
-			[]string{"delay"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_replication_state_dump"),
-			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("working_directory"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_path"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("task_object_class"),
-			path.MatchRoot("type"),
-			[]string{"statically-defined"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("data_security_auditor"),
-			path.MatchRoot("type"),
-			[]string{"audit-data-security"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldif_directory"),
-			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("profile_directory"),
-			path.MatchRoot("type"),
-			[]string{"generate-server-profile"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("command_output_file_base_name"),
-			path.MatchRoot("type"),
-			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("timestamp_format"),
 			path.MatchRoot("type"),
 			[]string{"file-retention"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("comment"),
+			path.MatchRoot("retain_file_count"),
 			path.MatchRoot("type"),
-			[]string{"collect-support-data"},
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_file_age"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retain_aggregate_file_size"),
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

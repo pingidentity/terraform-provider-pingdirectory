@@ -184,16 +184,6 @@ func configValidatorsVaultAuthenticationMethod() []resource.ConfigValidator {
 			[]string{"static-token"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("login_mechanism_name"),
-			path.MatchRoot("type"),
-			[]string{"app-role", "user-pass"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password"),
-			path.MatchRoot("type"),
-			[]string{"user-pass"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("vault_role_id"),
 			path.MatchRoot("type"),
 			[]string{"app-role"},
@@ -204,7 +194,17 @@ func configValidatorsVaultAuthenticationMethod() []resource.ConfigValidator {
 			[]string{"app-role"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("login_mechanism_name"),
+			path.MatchRoot("type"),
+			[]string{"app-role", "user-pass"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"user-pass"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
 			path.MatchRoot("type"),
 			[]string{"user-pass"},
 		),

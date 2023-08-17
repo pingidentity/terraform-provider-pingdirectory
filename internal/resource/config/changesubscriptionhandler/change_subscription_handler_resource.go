@@ -197,9 +197,9 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 func configValidatorsChangeSubscriptionHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
@@ -217,9 +217,9 @@ func configValidatorsChangeSubscriptionHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
+			[]string{"third-party"},
 		),
 	}
 }

@@ -237,6 +237,11 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("openid_connect_metadata_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allowed_signing_algorithm"),
 			path.MatchRoot("type"),
 			[]string{"openid-connect"},
@@ -250,11 +255,6 @@ func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 			path.MatchRoot("jwks_endpoint_path"),
 			path.MatchRoot("type"),
 			[]string{"openid-connect"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("openid_connect_metadata_cache_duration"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
 		),
 	}
 }

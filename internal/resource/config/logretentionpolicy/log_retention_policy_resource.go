@@ -166,9 +166,9 @@ func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
 			[]string{"time-limit"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disk_space_used"),
+			path.MatchRoot("number_of_files"),
 			path.MatchRoot("type"),
-			[]string{"size-limit"},
+			[]string{"file-count"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("free_disk_space"),
@@ -176,9 +176,9 @@ func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
 			[]string{"free-disk-space"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("number_of_files"),
+			path.MatchRoot("disk_space_used"),
 			path.MatchRoot("type"),
-			[]string{"file-count"},
+			[]string{"size-limit"},
 		),
 	}
 }

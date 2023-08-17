@@ -554,64 +554,9 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"character-set", "repeated-characters"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("pwned_passwords_base_url"),
+			path.MatchRoot("allow_unclassified_characters"),
 			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disallowed_leading_characters"),
-			path.MatchRoot("type"),
-			[]string{"disallowed-characters"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_password_length"),
-			path.MatchRoot("type"),
-			[]string{"length-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_self_change"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_password_length"),
-			path.MatchRoot("type"),
-			[]string{"length-based"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ignore_leading_non_alphabetic_characters"),
-			path.MatchRoot("type"),
-			[]string{"dictionary"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_add"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("accept_password_on_service_error"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("test_attribute_value_substring_of_password"),
-			path.MatchRoot("type"),
-			[]string{"attribute-value"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_pattern"),
-			path.MatchRoot("type"),
-			[]string{"regular-expression"},
+			[]string{"character-set"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("minimum_required_character_sets"),
@@ -619,74 +564,14 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"character-set"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disallowed_characters"),
-			path.MatchRoot("type"),
-			[]string{"disallowed-characters"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_unique_characters"),
-			path.MatchRoot("type"),
-			[]string{"unique-characters"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("min_password_difference"),
 			path.MatchRoot("type"),
 			[]string{"similarity-based"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_character_type"),
-			path.MatchRoot("type"),
-			[]string{"utf-8"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("strip_diacritical_marks"),
-			path.MatchRoot("type"),
-			[]string{"dictionary"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_non_ascii_characters"),
-			path.MatchRoot("type"),
-			[]string{"utf-8"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_attribute_value_length_for_substring_matches"),
+			path.MatchRoot("match_attribute"),
 			path.MatchRoot("type"),
 			[]string{"attribute-value"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_admin_reset"),
-			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("case_sensitive_validation"),
-			path.MatchRoot("type"),
-			[]string{"repeated-characters", "dictionary", "unique-characters"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("disallowed_trailing_characters"),
-			path.MatchRoot("type"),
-			[]string{"disallowed-characters"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_unclassified_characters"),
-			path.MatchRoot("type"),
-			[]string{"character-set"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_behavior"),
-			path.MatchRoot("type"),
-			[]string{"regular-expression"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("test_password_substring_of_attribute_value"),
@@ -694,22 +579,37 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"attribute-value"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("test_attribute_value_substring_of_password"),
 			path.MatchRoot("type"),
-			[]string{"pwned-passwords"},
+			[]string{"attribute-value"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_allowed_percent_of_password"),
+			path.MatchRoot("minimum_attribute_value_length_for_substring_matches"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("test_reversed_password"),
+			path.MatchRoot("type"),
+			[]string{"attribute-value", "dictionary"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_consecutive_length"),
+			path.MatchRoot("type"),
+			[]string{"repeated-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("case_sensitive_validation"),
+			path.MatchRoot("type"),
+			[]string{"repeated-characters", "dictionary", "unique-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dictionary_file"),
 			path.MatchRoot("type"),
 			[]string{"dictionary"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_acceptable_time_to_exhaust_search_space"),
-			path.MatchRoot("type"),
-			[]string{"haystack"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dictionary_file"),
+			path.MatchRoot("ignore_leading_non_alphabetic_characters"),
 			path.MatchRoot("type"),
 			[]string{"dictionary"},
 		),
@@ -719,14 +619,9 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"dictionary"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("match_attribute"),
+			path.MatchRoot("strip_diacritical_marks"),
 			path.MatchRoot("type"),
-			[]string{"attribute-value"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_consecutive_length"),
-			path.MatchRoot("type"),
-			[]string{"repeated-characters"},
+			[]string{"dictionary"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("alternative_password_character_mapping"),
@@ -734,9 +629,9 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"dictionary"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
+			path.MatchRoot("maximum_allowed_percent_of_password"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"dictionary"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("assumed_password_guesses_per_second"),
@@ -744,19 +639,124 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			[]string{"haystack"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("minimum_acceptable_time_to_exhaust_search_space"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
+			[]string{"haystack"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("test_reversed_password"),
+			path.MatchRoot("allow_non_ascii_characters"),
 			path.MatchRoot("type"),
-			[]string{"attribute-value", "dictionary"},
+			[]string{"utf-8"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_unknown_characters"),
 			path.MatchRoot("type"),
 			[]string{"utf-8"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_character_type"),
+			path.MatchRoot("type"),
+			[]string{"utf-8"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pwned_passwords_base_url"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_add"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_self_change"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_admin_reset"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("accept_password_on_service_error"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_leading_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disallowed_trailing_characters"),
+			path.MatchRoot("type"),
+			[]string{"disallowed-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_password_length"),
+			path.MatchRoot("type"),
+			[]string{"length-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_password_length"),
+			path.MatchRoot("type"),
+			[]string{"length-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_behavior"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_unique_characters"),
+			path.MatchRoot("type"),
+			[]string{"unique-characters"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

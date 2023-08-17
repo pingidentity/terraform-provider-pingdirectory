@@ -170,17 +170,17 @@ func azureAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 func configValidatorsAzureAuthenticationMethod() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password"),
-			path.MatchRoot("type"),
-			[]string{"username-password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("client_secret"),
 			path.MatchRoot("type"),
 			[]string{"client-secret"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"username-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
 			path.MatchRoot("type"),
 			[]string{"username-password"},
 		),

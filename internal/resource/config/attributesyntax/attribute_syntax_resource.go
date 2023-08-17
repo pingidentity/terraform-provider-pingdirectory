@@ -169,14 +169,19 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("strip_syntax_min_upper_bound"),
+			path.MatchRoot("type"),
+			[]string{"attribute-type-description"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_zero_length_values"),
+			path.MatchRoot("type"),
+			[]string{"directory-string"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("strict_format"),
 			path.MatchRoot("type"),
 			[]string{"telephone-number", "ldap-url"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute_from_compaction"),
-			path.MatchRoot("type"),
-			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("enable_compaction"),
@@ -189,14 +194,9 @@ func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resourc
 			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("strip_syntax_min_upper_bound"),
+			path.MatchRoot("exclude_attribute_from_compaction"),
 			path.MatchRoot("type"),
-			[]string{"attribute-type-description"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_zero_length_values"),
-			path.MatchRoot("type"),
-			[]string{"directory-string"},
+			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 	}
 }

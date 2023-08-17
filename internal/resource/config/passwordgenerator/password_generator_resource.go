@@ -227,42 +227,12 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 func configValidatorsPasswordGenerator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dictionary_file"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_format"),
+			path.MatchRoot("password_character_set"),
 			path.MatchRoot("type"),
 			[]string{"random"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_password_characters"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minimum_password_words"),
-			path.MatchRoot("type"),
-			[]string{"passphrase"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_character_set"),
+			path.MatchRoot("password_format"),
 			path.MatchRoot("type"),
 			[]string{"random"},
 		),
@@ -272,9 +242,39 @@ func configValidatorsPasswordGenerator() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dictionary_file"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_characters"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_words"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("capitalize_words"),
 			path.MatchRoot("type"),
 			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

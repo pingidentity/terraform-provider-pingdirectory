@@ -245,17 +245,17 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 func configValidatorsScimResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("optional_schema_extension"),
-			path.MatchRoot("type"),
-			[]string{"ldap-mapping"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("core_schema"),
 			path.MatchRoot("type"),
 			[]string{"ldap-mapping"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("required_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("optional_schema_extension"),
 			path.MatchRoot("type"),
 			[]string{"ldap-mapping"},
 		),

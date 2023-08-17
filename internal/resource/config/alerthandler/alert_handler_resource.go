@@ -423,7 +423,37 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("community_name"),
+			path.MatchRoot("recipient_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_body"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_data_filter"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_host_name"),
 			path.MatchRoot("type"),
 			[]string{"snmp"},
 		),
@@ -433,57 +463,17 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"snmp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("long_message_behavior"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_monitor_data_filter"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_host_name"),
+			path.MatchRoot("community_name"),
 			path.MatchRoot("type"),
 			[]string{"snmp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("twilio_auth_token_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_body"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("twilio_account_sid"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_address"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"twilio"},
 		),
@@ -493,14 +483,29 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"twilio"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("recipient_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("long_message_behavior"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("command"),
 			path.MatchRoot("type"),
 			[]string{"exec"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("message_subject"),
-			path.MatchRoot("type"),
-			[]string{"smtp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -508,14 +513,9 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("recipient_phone_number"),
-			path.MatchRoot("type"),
-			[]string{"twilio"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -529,12 +529,12 @@ func (r alertHandlerResource) ConfigValidators(ctx context.Context) []resource.C
 func (r defaultAlertHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_format"),
+			path.MatchRoot("output_location"),
 			path.MatchRoot("type"),
 			[]string{"output"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_location"),
+			path.MatchRoot("output_format"),
 			path.MatchRoot("type"),
 			[]string{"output"},
 		),

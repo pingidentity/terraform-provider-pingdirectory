@@ -285,22 +285,7 @@ func (r webApplicationExtensionResource) ConfigValidators(ctx context.Context) [
 func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("complexity"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_all"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("sso_enabled"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_issuer_url"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -310,32 +295,7 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_strict_hostname_verification"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_type"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oidc_client_secret"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_store_pin_passphrase_provider"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_store_file"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -345,12 +305,7 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("type"),
-			[]string{"console"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oidc_trust_store_type"),
+			path.MatchRoot("oidc_issuer_url"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
@@ -360,7 +315,52 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			[]string{"console"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_strict_hostname_verification"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oidc_trust_all"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_server"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("complexity"),
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),

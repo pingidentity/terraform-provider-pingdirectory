@@ -306,102 +306,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jmx_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("start_tls_enabled"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_set_name"),
-			path.MatchRoot("type"),
-			[]string{"directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("member_of_server_group"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("https_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("preferred_security"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("load_balancing_algorithm_name"),
-			path.MatchRoot("type"),
-			[]string{"directory"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_root"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_domain_server_id"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_instance_type"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldaps_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("base_dn"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("cluster_name"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("hostname"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_port"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_instance_location"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("replication_server_id"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_version"),
-			path.MatchRoot("type"),
-			[]string{"proxy", "authorize", "directory", "sync"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("ldap_port"),
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
@@ -411,7 +316,27 @@ func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jmxs_port"),
+			path.MatchRoot("cluster_name"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_instance_location"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hostname"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_root"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_version"),
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
 		),
@@ -419,6 +344,81 @@ func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource
 			path.MatchRoot("inter_server_certificate"),
 			path.MatchRoot("type"),
 			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldaps_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("https_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_domain_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmx_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmxs_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("preferred_security"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("start_tls_enabled"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("member_of_server_group"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_set_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("load_balancing_algorithm_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
 		),
 	}
 }

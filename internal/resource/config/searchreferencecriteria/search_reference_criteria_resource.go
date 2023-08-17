@@ -243,19 +243,19 @@ func searchReferenceCriteriaSchema(ctx context.Context, req resource.SchemaReque
 func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("not_all_included_search_reference_criteria"),
+			path.MatchRoot("request_criteria"),
 			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_reference_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_reference_control"),
 			path.MatchRoot("type"),
 			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_included_search_reference_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("not_all_included_reference_control"),
@@ -268,14 +268,19 @@ func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 			[]string{"simple"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("request_criteria"),
+			path.MatchRoot("all_included_search_reference_criteria"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("any_included_search_reference_criteria"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("none_included_search_reference_criteria"),
@@ -288,14 +293,9 @@ func configValidatorsSearchReferenceCriteria() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_reference_control"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"simple"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_included_search_reference_criteria"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
+			[]string{"third-party"},
 		),
 	}
 }

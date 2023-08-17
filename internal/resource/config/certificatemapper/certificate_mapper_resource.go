@@ -222,9 +222,9 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 func configValidatorsCertificateMapper() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subject_attribute_mapping"),
+			path.MatchRoot("subject_attribute"),
 			path.MatchRoot("type"),
-			[]string{"subject-attribute-to-user-attribute"},
+			[]string{"subject-dn-to-user-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("user_base_dn"),
@@ -232,19 +232,9 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"subject-dn-to-user-attribute", "subject-attribute-to-user-attribute", "fingerprint"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("fingerprint_algorithm"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"fingerprint"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subject_attribute"),
-			path.MatchRoot("type"),
-			[]string{"subject-dn-to-user-attribute"},
+			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_argument"),
@@ -252,7 +242,17 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"groovy-scripted"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subject_attribute_mapping"),
+			path.MatchRoot("type"),
+			[]string{"subject-attribute-to-user-attribute"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("fingerprint_attribute"),
+			path.MatchRoot("type"),
+			[]string{"fingerprint"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("fingerprint_algorithm"),
 			path.MatchRoot("type"),
 			[]string{"fingerprint"},
 		),
@@ -262,9 +262,9 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"groovy-scripted"},
+			[]string{"third-party"},
 		),
 	}
 }

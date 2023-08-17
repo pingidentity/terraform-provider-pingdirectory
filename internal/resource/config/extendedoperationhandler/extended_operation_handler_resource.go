@@ -327,24 +327,19 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("shared_secret_attribute_type"),
 			path.MatchRoot("type"),
 			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("password_generator"),
+			path.MatchRoot("time_interval_duration"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens", "deliver-password-reset-token", "deliver-otp"},
+			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_single_use_token_validity_duration"),
+			path.MatchRoot("adjacent_intervals_to_check"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("identity_mapper"),
-			path.MatchRoot("type"),
-			[]string{"password-modify", "deliver-otp"},
+			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("prevent_totp_reuse"),
@@ -352,9 +347,14 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"validate-totp-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_otp_delivery_mechanism"),
+			path.MatchRoot("allow_remotely_provided_certificates"),
 			path.MatchRoot("type"),
-			[]string{"single-use-tokens", "deliver-otp"},
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_operation"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_criteria"),
@@ -367,19 +367,29 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"replace-certificate"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("time_interval_duration"),
+			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"validate-totp-password"},
+			[]string{"password-modify", "deliver-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("password_generator"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"single-use-tokens", "deliver-password-reset-token", "deliver-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_remotely_provided_certificates"),
+			path.MatchRoot("default_otp_delivery_mechanism"),
 			path.MatchRoot("type"),
-			[]string{"replace-certificate"},
+			[]string{"single-use-tokens", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_single_use_token_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"single-use-tokens"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_token_delivery_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"deliver-password-reset-token"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_reset_token_validity_duration"),
@@ -392,19 +402,9 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_operation"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"replace-certificate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_token_delivery_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"deliver-password-reset-token"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("shared_secret_attribute_type"),
-			path.MatchRoot("type"),
-			[]string{"validate-totp-password"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -428,12 +428,12 @@ func (r defaultExtendedOperationHandlerResource) ConfigValidators(ctx context.Co
 			[]string{"generate-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_validation_attempts_per_password"),
+			path.MatchRoot("maximum_passwords_per_request"),
 			path.MatchRoot("type"),
 			[]string{"generate-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("maximum_passwords_per_request"),
+			path.MatchRoot("maximum_validation_attempts_per_password"),
 			path.MatchRoot("type"),
 			[]string{"generate-password"},
 		),

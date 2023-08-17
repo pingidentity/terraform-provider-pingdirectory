@@ -1137,29 +1137,129 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 func configValidatorsLogPublisher() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("directory_rest_api_message_type"),
+			path.MatchRoot("syslog_external_server"),
 			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_result_messages"),
+			path.MatchRoot("syslog_facility"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "syslog-json-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+			[]string{"syslog-json-audit", "syslog-based-error", "syslog-text-error", "syslog-based-access", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_search_entry_messages"),
+			path.MatchRoot("syslog_severity"),
 			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_requests"),
+			path.MatchRoot("syslog_message_host_name"),
 			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("syslog_message_application_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("queue_size"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("write_multi_line_messages"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "console-json-error", "file-based-json-audit", "json-access", "syslog-json-http-operation", "json-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_audit_behavior"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_operation_purpose_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_intermediate_client_request_control"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("obscure_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "debug-access", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_internal_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_product_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_instance_name"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_startup_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_thread_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_requester_dn"),
 			path.MatchRoot("type"),
 			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_requester_ip_address"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_response_controls"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_replication_change_id"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_security_negotiation"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_replication_operations"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_criteria"),
@@ -1172,9 +1272,249 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_host_name"),
 			path.MatchRoot("type"),
 			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_port"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "syslog-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_flush"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("asynchronous"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_file_permissions"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_listener"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compression_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sign_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypt_log"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("append"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("buffer_size"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_interval"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_connects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_disconnects"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_client_certificates"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_requests"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_entries"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_search_references"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_intermediate_responses"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlate_requests_and_results"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_criteria"),
+			path.MatchRoot("type"),
+			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_operation_processing_time"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_included_phase_time_nanos"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_string_length"),
+			path.MatchRoot("type"),
+			[]string{"operation-timing-access", "admin-alert-access", "file-based-trace", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_result_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "syslog-json-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_assurance_completed"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "syslog-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_entry_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_search_reference_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_request_details_in_intermediate_response_messages"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_result_code_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_extended_search_request_details"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_add_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_modify_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_search_entry_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("generify_message_strings_when_possible"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-error", "syslog-text-access", "json-access", "json-error", "syslog-json-access", "console-json-access", "file-based-access", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_behavior"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("access_token_validator_message_type"),
@@ -1182,7 +1522,97 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"file-based-trace"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_response_headers"),
+			path.MatchRoot("id_token_validator_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scim_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("consent_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("directory_rest_api_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_message_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_path_pattern"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_field_mapping"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_table_name"),
+			path.MatchRoot("type"),
+			[]string{"jdbc-based-error", "jdbc-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_location"),
+			path.MatchRoot("type"),
+			[]string{"console-json-error", "console-json-audit", "console-json-http-operation", "console-json-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("timestamp_precision"),
+			path.MatchRoot("type"),
+			[]string{"syslog-text-error", "file-based-debug", "file-based-error", "syslog-text-access", "file-based-audit", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_level"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_debug_category"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_entry_arguments"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_omit_method_return_value"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_include_throwable_cause"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_throwable_stack_frames"),
+			path.MatchRoot("type"),
+			[]string{"file-based-debug"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_headers"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
@@ -1192,9 +1622,24 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_reference_criteria"),
+			path.MatchRoot("log_response_headers"),
 			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppressed_response_header_name"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_authorization_type"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_request_cookie_names"),
+			path.MatchRoot("type"),
+			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_response_cookie_names"),
@@ -1202,112 +1647,7 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_internal_operations"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_response_controls"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_headers"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_string_length"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access", "admin-alert-access", "file-based-trace", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encrypt_log"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("write_multi_line_messages"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "console-json-error", "file-based-json-audit", "json-access", "syslog-json-http-operation", "json-error", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_intermediate_responses"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("generify_message_strings_when_possible"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-error", "syslog-text-access", "json-access", "json-error", "syslog-json-access", "console-json-access", "file-based-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("scim_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_result_code_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("override_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_included_phase_time_nanos"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_omit_method_return_value"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("correlate_requests_and_results"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_message_application_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("obscure_attribute"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "debug-access", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("sign_log"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("buffer_size"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_cookie_names"),
+			path.MatchRoot("log_request_parameters"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
@@ -1322,279 +1662,9 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_debug_category"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "third-party-http-operation", "third-party-error", "third-party-access", "third-party-file-based-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_security_negotiation"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_argument"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("time_interval"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_add_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_extended_search_request_details"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_attribute"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_redirect_uri"),
 			path.MatchRoot("type"),
 			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_reversible_form"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("result_criteria"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("exclude_path_pattern"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("min_included_operation_processing_time"),
-			path.MatchRoot("type"),
-			[]string{"operation-timing-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("consent_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id_token_validator_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("debug_aci_enabled"),
-			path.MatchRoot("type"),
-			[]string{"debug-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_controls"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_authorization_type"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("debug_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_mapping"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppressed_response_header_name"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_debug_level"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_field_behavior"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("suppress_replication_operations"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "debug-access", "third-party-access", "file-based-audit", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_client_certificates"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_intermediate_client_request_control"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_facility"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-based-error", "syslog-text-error", "syslog-based-access", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_path_pattern"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_assurance_completed"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "syslog-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_search_reference_messages"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_operation_purpose_request_control"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_startup_id"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_omit_method_entry_arguments"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_requester_ip_address"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_search_entry_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_results"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_listener"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_throwable_stack_frames"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("timestamp_precision"),
-			path.MatchRoot("type"),
-			[]string{"syslog-text-error", "file-based-debug", "file-based-error", "syslog-text-access", "file-based-audit", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_message_host_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_search_references"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("output_location"),
-			path.MatchRoot("type"),
-			[]string{"console-json-error", "console-json-audit", "console-json-http-operation", "console-json-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_connects"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("script_class"),
-			path.MatchRoot("type"),
-			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_severity"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("compression_mechanism"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("rotation_policy"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_request_parameters"),
-			path.MatchRoot("type"),
-			[]string{"detailed-http-operation", "syslog-json-http-operation", "console-json-http-operation", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_entry_criteria"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_port"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "syslog-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_table_name"),
-			path.MatchRoot("type"),
-			[]string{"jdbc-based-error", "jdbc-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_search_entries"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("obscure_sensitive_content"),
@@ -1602,89 +1672,19 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"debug-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("soft_delete_entry_audit_behavior"),
+			path.MatchRoot("debug_aci_enabled"),
 			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "file-based-json-audit", "file-based-audit", "console-json-audit"},
+			[]string{"debug-access"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_thread_id"),
+			path.MatchRoot("script_class"),
 			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("asynchronous"),
+			path.MatchRoot("script_argument"),
 			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_modify_attribute_names"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("retention_policy"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("default_include_throwable_cause"),
-			path.MatchRoot("type"),
-			[]string{"file-based-debug"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_replication_change_id"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "admin-alert-access", "syslog-based-access", "file-based-json-audit", "syslog-text-access", "json-access", "file-based-audit", "syslog-json-access", "console-json-audit", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_product_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_instance_name"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "operation-timing-access", "admin-alert-access", "console-json-error", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "syslog-json-http-operation", "file-based-audit", "json-error", "syslog-json-access", "console-json-audit", "console-json-http-operation", "console-json-access", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_message_type"),
-			path.MatchRoot("type"),
-			[]string{"file-based-trace"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("syslog_external_server"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-text-error", "syslog-text-access", "syslog-json-http-operation", "syslog-json-access", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_disconnects"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "admin-alert-access", "jdbc-based-access", "syslog-based-access", "syslog-text-access", "json-access", "debug-access", "third-party-access", "groovy-scripted-file-based-access", "syslog-json-access", "groovy-scripted-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("auto_flush"),
-			path.MatchRoot("type"),
-			[]string{"syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "common-log-file-http-operation", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("queue_size"),
-			path.MatchRoot("type"),
-			[]string{"syslog-json-audit", "syslog-based-error", "third-party-file-based-access", "operation-timing-access", "admin-alert-access", "file-based-trace", "jdbc-based-error", "jdbc-based-access", "common-log-file-http-operation", "syslog-text-error", "syslog-based-access", "file-based-json-audit", "file-based-debug", "file-based-error", "syslog-text-access", "detailed-http-operation", "json-access", "debug-access", "syslog-json-http-operation", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "syslog-json-access", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation", "syslog-json-error"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("include_request_details_in_intermediate_response_messages"),
-			path.MatchRoot("type"),
-			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("log_file_permissions"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("append"),
-			path.MatchRoot("type"),
-			[]string{"third-party-file-based-access", "operation-timing-access", "file-based-trace", "common-log-file-http-operation", "file-based-json-audit", "file-based-debug", "file-based-error", "detailed-http-operation", "json-access", "debug-access", "file-based-audit", "json-error", "groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "third-party-file-based-error", "file-based-access", "file-based-json-http-operation"},
+			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
 		),
 	}
 }

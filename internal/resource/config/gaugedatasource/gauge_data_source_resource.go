@@ -224,12 +224,12 @@ func configValidatorsGaugeDataSource() []resource.ConfigValidator {
 			[]string{"numeric"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("divide_value_by"),
+			path.MatchRoot("statistic_type"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("statistic_type"),
+			path.MatchRoot("divide_value_by"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),

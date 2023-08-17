@@ -400,24 +400,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("additional_user_mapping_scim_filter"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("api_url"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("use_location"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("auth_url"),
@@ -430,29 +415,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("oauth_client_secret"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("continue_on_failure_type"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("max_connections"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("search_base_dn"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("dn_map"),
-			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oauth_client_secret_passphrase_provider"),
@@ -460,7 +425,12 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("user_mapping_remote_json_field"),
+			path.MatchRoot("environment_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
 		),
@@ -470,22 +440,37 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("subordinate_pass_through_authentication_handler"),
-			path.MatchRoot("type"),
-			[]string{"aggregate"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("environment_id"),
+			path.MatchRoot("user_mapping_remote_json_field"),
 			path.MatchRoot("type"),
 			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("additional_user_mapping_scim_filter"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"ping-one"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("initial_connections"),
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_access_mode"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_base_dn"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
 		),
@@ -495,9 +480,19 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("initial_connections"),
 			path.MatchRoot("type"),
-			[]string{"ping-one"},
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_connections"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_location"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("maximum_allowed_local_response_time"),
@@ -505,19 +500,9 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("oauth_client_secret"),
-			path.MatchRoot("type"),
-			[]string{"ping-one"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("maximum_allowed_nonlocal_response_time"),
 			path.MatchRoot("type"),
 			[]string{"ldap"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("use_password_policy_control"),
@@ -525,9 +510,24 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("bind_dn_pattern"),
+			path.MatchRoot("subordinate_pass_through_authentication_handler"),
 			path.MatchRoot("type"),
-			[]string{"ldap"},
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("continue_on_failure_type"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }

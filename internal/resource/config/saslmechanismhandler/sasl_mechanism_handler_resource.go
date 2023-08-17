@@ -413,24 +413,9 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("access_token_validator"),
-			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("all_required_scope"),
-			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_fqdn"),
@@ -438,7 +423,27 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"digest-md5", "oauth-bearer", "gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("otp_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-delivered-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("require_both_access_token_and_id_token"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validate_access_token_when_id_token_is_also_provided"),
 			path.MatchRoot("type"),
 			[]string{"oauth-bearer"},
 		),
@@ -448,19 +453,14 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"oauth-bearer", "gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("validate_access_token_when_id_token_is_also_provided"),
+			path.MatchRoot("all_required_scope"),
 			path.MatchRoot("type"),
 			[]string{"oauth-bearer"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("any_required_scope"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("otp_validity_duration"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-delivered-otp"},
+			[]string{"oauth-bearer"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
@@ -468,9 +468,9 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			[]string{"third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("any_required_scope"),
+			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"oauth-bearer"},
+			[]string{"third-party"},
 		),
 	}
 }
@@ -484,39 +484,9 @@ func (r saslMechanismHandlerResource) ConfigValidators(ctx context.Context) []re
 func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	validators := []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("keytab"),
+			path.MatchRoot("shared_secret_attribute_type"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("certificate_mapper"),
-			path.MatchRoot("type"),
-			[]string{"external", "unboundid-certificate-plus-password"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("key_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("kerberos_service_principal"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("certificate_validation_policy"),
-			path.MatchRoot("type"),
-			[]string{"external"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allow_null_server_fqdn"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("trust_manager_provider"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
+			[]string{"unboundid-totp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("time_interval_duration"),
@@ -524,19 +494,29 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-totp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_validation_server_base_url"),
+			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_static_password"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp", "unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_client_id"),
 			path.MatchRoot("type"),
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("allowed_quality_of_protection"),
+			path.MatchRoot("yubikey_api_key"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("adjacent_intervals_to_check"),
-			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("yubikey_api_key_passphrase_provider"),
@@ -544,7 +524,7 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_client_id"),
+			path.MatchRoot("yubikey_validation_server_base_url"),
 			path.MatchRoot("type"),
 			[]string{"unboundid-yubikey-otp"},
 		),
@@ -554,14 +534,19 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("key_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("jaas_config_file"),
+			path.MatchRoot("trust_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"gssapi"},
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("certificate_validation_policy"),
+			path.MatchRoot("type"),
+			[]string{"external"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("certificate_attribute"),
@@ -569,19 +554,9 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"external"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("yubikey_api_key"),
+			path.MatchRoot("certificate_mapper"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("gssapi_role"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("enable_debug"),
-			path.MatchRoot("type"),
-			[]string{"gssapi"},
+			[]string{"external", "unboundid-certificate-plus-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("realm"),
@@ -594,14 +569,39 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 			[]string{"gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("require_static_password"),
+			path.MatchRoot("keytab"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp", "unboundid-yubikey-otp"},
+			[]string{"gssapi"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("shared_secret_attribute_type"),
+			path.MatchRoot("allow_null_server_fqdn"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-totp"},
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_quality_of_protection"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("kerberos_service_principal"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gssapi_role"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jaas_config_file"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_debug"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
 		),
 	}
 	return append(configValidatorsSaslMechanismHandler(), validators...)

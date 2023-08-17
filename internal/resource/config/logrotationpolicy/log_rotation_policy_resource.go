@@ -168,14 +168,14 @@ func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
 			[]string{"time-limit"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("file_size_limit"),
-			path.MatchRoot("type"),
-			[]string{"size-limit"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("time_of_day"),
 			path.MatchRoot("type"),
 			[]string{"fixed-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("file_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"size-limit"},
 		),
 	}
 }

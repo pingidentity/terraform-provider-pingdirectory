@@ -277,17 +277,17 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 func configValidatorsGauge() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("minor_exit_value"),
-			path.MatchRoot("type"),
-			[]string{"numeric"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("critical_exit_value"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("major_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minor_exit_value"),
 			path.MatchRoot("type"),
 			[]string{"numeric"},
 		),

@@ -188,14 +188,9 @@ func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
 			[]string{"summarize"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_argument"),
+			path.MatchRoot("copy_to_directory"),
 			path.MatchRoot("type"),
-			[]string{"third-party"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("extension_class"),
-			path.MatchRoot("type"),
-			[]string{"third-party"},
+			[]string{"copy"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("compress_on_copy"),
@@ -203,9 +198,14 @@ func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
 			[]string{"copy"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("copy_to_directory"),
+			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
-			[]string{"copy"},
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
 		),
 	}
 }
