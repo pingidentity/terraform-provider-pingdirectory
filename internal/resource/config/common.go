@@ -100,7 +100,7 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 		if !internaltypes.StringSliceContains(exemptAttributes, key) {
 			stringAttr, ok := attribute.(schema.StringAttribute)
 			anyOk := ok
-			if ok && (!stringAttr.Computed || !stringAttr.Optional) {
+			if ok {
 				stringAttr.Required = false
 				stringAttr.Optional = true
 				stringAttr.Computed = true
@@ -111,7 +111,7 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 			}
 			setAttr, ok := attribute.(schema.SetAttribute)
 			anyOk = ok || anyOk
-			if ok && (!setAttr.Computed || !setAttr.Optional) {
+			if ok {
 				setAttr.Required = false
 				setAttr.Optional = true
 				setAttr.Computed = true
@@ -122,7 +122,7 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 			}
 			boolAttr, ok := attribute.(schema.BoolAttribute)
 			anyOk = ok || anyOk
-			if ok && (!boolAttr.Computed || !boolAttr.Optional) {
+			if ok {
 				boolAttr.Required = false
 				boolAttr.Optional = true
 				boolAttr.Computed = true
@@ -133,7 +133,7 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 			}
 			intAttr, ok := attribute.(schema.Int64Attribute)
 			anyOk = ok || anyOk
-			if ok && (!intAttr.Computed || !intAttr.Optional) {
+			if ok {
 				intAttr.Required = false
 				intAttr.Optional = true
 				intAttr.Computed = true
@@ -144,7 +144,7 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 			}
 			floatAttr, ok := attribute.(schema.Float64Attribute)
 			anyOk = ok || anyOk
-			if ok && (!floatAttr.Computed || !floatAttr.Optional) {
+			if ok {
 				floatAttr.Required = false
 				floatAttr.Optional = true
 				floatAttr.Computed = true
