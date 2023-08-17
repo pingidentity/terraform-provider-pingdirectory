@@ -165,6 +165,9 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"endpoint": schema.StringAttribute{
 				Description: "The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"lookthrough_limit": schema.Int64Attribute{
 				Description: "The maximum number of resources that the SCIM Resource Type should \"look through\" in the course of processing a search request.",

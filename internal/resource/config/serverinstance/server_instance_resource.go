@@ -114,6 +114,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"replication_set_name": schema.StringAttribute{
@@ -139,6 +140,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"cluster_name": schema.StringAttribute{
@@ -227,6 +229,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"replication_server_id": schema.Int64Attribute{
@@ -235,6 +238,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"replication_domain_server_id": schema.SetAttribute{
@@ -244,6 +248,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				ElementType: types.Int64Type,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"jmx_port": schema.Int64Attribute{
@@ -294,6 +299,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 		},

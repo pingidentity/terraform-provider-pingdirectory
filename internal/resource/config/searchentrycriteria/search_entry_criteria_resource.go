@@ -141,6 +141,9 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Search Entry Criteria.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Search Entry Criteria. Each configuration property should be given in the form 'name=value'.",

@@ -211,6 +211,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.\n  - `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",

@@ -159,6 +159,9 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"resource_endpoint": schema.StringAttribute{
 				Description: "The HTTP addressable endpoint of this REST Resource Type relative to a REST API base URL. Do not include a leading '/'.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"structural_ldap_objectclass": schema.StringAttribute{
 				Description: "Specifies the LDAP structural object class that should be exposed by this REST Resource Type.",

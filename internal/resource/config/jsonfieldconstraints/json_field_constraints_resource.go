@@ -158,6 +158,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"value_type": schema.StringAttribute{
 				Description: "The data type that will be required for values of the target field.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"is_required": schema.BoolAttribute{
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",

@@ -163,6 +163,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Cipher Stream Provider.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.",
@@ -193,10 +196,16 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"vault_secret_path": schema.StringAttribute{
 				Description: "The path to the desired secret in the Vault service. This will be appended to the value of the base-url property for the associated Vault external server.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"vault_secret_field_name": schema.StringAttribute{
 				Description: "The name of the field in the Vault secret record that contains the passphrase to use to generate the encryption key.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"vault_encryption_metadata_file": schema.StringAttribute{
 				Description: "The path to a file that will hold metadata about the encryption performed by this Vault Cipher Stream Provider.",
@@ -204,6 +213,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"trust_store_file": schema.StringAttribute{
@@ -255,6 +265,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The alias for the certificate in the PKCS #11 token that will be used to wrap the encryption key. The target certificate must exist in the PKCS #11 token, and it must have an RSA key pair because the JVM does not currently provide adequate key wrapping support for elliptic curve key pairs.  If you have also configured the server to use a PKCS #11 token for accessing listener certificates, we strongly recommend that you use a different certificate to protect the contents of the encryption settings database than you use for negotiating TLS sessions with clients. It is imperative that the certificate used by this PKCS11 Cipher Stream Provider remain constant for the life of the provider because if the certificate were to be replaced, then the contents of the encryption settings database could become inaccessible. Unlike with listener certificates used for TLS negotiation that need to be replaced on a regular basis, this PKCS11 Cipher Stream Provider does not consider the validity period for the associated certificate, and it will continue to function even after the certificate has expired.  If you need to rotate the certificate used to protect the server's encryption settings database, you should first install the desired new certificate in the PKCS #11 token under a different alias. Then, you should create a new instance of this PKCS11 Cipher Stream Provider that is configured to use that certificate, and that also uses a different value for the encryption-metadata-file because the information in that file is tied to the certificate used to generate it. Finally, you will need to update the global configuration so that the encryption-settings-cipher-stream-provider property references the new cipher stream provider rather than this one. The update to the global configuration must be done with the server online so that it can properly re-encrypt the contents of the encryption settings database with the correct key tied to the new certificate.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"conjur_external_server": schema.StringAttribute{
 				Description: "An external server definition with information needed to connect and authenticate to the Conjur server.",
@@ -263,6 +276,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"conjur_secret_relative_path": schema.StringAttribute{
 				Description: "The portion of the path that follows the account name in the URI needed to obtain the secret passphrase to use to generate the encryption key. Any special characters in the path must be URL-encoded.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"password_file": schema.StringAttribute{
 				Description: "The path to the file containing the password to use when generating ciphers.",
@@ -291,6 +307,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"encrypted_passphrase_file": schema.StringAttribute{
 				Description: "The path to a file that will hold the encrypted passphrase used by this cipher stream provider.",
@@ -298,23 +317,36 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"secret_id": schema.StringAttribute{
 				Description: "The Amazon Resource Name (ARN) or the user-friendly name of the secret to be retrieved.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secret_field_name": schema.StringAttribute{
 				Description: "The name of the JSON field whose value is the passphrase that will be used to generate the encryption key for protecting the contents of the encryption settings database.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secret_version_id": schema.StringAttribute{
 				Description: "The unique identifier for the version of the secret to be retrieved.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secret_version_stage": schema.StringAttribute{
 				Description: "The staging label for the version of the secret to be retrieved.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"encryption_metadata_file": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `amazon-secrets-manager`: The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. When the `type` attribute is set to `azure-key-vault`: The path to a file that will hold metadata about the encryption performed by this Azure Key Vault Cipher Stream Provider. When the `type` attribute is set to `file-based`: The path to a file that will hold metadata about the encryption performed by this File Based Cipher Stream Provider. When the `type` attribute is set to `conjur`: The path to a file that will hold metadata about the encryption performed by this Conjur Cipher Stream Provider. When the `type` attribute is set to `pkcs11`: The path to a file that will hold metadata about the encryption performed by this PKCS11 Cipher Stream Provider.",
@@ -323,6 +355,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"aws_external_server": schema.StringAttribute{
@@ -346,6 +379,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"kms_encryption_key_arn": schema.StringAttribute{
 				Description: "The Amazon resource name (ARN) for the KMS key that will be used to encrypt the contents of the passphrase file. This key must exist, and the AWS client must have access to encrypt and decrypt data using this key.",
 				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"iteration_count": schema.Int64Attribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
@@ -353,6 +389,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"description": schema.StringAttribute{
@@ -424,18 +461,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-key-management-service"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-secrets-manager"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("secret_version_id"),
 				path.MatchRoot("secret_version_stage"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

@@ -140,10 +140,16 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 			"monitor_attribute_name": schema.StringAttribute{
 				Description: "The name of the monitor attribute that contains the numeric value to be published.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"monitor_object_class_name": schema.StringAttribute{
 				Description: "The name of the object class for monitor entries that contain the monitor attribute.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"metric_type": schema.StringAttribute{
 				Description: "The metric type that should be used for the value of the specified monitor attribute.",

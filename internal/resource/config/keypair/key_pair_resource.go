@@ -125,6 +125,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Default:     stringdefault.StaticString("RSA_2048"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"self_signed_certificate_validity": schema.StringAttribute{
@@ -133,6 +134,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"subject_dn": schema.StringAttribute{
@@ -142,6 +144,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Default:     stringdefault.StaticString("cn=Directory Server,O=Ping Identity Key Pair"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"certificate_chain": schema.StringAttribute{
@@ -156,6 +159,9 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "The base64-encoded private key that is encrypted using the preferred encryption settings definition.",
 				Optional:    true,
 				Sensitive:   true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}
