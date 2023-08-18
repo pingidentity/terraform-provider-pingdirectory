@@ -55,7 +55,7 @@ func (r *serverInstanceListenerResource) Configure(_ context.Context, req resour
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type serverInstanceListenerResourceModel struct {

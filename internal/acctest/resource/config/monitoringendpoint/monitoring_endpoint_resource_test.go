@@ -38,7 +38,7 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
-			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
+			"pingdirectory": providerserver.NewProtocol6WithError(provider.NewTestProvider()),
 		},
 		CheckDestroy: testAccCheckStatsdMonitoringEndpointDestroy,
 		Steps: []resource.TestStep{

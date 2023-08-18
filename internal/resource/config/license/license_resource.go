@@ -51,7 +51,7 @@ func (r *licenseResource) Configure(_ context.Context, req resource.ConfigureReq
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type licenseResourceModel struct {

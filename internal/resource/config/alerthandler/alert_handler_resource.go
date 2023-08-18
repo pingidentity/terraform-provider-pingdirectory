@@ -75,7 +75,7 @@ func (r *alertHandlerResource) Configure(_ context.Context, req resource.Configu
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultAlertHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -85,7 +85,7 @@ func (r *defaultAlertHandlerResource) Configure(_ context.Context, req resource.
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type alertHandlerResourceModel struct {

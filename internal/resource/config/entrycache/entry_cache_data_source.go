@@ -43,7 +43,7 @@ func (r *entryCacheDataSource) Configure(_ context.Context, req datasource.Confi
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type entryCacheDataSourceModel struct {

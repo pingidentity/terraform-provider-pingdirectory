@@ -70,7 +70,7 @@ func (r *consentDefinitionLocalizationResource) Configure(_ context.Context, req
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultConsentDefinitionLocalizationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -80,7 +80,7 @@ func (r *defaultConsentDefinitionLocalizationResource) Configure(_ context.Conte
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type consentDefinitionLocalizationResourceModel struct {

@@ -69,7 +69,7 @@ func (r *logFieldMappingResource) Configure(_ context.Context, req resource.Conf
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultLogFieldMappingResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -79,7 +79,7 @@ func (r *defaultLogFieldMappingResource) Configure(_ context.Context, req resour
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type logFieldMappingResourceModel struct {

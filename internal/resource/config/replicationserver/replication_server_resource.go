@@ -55,7 +55,7 @@ func (r *replicationServerResource) Configure(_ context.Context, req resource.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type replicationServerResourceModel struct {

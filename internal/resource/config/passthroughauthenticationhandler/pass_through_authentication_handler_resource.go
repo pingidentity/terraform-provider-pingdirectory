@@ -75,7 +75,7 @@ func (r *passThroughAuthenticationHandlerResource) Configure(_ context.Context, 
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -85,7 +85,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type passThroughAuthenticationHandlerResourceModel struct {

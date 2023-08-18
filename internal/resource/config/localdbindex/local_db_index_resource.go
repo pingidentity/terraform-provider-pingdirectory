@@ -75,7 +75,7 @@ func (r *localDbIndexResource) Configure(_ context.Context, req resource.Configu
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultLocalDbIndexResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -85,7 +85,7 @@ func (r *defaultLocalDbIndexResource) Configure(_ context.Context, req resource.
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type localDbIndexResourceModel struct {

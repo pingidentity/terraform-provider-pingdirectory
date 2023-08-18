@@ -43,7 +43,7 @@ func (r *passphraseProvidersDataSource) Configure(_ context.Context, req datasou
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type passphraseProvidersDataSourceModel struct {
