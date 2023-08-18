@@ -40,7 +40,7 @@ func TestAccDefaultLocation(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
-			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
+			"pingdirectory": providerserver.NewProtocol6WithError(provider.NewTestProvider()),
 		},
 		CheckDestroy: testAccCheckDefaultLocationDestroy,
 		Steps: []resource.TestStep{
@@ -122,7 +122,7 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
-			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
+			"pingdirectory": providerserver.NewProtocol6WithError(provider.NewTestProvider()),
 		},
 		CheckDestroy: testAccCheckDefaultLogPublisherDestroy,
 		Steps: []resource.TestStep{

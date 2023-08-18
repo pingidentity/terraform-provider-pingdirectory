@@ -43,7 +43,7 @@ func (r *attributeSyntaxesDataSource) Configure(_ context.Context, req datasourc
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type attributeSyntaxesDataSourceModel struct {

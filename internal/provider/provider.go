@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client9300 "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
@@ -154,13 +155,24 @@ var (
 	_ provider.Provider = &pingdirectoryProvider{}
 )
 
-// New is a helper function to simplify provider server and testing implementation.
-func New() provider.Provider {
-	return &pingdirectoryProvider{}
+// NewFactory is a helper function to simplify provider server implementation.
+func NewFactory(version string) func() provider.Provider {
+	return func() provider.Provider {
+		return &pingdirectoryProvider{
+			version: version,
+		}
+	}
+}
+
+// NewTestProvider is a helper function to simplify testing implementation.
+func NewTestProvider() provider.Provider {
+	return NewFactory("test")()
 }
 
 // pingdirectoryProvider is the provider implementation.
-type pingdirectoryProvider struct{}
+type pingdirectoryProvider struct {
+	version string
+}
 
 // Metadata returns the provider type name.
 func (p *pingdirectoryProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -368,14 +380,15 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	httpClient := &http.Client{Transport: tr}
 	// Always create a client for the most recent version, since it is
 	// the default used by resources that are compatible with multiple versions
-	clientConfig9200 := client9300.NewConfiguration()
-	clientConfig9200.Servers = client9300.ServerConfigurations{
+	clientConfig := client.NewConfiguration()
+	clientConfig.Servers = client.ServerConfigurations{
 		{
 			URL: httpsHost + "/config",
 		},
 	}
-	clientConfig9200.HTTPClient = httpClient
-	resourceConfig.ApiClientV9300 = client9300.NewAPIClient(clientConfig9200)
+	clientConfig.HTTPClient = httpClient
+	clientConfig.UserAgent = fmt.Sprintf("terraform-provider-pingdirectory/%s/go", p.version)
+	resourceConfig.ApiClient = client.NewAPIClient(clientConfig)
 
 	resp.ResourceData = resourceConfig
 	resp.DataSourceData = resourceConfig

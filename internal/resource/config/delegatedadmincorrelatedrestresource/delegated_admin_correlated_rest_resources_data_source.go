@@ -43,7 +43,7 @@ func (r *delegatedAdminCorrelatedRestResourcesDataSource) Configure(_ context.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type delegatedAdminCorrelatedRestResourcesDataSourceModel struct {

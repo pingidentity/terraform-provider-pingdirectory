@@ -69,7 +69,7 @@ func (r *delegatedAdminAttributeCategoryResource) Configure(_ context.Context, r
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultDelegatedAdminAttributeCategoryResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -79,7 +79,7 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Configure(_ context.Con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type delegatedAdminAttributeCategoryResourceModel struct {
