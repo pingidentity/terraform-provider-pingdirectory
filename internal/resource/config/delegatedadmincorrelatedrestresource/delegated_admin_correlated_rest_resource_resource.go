@@ -72,7 +72,7 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Configure(_ context.Conte
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -82,7 +82,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Configure(_ contex
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type delegatedAdminCorrelatedRestResourceResourceModel struct {

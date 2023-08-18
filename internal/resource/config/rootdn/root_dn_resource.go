@@ -52,7 +52,7 @@ func (r *rootDnResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9300
+	r.apiClient = providerCfg.ApiClient
 }
 
 type rootDnResourceModel struct {
