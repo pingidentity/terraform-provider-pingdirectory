@@ -1,12 +1,7 @@
-# resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
-#   name        = "MyMonitorProvider"
-#   type        = "general"
-#   description = "My general monitor entry resource provider"
-#   enabled     = false
-# }
-
-resource "pingdirectory_default_monitor_provider" "mine" {
-  name        = "General Monitor Entry"
-  description = "My general monitor entry resource provider"
-  enabled     = true
+resource "pingdirectory_monitor_provider" "myMonitorProvider" {
+  name        = "MyMonitorProvider"
+  type        = "third-party"
+  description = "My third party monitor entry resource provider"
+  enabled     = false
+  extension_class = "com.Example"
 }
