@@ -3,4 +3,4 @@ The examples in this directory correspond to the [Ping Identity server profiles]
 
 The `getting-started` directory corresponds to the PingDirectory [getting-started server profile](https://github.com/pingidentity/pingidentity-server-profiles/tree/master/getting-started/pingdirectory/pd.profile/dsconfig).
 
-The `baseline` directory corresponds to the PingDirectory [baseline server profile](https://github.com/pingidentity/pingidentity-server-profiles/tree/master/baseline/pingdirectory/pd.profile/dsconfig).
+The `baseline` directory corresponds to the PingDirectory [baseline server profile](https://github.com/pingidentity/pingidentity-server-profiles/tree/master/baseline/pingdirectory/pd.profile/dsconfig). The `baseline` configuration relies on certain schema elements being present on the server, so some of the configuration will not be able to be applied without that schema. See the schema files [here](https://github.com/pingidentity/pingidentity-server-profiles/tree/master/baseline/pingdirectory/pd.profile/server-root/pre-setup/config/schema).
