@@ -56,3 +56,24 @@ When destroying default resources, the provider will stop managing the resource 
 Here is an example showing the differences between default and non-default resources.
 
 {{ tffile "examples/default-config/main.tf" }}
+
+## The `type` attribute
+
+All resources in this provider include a `type` attribute that serves as a discriminator between config objects that support multiple types. For example, the `pingdirectory_log_publisher` resource supports `type` values such as `file-based-error`, `json-access`, `console-json-audit`, etc. It is required for any non-default resources that support multiple types.
+
+For example, the following `dsconfig` command and HCL code are equivalent:
+
+```
+dsconfig create-log-publisher --publisher-name MyLogPublisher --type file-based-debug --set enabled:false --set log-file:logs/example.log --set "rotation-policy:24 Hours Time Limit Rotation Policy" --set "retention-policy:File Count Growth Limit Policy"
+
+resource "pingdirectory_log_publisher" "myLogPublisher" {
+  name             = "MyLogPublisher"
+  type             = "file-based-debug"
+  enabled          = false
+  log_file         = "logs/example.log"
+  rotation_policy  = "24 Hours Time Limit Rotation Policy"
+  retention_policy = "File Count Growth Limit Policy"
+}
+```
+
+The `pingdirectory_plugin`, `pingdirectory_scim_attribute`, and `pingdirectory_scim_subattribute` resources are exceptions, as they already have a `type` attribute used by PingDirectory. The `resource_type` attribute serves the purpose that would normally be filled by the `type` attribute for these resources.
