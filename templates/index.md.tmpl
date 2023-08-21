@@ -64,7 +64,13 @@ All resources in this provider include a `type` attribute that serves as a discr
 For example, the following `dsconfig` command and HCL code are equivalent:
 
 ```
-dsconfig create-log-publisher --publisher-name MyLogPublisher --type file-based-debug --set enabled:false --set log-file:logs/example.log --set "rotation-policy:24 Hours Time Limit Rotation Policy" --set "retention-policy:File Count Growth Limit Policy"
+dsconfig create-log-publisher \
+  --publisher-name MyLogPublisher \
+  --type file-based-debug \
+  --set enabled:false \
+  --set log-file:logs/example.log \
+  --set "rotation-policy:24 Hours Time Limit Rotation Policy" \
+  --set "retention-policy:File Count Growth Limit Policy"
 
 resource "pingdirectory_log_publisher" "myLogPublisher" {
   name             = "MyLogPublisher"
