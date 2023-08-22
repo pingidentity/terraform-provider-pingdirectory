@@ -387,7 +387,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		},
 	}
 	clientConfig.HTTPClient = httpClient
-	clientConfig.UserAgent = fmt.Sprintf("terraform-provider-pingdirectory/%s/go", p.version)
+	clientConfig.UserAgent = fmt.Sprintf("pingtools terraform-provider-pingdirectory/%s go", p.version)
 	resourceConfig.ApiClient = client.NewAPIClient(clientConfig)
 
 	resp.ResourceData = resourceConfig
