@@ -1,4 +1,25 @@
-# v0.11.0 (Unreleased)
+# v0.11.0 August 25, 2023
+
+### ENHANCEMENTS
+* Various improvements to the `type` attribute (#274, #276)
+  * Added config validators that depend on specific `type` values
+  * Add computed `type` values for resources that have a single valid `type` value
+  * Make the `type` value read-only for default resources
+  * Separate descriptions for attributes that differ by `type`
+* Build in PingDirectory defaults into resource schema where possible (#275)
+* Reduce the number of computed attributes that appear in plan output after initial create (#280)
+* Add User-Agent header with provider version to HTTP requests (#282, #287)
+
+### BUG FIXES
+* Avoid returning errors for 404 responses in resource read and delete methods for non-default resources (#277)
+* Require replacement for changes to attributes that are read-only after creation (#281)
+
+### DOCUMENTATION UPDATES
+* Remove unnecessary provider config from resource and data source examples (#283)
+* Various doc fixes (#286)
+
+### DEPENDENCIES
+* Bump `github.com/hashicorp/terraform-plugin-framework` from `1.3.4` to `1.3.5` (#285)
 
 # v0.10.0 August 4, 2023
 
