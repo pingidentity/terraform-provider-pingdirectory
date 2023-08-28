@@ -1455,6 +1455,11 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			[]string{"search-shutdown"},
+			[]path.Expression{path.MatchRoot("filter"), path.MatchRoot("output_file")},
+		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
 			[]string{"changelog-password-encryption"},
