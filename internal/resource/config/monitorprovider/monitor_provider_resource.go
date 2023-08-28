@@ -307,6 +307,16 @@ func configValidatorsMonitorProvider() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"encryption-settings-database-accessibility",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

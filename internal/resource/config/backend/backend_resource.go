@@ -1239,6 +1239,11 @@ func configValidatorsBackend() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"local-db"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"local-db",
+			[]path.Expression{path.MatchRoot("backend_id"), path.MatchRoot("base_dn"), path.MatchRoot("enabled")},
+		),
 	}
 }
 

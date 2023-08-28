@@ -235,6 +235,26 @@ func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"last-access-time",
+			[]path.Expression{path.MatchRoot("access_time_threshold")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"filter-based",
+			[]path.Expression{path.MatchRoot("filter")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

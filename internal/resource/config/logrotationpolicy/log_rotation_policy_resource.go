@@ -177,6 +177,21 @@ func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"size-limit"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"time-limit",
+			[]path.Expression{path.MatchRoot("rotation_interval")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"fixed-time",
+			[]path.Expression{path.MatchRoot("time_of_day")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"size-limit",
+			[]path.Expression{path.MatchRoot("file_size_limit")},
+		),
 	}
 }
 

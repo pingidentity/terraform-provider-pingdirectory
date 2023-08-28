@@ -269,6 +269,26 @@ func configValidatorsCertificateMapper() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"subject-attribute-to-user-attribute",
+			[]path.Expression{path.MatchRoot("subject_attribute_mapping")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"fingerprint",
+			[]path.Expression{path.MatchRoot("fingerprint_algorithm")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

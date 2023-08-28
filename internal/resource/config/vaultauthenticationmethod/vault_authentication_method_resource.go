@@ -208,6 +208,21 @@ func configValidatorsVaultAuthenticationMethod() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"user-pass"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"static-token",
+			[]path.Expression{path.MatchRoot("vault_access_token")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"app-role",
+			[]path.Expression{path.MatchRoot("vault_role_id"), path.MatchRoot("vault_secret_id")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"user-pass",
+			[]path.Expression{path.MatchRoot("username"), path.MatchRoot("password")},
+		),
 	}
 }
 

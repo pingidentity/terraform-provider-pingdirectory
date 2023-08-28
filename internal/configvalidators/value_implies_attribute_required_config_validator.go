@@ -14,20 +14,20 @@ import (
 var _ resource.ConfigValidator = &ValueImpliesAttributeRequiredValidator{}
 
 // Create a ValueImpliesAttributeRequiredValidator indicating that the implied attribute paths are required to be configured if the
-// condition string attribute is configured with one of the given values
-func ValueImpliesAttributeRequired(condition path.Expression, conditionValues []string, implied []path.Expression) resource.ConfigValidator {
+// condition string attribute is configured with condition value
+func ValueImpliesAttributeRequired(condition path.Expression, conditionValue string, implied []path.Expression) resource.ConfigValidator {
 	return ValueImpliesAttributeRequiredValidator{
-		Condition:       condition,
-		ConditionValues: conditionValues,
-		Implied:         implied,
+		Condition:      condition,
+		ConditionValue: conditionValue,
+		Implied:        implied,
 	}
 }
 
 // ImpliesValidator is the underlying struct implementing Implies.
 type ValueImpliesAttributeRequiredValidator struct {
-	Condition       path.Expression
-	ConditionValues []string
-	Implied         []path.Expression
+	Condition      path.Expression
+	ConditionValue string
+	Implied        []path.Expression
 }
 
 func (v ValueImpliesAttributeRequiredValidator) Description(ctx context.Context) string {
@@ -35,7 +35,7 @@ func (v ValueImpliesAttributeRequiredValidator) Description(ctx context.Context)
 }
 
 func (v ValueImpliesAttributeRequiredValidator) MarkdownDescription(_ context.Context) string {
-	return fmt.Sprintf("The %s attribute(s) must be configured if the \"%s\" attribute is configured with one of the following values: %s", pathExpressionSliceToReadableString(v.Implied), v.Condition, stringSliceToReadableString(v.ConditionValues))
+	return fmt.Sprintf("The %s attribute(s) must be configured if the \"%s\" attribute is configured with the following value: \"%s\"", pathExpressionSliceToReadableString(v.Implied), v.Condition, v.ConditionValue)
 }
 
 func (v ValueImpliesAttributeRequiredValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
@@ -81,14 +81,9 @@ func (v ValueImpliesAttributeRequiredValidator) ValidateResource(ctx context.Con
 			return
 		}
 
-		for _, allowedValue := range v.ConditionValues {
-			if allowedValue == conditionValueString.ValueString() {
-				// Condition string value found, continue
-				conditionValueMatch = true
-				break
-			}
-		}
-		if conditionValueMatch {
+		if v.ConditionValue == conditionValueString.ValueString() {
+			// Condition string value found, continue
+			conditionValueMatch = true
 			break
 		}
 	}

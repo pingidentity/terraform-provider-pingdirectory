@@ -279,6 +279,26 @@ func configValidatorsPasswordGenerator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"random",
+			[]path.Expression{path.MatchRoot("password_character_set"), path.MatchRoot("password_format")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"passphrase",
+			[]path.Expression{path.MatchRoot("dictionary_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

@@ -1691,6 +1691,186 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"groovy-scripted-file-based-access", "groovy-scripted-file-based-error", "groovy-scripted-access", "groovy-scripted-error", "groovy-scripted-http-operation"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-json-audit",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-text-error",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-text-access",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-json-http-operation",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-json-access",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-json-error",
+			[]path.Expression{path.MatchRoot("syslog_external_server"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-based-error",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party-file-based-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"operation-timing-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party-http-operation",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"admin-alert-access",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-trace",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"jdbc-based-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("server"), path.MatchRoot("log_field_mapping")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"jdbc-based-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("server"), path.MatchRoot("log_field_mapping")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"common-log-file-http-operation",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog-based-access",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-json-audit",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-debug",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"detailed-http-operation",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"json-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"debug-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-audit",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"json-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted-file-based-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted-file-based-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party-file-based-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"console-json-audit",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"console-json-http-operation",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-access",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted-error",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based-json-http-operation",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted-http-operation",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("script_class")},
+		),
 	}
 }
 

@@ -379,6 +379,21 @@ func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"twilio",
+			[]path.Expression{path.MatchRoot("twilio_account_sid"), path.MatchRoot("sender_phone_number")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"email",
+			[]path.Expression{path.MatchRoot("sender_address")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

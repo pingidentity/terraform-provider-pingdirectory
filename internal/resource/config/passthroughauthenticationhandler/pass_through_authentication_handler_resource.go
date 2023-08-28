@@ -532,6 +532,26 @@ func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidat
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ping-one",
+			[]path.Expression{path.MatchRoot("api_url"), path.MatchRoot("auth_url"), path.MatchRoot("oauth_client_id"), path.MatchRoot("environment_id"), path.MatchRoot("user_mapping_local_attribute"), path.MatchRoot("user_mapping_remote_json_field")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ldap",
+			[]path.Expression{path.MatchRoot("server")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"aggregate",
+			[]path.Expression{path.MatchRoot("subordinate_pass_through_authentication_handler")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

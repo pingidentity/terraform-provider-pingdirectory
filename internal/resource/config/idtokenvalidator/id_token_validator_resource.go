@@ -256,6 +256,11 @@ func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"openid-connect"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"openid-connect",
+			[]path.Expression{path.MatchRoot("allowed_signing_algorithm")},
+		),
 	}
 }
 

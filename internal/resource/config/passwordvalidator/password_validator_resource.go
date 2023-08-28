@@ -761,6 +761,76 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"character-set",
+			[]path.Expression{path.MatchRoot("character_set"), path.MatchRoot("allow_unclassified_characters"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"similarity-based",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("min_password_difference")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"attribute-value",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("test_reversed_password")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"repeated-characters",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("max_consecutive_length"), path.MatchRoot("case_sensitive_validation")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"dictionary",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"haystack",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"utf-8",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"pwned-passwords",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"disallowed-characters",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"length-based",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"regular-expression",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("match_pattern"), path.MatchRoot("match_behavior")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"unique-characters",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("case_sensitive_validation"), path.MatchRoot("min_unique_characters")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

@@ -180,6 +180,26 @@ func configValidatorsLogRetentionPolicy() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"size-limit"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"time-limit",
+			[]path.Expression{path.MatchRoot("retain_duration")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-count",
+			[]path.Expression{path.MatchRoot("number_of_files")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"free-disk-space",
+			[]path.Expression{path.MatchRoot("free_disk_space")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"size-limit",
+			[]path.Expression{path.MatchRoot("disk_space_used")},
+		),
 	}
 }
 

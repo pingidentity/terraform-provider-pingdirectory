@@ -520,6 +520,51 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"smtp",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("sender_address"), path.MatchRoot("recipient_address")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"jmx",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"snmp",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"twilio",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("twilio_account_sid"), path.MatchRoot("sender_phone_number"), path.MatchRoot("recipient_phone_number")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"error-log",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"snmp-sub-agent",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"exec",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("command")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

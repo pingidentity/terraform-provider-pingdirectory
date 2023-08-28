@@ -475,6 +475,26 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"unboundid-ms-chap-v2",
+			[]path.Expression{path.MatchRoot("identity_mapper"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"unboundid-delivered-otp",
+			[]path.Expression{path.MatchRoot("identity_mapper"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"oauth-bearer",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

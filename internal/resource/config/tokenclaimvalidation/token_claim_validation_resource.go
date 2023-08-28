@@ -205,6 +205,16 @@ func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"boolean"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"string",
+			[]path.Expression{path.MatchRoot("any_required_value")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"boolean",
+			[]path.Expression{path.MatchRoot("required_value")},
+		),
 	}
 }
 
