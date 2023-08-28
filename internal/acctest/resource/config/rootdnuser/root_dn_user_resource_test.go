@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
@@ -26,6 +27,7 @@ type rootDnUserTestModel struct {
 	passwordPolicy               string
 	requireSecureAuthentication  bool
 	requireSecureConnections     bool
+	privilege                    []string
 }
 
 func TestAccRootDnUser(t *testing.T) {
@@ -40,6 +42,7 @@ func TestAccRootDnUser(t *testing.T) {
 		passwordPolicy:               "Root Password Policy",
 		requireSecureAuthentication:  false,
 		requireSecureConnections:     false,
+		privilege:                    []string{"password-reset", "permit-get-password-policy-state-issues", "unindexed-search", "config-read", "proxied-auth"},
 	}
 	updatedResourceModel := rootDnUserTestModel{
 		id:                           testIdRootDnUser,
@@ -51,6 +54,7 @@ func TestAccRootDnUser(t *testing.T) {
 		passwordPolicy:               "Root Password Policy",
 		requireSecureAuthentication:  true,
 		requireSecureConnections:     true,
+		privilege:                    []string{"password-reset", "permit-get-password-policy-state-issues", "bypass-acl", "config-read", "proxied-auth"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -115,6 +119,7 @@ resource "pingdirectory_root_dn_user" "%[1]s" {
   password_policy                 = "%[8]s"
   require_secure_authentication   = %[9]t
   require_secure_connections      = %[10]t
+  privilege                       = %[11]s
 }
 
 data "pingdirectory_root_dn_user" "%[1]s" {
@@ -136,7 +141,8 @@ data "pingdirectory_root_dn_users" "list" {
 		resourceModel.idleTimeLimitSeconds,
 		resourceModel.passwordPolicy,
 		resourceModel.requireSecureAuthentication,
-		resourceModel.requireSecureConnections)
+		resourceModel.requireSecureConnections,
+		acctest.StringSliceToTerraformString(resourceModel.privilege))
 }
 
 // Test that the expected attributes are set on the PingDirectory server
@@ -187,6 +193,11 @@ func testAccCheckExpectedRootDnUserAttributes(config rootDnUserTestModel) resour
 		}
 		err = acctest.TestAttributesMatchBool(resourceType, &config.id, "require-secure-connections",
 			config.requireSecureConnections, response.RequireSecureConnections)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringSlice(resourceType, &config.id, "privilege",
+			config.privilege, client.StringSliceEnumrootDnUserPrivilegeProp(response.Privilege))
 		if err != nil {
 			return err
 		}
