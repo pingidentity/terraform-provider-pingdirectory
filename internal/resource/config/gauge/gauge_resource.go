@@ -388,7 +388,7 @@ func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.Add
 
 // Add optional fields to create request for numeric gauge
 func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNumericGaugeRequest, plan gaugeResourceModel) error {
-	if internaltypes.IsDefined(plan.CriticalValue) {
+	if internaltypes.IsNonEmptyString(plan.CriticalValue) {
 		floatVal, err := strconv.ParseFloat(plan.CriticalValue.ValueString(), 64)
 		if err != nil {
 			return err
@@ -398,7 +398,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	if internaltypes.IsDefined(plan.CriticalExitValue) {
 		addRequest.CriticalExitValue = plan.CriticalExitValue.ValueFloat64Pointer()
 	}
-	if internaltypes.IsDefined(plan.MajorValue) {
+	if internaltypes.IsNonEmptyString(plan.MajorValue) {
 		floatVal, err := strconv.ParseFloat(plan.MajorValue.ValueString(), 64)
 		if err != nil {
 			return err
@@ -408,7 +408,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	if internaltypes.IsDefined(plan.MajorExitValue) {
 		addRequest.MajorExitValue = plan.MajorExitValue.ValueFloat64Pointer()
 	}
-	if internaltypes.IsDefined(plan.MinorValue) {
+	if internaltypes.IsNonEmptyString(plan.MinorValue) {
 		floatVal, err := strconv.ParseFloat(plan.MinorValue.ValueString(), 64)
 		if err != nil {
 			return err
@@ -418,7 +418,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	if internaltypes.IsDefined(plan.MinorExitValue) {
 		addRequest.MinorExitValue = plan.MinorExitValue.ValueFloat64Pointer()
 	}
-	if internaltypes.IsDefined(plan.WarningValue) {
+	if internaltypes.IsNonEmptyString(plan.WarningValue) {
 		floatVal, err := strconv.ParseFloat(plan.WarningValue.ValueString(), 64)
 		if err != nil {
 			return err
@@ -560,25 +560,41 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.Name = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
 	if r.CriticalValue == nil {
-		state.CriticalValue = types.StringNull()
+		if internaltypes.IsEmptyString(expectedValues.CriticalValue) {
+			state.CriticalValue = types.StringValue("")
+		} else {
+			state.CriticalValue = types.StringNull()
+		}
 	} else {
 		state.CriticalValue = types.StringValue(strconv.FormatFloat(*r.CriticalValue, 'f', -1, 64))
 	}
 	state.CriticalExitValue = internaltypes.Float64TypeOrNil(r.CriticalExitValue)
 	if r.MajorValue == nil {
-		state.MajorValue = types.StringNull()
+		if internaltypes.IsEmptyString(expectedValues.MajorValue) {
+			state.MajorValue = types.StringValue("")
+		} else {
+			state.MajorValue = types.StringNull()
+		}
 	} else {
 		state.MajorValue = types.StringValue(strconv.FormatFloat(*r.MajorValue, 'f', -1, 64))
 	}
 	state.MajorExitValue = internaltypes.Float64TypeOrNil(r.MajorExitValue)
 	if r.MinorValue == nil {
-		state.MinorValue = types.StringNull()
+		if internaltypes.IsEmptyString(expectedValues.MinorValue) {
+			state.MinorValue = types.StringValue("")
+		} else {
+			state.MinorValue = types.StringNull()
+		}
 	} else {
 		state.MinorValue = types.StringValue(strconv.FormatFloat(*r.MinorValue, 'f', -1, 64))
 	}
 	state.MinorExitValue = internaltypes.Float64TypeOrNil(r.MinorExitValue)
 	if r.WarningValue == nil {
-		state.WarningValue = types.StringNull()
+		if internaltypes.IsEmptyString(expectedValues.WarningValue) {
+			state.WarningValue = types.StringValue("")
+		} else {
+			state.WarningValue = types.StringNull()
+		}
 	} else {
 		state.WarningValue = types.StringValue(strconv.FormatFloat(*r.WarningValue, 'f', -1, 64))
 	}

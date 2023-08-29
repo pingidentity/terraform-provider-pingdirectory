@@ -2015,7 +2015,7 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 	if internaltypes.IsDefined(plan.ServerPort) {
 		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
-	if internaltypes.IsDefined(plan.SyslogFacility) {
+	if internaltypes.IsNonEmptyString(plan.SyslogFacility) {
 		intVal, err := strconv.ParseInt(plan.SyslogFacility.ValueString(), 0, 64)
 		if err != nil {
 			return err
@@ -2974,7 +2974,7 @@ func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequ
 	if internaltypes.IsDefined(plan.ServerPort) {
 		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
-	if internaltypes.IsDefined(plan.SyslogFacility) {
+	if internaltypes.IsNonEmptyString(plan.SyslogFacility) {
 		intVal, err := strconv.ParseInt(plan.SyslogFacility.ValueString(), 0, 64)
 		if err != nil {
 			return err
