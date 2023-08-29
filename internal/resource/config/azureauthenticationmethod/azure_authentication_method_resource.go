@@ -184,6 +184,16 @@ func configValidatorsAzureAuthenticationMethod() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"username-password"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"client-secret",
+			[]path.Expression{path.MatchRoot("tenant_id"), path.MatchRoot("client_id"), path.MatchRoot("client_secret")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"username-password",
+			[]path.Expression{path.MatchRoot("tenant_id"), path.MatchRoot("client_id"), path.MatchRoot("username"), path.MatchRoot("password")},
+		),
 	}
 }
 

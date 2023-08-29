@@ -412,6 +412,46 @@ func configValidatorsPassphraseProvider() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"environment-variable",
+			[]path.Expression{path.MatchRoot("environment_variable")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"amazon-secrets-manager",
+			[]path.Expression{path.MatchRoot("aws_external_server"), path.MatchRoot("secret_id"), path.MatchRoot("secret_field_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"obscured-value",
+			[]path.Expression{path.MatchRoot("obscured_value")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"azure-key-vault",
+			[]path.Expression{path.MatchRoot("key_vault_uri"), path.MatchRoot("azure_authentication_method"), path.MatchRoot("secret_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-based",
+			[]path.Expression{path.MatchRoot("password_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"conjur",
+			[]path.Expression{path.MatchRoot("conjur_external_server"), path.MatchRoot("conjur_secret_relative_path")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"vault",
+			[]path.Expression{path.MatchRoot("vault_external_server"), path.MatchRoot("vault_secret_path"), path.MatchRoot("vault_secret_field_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

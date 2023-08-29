@@ -409,6 +409,46 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"validate-totp-password",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"replace-certificate",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"collect-support-data",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"export-reversible-passwords",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"single-use-tokens",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("password_generator"), path.MatchRoot("default_otp_delivery_mechanism")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"deliver-password-reset-token",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("password_generator"), path.MatchRoot("default_token_delivery_mechanism")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"deliver-otp",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("identity_mapper"), path.MatchRoot("password_generator"), path.MatchRoot("default_otp_delivery_mechanism")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

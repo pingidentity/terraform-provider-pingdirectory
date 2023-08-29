@@ -407,6 +407,21 @@ func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"filter",
+			[]path.Expression{path.MatchRoot("report_file"), path.MatchRoot("filter")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("report_file"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"idle-account",
+			[]path.Expression{path.MatchRoot("idle_account_warning_interval")},
+		),
 	}
 }
 

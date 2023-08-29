@@ -701,6 +701,71 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"mirror",
+			[]path.Expression{path.MatchRoot("source_attribute"), path.MatchRoot("enabled"), path.MatchRoot("attribute_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"constructed",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("value_pattern")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"is-member-of",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"reverse-dn-join",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("join_dn_attribute"), path.MatchRoot("join_base_dn_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"identify-references",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("referenced_by_attribute")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"user-defined",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("value")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"entry-dn",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"equality-join",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("join_base_dn_type"), path.MatchRoot("join_source_attribute"), path.MatchRoot("join_target_attribute")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"member",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"password-policy-state-json",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"dn-join",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("join_dn_attribute"), path.MatchRoot("join_base_dn_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

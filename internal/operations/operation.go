@@ -139,7 +139,7 @@ func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, 
 
 		// Adds
 		for _, planEl := range planElements {
-			if !internaltypes.Contains(stateElements, planEl.(types.String)) {
+			if !internaltypes.Contains(stateElements, planEl) {
 				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
 				op.SetValue(planEl.(types.String).ValueString())
 				*ops = append(*ops, *op)
@@ -148,7 +148,7 @@ func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, 
 
 		// Removes
 		for _, stateEl := range stateElements {
-			if !internaltypes.Contains(planElements, stateEl.(types.String)) {
+			if !internaltypes.Contains(planElements, stateEl) {
 				op := client.NewOperation(client.ENUMOPERATION_REMOVE, removeMultiValuedAttributePath(path, stateEl.(types.String).ValueString()))
 				*ops = append(*ops, *op)
 			}

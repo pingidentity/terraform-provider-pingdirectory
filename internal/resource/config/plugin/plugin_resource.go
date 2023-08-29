@@ -1456,7 +1456,7 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1464,7 +1464,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
@@ -1472,7 +1472,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("oauth_client_secret"),
@@ -1480,7 +1480,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("bind_dn_pattern"),
@@ -1488,7 +1488,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
@@ -1496,7 +1496,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
+			path.MatchRoot("resource_type"),
 			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 			configvalidators.Implies(
 				path.MatchRoot("datetime_json_field"),
@@ -2127,6 +2127,136 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("prevent_conflicts_with_soft_deleted_entries"),
 			path.MatchRoot("resource_type"),
 			[]string{"unique-attribute"},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"coalesce-modifications",
+			[]path.Expression{path.MatchRoot("request_criteria"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"internal-search-rate",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("base_dn"), path.MatchRoot("filter_prefix")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"modifiable-password-policy-state",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"seven-bit-clean",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"clean-up-expired-pingfederate-persistent-access-grants",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"periodic-gc",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("invoke_gc_time_utc")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"ping-one-pass-through-authentication",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("api_url"), path.MatchRoot("auth_url"), path.MatchRoot("oauth_client_id"), path.MatchRoot("environment_id"), path.MatchRoot("user_mapping_local_attribute"), path.MatchRoot("user_mapping_remote_json_field")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"search-shutdown",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("filter"), path.MatchRoot("scope"), path.MatchRoot("output_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"periodic-stats-logger",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("log_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"purge-expired-data",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("datetime_attribute"), path.MatchRoot("expiration_offset")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"sub-operation-timing",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("plugin_type"), path.MatchRoot("extension_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"pass-through-authentication",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("server")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"dn-mapper",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("source_dn"), path.MatchRoot("target_dn")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"referral-on-update",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("referral_base_url")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"simple-to-external-bind",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"snmp-subagent",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"clean-up-inactive-pingfederate-persistent-sessions",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("expiration_offset")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"composed-attribute",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type"), path.MatchRoot("value_pattern")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"attribute-mapper",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("source_attribute"), path.MatchRoot("target_attribute")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"delay",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("delay")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"clean-up-expired-pingfederate-persistent-sessions",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("plugin_type"), path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"pluggable-pass-through-authentication",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("pass_through_authentication_handler")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"referential-integrity",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("attribute_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"unique-attribute",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("type")},
 		),
 	}
 }

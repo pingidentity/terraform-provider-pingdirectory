@@ -35,8 +35,8 @@ func (v ImpliesOtherValidatorValidator) Description(ctx context.Context) string 
 }
 
 func (v ImpliesOtherValidatorValidator) MarkdownDescription(ctx context.Context) string {
-	return fmt.Sprintf("If the \"%s\" attribute is configured with one of the following values: %v, then the following validator check must pass: %s",
-		v.Condition, v.ConditionValues, v.Implied.MarkdownDescription(ctx))
+	return fmt.Sprintf("If the \"%s\" attribute is configured with one of the following values: %s, then the following validator check must pass: %s",
+		v.Condition, stringSliceToReadableString(v.ConditionValues), v.Implied.MarkdownDescription(ctx))
 }
 
 func (v ImpliesOtherValidatorValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {

@@ -273,6 +273,11 @@ func configValidatorsWebApplicationExtension() []resource.ConfigValidator {
 				path.MatchRoot("oidc_client_secret_passphrase_provider"),
 			),
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"generic",
+			[]path.Expression{path.MatchRoot("base_context_path")},
+		),
 	}
 }
 

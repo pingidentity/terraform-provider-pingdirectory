@@ -578,6 +578,31 @@ func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidat
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"smtp",
+			[]path.Expression{path.MatchRoot("sender_address"), path.MatchRoot("message_subject"), path.MatchRoot("message_template_file")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"admin-alert",
+			[]path.Expression{path.MatchRoot("account_status_notification_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"error-log",
+			[]path.Expression{path.MatchRoot("account_status_notification_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

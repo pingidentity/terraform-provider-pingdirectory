@@ -262,6 +262,11 @@ func configValidatorsScimResourceType() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"ldap-mapping"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ldap-mapping",
+			[]path.Expression{path.MatchRoot("core_schema")},
+		),
 	}
 }
 

@@ -413,6 +413,16 @@ func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ping-federate",
+			[]path.Expression{path.MatchRoot("client_id")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("evaluation_order_index"), path.MatchRoot("extension_class")},
+		),
 	}
 }
 

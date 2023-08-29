@@ -180,6 +180,11 @@ func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"delay-bind-response", "no-operation"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"delay-bind-response",
+			[]path.Expression{path.MatchRoot("delay")},
+		),
 	}
 }
 

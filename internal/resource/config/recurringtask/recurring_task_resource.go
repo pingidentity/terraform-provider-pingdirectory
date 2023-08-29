@@ -1117,6 +1117,36 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"generate-server-profile",
+			[]path.Expression{path.MatchRoot("profile_directory")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"statically-defined",
+			[]path.Expression{path.MatchRoot("task_java_class"), path.MatchRoot("task_object_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"collect-support-data",
+			[]path.Expression{path.MatchRoot("output_directory")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"exec",
+			[]path.Expression{path.MatchRoot("command_path")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-retention",
+			[]path.Expression{path.MatchRoot("target_directory"), path.MatchRoot("filename_pattern"), path.MatchRoot("timestamp_format")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

@@ -1029,6 +1029,26 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"third-party"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"availability-state",
+			[]path.Expression{path.MatchRoot("base_context_path"), path.MatchRoot("available_status_code"), path.MatchRoot("degraded_status_code"), path.MatchRoot("unavailable_status_code")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"file-server",
+			[]path.Expression{path.MatchRoot("base_context_path"), path.MatchRoot("document_root_directory")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"groovy-scripted",
+			[]path.Expression{path.MatchRoot("script_class")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"third-party",
+			[]path.Expression{path.MatchRoot("extension_class")},
+		),
 	}
 }
 

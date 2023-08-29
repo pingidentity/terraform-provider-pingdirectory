@@ -751,6 +751,21 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"jmx",
+			[]path.Expression{path.MatchRoot("listen_port")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ldap",
+			[]path.Expression{path.MatchRoot("listen_port")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"http",
+			[]path.Expression{path.MatchRoot("listen_port")},
+		),
 	}
 }
 

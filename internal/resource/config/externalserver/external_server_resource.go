@@ -827,6 +827,86 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"vault"},
 		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"smtp",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"nokia-ds",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ping-identity-ds",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"active-directory",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"syslog",
+			[]path.Expression{path.MatchRoot("server_host_name"), path.MatchRoot("transport_mechanism")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ping-identity-proxy-server",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"http-proxy",
+			[]path.Expression{path.MatchRoot("server_host_name"), path.MatchRoot("server_port")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"nokia-proxy-server",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"opendj",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"ldap",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"oracle-unified-directory",
+			[]path.Expression{path.MatchRoot("server_host_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"jdbc",
+			[]path.Expression{path.MatchRoot("jdbc_driver_type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"http",
+			[]path.Expression{path.MatchRoot("base_url")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"conjur",
+			[]path.Expression{path.MatchRoot("conjur_server_base_uri"), path.MatchRoot("conjur_authentication_method"), path.MatchRoot("conjur_account_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"amazon-aws",
+			[]path.Expression{path.MatchRoot("aws_region_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"vault",
+			[]path.Expression{path.MatchRoot("vault_server_base_uri"), path.MatchRoot("vault_authentication_method")},
+		),
 	}
 }
 
