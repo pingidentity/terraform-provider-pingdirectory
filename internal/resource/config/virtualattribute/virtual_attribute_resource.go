@@ -220,6 +220,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The set of arguments used to customize the behavior for the Third Party Virtual Attribute. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -241,6 +242,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The set of arguments used to customize the behavior for the Scripted Virtual Attribute. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -284,6 +286,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The base DN that will be used when searching for references to the target entry. If no reference search base DN is specified, the default behavior will be to search below all public naming contexts configured in the server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -326,6 +329,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "An optional set of the names of the attributes to include with joined entries.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -408,6 +412,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -417,6 +422,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -426,6 +432,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -435,6 +442,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

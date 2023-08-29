@@ -341,6 +341,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the connection properties for the JDBC datasource.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -496,6 +497,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the connection properties for the smtp server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

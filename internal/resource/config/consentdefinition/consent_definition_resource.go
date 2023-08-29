@@ -132,6 +132,7 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Optional parameters for this Consent Definition.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

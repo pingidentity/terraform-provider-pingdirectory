@@ -202,6 +202,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -211,6 +212,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the set of global sensitive attribute definitions that should not apply to this client connection policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -224,6 +226,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the set of backend base DNs for which subtree views should be included in this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -233,6 +236,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the set of backend base DNs for which subtree views should be excluded from this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -260,6 +264,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the OIDs of the controls that clients associated with this Client Connection Policy will be allowed to include in requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -269,6 +274,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the OIDs of the controls that clients associated with this Client Connection Policy will not be allowed to include in requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -278,6 +284,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -287,6 +294,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will not be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -306,6 +314,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -315,6 +324,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will not be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -420,6 +430,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the maximum rate at which a client associated with this Client Connection Policy may issue requests to the Directory Server. If any client attempts to request operations at a rate higher than this limit, then the server will exhibit the behavior described in the connection-operation-rate-exceeded-behavior property.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -438,6 +449,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the maximum rate at which all clients associated with this Client Connection Policy, as a collective set, may issue requests to the Directory Server. If this limit is exceeded, then the server will exhibit the behavior described in the policy-operation-rate-exceeded-behavior property.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

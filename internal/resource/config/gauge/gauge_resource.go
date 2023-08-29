@@ -223,6 +223,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Description: "Specifies set of resources to be monitored.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -232,6 +233,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Description: "Specifies resources to exclude from being monitored.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

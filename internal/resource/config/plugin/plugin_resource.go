@@ -449,6 +449,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of arguments used to customize the behavior for the Scripted Plugin. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -527,6 +528,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of base DNs below which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -536,6 +538,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of base DNs below which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -545,6 +548,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of search filters that identify entries for which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -554,6 +558,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of search filters that identify entries for which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -583,6 +588,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -672,6 +678,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies a set of specific attributes for which DN mapping should be applied. This will only be applicable if the enable-attribute-mapping property has a value of \"true\". Any attributes listed must be defined in the server schema with either the distinguished name syntax or the name and optional UID syntax.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -708,6 +715,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of arguments used to customize the behavior for the Third Party Plugin. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -753,6 +761,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -844,6 +853,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the types of statistics related to LDAP connections and operation processing that should be included in the output.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -853,6 +863,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies whether statistics related to resource utilization such as JVM memory.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -870,6 +881,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -884,6 +896,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `search-shutdown`: The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded).\n  - `last-mod`: Specifies the name or OID of an attribute type that must be updated in order for the modifiersName and modifyTimestamp attributes to be updated in the target entry.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -935,6 +948,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The rotation policy to use for the Periodic Stats Logger Plugin .",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -944,6 +958,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -954,6 +969,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `periodic-stats-logger`: The retention policy to use for the Periodic Stats Logger Plugin .\n  - `monitor-history`: The retention policy to use for the Monitor History Plugin .",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1009,6 +1025,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the PingOne service.\n  - `pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to an alternate server.\n  - `pluggable-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1073,6 +1090,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.\n  - `pluggable-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the external service. This option can only be used if try-local-bind is true.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1104,6 +1122,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the days of the week which the Periodic GC Plugin should run. If no values are provided, then the plugin will run every day at the specified time.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1178,6 +1197,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `modifiable-password-policy-state`: A filter that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.\n  - `search-shutdown`: The filter to use for the search.\n  - `purge-expired-data`: Only entries that match this LDAP filter will be eligible for having data purged.\n  - `unique-attribute`: Specifies the search filter to apply to determine if attribute uniqueness is enforced for the matching entries.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1196,6 +1216,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`clean-up-expired-pingfederate-persistent-access-grants`, `purge-expired-data`, `clean-up-inactive-pingfederate-persistent-sessions`, `clean-up-expired-pingfederate-persistent-sessions`]: Only entries located within the subtree specified by this base DN are eligible for purging.\n  - `internal-search-rate`: Specifies the base DN to use for the searches to perform.\n  - `modifiable-password-policy-state`: A base DN that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.\n  - `seven-bit-clean`: Specifies the base DN below which the checking is performed.\n  - `search-shutdown`: The base DN to use for the search.\n  - `referral-on-update`: Specifies a base DN for requests for which to send referrals in response to update operations.\n  - `referential-integrity`: Specifies the base DN that limits the scope within which referential integrity is maintained.\n  - `unique-attribute`: Specifies a base DN within which the attribute must be unique.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1282,6 +1303,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -1291,6 +1313,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "If statistics should not be included for all applications, this property names the subset of applications that should be included.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

@@ -282,6 +282,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party-file-based-access`: The rotation policy to use for the Third Party File Based Access Log Publisher .\n  - `operation-timing-access`: The rotation policy to use for the Operation Timing Access Log Publisher .\n  - `file-based-trace`: The rotation policy to use for the File Based Trace Log Publisher .\n  - `common-log-file-http-operation`: The rotation policy to use for the Common Log File HTTP Operation Log Publisher .\n  - `file-based-json-audit`: The rotation policy to use for the File Based JSON Audit Log Publisher .\n  - `file-based-debug`: The rotation policy to use for the File Based Debug Log Publisher .\n  - `file-based-error`: The rotation policy to use for the File Based Error Log Publisher .\n  - `detailed-http-operation`: The rotation policy to use for the Detailed HTTP Operation Log Publisher .\n  - `json-access`: The rotation policy to use for the JSON Access Log Publisher .\n  - `debug-access`: The rotation policy to use for the Debug Access Log Publisher .\n  - `file-based-audit`: The rotation policy to use for the File Based Audit Log Publisher .\n  - `json-error`: The rotation policy to use for the JSON Error Log Publisher .\n  - `groovy-scripted-file-based-access`: The rotation policy to use for the Scripted File Based Access Log Publisher .\n  - `groovy-scripted-file-based-error`: The rotation policy to use for the Scripted File Based Error Log Publisher .\n  - `third-party-file-based-error`: The rotation policy to use for the Third Party File Based Error Log Publisher .\n  - `file-based-access`: The rotation policy to use for the File Based Access Log Publisher .\n  - `file-based-json-http-operation`: The rotation policy to use for the File Based JSON HTTP Operation Log Publisher .",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -291,6 +292,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -301,6 +303,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party-file-based-access`: The retention policy to use for the Third Party File Based Access Log Publisher .\n  - `operation-timing-access`: The retention policy to use for the Operation Timing Access Log Publisher .\n  - `file-based-trace`: The retention policy to use for the File Based Trace Log Publisher .\n  - `common-log-file-http-operation`: The retention policy to use for the Common Log File HTTP Operation Log Publisher .\n  - `file-based-json-audit`: The retention policy to use for the File Based JSON Audit Log Publisher .\n  - `file-based-debug`: The retention policy to use for the File Based Debug Log Publisher .\n  - `file-based-error`: The retention policy to use for the File Based Error Log Publisher .\n  - `detailed-http-operation`: The retention policy to use for the Detailed HTTP Operation Log Publisher .\n  - `json-access`: The retention policy to use for the JSON Access Log Publisher .\n  - `debug-access`: The retention policy to use for the Debug Access Log Publisher .\n  - `file-based-audit`: The retention policy to use for the File Based Audit Log Publisher .\n  - `json-error`: The retention policy to use for the JSON Error Log Publisher .\n  - `groovy-scripted-file-based-access`: The retention policy to use for the Scripted File Based Access Log Publisher .\n  - `groovy-scripted-file-based-error`: The retention policy to use for the Scripted File Based Error Log Publisher .\n  - `third-party-file-based-error`: The retention policy to use for the Third Party File Based Error Log Publisher .\n  - `file-based-access`: The retention policy to use for the File Based Access Log Publisher .\n  - `file-based-json-http-operation`: The retention policy to use for the File Based JSON HTTP Operation Log Publisher .",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -320,6 +323,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `groovy-scripted-file-based-access`: The set of arguments used to customize the behavior for the Scripted File Based Access Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `groovy-scripted-file-based-error`: The set of arguments used to customize the behavior for the Scripted File Based Error Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `groovy-scripted-access`: The set of arguments used to customize the behavior for the Scripted Access Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `groovy-scripted-error`: The set of arguments used to customize the behavior for the Scripted Error Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `groovy-scripted-http-operation`: The set of arguments used to customize the behavior for the Scripted HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -472,6 +476,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the case-insensitive names of request parameters that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-request-parameters property has a value of parameter-names or parameter-names-and-values.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -489,6 +494,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The debug message categories to be logged when none of the defined targets match the message.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -531,6 +537,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party-file-based-access`: The set of arguments used to customize the behavior for the Third Party File Based Access Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `third-party-http-operation`: The set of arguments used to customize the behavior for the Third Party HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `third-party-error`: The set of arguments used to customize the behavior for the Third Party Error Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `third-party-access`: The set of arguments used to customize the behavior for the Third Party Access Log Publisher. Each configuration property should be given in the form 'name=value'.\n  - `third-party-file-based-error`: The set of arguments used to customize the behavior for the Third Party File Based Error Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -566,6 +573,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the debug message types which can be logged. Note that enabling these may result in sensitive information being logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -575,6 +583,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the HTTP message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -584,6 +593,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the access token validator message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -593,6 +603,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the ID token validator message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -602,6 +613,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the SCIM message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -611,6 +623,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the consent message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -620,6 +633,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the Directory REST API message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -629,6 +643,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the Server SDK extension message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -638,6 +653,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are included for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -647,6 +663,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are excluded for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -900,6 +917,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the override severity levels for the logger based on the category of the messages.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

@@ -139,6 +139,7 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -152,6 +153,7 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -161,6 +163,7 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the set of operational LDAP attributes to be provided by this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

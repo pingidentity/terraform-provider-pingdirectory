@@ -160,6 +160,7 @@ func entryCacheSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "The set of filters that define the entries that should be included in the cache.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -169,6 +170,7 @@ func entryCacheSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "The set of filters that define the entries that should be excluded from the cache.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -187,6 +189,7 @@ func entryCacheSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the names of the attribute types for which the min-cache-entry-value-count property should apply. If no attribute types are specified, then all user attributes will be examined.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

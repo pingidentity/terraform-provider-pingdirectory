@@ -148,6 +148,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies administrator(s) permissions.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -166,6 +167,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -175,6 +177,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies groups whose members can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-groups.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

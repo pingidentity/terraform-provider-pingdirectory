@@ -167,6 +167,7 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 				Description: "A set of name-value pairs for labels that should be included in the published metric for the target attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

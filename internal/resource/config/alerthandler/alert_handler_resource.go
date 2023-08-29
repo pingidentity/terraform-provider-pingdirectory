@@ -194,6 +194,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The set of arguments used to customize the behavior for the Third Party Alert Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -274,6 +275,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The set of arguments used to customize the behavior for the Scripted Alert Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -333,6 +335,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the alert severities for which this alert handler should be used. If no values are provided, then this alert handler will be enabled for alerts with any severity.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -342,6 +345,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the names of the alert types that are enabled for this alert handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -351,6 +355,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the names of the alert types that are disabled for this alert handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

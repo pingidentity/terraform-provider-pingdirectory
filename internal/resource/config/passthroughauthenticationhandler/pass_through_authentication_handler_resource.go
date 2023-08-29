@@ -161,6 +161,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of arguments used to customize the behavior for the Third Party Pass Through Authentication Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -179,6 +180,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of pass-through authentication failure types that should not result in an immediate failure, but should instead allow the aggregate handler to proceed with the next configured subordinate handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -205,6 +207,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -329,6 +332,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

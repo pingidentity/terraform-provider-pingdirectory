@@ -171,6 +171,7 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Optionally, specifies an explicit name for each column header instead of having these names automatically generated from the monitored attribute name.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

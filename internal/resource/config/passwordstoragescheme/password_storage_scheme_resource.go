@@ -220,6 +220,7 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.\n  - `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

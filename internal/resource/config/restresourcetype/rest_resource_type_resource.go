@@ -171,6 +171,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -184,6 +185,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -209,6 +211,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -218,6 +221,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies an attribute whose values are to be constructed when a resource is updated. The constructed values replace any existing values of the attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

@@ -149,6 +149,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the debug message categories to be logged.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

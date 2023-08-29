@@ -194,6 +194,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the account status notification handlers that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -230,6 +231,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password storage schemes that are considered deprecated for this password policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -257,6 +259,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -266,6 +269,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password validators that should be invoked for bind operations.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -441,6 +445,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the conditions under which the server may retire a user's current password in the course of setting a new password for that user (whether via a modify operation or a password modify extended operation).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -458,6 +463,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The set of conditions under which a user governed by this Password Policy will be permitted to generate a password reset token via the deliver password reset token extended operation, and to use that token in lieu of the current password via the password modify extended operation.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -544,6 +550,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the format string(s) that might have been used with the last login time at any point in the past for users associated with the password policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

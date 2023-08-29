@@ -375,6 +375,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -465,6 +466,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend.\n  - `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -535,6 +537,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies which system index(es) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -544,6 +547,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the system index(es) for which internal database nodes only (i.e., the database keys but not values) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

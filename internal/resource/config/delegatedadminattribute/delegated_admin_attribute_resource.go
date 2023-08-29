@@ -145,6 +145,7 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Description: "The list of file types allowed to be uploaded. If no types are specified, then all types will be allowed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

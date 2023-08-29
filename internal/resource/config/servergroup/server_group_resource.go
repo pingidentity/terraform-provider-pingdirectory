@@ -119,6 +119,7 @@ func serverGroupSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "A server instance that is a member of this group.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

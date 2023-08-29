@@ -140,6 +140,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Required additive schemas that are enforced on extension attributes in a SCIM resource representation for this Mapping SCIM Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -149,6 +150,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Optional additive schemas that are enforced on extension attributes in a SCIM resource representation for this Mapping SCIM Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -182,6 +184,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Options to alter the way schema checking is performed during create or modify requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -195,6 +198,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this SCIM Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -208,6 +212,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this SCIM Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -217,6 +222,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the set of operational LDAP attributes to be provided by this SCIM Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

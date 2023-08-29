@@ -183,6 +183,7 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 				Description: "Specifies an initialization parameter to pass into the web application during startup.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

@@ -155,6 +155,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -173,6 +174,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's first name. This is stored in the givenName LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -182,6 +184,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's last name. This is stored in the sn LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -195,6 +198,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's email address. This is stored in the mail LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -204,6 +208,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's work telephone number. This is stored in the telephoneNumber LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -213,6 +218,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's home telephone number. This is stored in the homePhone LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -222,6 +228,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's mobile telephone number. This is stored in the mobile LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -231,6 +238,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the user's pager telephone number. This is stored in the pager LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -249,6 +257,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Privileges that are either explicitly granted or revoked from the root user. Privileges can be revoked by including a minus sign (-) before the privilege name. This is stored in the ds-privilege-name LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -338,6 +347,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Indicates that User should only be allowed to authenticate in certain ways. Allowed values include \"simple\" (to indicate that the user should be allowed to bind using simple authentication) or \"sasl {mech}\" (to indicate that the user should be allowed to bind using the specified SASL mechanism, like \"sasl PLAIN\"). The list of available SASL mechanisms can be retrieved by running \"dsconfig --advanced list-sasl-mechanism-handlers\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -347,6 +357,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "An IPv4 or IPv6 address mask that controls the set of IP addresses from which this User can authenticate to the server. For instance a value of 127.0.0.1 (or ::1 in IPv6) would restricted access only to localhost connections, whereas 10.6.1.* would restrict access to servers on the 10.6.1.* subnet.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -356,6 +367,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Overrides the default settings for the mechanisms (e.g., email or SMS) that are used to deliver one time passwords to Users.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -374,6 +386,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the DNs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -383,6 +396,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies the DNs of groups whose members can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -392,6 +406,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "Specifies LDAP URLs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -401,6 +416,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "This restricts the set of accounts that this User can proxy as to entries with the specified DNs.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -410,6 +426,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "This restricts the set of accounts that this User can proxy as to entries that are in the group with the specified DN.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
@@ -419,6 +436,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 				Description: "This restricts the set of accounts that this User can proxy as to entries that are matched by the specified LDAP URL.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
