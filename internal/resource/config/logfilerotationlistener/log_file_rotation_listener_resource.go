@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -145,9 +144,8 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 				Description: "Indicates whether the file should be gzip-compressed as it is copied into the destination directory.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
+				//TODO remove usestateforunknown
+				//TODO remove computed? probably
 			},
 			"output_directory": schema.StringAttribute{
 				Description: "The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.",
@@ -228,6 +226,21 @@ func (r logFileRotationListenerResource) ConfigValidators(ctx context.Context) [
 // Add config validators
 func (r defaultLogFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return configValidatorsLogFileRotationListener()
+}
+
+func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model logFileRotationListenerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	if resourceType == "copy" {
+		//TODO check for null or for unknown, or for both?
+		if !internaltypes.IsDefined(model.CompressOnCopy) {
+			// Set default for copy type
+			model.CompressOnCopy = types.BoolValue(false)
+		}
+	}
+	//TODO other types
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add optional fields to create request for summarize log-file-rotation-listener
