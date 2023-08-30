@@ -660,9 +660,76 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_recurring_task")
+	var model recurringTaskResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for backup type
+	if resourceType == "backup" {
+		if !internaltypes.IsDefined(model.BackupDirectory) {
+			model.BackupDirectory = types.StringValue("bak")
+		}
+	}
+	// Set defaults for delay type
+	if resourceType == "delay" {
+		if !internaltypes.IsDefined(model.TaskReturnStateIfTimeoutIsEncountered) {
+			model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("stopped-by-error")
+		}
+	}
+	// Set defaults for collect-support-data type
+	if resourceType == "collect-support-data" {
+		if !internaltypes.IsDefined(model.IncludeExpensiveData) {
+			model.IncludeExpensiveData = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationStateDump) {
+			model.IncludeReplicationStateDump = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeBinaryFiles) {
+			model.IncludeBinaryFiles = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtensionSource) {
+			model.IncludeExtensionSource = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseSequentialMode) {
+			model.UseSequentialMode = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SecurityLevel) {
+			model.SecurityLevel = types.StringValue("obscure-secrets")
+		}
+		if !internaltypes.IsDefined(model.JstackCount) {
+			model.JstackCount = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.ReportCount) {
+			model.ReportCount = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.ReportIntervalSeconds) {
+			model.ReportIntervalSeconds = types.Int64Value(1)
+		}
+	}
+	// Set defaults for ldif-export type
+	if resourceType == "ldif-export" {
+		if !internaltypes.IsDefined(model.LdifDirectory) {
+			model.LdifDirectory = types.StringValue("ldif")
+		}
+	}
+	// Set defaults for audit-data-security type
+	if resourceType == "audit-data-security" {
+		if !internaltypes.IsDefined(model.BaseOutputDirectory) {
+			model.BaseOutputDirectory = types.StringValue("reports/audit-data-security")
+		}
+	}
+	// Set defaults for exec type
+	if resourceType == "exec" {
+		if !internaltypes.IsDefined(model.LogCommandOutput) {
+			model.LogCommandOutput = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.TaskCompletionStateForNonzeroExitCode) {
+			model.TaskCompletionStateForNonzeroExitCode = types.StringValue("stopped-by-error")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -709,10 +776,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -725,11 +793,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

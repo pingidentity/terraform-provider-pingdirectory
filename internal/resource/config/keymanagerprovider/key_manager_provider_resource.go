@@ -233,9 +233,19 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *keyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model keyManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for pkcs11 type
+	if resourceType == "pkcs11" {
+		if !internaltypes.IsDefined(model.Pkcs11KeyStoreType) {
+			model.Pkcs11KeyStoreType = types.StringValue("PKCS11")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

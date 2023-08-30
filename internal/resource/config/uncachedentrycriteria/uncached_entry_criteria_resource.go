@@ -192,6 +192,20 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model uncachedEntryCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for filter-based type
+	if resourceType == "filter-based" {
+		if !internaltypes.IsDefined(model.FilterIdentifiesUncachedEntries) {
+			model.FilterIdentifiesUncachedEntries = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

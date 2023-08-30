@@ -271,6 +271,32 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *restResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model restResourceTypeResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for generic type
+	if resourceType == "generic" {
+		if !internaltypes.IsDefined(model.MembersColumnName) {
+			model.MembersColumnName = types.StringValue("Member Groups")
+		}
+		if !internaltypes.IsDefined(model.NonmembersColumnName) {
+			model.NonmembersColumnName = types.StringValue("Nonmember Groups")
+		}
+	}
+	// Set defaults for group type
+	if resourceType == "group" {
+		if !internaltypes.IsDefined(model.MembersColumnName) {
+			model.MembersColumnName = types.StringValue("Members")
+		}
+		if !internaltypes.IsDefined(model.NonmembersColumnName) {
+			model.NonmembersColumnName = types.StringValue("Nonmembers")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsRestResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

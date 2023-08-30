@@ -367,9 +367,22 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *saslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanSaslMechanismHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model saslMechanismHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for oauth-bearer type
+	if resourceType == "oauth-bearer" {
+		if !internaltypes.IsDefined(model.RequireBothAccessTokenAndIDToken) {
+			model.RequireBothAccessTokenAndIDToken = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.ValidateAccessTokenWhenIDTokenIsAlsoProvided) {
+			model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("validate-only-the-id-token")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

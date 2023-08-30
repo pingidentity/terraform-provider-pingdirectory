@@ -324,6 +324,32 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model extendedOperationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for validate-totp-password type
+	if resourceType == "validate-totp-password" {
+		if !internaltypes.IsDefined(model.SharedSecretAttributeType) {
+			model.SharedSecretAttributeType = types.StringValue("ds-auth-totp-shared-secret")
+		}
+		if !internaltypes.IsDefined(model.AdjacentIntervalsToCheck) {
+			model.AdjacentIntervalsToCheck = types.Int64Value(2)
+		}
+		if !internaltypes.IsDefined(model.PreventTOTPReuse) {
+			model.PreventTOTPReuse = types.BoolValue(false)
+		}
+	}
+	// Set defaults for replace-certificate type
+	if resourceType == "replace-certificate" {
+		if !internaltypes.IsDefined(model.AllowRemotelyProvidedCertificates) {
+			model.AllowRemotelyProvidedCertificates = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

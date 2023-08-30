@@ -557,9 +557,76 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanResultCriteria(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_result_criteria")
+	var model resultCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for successful-bind type
+	if resourceType == "successful-bind" {
+		if !internaltypes.IsDefined(model.IncludeAnonymousBinds) {
+			model.IncludeAnonymousBinds = types.BoolValue(false)
+		}
+	}
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.ResultCodeCriteria) {
+			model.ResultCodeCriteria = types.StringValue("all-result-codes")
+		}
+		if !internaltypes.IsDefined(model.ProcessingTimeCriteria) {
+			model.ProcessingTimeCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.QueueTimeCriteria) {
+			model.QueueTimeCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.ReferralReturned) {
+			model.ReferralReturned = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.UsedAlternateAuthzid) {
+			model.UsedAlternateAuthzid = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.UsedAnyPrivilege) {
+			model.UsedAnyPrivilege = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.MissingAnyPrivilege) {
+			model.MissingAnyPrivilege = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.RetiredPasswordUsedForBind) {
+			model.RetiredPasswordUsedForBind = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchEntryReturnedCriteria) {
+			model.SearchEntryReturnedCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchEntryReturnedCount) {
+			model.SearchEntryReturnedCount = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.SearchReferenceReturnedCriteria) {
+			model.SearchReferenceReturnedCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchReferenceReturnedCount) {
+			model.SearchReferenceReturnedCount = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.SearchIndexedCriteria) {
+			model.SearchIndexedCriteria = types.StringValue("any")
+		}
+	}
+	// Set defaults for replication-assurance type
+	if resourceType == "replication-assurance" {
+		if !internaltypes.IsDefined(model.AssuranceTimeoutCriteria) {
+			model.AssuranceTimeoutCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.ResponseDelayedByAssurance) {
+			model.ResponseDelayedByAssurance = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.AssuranceBehaviorAlteredByControl) {
+			model.AssuranceBehaviorAlteredByControl = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.AssuranceSatisfied) {
+			model.AssuranceSatisfied = types.StringValue("any")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

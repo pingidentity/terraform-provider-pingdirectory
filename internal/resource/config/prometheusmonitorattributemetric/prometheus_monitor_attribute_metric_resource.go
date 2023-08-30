@@ -187,7 +187,7 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *prometheusMonitorAttributeMetricResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPrometheusMonitorAttributeMetric(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_prometheus_monitor_attribute_metric")
 }

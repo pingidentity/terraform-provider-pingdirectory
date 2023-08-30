@@ -280,7 +280,7 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passphraseProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig)
 }

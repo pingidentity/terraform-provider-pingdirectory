@@ -488,9 +488,97 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_validator")
+	var model passwordValidatorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for character-set type
+	if resourceType == "character-set" {
+		if !internaltypes.IsDefined(model.MinimumRequiredCharacterSets) {
+			model.MinimumRequiredCharacterSets = types.Int64Value(1)
+		}
+	}
+	// Set defaults for attribute-value type
+	if resourceType == "attribute-value" {
+		if !internaltypes.IsDefined(model.TestPasswordSubstringOfAttributeValue) {
+			model.TestPasswordSubstringOfAttributeValue = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.TestAttributeValueSubstringOfPassword) {
+			model.TestAttributeValueSubstringOfPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.MinimumAttributeValueLengthForSubstringMatches) {
+			model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Value(4)
+		}
+	}
+	// Set defaults for dictionary type
+	if resourceType == "dictionary" {
+		if !internaltypes.IsDefined(model.DictionaryFile) {
+			model.DictionaryFile = types.StringValue("For Unix and Linux systems: config/wordlist.txt. For Windows systems: config\\wordlist.txt")
+		}
+		if !internaltypes.IsDefined(model.CaseSensitiveValidation) {
+			model.CaseSensitiveValidation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.TestReversedPassword) {
+			model.TestReversedPassword = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IgnoreLeadingNonAlphabeticCharacters) {
+			model.IgnoreLeadingNonAlphabeticCharacters = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IgnoreTrailingNonAlphabeticCharacters) {
+			model.IgnoreTrailingNonAlphabeticCharacters = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.StripDiacriticalMarks) {
+			model.StripDiacriticalMarks = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.MaximumAllowedPercentOfPassword) {
+			model.MaximumAllowedPercentOfPassword = types.Int64Value(100)
+		}
+	}
+	// Set defaults for haystack type
+	if resourceType == "haystack" {
+		if !internaltypes.IsDefined(model.AssumedPasswordGuessesPerSecond) {
+			model.AssumedPasswordGuessesPerSecond = types.StringValue("100,000,000,000")
+		}
+	}
+	// Set defaults for utf-8 type
+	if resourceType == "utf-8" {
+		if !internaltypes.IsDefined(model.AllowNonAsciiCharacters) {
+			model.AllowNonAsciiCharacters = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AllowUnknownCharacters) {
+			model.AllowUnknownCharacters = types.BoolValue(false)
+		}
+	}
+	// Set defaults for pwned-passwords type
+	if resourceType == "pwned-passwords" {
+		if !internaltypes.IsDefined(model.PwnedPasswordsBaseURL) {
+			model.PwnedPasswordsBaseURL = types.StringValue("https://api.pwnedpasswords.com/range/")
+		}
+		if !internaltypes.IsDefined(model.InvokeForAdd) {
+			model.InvokeForAdd = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForSelfChange) {
+			model.InvokeForSelfChange = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForAdminReset) {
+			model.InvokeForAdminReset = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AcceptPasswordOnServiceError) {
+			model.AcceptPasswordOnServiceError = types.BoolValue(true)
+		}
+	}
+	// Set defaults for length-based type
+	if resourceType == "length-based" {
+		if !internaltypes.IsDefined(model.MaxPasswordLength) {
+			model.MaxPasswordLength = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MinPasswordLength) {
+			model.MinPasswordLength = types.Int64Value(6)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

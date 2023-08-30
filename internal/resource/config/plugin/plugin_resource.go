@@ -1367,9 +1367,319 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_plugin")
+	var model pluginResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.ResourceType.ValueString()
+	// Set defaults for internal-search-rate type
+	if resourceType == "internal-search-rate" {
+		if !internaltypes.IsDefined(model.NumThreads) {
+			model.NumThreads = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.LowerBound) {
+			model.LowerBound = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for seven-bit-clean type
+	if resourceType == "seven-bit-clean" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for clean-up-expired-pingfederate-persistent-access-grants type
+	if resourceType == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for periodic-gc type
+	if resourceType == "periodic-gc" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for ping-one-pass-through-authentication type
+	if resourceType == "ping-one-pass-through-authentication" {
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for periodic-stats-logger type
+	if resourceType == "periodic-stats-logger" {
+		if !internaltypes.IsDefined(model.SuppressIfIdle) {
+			model.SuppressIfIdle = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.HeaderPrefixPerColumn) {
+			model.HeaderPrefixPerColumn = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EmptyInsteadOfZero) {
+			model.EmptyInsteadOfZero = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LinesBetweenHeader) {
+			model.LinesBetweenHeader = types.Int64Value(50)
+		}
+		if !internaltypes.IsDefined(model.HistogramFormat) {
+			model.HistogramFormat = types.StringValue("count")
+		}
+		if !internaltypes.IsDefined(model.PerApplicationLDAPStats) {
+			model.PerApplicationLDAPStats = types.StringValue("aggregate-only")
+		}
+		if !internaltypes.IsDefined(model.StatusSummaryInfo) {
+			model.StatusSummaryInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LdapChangelogInfo) {
+			model.LdapChangelogInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.GaugeInfo) {
+			model.GaugeInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogFileFormat) {
+			model.LogFileFormat = types.StringValue("csv")
+		}
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LoggingErrorBehavior) {
+			model.LoggingErrorBehavior = types.StringValue("standard-error")
+		}
+		if !internaltypes.IsDefined(model.LocalDBBackendInfo) {
+			model.LocalDBBackendInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.ReplicationInfo) {
+			model.ReplicationInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.EntryCacheInfo) {
+			model.EntryCacheInfo = types.StringValue("none")
+		}
+	}
+	// Set defaults for purge-expired-data type
+	if resourceType == "purge-expired-data" {
+		if !internaltypes.IsDefined(model.DatetimeFormat) {
+			model.DatetimeFormat = types.StringValue("generalized-time")
+		}
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for sub-operation-timing type
+	if resourceType == "sub-operation-timing" {
+		if !internaltypes.IsDefined(model.NumMostExpensivePhasesShown) {
+			model.NumMostExpensivePhasesShown = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for pass-through-authentication type
+	if resourceType == "pass-through-authentication" {
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
+			model.OverrideLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ServerAccessMode) {
+			model.ServerAccessMode = types.StringValue("round-robin")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for dn-mapper type
+	if resourceType == "dn-mapper" {
+		if !internaltypes.IsDefined(model.EnableAttributeMapping) {
+			model.EnableAttributeMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.EnableControlMapping) {
+			model.EnableControlMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
+			model.AlwaysMapResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for referral-on-update type
+	if resourceType == "referral-on-update" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for snmp-subagent type
+	if resourceType == "snmp-subagent" {
+		if !internaltypes.IsDefined(model.AgentxAddress) {
+			model.AgentxAddress = types.StringValue("localhost")
+		}
+		if !internaltypes.IsDefined(model.AgentxPort) {
+			model.AgentxPort = types.Int64Value(705)
+		}
+		if !internaltypes.IsDefined(model.NumWorkerThreads) {
+			model.NumWorkerThreads = types.Int64Value(4)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for coalesce-modifications type
+	if resourceType == "coalesce-modifications" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for clean-up-inactive-pingfederate-persistent-sessions type
+	if resourceType == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for composed-attribute type
+	if resourceType == "composed-attribute" {
+		if !internaltypes.IsDefined(model.MultipleValuePatternBehavior) {
+			model.MultipleValuePatternBehavior = types.StringValue("use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject")
+		}
+		if !internaltypes.IsDefined(model.MultiValuedAttributeBehavior) {
+			model.MultiValuedAttributeBehavior = types.StringValue("use-all-values-if-possible-but-reject-if-not")
+		}
+		if !internaltypes.IsDefined(model.TargetAttributeExistsDuringInitialPopulationBehavior) {
+			model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("preserve-existing-values")
+		}
+		if !internaltypes.IsDefined(model.UpdateSourceAttributeBehavior) {
+			model.UpdateSourceAttributeBehavior = types.StringValue("replace-composed-values")
+		}
+		if !internaltypes.IsDefined(model.SourceAttributeRemovalBehavior) {
+			model.SourceAttributeRemovalBehavior = types.StringValue("preserve-non-composed-values")
+		}
+		if !internaltypes.IsDefined(model.UpdateTargetAttributeBehavior) {
+			model.UpdateTargetAttributeBehavior = types.StringValue("always-allow")
+		}
+		if !internaltypes.IsDefined(model.UpdatedEntryNewlyMatchesCriteriaBehavior) {
+			model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("preserve-existing-values-and-compose-new-values")
+		}
+		if !internaltypes.IsDefined(model.UpdatedEntryNoLongerMatchesCriteriaBehavior) {
+			model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("preserve-all-values")
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for attribute-mapper type
+	if resourceType == "attribute-mapper" {
+		if !internaltypes.IsDefined(model.EnableControlMapping) {
+			model.EnableControlMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
+			model.AlwaysMapResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for delay type
+	if resourceType == "delay" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for clean-up-expired-pingfederate-persistent-sessions type
+	if resourceType == "clean-up-expired-pingfederate-persistent-sessions" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for groovy-scripted type
+	if resourceType == "groovy-scripted" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for pluggable-pass-through-authentication type
+	if resourceType == "pluggable-pass-through-authentication" {
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
+			model.OverrideLocalPassword = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for referential-integrity type
+	if resourceType == "referential-integrity" {
+		if !internaltypes.IsDefined(model.LogFile) {
+			model.LogFile = types.StringValue("logs/referint")
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for unique-attribute type
+	if resourceType == "unique-attribute" {
+		if !internaltypes.IsDefined(model.MultipleAttributeBehavior) {
+			model.MultipleAttributeBehavior = types.StringValue("unique-within-each-attribute")
+		}
+		if !internaltypes.IsDefined(model.PreventConflictsWithSoftDeletedEntries) {
+			model.PreventConflictsWithSoftDeletedEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -1411,6 +1721,22 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1422,7 +1748,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1437,24 +1763,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

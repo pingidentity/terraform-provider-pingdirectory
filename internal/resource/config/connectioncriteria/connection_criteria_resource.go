@@ -391,6 +391,23 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *connectionCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model connectionCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.CommunicationSecurityLevel) {
+			model.CommunicationSecurityLevel = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationSecurityLevel) {
+			model.AuthenticationSecurityLevel = types.StringValue("any")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsConnectionCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

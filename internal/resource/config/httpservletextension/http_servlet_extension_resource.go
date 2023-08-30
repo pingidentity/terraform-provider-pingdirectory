@@ -712,9 +712,97 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
+	var model httpServletExtensionResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for availability-state type
+	if resourceType == "availability-state" {
+		if !internaltypes.IsDefined(model.IncludeResponseBody) {
+			model.IncludeResponseBody = types.BoolValue(true)
+		}
+	}
+	// Set defaults for prometheus-monitoring type
+	if resourceType == "prometheus-monitoring" {
+		if !internaltypes.IsDefined(model.BaseContextPath) {
+			model.BaseContextPath = types.StringValue("/metrics")
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceNameLabel) {
+			model.IncludeInstanceNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductNameLabel) {
+			model.IncludeProductNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeLocationNameLabel) {
+			model.IncludeLocationNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AlwaysIncludeMonitorEntryNameLabel) {
+			model.AlwaysIncludeMonitorEntryNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeMonitorObjectClassNameLabel) {
+			model.IncludeMonitorObjectClassNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeMonitorAttributeNameLabel) {
+			model.IncludeMonitorAttributeNameLabel = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldap-mapped-scim type
+	if resourceType == "ldap-mapped-scim" {
+		if !internaltypes.IsDefined(model.BasicAuthEnabled) {
+			model.BasicAuthEnabled = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ResourceMappingFile) {
+			model.ResourceMappingFile = types.StringValue("config/scim-resources.xml")
+		}
+		if !internaltypes.IsDefined(model.BaseContextPath) {
+			model.BaseContextPath = types.StringValue("/")
+		}
+		if !internaltypes.IsDefined(model.TemporaryDirectory) {
+			model.TemporaryDirectory = types.StringValue("scim-data-tmp")
+		}
+		if !internaltypes.IsDefined(model.TemporaryDirectoryPermissions) {
+			model.TemporaryDirectoryPermissions = types.StringValue("700")
+		}
+		if !internaltypes.IsDefined(model.MaxResults) {
+			model.MaxResults = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.BulkMaxOperations) {
+			model.BulkMaxOperations = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.BulkMaxPayloadSize) {
+			model.BulkMaxPayloadSize = types.StringValue("10 MB")
+		}
+		if !internaltypes.IsDefined(model.BulkMaxConcurrentRequests) {
+			model.BulkMaxConcurrentRequests = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.DebugEnabled) {
+			model.DebugEnabled = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DebugLevel) {
+			model.DebugLevel = types.StringValue("info")
+		}
+		if !internaltypes.IsDefined(model.IncludeStackTrace) {
+			model.IncludeStackTrace = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-server type
+	if resourceType == "file-server" {
+		if !internaltypes.IsDefined(model.EnableDirectoryIndexing) {
+			model.EnableDirectoryIndexing = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DefaultMIMEType) {
+			model.DefaultMIMEType = types.StringValue("application/octet-stream")
+		}
+		if !internaltypes.IsDefined(model.RequireAuthentication) {
+			model.RequireAuthentication = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.RequireFileServletAccessPrivilege) {
+			model.RequireFileServletAccessPrivilege = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

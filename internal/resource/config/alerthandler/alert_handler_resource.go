@@ -373,9 +373,82 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *alertHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanAlertHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model alertHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for smtp type
+	if resourceType == "smtp" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.MessageSubject) {
+			model.MessageSubject = types.StringValue("%%alert-severity%% alert from %%instance-name%%: %%alert-type%%")
+		}
+		if !internaltypes.IsDefined(model.MessageBody) {
+			model.MessageBody = types.StringValue("Alert Type: %%alert-type%%\\nAlert Severity: %%alert-severity%%\\nInstance Name: %%instance-name%%\\nAlert ID: %%alert-id%%\\nAlert OID: %%alert-oid%%\\n\\nAlert Message:\\n%%alert-message%%")
+		}
+	}
+	// Set defaults for jmx type
+	if resourceType == "jmx" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+	}
+	// Set defaults for groovy-scripted type
+	if resourceType == "groovy-scripted" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(false)
+		}
+	}
+	// Set defaults for snmp type
+	if resourceType == "snmp" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(162)
+		}
+		if !internaltypes.IsDefined(model.CommunityName) {
+			model.CommunityName = types.StringValue("public")
+		}
+	}
+	// Set defaults for twilio type
+	if resourceType == "twilio" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LongMessageBehavior) {
+			model.LongMessageBehavior = types.StringValue("truncate")
+		}
+	}
+	// Set defaults for error-log type
+	if resourceType == "error-log" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(false)
+		}
+	}
+	// Set defaults for snmp-sub-agent type
+	if resourceType == "snmp-sub-agent" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+	}
+	// Set defaults for exec type
+	if resourceType == "exec" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+	}
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultAlertHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

@@ -213,6 +213,23 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *gaugeDataSourceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model gaugeDataSourceResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for numeric type
+	if resourceType == "numeric" {
+		if !internaltypes.IsDefined(model.DataOrientation) {
+			model.DataOrientation = types.StringValue("lower-is-better")
+		}
+		if !internaltypes.IsDefined(model.StatisticType) {
+			model.StatisticType = types.StringValue("average")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsGaugeDataSource() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

@@ -1099,6 +1099,1955 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model logPublisherResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for syslog-json-audit type
+	if resourceType == "syslog-json-audit" {
+		if !internaltypes.IsDefined(model.UseReversibleForm) {
+			model.UseReversibleForm = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeOperationPurposeRequestControl) {
+			model.IncludeOperationPurposeRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
+			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+	}
+	// Set defaults for syslog-based-error type
+	if resourceType == "syslog-based-error" {
+		if !internaltypes.IsDefined(model.ServerHostName) {
+			model.ServerHostName = types.StringValue("localhost")
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(514)
+		}
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("1")
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for third-party-file-based-access type
+	if resourceType == "third-party-file-based-access" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for operation-timing-access type
+	if resourceType == "operation-timing-access" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for admin-alert-access type
+	if resourceType == "admin-alert-access" {
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(1000)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(2000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-based-trace type
+	if resourceType == "file-based-trace" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(50000)
+		}
+	}
+	// Set defaults for jdbc-based-error type
+	if resourceType == "jdbc-based-error" {
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for jdbc-based-access type
+	if resourceType == "jdbc-based-access" {
+		if !internaltypes.IsDefined(model.LogTableName) {
+			model.LogTableName = types.StringValue("access_log")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for common-log-file-http-operation type
+	if resourceType == "common-log-file-http-operation" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for syslog-text-error type
+	if resourceType == "syslog-text-error" {
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("system-daemons")
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(100000)
+		}
+	}
+	// Set defaults for syslog-based-access type
+	if resourceType == "syslog-based-access" {
+		if !internaltypes.IsDefined(model.ServerHostName) {
+			model.ServerHostName = types.StringValue("localhost")
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(514)
+		}
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("1")
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(500)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for file-based-json-audit type
+	if resourceType == "file-based-json-audit" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseReversibleForm) {
+			model.UseReversibleForm = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SoftDeleteEntryAuditBehavior) {
+			model.SoftDeleteEntryAuditBehavior = types.StringValue("included")
+		}
+		if !internaltypes.IsDefined(model.IncludeOperationPurposeRequestControl) {
+			model.IncludeOperationPurposeRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
+			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-based-debug type
+	if resourceType == "file-based-debug" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+		if !internaltypes.IsDefined(model.DefaultDebugLevel) {
+			model.DefaultDebugLevel = types.StringValue("disabled")
+		}
+		if !internaltypes.IsDefined(model.DefaultOmitMethodEntryArguments) {
+			model.DefaultOmitMethodEntryArguments = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DefaultOmitMethodReturnValue) {
+			model.DefaultOmitMethodReturnValue = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DefaultIncludeThrowableCause) {
+			model.DefaultIncludeThrowableCause = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.DefaultThrowableStackFrames) {
+			model.DefaultThrowableStackFrames = types.Int64Value(2147483647)
+		}
+	}
+	// Set defaults for file-based-error type
+	if resourceType == "file-based-error" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+	}
+	// Set defaults for third-party-error type
+	if resourceType == "third-party-error" {
+	}
+	// Set defaults for syslog-text-access type
+	if resourceType == "syslog-text-access" {
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("system-daemons")
+		}
+		if !internaltypes.IsDefined(model.SyslogSeverity) {
+			model.SyslogSeverity = types.StringValue("informational")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(100000)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(500)
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+	}
+	// Set defaults for detailed-http-operation type
+	if resourceType == "detailed-http-operation" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestHeaders) {
+			model.LogRequestHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogResponseHeaders) {
+			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
+			model.LogRequestAuthorizationType = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestCookieNames) {
+			model.LogRequestCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResponseCookieNames) {
+			model.LogResponseCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestParameters) {
+			model.LogRequestParameters = types.StringValue("parameter-names")
+		}
+		if !internaltypes.IsDefined(model.LogRedirectURI) {
+			model.LogRedirectURI = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(2000)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for json-access type
+	if resourceType == "json-access" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(2000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for debug-access type
+	if resourceType == "debug-access" {
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ObscureSensitiveContent) {
+			model.ObscureSensitiveContent = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.DebugACIEnabled) {
+			model.DebugACIEnabled = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for syslog-json-http-operation type
+	if resourceType == "syslog-json-http-operation" {
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("system-daemons")
+		}
+		if !internaltypes.IsDefined(model.SyslogSeverity) {
+			model.SyslogSeverity = types.StringValue("informational")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(100000)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestHeaders) {
+			model.LogRequestHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogResponseHeaders) {
+			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
+			model.LogRequestAuthorizationType = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestCookieNames) {
+			model.LogRequestCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResponseCookieNames) {
+			model.LogResponseCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestParameters) {
+			model.LogRequestParameters = types.StringValue("parameter-names")
+		}
+		if !internaltypes.IsDefined(model.LogRequestProtocol) {
+			model.LogRequestProtocol = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRedirectURI) {
+			model.LogRedirectURI = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(false)
+		}
+	}
+	// Set defaults for third-party-access type
+	if resourceType == "third-party-access" {
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for file-based-audit type
+	if resourceType == "file-based-audit" {
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UseReversibleForm) {
+			model.UseReversibleForm = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SoftDeleteEntryAuditBehavior) {
+			model.SoftDeleteEntryAuditBehavior = types.StringValue("commented")
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeOperationPurposeRequestControl) {
+			model.IncludeOperationPurposeRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
+			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for json-error type
+	if resourceType == "json-error" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+	}
+	// Set defaults for groovy-scripted-file-based-access type
+	if resourceType == "groovy-scripted-file-based-access" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for groovy-scripted-file-based-error type
+	if resourceType == "groovy-scripted-file-based-error" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for syslog-json-access type
+	if resourceType == "syslog-json-access" {
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("system-daemons")
+		}
+		if !internaltypes.IsDefined(model.SyslogSeverity) {
+			model.SyslogSeverity = types.StringValue("informational")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(100000)
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(2000)
+		}
+	}
+	// Set defaults for groovy-scripted-access type
+	if resourceType == "groovy-scripted-access" {
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for third-party-file-based-error type
+	if resourceType == "third-party-file-based-error" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+	}
+	// Set defaults for console-json-audit type
+	if resourceType == "console-json-audit" {
+		if !internaltypes.IsDefined(model.OutputLocation) {
+			model.OutputLocation = types.StringValue("standard-output")
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseReversibleForm) {
+			model.UseReversibleForm = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SoftDeleteEntryAuditBehavior) {
+			model.SoftDeleteEntryAuditBehavior = types.StringValue("included")
+		}
+		if !internaltypes.IsDefined(model.IncludeOperationPurposeRequestControl) {
+			model.IncludeOperationPurposeRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
+			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for console-json-http-operation type
+	if resourceType == "console-json-http-operation" {
+		if !internaltypes.IsDefined(model.OutputLocation) {
+			model.OutputLocation = types.StringValue("standard-output")
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestHeaders) {
+			model.LogRequestHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogResponseHeaders) {
+			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
+			model.LogRequestAuthorizationType = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestCookieNames) {
+			model.LogRequestCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResponseCookieNames) {
+			model.LogResponseCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestParameters) {
+			model.LogRequestParameters = types.StringValue("parameter-names")
+		}
+		if !internaltypes.IsDefined(model.LogRequestProtocol) {
+			model.LogRequestProtocol = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRedirectURI) {
+			model.LogRedirectURI = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-based-access type
+	if resourceType == "file-based-access" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.TimestampPrecision) {
+			model.TimestampPrecision = types.StringValue("milliseconds")
+		}
+		if !internaltypes.IsDefined(model.LogConnects) {
+			model.LogConnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogDisconnects) {
+			model.LogDisconnects = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogAssuranceCompleted) {
+			model.LogAssuranceCompleted = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterDN) {
+			model.IncludeRequesterDN = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequesterIPAddress) {
+			model.IncludeRequesterIPAddress = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchEntryMessages) {
+			model.IncludeRequestDetailsInSearchEntryMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInSearchReferenceMessages) {
+			model.IncludeRequestDetailsInSearchReferenceMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInIntermediateResponseMessages) {
+			model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResultCodeNames) {
+			model.IncludeResultCodeNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtendedSearchRequestDetails) {
+			model.IncludeExtendedSearchRequestDetails = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeAddAttributeNames) {
+			model.IncludeAddAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeModifyAttributeNames) {
+			model.IncludeModifyAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeSearchEntryAttributeNames) {
+			model.IncludeSearchEntryAttributeNames = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestControls) {
+			model.IncludeRequestControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeResponseControls) {
+			model.IncludeResponseControls = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
+			model.IncludeReplicationChangeID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.MaxStringLength) {
+			model.MaxStringLength = types.Int64Value(2000)
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogSecurityNegotiation) {
+			model.LogSecurityNegotiation = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogClientCertificates) {
+			model.LogClientCertificates = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogSearchEntries) {
+			model.LogSearchEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogSearchReferences) {
+			model.LogSearchReferences = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogIntermediateResponses) {
+			model.LogIntermediateResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
+			model.SuppressInternalOperations = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SuppressReplicationOperations) {
+			model.SuppressReplicationOperations = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CorrelateRequestsAndResults) {
+			model.CorrelateRequestsAndResults = types.BoolValue(true)
+		}
+	}
+	// Set defaults for groovy-scripted-error type
+	if resourceType == "groovy-scripted-error" {
+	}
+	// Set defaults for file-based-json-http-operation type
+	if resourceType == "file-based-json-http-operation" {
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.CompressionMechanism) {
+			model.CompressionMechanism = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SignLog) {
+			model.SignLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EncryptLog) {
+			model.EncryptLog = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.Asynchronous) {
+			model.Asynchronous = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AutoFlush) {
+			model.AutoFlush = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BufferSize) {
+			model.BufferSize = types.StringValue("64 kb")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.LogRequests) {
+			model.LogRequests = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.LogResults) {
+			model.LogResults = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeRequestDetailsInResultMessages) {
+			model.IncludeRequestDetailsInResultMessages = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestHeaders) {
+			model.LogRequestHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogResponseHeaders) {
+			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
+			model.LogRequestAuthorizationType = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestCookieNames) {
+			model.LogRequestCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogResponseCookieNames) {
+			model.LogResponseCookieNames = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRequestParameters) {
+			model.LogRequestParameters = types.StringValue("parameter-names")
+		}
+		if !internaltypes.IsDefined(model.LogRequestProtocol) {
+			model.LogRequestProtocol = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LogRedirectURI) {
+			model.LogRedirectURI = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.WriteMultiLineMessages) {
+			model.WriteMultiLineMessages = types.BoolValue(false)
+		}
+	}
+	// Set defaults for syslog-json-error type
+	if resourceType == "syslog-json-error" {
+		if !internaltypes.IsDefined(model.SyslogFacility) {
+			model.SyslogFacility = types.StringValue("system-daemons")
+		}
+		if !internaltypes.IsDefined(model.QueueSize) {
+			model.QueueSize = types.Int64Value(100000)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductName) {
+			model.IncludeProductName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceName) {
+			model.IncludeInstanceName = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeStartupID) {
+			model.IncludeStartupID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.IncludeThreadID) {
+			model.IncludeThreadID = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
+			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsLogPublisher() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

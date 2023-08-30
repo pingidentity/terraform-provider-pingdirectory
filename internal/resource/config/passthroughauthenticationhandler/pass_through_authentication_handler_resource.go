@@ -352,9 +352,28 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_pass_through_authentication_handler")
+	var model passThroughAuthenticationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for ldap type
+	if resourceType == "ldap" {
+		if !internaltypes.IsDefined(model.ServerAccessMode) {
+			model.ServerAccessMode = types.StringValue("round-robin")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.UseLocation) {
+			model.UseLocation = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

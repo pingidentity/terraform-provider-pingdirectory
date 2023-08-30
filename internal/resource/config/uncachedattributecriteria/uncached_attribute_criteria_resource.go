@@ -202,6 +202,23 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model uncachedAttributeCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.MinValueCount) {
+			model.MinValueCount = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MinTotalValueSize) {
+			model.MinTotalValueSize = types.StringValue("0b")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsUncachedAttributeCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

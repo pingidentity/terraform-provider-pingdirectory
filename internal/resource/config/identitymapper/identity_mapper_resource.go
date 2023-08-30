@@ -225,6 +225,20 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model identityMapperResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for exact-match type
+	if resourceType == "exact-match" {
+	}
+	// Set defaults for regular-expression type
+	if resourceType == "regular-expression" {
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsIdentityMapper() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

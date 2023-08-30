@@ -316,9 +316,64 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_storage_scheme")
+	var model passwordStorageSchemeResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for crypt type
+	if resourceType == "crypt" {
+		if !internaltypes.IsDefined(model.PasswordEncodingMechanism) {
+			model.PasswordEncodingMechanism = types.StringValue("sha-2-256")
+		}
+		if !internaltypes.IsDefined(model.NumDigestRounds) {
+			model.NumDigestRounds = types.Int64Value(5000)
+		}
+		if !internaltypes.IsDefined(model.MaxPasswordLength) {
+			model.MaxPasswordLength = types.Int64Value(200)
+		}
+	}
+	// Set defaults for pbkdf2 type
+	if resourceType == "pbkdf2" {
+		if !internaltypes.IsDefined(model.DigestAlgorithm) {
+			model.DigestAlgorithm = types.StringValue("sha-1")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.SaltLengthBytes) {
+			model.SaltLengthBytes = types.Int64Value(16)
+		}
+		if !internaltypes.IsDefined(model.DerivedKeyLengthBytes) {
+			model.DerivedKeyLengthBytes = types.Int64Value(32)
+		}
+		if !internaltypes.IsDefined(model.MaxPasswordLength) {
+			model.MaxPasswordLength = types.Int64Value(200)
+		}
+	}
+	// Set defaults for bcrypt type
+	if resourceType == "bcrypt" {
+		if !internaltypes.IsDefined(model.BcryptCostFactor) {
+			model.BcryptCostFactor = types.Int64Value(10)
+		}
+	}
+	// Set defaults for scrypt type
+	if resourceType == "scrypt" {
+		if !internaltypes.IsDefined(model.ScryptCpuMemoryCostFactorExponent) {
+			model.ScryptCpuMemoryCostFactorExponent = types.Int64Value(14)
+		}
+		if !internaltypes.IsDefined(model.ScryptBlockSize) {
+			model.ScryptBlockSize = types.Int64Value(8)
+		}
+		if !internaltypes.IsDefined(model.ScryptParallelizationParameter) {
+			model.ScryptParallelizationParameter = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MaxPasswordLength) {
+			model.MaxPasswordLength = types.Int64Value(200)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

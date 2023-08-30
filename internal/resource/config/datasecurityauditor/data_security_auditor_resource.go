@@ -267,9 +267,82 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_data_security_auditor")
+	var model dataSecurityAuditorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for expired-password type
+	if resourceType == "expired-password" {
+	}
+	// Set defaults for idle-account type
+	if resourceType == "idle-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("idle-accounts.ldif")
+		}
+	}
+	// Set defaults for disabled-account type
+	if resourceType == "disabled-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-disabled-accounts.ldif")
+		}
+	}
+	// Set defaults for weakly-encoded-password type
+	if resourceType == "weakly-encoded-password" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("users-with-weakly-encoded-passwords.ldif")
+		}
+	}
+	// Set defaults for privilege type
+	if resourceType == "privilege" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-privileges.ldif")
+		}
+	}
+	// Set defaults for account-usability-issues type
+	if resourceType == "account-usability-issues" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("account-usability-issues.ldif")
+		}
+	}
+	// Set defaults for locked-account type
+	if resourceType == "locked-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("locked-accounts.ldif")
+		}
+	}
+	// Set defaults for account-validity-window type
+	if resourceType == "account-validity-window" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("account-validity-window.ldif")
+		}
+	}
+	// Set defaults for multiple-password type
+	if resourceType == "multiple-password" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("users-with-multiple-passwords.ldif")
+		}
+	}
+	// Set defaults for deprecated-password-storage-scheme type
+	if resourceType == "deprecated-password-storage-scheme" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("deprecated-password-storage-schemes.ldif")
+		}
+	}
+	// Set defaults for nonexistent-password-policy type
+	if resourceType == "nonexistent-password-policy" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("nonexistent-password-policies.ldif")
+		}
+	}
+	// Set defaults for access-control type
+	if resourceType == "access-control" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-acis.ldif")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

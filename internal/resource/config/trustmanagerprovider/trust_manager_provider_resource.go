@@ -190,6 +190,32 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model trustManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for blind type
+	if resourceType == "blind" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-based type
+	if resourceType == "file-based" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

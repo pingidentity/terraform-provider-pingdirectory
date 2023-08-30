@@ -255,9 +255,28 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model otpDeliveryMechanismResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for twilio type
+	if resourceType == "twilio" {
+		if !internaltypes.IsDefined(model.PhoneNumberAttributeType) {
+			model.PhoneNumberAttributeType = types.StringValue("mobile")
+		}
+	}
+	// Set defaults for email type
+	if resourceType == "email" {
+		if !internaltypes.IsDefined(model.EmailAddressAttributeType) {
+			model.EmailAddressAttributeType = types.StringValue("mail")
+		}
+		if !internaltypes.IsDefined(model.MessageSubject) {
+			model.MessageSubject = types.StringValue("Your one-time password")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

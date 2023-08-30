@@ -233,6 +233,17 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *velocityContextProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model velocityContextProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsVelocityContextProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

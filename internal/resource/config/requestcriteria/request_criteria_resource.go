@@ -415,6 +415,23 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *requestCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model requestCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for root-dse type
+	if resourceType == "root-dse" {
+	}
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.UsingAdministrativeSessionWorkerThread) {
+			model.UsingAdministrativeSessionWorkerThread = types.StringValue("any")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsRequestCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

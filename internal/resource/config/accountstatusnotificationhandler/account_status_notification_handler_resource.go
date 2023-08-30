@@ -369,9 +369,19 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model accountStatusNotificationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for smtp type
+	if resourceType == "smtp" {
+		if !internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) {
+			model.SendMessageWithoutEndUserAddress = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

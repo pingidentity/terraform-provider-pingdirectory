@@ -215,6 +215,26 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *certificateMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model certificateMapperResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for subject-dn-to-user-attribute type
+	if resourceType == "subject-dn-to-user-attribute" {
+		if !internaltypes.IsDefined(model.SubjectAttribute) {
+			model.SubjectAttribute = types.StringValue("ds-certificate-subject-dn")
+		}
+	}
+	// Set defaults for fingerprint type
+	if resourceType == "fingerprint" {
+		if !internaltypes.IsDefined(model.FingerprintAttribute) {
+			model.FingerprintAttribute = types.StringValue("ds-certificate-fingerprint")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsCertificateMapper() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

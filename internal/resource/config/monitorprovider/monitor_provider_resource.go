@@ -249,9 +249,19 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_monitor_provider")
+	var model monitorProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for encryption-settings-database-accessibility type
+	if resourceType == "encryption-settings-database-accessibility" {
+		if !internaltypes.IsDefined(model.ProlongedOutageBehavior) {
+			model.ProlongedOutageBehavior = types.StringValue("none")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

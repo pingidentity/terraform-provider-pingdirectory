@@ -175,6 +175,20 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *vaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model vaultAuthenticationMethodResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for user-pass type
+	if resourceType == "user-pass" {
+		if !internaltypes.IsDefined(model.LoginMechanismName) {
+			model.LoginMechanismName = types.StringValue("userpass")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsVaultAuthenticationMethod() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

@@ -305,6 +305,44 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model accessTokenValidatorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for ping-federate type
+	if resourceType == "ping-federate" {
+		if !internaltypes.IsDefined(model.IncludeAudParameter) {
+			model.IncludeAudParameter = types.BoolValue(false)
+		}
+	}
+	// Set defaults for jwt type
+	if resourceType == "jwt" {
+		if !internaltypes.IsDefined(model.ClientIDClaimName) {
+			model.ClientIDClaimName = types.StringValue("client_id")
+		}
+		if !internaltypes.IsDefined(model.ScopeClaimName) {
+			model.ScopeClaimName = types.StringValue("scope")
+		}
+		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
+			model.EvaluationOrderIndex = types.Int64Value(1000)
+		}
+	}
+	// Set defaults for mock type
+	if resourceType == "mock" {
+		if !internaltypes.IsDefined(model.ClientIDClaimName) {
+			model.ClientIDClaimName = types.StringValue("client_id")
+		}
+		if !internaltypes.IsDefined(model.ScopeClaimName) {
+			model.ScopeClaimName = types.StringValue("scope")
+		}
+		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
+			model.EvaluationOrderIndex = types.Int64Value(9999)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

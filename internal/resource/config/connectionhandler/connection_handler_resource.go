@@ -512,6 +512,107 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model connectionHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for jmx type
+	if resourceType == "jmx" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldap type
+	if resourceType == "ldap" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowStartTLS) {
+			model.AllowStartTLS = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLDAPV2) {
+			model.AllowLDAPV2 = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UseTCPKeepAlive) {
+			model.UseTCPKeepAlive = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SendRejectionNotice) {
+			model.SendRejectionNotice = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.MaxRequestSize) {
+			model.MaxRequestSize = types.StringValue("5 megabytes")
+		}
+		if !internaltypes.IsDefined(model.MaxCancelHandlers) {
+			model.MaxCancelHandlers = types.Int64Value(16)
+		}
+		if !internaltypes.IsDefined(model.NumAcceptHandlers) {
+			model.NumAcceptHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.NumRequestHandlers) {
+			model.NumRequestHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.AcceptBacklog) {
+			model.AcceptBacklog = types.Int64Value(128)
+		}
+		if !internaltypes.IsDefined(model.AutoAuthenticateUsingClientCertificate) {
+			model.AutoAuthenticateUsingClientCertificate = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CloseConnectionsWhenUnavailable) {
+			model.CloseConnectionsWhenUnavailable = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CloseConnectionsOnExplicitGC) {
+			model.CloseConnectionsOnExplicitGC = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldif type
+	if resourceType == "ldif" {
+		if !internaltypes.IsDefined(model.LdifDirectory) {
+			model.LdifDirectory = types.StringValue("config/auto-process-ldif")
+		}
+	}
+	// Set defaults for http type
+	if resourceType == "http" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.NumRequestHandlers) {
+			model.NumRequestHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.KeepStats) {
+			model.KeepStats = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AcceptBacklog) {
+			model.AcceptBacklog = types.Int64Value(128)
+		}
+		if !internaltypes.IsDefined(model.AllowTCPReuseAddress) {
+			model.AllowTCPReuseAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LowResourcesConnectionThreshold) {
+			model.LowResourcesConnectionThreshold = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.EnableMultipartMIMEParameters) {
+			model.EnableMultipartMIMEParameters = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseForwardedHeaders) {
+			model.UseForwardedHeaders = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.HttpRequestHeaderSize) {
+			model.HttpRequestHeaderSize = types.Int64Value(8192)
+		}
+		if !internaltypes.IsDefined(model.UseCorrelationIDHeader) {
+			model.UseCorrelationIDHeader = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.CorrelationIDResponseHeader) {
+			model.CorrelationIDResponseHeader = types.StringValue("Correlation-Id")
+		}
+		if !internaltypes.IsDefined(model.SslClientAuthPolicy) {
+			model.SslClientAuthPolicy = types.StringValue("disabled")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsConnectionHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
