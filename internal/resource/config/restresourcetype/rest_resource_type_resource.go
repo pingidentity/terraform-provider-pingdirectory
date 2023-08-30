@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -173,9 +171,6 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_base_dn": schema.StringAttribute{
 				Description: "Specifies the base DN of the branch of the LDAP directory where resources of this type are located.",
@@ -187,9 +182,6 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"parent_dn": schema.StringAttribute{
 				Description: "Specifies the DN of the parent entry for new resources of this type, when a parent resource is not provided by the app. The parent DN must be at or below the search base of this resource type.",
@@ -213,9 +205,6 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a resource is updated. The constructed values replace any existing values of the attribute.",
@@ -223,9 +212,6 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"display_name": schema.StringAttribute{
 				Description: "A human readable display name for this REST Resource Type.",
@@ -244,18 +230,12 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(100),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"delegated_admin_report_size_limit": schema.Int64Attribute{
 				Description: "The maximum number of resources that may be included in a report.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(100000),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"members_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group member column that will be displayed in the Delegated Admin UI",

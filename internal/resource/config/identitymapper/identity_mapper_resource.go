@@ -143,9 +143,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_included_identity_mapper": schema.SetAttribute{
 				Description: "The set of identity mappers that must all match the target entry. Each identity mapper must uniquely match the same target entry. If any of the identity mappers match multiple entries, if any of them match zero entries, or if any of them match different entries, then the mapping will fail.",
@@ -153,9 +150,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"any_included_identity_mapper": schema.SetAttribute{
 				Description: "The set of identity mappers that will be used to identify the target entry. At least one identity mapper must uniquely match an entry. If multiple identity mappers match entries, then they must all uniquely match the same entry. If none of the identity mappers match any entries, if any of them match multiple entries, or if any of them match different entries, then the mapping will fail.",
@@ -163,9 +157,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Identity Mapper.",
@@ -177,9 +168,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_attribute": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `exact-match`: Specifies the attribute whose value should exactly match the ID string provided to this identity mapper. When the `type` attribute is set to `regular-expression`: Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
@@ -206,9 +194,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_filter": schema.StringAttribute{
 				Description: "An optional filter that mapped users must match.",

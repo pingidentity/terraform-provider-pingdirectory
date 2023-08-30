@@ -343,9 +343,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"transaction_isolation_level": schema.StringAttribute{
 				Description: "This property specifies the default transaction isolation level for connections to this JDBC External Server.",
@@ -499,9 +496,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",

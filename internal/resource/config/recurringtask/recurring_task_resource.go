@@ -211,9 +211,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"target_directory": schema.StringAttribute{
 				Description: "The path to the directory containing the files to examine. The directory must exist.",
@@ -293,9 +290,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"backend": schema.SetAttribute{
 				Description: "The set of backends that should be examined. If no backends are specified, then all backends that support this functionality will be included.",
@@ -303,9 +297,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_filter": schema.SetAttribute{
 				Description: "A filter that will be used to identify entries that may be included in the generated report. If multiple filters are specified, then any entry that matches at least one of the filters will be included. If no filters are specified, then all entries will be included.",
@@ -313,9 +304,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_report_count": schema.Int64Attribute{
 				Description: "The minimum number of previous reports that should be preserved after a new report is generated.",
@@ -339,9 +327,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_backend_id": schema.SetAttribute{
 				Description: "The backend ID for a backend to be excluded from the export.",
@@ -349,9 +334,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"output_directory": schema.StringAttribute{
 				Description: "The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.",
@@ -484,9 +466,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sleep_duration": schema.StringAttribute{
 				Description: "The length of time to sleep before the task completes.",
@@ -502,9 +481,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_interval": schema.StringAttribute{
 				Description: "The length of time the server should sleep between searches performed using the criteria from the ldap-url-for-search-expected-to-return-entries property.",
@@ -540,9 +516,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_backend_id": schema.SetAttribute{
 				Description: "The backend IDs of any backends that should be excluded from the backup. All backends that support backups and are not listed will be included.",
@@ -550,9 +523,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"compress": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `backup`: Indicates whether to compress the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to compress the LDIF data as it is exported.",
@@ -614,9 +584,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_profile_count": schema.Int64Attribute{
 				Description: "The minimum number of previous server profile zip files that should be preserved after a new profile is generated.",
@@ -635,9 +602,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_start": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.",
@@ -645,9 +609,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_success": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
@@ -655,9 +616,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_failure": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
@@ -665,36 +623,24 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_start": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_success": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_failure": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

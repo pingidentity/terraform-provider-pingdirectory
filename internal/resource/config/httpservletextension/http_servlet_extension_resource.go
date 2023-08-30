@@ -269,9 +269,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Servlet Extension.",
@@ -304,9 +301,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"oauth_token_handler": schema.StringAttribute{
 				Description: "Specifies the OAuth Token Handler implementation that should be used to validate OAuth 2.0 bearer tokens when they are included in a SCIM request.",
@@ -336,9 +330,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_file_servlet_access_privilege": schema.BoolAttribute{
 				Description: "Indicates whether the servlet extension should only accept requests from authenticated clients that have the file-servlet-access privilege.",
@@ -354,9 +345,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"resource_mapping_file": schema.StringAttribute{
 				Description: "The path to an XML file defining the resources supported by the SCIM interface and the SCIM-to-LDAP attribute mappings to use.",
@@ -372,9 +360,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_ldap_objectclass": schema.SetAttribute{
 				Description: "Specifies the LDAP object classes that should be not be exposed directly as SCIM resources.",
@@ -382,9 +367,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_ldap_base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches of the DIT that should be exposed via the Identity Access API.",
@@ -392,9 +374,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_ldap_base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches of the DIT that should not be exposed via the Identity Access API.",
@@ -402,9 +381,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"entity_tag_ldap_attribute": schema.StringAttribute{
 				Description: "Specifies the LDAP attribute whose value should be used as the entity tag value to enable SCIM resource versioning support.",
@@ -569,9 +545,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"available_status_code": schema.Int64Attribute{
 				Description: "Specifies the HTTP status code that the servlet should return if the server considers itself to be available.",
@@ -626,9 +599,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
@@ -645,9 +615,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",

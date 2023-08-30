@@ -200,9 +200,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"web_application_extension": schema.SetAttribute{
 				Description: "Specifies information about web applications that will be provided via this connection handler.",
@@ -210,9 +207,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_operation_log_publisher": schema.SetAttribute{
 				Description: "Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.",
@@ -220,9 +214,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_ssl": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `jmx`: Indicates whether the JMX Connection Handler should use SSL. When the `type` attribute is set to `ldap`: Indicates whether the LDAP Connection Handler should use SSL. When the `type` attribute is set to `http`: Indicates whether the HTTP Connection Handler should use SSL.",
@@ -334,9 +325,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_correlation_id_header": schema.BoolAttribute{
 				Description: "If enabled, a correlation ID header will be added to outgoing HTTP responses.",
@@ -360,9 +348,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_tcp_keep_alive": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
@@ -446,9 +431,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_cipher_suite": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry. When the `type` attribute is set to `http`: Specifies the names of the SSL cipher suites that are allowed for use in SSL communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.",
@@ -457,9 +439,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_blocked_write_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that attempts to write data to LDAP clients should be allowed to block.",
@@ -507,9 +486,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"denied_client": schema.SetAttribute{
 				Description: "Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.",
@@ -517,9 +493,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

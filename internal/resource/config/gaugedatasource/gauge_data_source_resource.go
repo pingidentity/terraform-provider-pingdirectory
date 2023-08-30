@@ -181,9 +181,6 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("cn"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"resource_type": schema.StringAttribute{
 				Description: "A string indicating the type of resource being monitored.",

@@ -222,9 +222,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Virtual Attribute.",
@@ -244,9 +241,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"join_source_attribute": schema.StringAttribute{
 				Description: "The attribute containing the value(s) in the source entry to use to identify related entries.",
@@ -288,9 +282,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"join_dn_attribute": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `reverse-dn-join`: The attribute in related entries whose set of values must contain the DN of the search result entry to be joined with that entry. When the `type` attribute is set to `dn-join`: The attribute whose values are the DNs of the entries to be joined with the search result entry.",
@@ -331,9 +322,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"value_pattern": schema.SetAttribute{
 				Description: "Specifies a pattern for constructing the virtual attribute value using fixed text and attribute values from the entry.",
@@ -414,9 +402,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"group_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
@@ -424,9 +409,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
@@ -434,9 +416,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"client_connection_policy": schema.SetAttribute{
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
@@ -444,9 +423,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_explicit_request_by_name": schema.BoolAttribute{
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",

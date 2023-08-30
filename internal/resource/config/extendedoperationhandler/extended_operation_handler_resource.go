@@ -180,9 +180,6 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_token_delivery_mechanism": schema.SetAttribute{
 				Description: "The set of delivery mechanisms that may be used to deliver password reset tokens to users for requests that do not specify one or more preferred delivery mechanisms.",

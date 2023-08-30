@@ -284,9 +284,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
@@ -294,9 +291,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retention_policy": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `third-party-file-based-access`: The retention policy to use for the Third Party File Based Access Log Publisher . When the `type` attribute is set to `operation-timing-access`: The retention policy to use for the Operation Timing Access Log Publisher . When the `type` attribute is set to `file-based-trace`: The retention policy to use for the File Based Trace Log Publisher . When the `type` attribute is set to `common-log-file-http-operation`: The retention policy to use for the Common Log File HTTP Operation Log Publisher . When the `type` attribute is set to `file-based-json-audit`: The retention policy to use for the File Based JSON Audit Log Publisher . When the `type` attribute is set to `file-based-debug`: The retention policy to use for the File Based Debug Log Publisher . When the `type` attribute is set to `file-based-error`: The retention policy to use for the File Based Error Log Publisher . When the `type` attribute is set to `detailed-http-operation`: The retention policy to use for the Detailed HTTP Operation Log Publisher . When the `type` attribute is set to `json-access`: The retention policy to use for the JSON Access Log Publisher . When the `type` attribute is set to `debug-access`: The retention policy to use for the Debug Access Log Publisher . When the `type` attribute is set to `file-based-audit`: The retention policy to use for the File Based Audit Log Publisher . When the `type` attribute is set to `json-error`: The retention policy to use for the JSON Error Log Publisher . When the `type` attribute is set to `groovy-scripted-file-based-access`: The retention policy to use for the Scripted File Based Access Log Publisher . When the `type` attribute is set to `groovy-scripted-file-based-error`: The retention policy to use for the Scripted File Based Error Log Publisher . When the `type` attribute is set to `third-party-file-based-error`: The retention policy to use for the Third Party File Based Error Log Publisher . When the `type` attribute is set to `file-based-access`: The retention policy to use for the File Based Access Log Publisher . When the `type` attribute is set to `file-based-json-http-operation`: The retention policy to use for the File Based JSON HTTP Operation Log Publisher .",
@@ -305,9 +299,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"compression_mechanism": schema.StringAttribute{
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
@@ -325,9 +316,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sign_log": schema.BoolAttribute{
 				Description: "Indicates whether the log should be cryptographically signed so that the log content cannot be altered in an undetectable manner.",
@@ -478,9 +466,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_redirect_uri": schema.BoolAttribute{
 				Description: "Indicates whether the redirect URI (i.e., the value of the \"Location\" header from responses) should be included in response log messages.",
@@ -496,9 +481,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_omit_method_entry_arguments": schema.BoolAttribute{
 				Description: "Indicates whether to include method arguments in debug messages logged by default.",
@@ -539,9 +521,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"syslog_external_server": schema.SetAttribute{
 				Description: "The syslog server to which messages should be sent.",
@@ -575,9 +554,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_message_type": schema.SetAttribute{
 				Description: "Specifies the HTTP message types which can be logged.",
@@ -585,9 +561,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_token_validator_message_type": schema.SetAttribute{
 				Description: "Specifies the access token validator message types that can be logged.",
@@ -595,9 +568,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id_token_validator_message_type": schema.SetAttribute{
 				Description: "Specifies the ID token validator message types that can be logged.",
@@ -605,9 +575,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"scim_message_type": schema.SetAttribute{
 				Description: "Specifies the SCIM message types which can be logged.",
@@ -615,9 +582,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"consent_message_type": schema.SetAttribute{
 				Description: "Specifies the consent message types that can be logged.",
@@ -625,9 +589,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"directory_rest_api_message_type": schema.SetAttribute{
 				Description: "Specifies the Directory REST API message types which can be logged.",
@@ -635,9 +596,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"extension_message_type": schema.SetAttribute{
 				Description: "Specifies the Server SDK extension message types that can be logged.",
@@ -645,9 +603,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_path_pattern": schema.SetAttribute{
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are included for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
@@ -655,9 +610,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_path_pattern": schema.SetAttribute{
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are excluded for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
@@ -665,9 +617,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the hostname or IP address of the syslogd host to log to. It is highly recommend to use localhost.",
@@ -919,9 +868,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_entry_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`third-party-file-based-access`, `jdbc-based-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `debug-access`, `third-party-access`, `groovy-scripted-file-based-access`, `syslog-json-access`, `groovy-scripted-access`, `console-json-access`, `file-based-access`]: Specifies a set of search entry criteria that must match the associated search result entry in order for that it to be logged by this Access Log Publisher. When the `type` attribute is set to `admin-alert-access`: Specifies a set of search entry criteria that must match the associated search result entry in order for that it to be logged by this Admin Alert Access Log Publisher.",
@@ -1134,9 +1080,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("standard-error"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

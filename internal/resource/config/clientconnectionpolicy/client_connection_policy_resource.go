@@ -13,10 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -194,9 +192,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sensitive_attribute": schema.SetAttribute{
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
@@ -204,9 +199,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_global_sensitive_attribute": schema.SetAttribute{
 				Description: "Specifies the set of global sensitive attribute definitions that should not apply to this client connection policy.",
@@ -214,9 +206,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"result_code_map": schema.StringAttribute{
 				Description: "Specifies the result code map that should be used for clients associated with this Client Connection Policy. If a value is defined for this property, then it will override any result code map referenced in the global configuration.",
@@ -228,9 +217,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_backend_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of backend base DNs for which subtree views should be excluded from this Client Connection Policy.",
@@ -238,9 +224,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_operation": schema.SetAttribute{
 				Description: "Specifies the types of operations that clients associated with this Client Connection Policy will be allowed to request.",
@@ -248,9 +231,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     setdefault.StaticValue(allowedOperationDefaults),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"required_operation_request_criteria": schema.StringAttribute{
 				Description: "Specifies a request criteria object that will be required to match all requests submitted by clients associated with this Client Connection Policy. If a client submits a request that does not satisfy this request criteria object, then that request will be rejected.",
@@ -266,9 +246,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"denied_request_control": schema.SetAttribute{
 				Description: "Specifies the OIDs of the controls that clients associated with this Client Connection Policy will not be allowed to include in requests.",
@@ -276,9 +253,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_extended_operation": schema.SetAttribute{
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will be allowed to request.",
@@ -286,9 +260,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"denied_extended_operation": schema.SetAttribute{
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will not be allowed to request.",
@@ -296,9 +267,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_auth_type": schema.SetAttribute{
 				Description: "Specifies the types of authentication that clients associated with this Client Connection Policy will be allowed to request.",
@@ -306,9 +274,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     setdefault.StaticValue(allowedAuthTypeDefaults),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_sasl_mechanism": schema.SetAttribute{
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will be allowed to request.",
@@ -316,9 +281,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"denied_sasl_mechanism": schema.SetAttribute{
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will not be allowed to request.",
@@ -326,9 +288,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_filter_type": schema.SetAttribute{
 				Description: "Specifies the types of filter components that may be included in search requests from clients associated with this Client Connection Policy which have a non-baseObject scope.",
@@ -336,18 +295,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     setdefault.StaticValue(allowedFilterTypeDefaults),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_unindexed_searches": schema.BoolAttribute{
 				Description: "Indicates whether clients will be allowed to request search operations that cannot be efficiently processed using the set of indexes defined in the corresponding backend. Note that even if this is false, some clients may be able to request unindexed searches if the allow-unindexed-searches-with-control property has a value of true and the necessary conditions are satisfied.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_unindexed_searches_with_control": schema.BoolAttribute{
 				Description: "Indicates whether clients will be allowed to request search operations that cannot be efficiently processed using the set of indexes defined in the corresponding backend, as long as the search request also includes the permit unindexed search request control and the requester has the unindexed-search-with-control privilege (or that privilege is disabled in the global configuration).",
@@ -362,18 +315,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(1),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_concurrent_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of client connections which may be associated with this Client Connection Policy at any given time.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_connection_duration": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a connection associated with this Client Connection Policy may be established. Any connection which is associated with this Client Connection Policy and has been established for longer than this period of time may be terminated.",
@@ -396,18 +343,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_concurrent_operations_per_connection": schema.Int64Attribute{
 				Description: "Specifies the maximum number of concurrent operations that can be in progress for any connection. This can help prevent a single client connection from monopolizing server processing resources by sending a large number of concurrent asynchronous requests. A value of zero indicates that no limit will be placed on the number of concurrent requests for a single client.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_concurrent_operation_wait_time_before_rejecting": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that the server should wait for an outstanding operation to complete before rejecting a new request received when the maximum number of outstanding operations are already in progress on that connection. If an existing outstanding operation on the connection completes before this time, then the operation will be processed. Otherwise, the operation will be rejected with a \"busy\" result.",
@@ -422,9 +363,6 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_connection_operation_rate": schema.SetAttribute{
 				Description: "Specifies the maximum rate at which a client associated with this Client Connection Policy may issue requests to the Directory Server. If any client attempts to request operations at a rate higher than this limit, then the server will exhibit the behavior described in the connection-operation-rate-exceeded-behavior property.",
@@ -432,18 +370,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_operation_rate_exceeded_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the Directory Server should exhibit if a client connection attempts to exceed a rate defined in the maximum-connection-operation-rate property. If the configured behavior is one that will reject requested operations, then that behavior will persist until the end of the corresponding interval. The server will resume allowing that client to perform operations when that interval expires, as long as no other operation rate limits have been exceeded.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_policy_operation_rate": schema.SetAttribute{
 				Description: "Specifies the maximum rate at which all clients associated with this Client Connection Policy, as a collective set, may issue requests to the Directory Server. If this limit is exceeded, then the server will exhibit the behavior described in the policy-operation-rate-exceeded-behavior property.",
@@ -451,27 +383,18 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"policy_operation_rate_exceeded_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the Directory Server should exhibit if a client connection attempts to exceed a rate defined in the maximum-policy-operation-rate property. If the configured behavior is one that will reject requested operations, then that behavior will persist until the end of the corresponding interval. The server will resume allowing clients associated with this Client Connection Policy to perform operations when that interval expires, as long as no other operation rate limits have been exceeded.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_search_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be returned for a search performed by a client associated with this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_search_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that the server should spend processing search operations requested by clients associated with this Client Connection Policy.",
@@ -486,27 +409,18 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_ldap_join_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be joined with any single search result entry for a search request performed by a client associated with this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_sort_size_limit_without_vlv_index": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the server will attempt to sort without the benefit of a VLV index. A value of zero indicates that no limit should be enforced.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

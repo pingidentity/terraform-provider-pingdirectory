@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -137,54 +136,36 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_in_returned_entries": schema.StringAttribute{
 				Description: "Indicates whether sensitive attributes should be included in entries returned to the client. This includes not only search result entries, but also other forms including in the values of controls like the pre-read, post-read, get authorization entry, and LDAP join response controls.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_in_filter": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to include sensitive attributes in search filters. This also includes filters that may be used in other forms, including assertion and LDAP join request controls.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_in_add": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to include sensitive attributes in add requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_in_compare": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to target sensitive attributes with compare requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_in_modify": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to target sensitive attributes with modify requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

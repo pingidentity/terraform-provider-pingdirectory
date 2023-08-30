@@ -150,9 +150,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_address_attribute_type": schema.StringAttribute{
 				Description: "The name or OID of the attribute that holds the email address to which the message should be sent.",

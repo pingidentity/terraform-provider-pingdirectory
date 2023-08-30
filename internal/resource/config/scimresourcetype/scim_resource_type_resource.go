@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -142,9 +140,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"optional_schema_extension": schema.SetAttribute{
 				Description: "Optional additive schemas that are enforced on extension attributes in a SCIM resource representation for this Mapping SCIM Resource Type.",
@@ -152,9 +147,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this SCIM Resource Type",
@@ -176,9 +168,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(500),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"schema_checking_option": schema.SetAttribute{
 				Description: "Options to alter the way schema checking is performed during create or modify requests.",
@@ -186,9 +175,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"structural_ldap_objectclass": schema.StringAttribute{
 				Description: "Specifies the LDAP structural object class that should be exposed by this SCIM Resource Type.",
@@ -200,9 +186,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_base_dn": schema.StringAttribute{
 				Description: "Specifies the base DN of the branch of the LDAP directory that can be accessed by this SCIM Resource Type.",
@@ -214,9 +197,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_operational_attribute": schema.SetAttribute{
 				Description: "Specifies the set of operational LDAP attributes to be provided by this SCIM Resource Type.",
@@ -224,9 +204,6 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"create_dn_pattern": schema.StringAttribute{
 				Description: "Specifies the template to use for the DN when creating new entries.",

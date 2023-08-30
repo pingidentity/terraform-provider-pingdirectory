@@ -156,9 +156,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_signing_algorithm": schema.SetAttribute{
 				Description: "Specifies an allow list of JWT signing algorithms that will be accepted by the JWT Access Token Validator.",
@@ -175,9 +172,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.",
@@ -284,9 +278,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("sub"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Access Token Validator",

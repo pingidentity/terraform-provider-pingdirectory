@@ -139,9 +139,6 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"attribute_type": schema.SetAttribute{
 				Description: "Specifies the attribute types for attributes that may be written to the uncached-id2entry database.",
@@ -178,9 +175,6 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Uncached Attribute Criteria",

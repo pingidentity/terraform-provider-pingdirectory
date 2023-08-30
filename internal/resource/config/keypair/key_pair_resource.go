@@ -124,7 +124,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -143,7 +142,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     stringdefault.StaticString("cn=Directory Server,O=Ping Identity Key Pair"),
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},

@@ -451,9 +451,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"delay": schema.StringAttribute{
 				Description: "The delay to inject for operations matching the associated criteria.",
@@ -530,9 +527,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values will not be generated.",
@@ -540,9 +534,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values may be generated.",
@@ -550,9 +541,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values will not be generated.",
@@ -560,9 +548,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"updated_entry_newly_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.",
@@ -590,9 +575,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"agentx_address": schema.StringAttribute{
 				Description: "The hostname or IP address of the SNMP master agent.",
@@ -680,9 +662,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"enable_control_mapping": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `dn-mapper`: Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin. When the `type` attribute is set to `attribute-mapper`: Indicates whether mapping should be applied to attribute types that may be present in specific controls. If enabled, attribute mapping will only be applied for control types which are specifically supported by the attribute mapper plugin.",
@@ -717,9 +696,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"datetime_attribute": schema.StringAttribute{
 				Description: "The LDAP attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.",
@@ -763,9 +739,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_dn_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct the bind DN for the simple bind request to send to the remote server. This may consist of a combination of static text and attribute values and other directives enclosed in curly braces.  For example, the value \"cn={cn},ou=People,dc=example,dc=com\" indicates that the remote bind DN should be constructed from the text \"cn=\" followed by the value of the local entry's cn attribute followed by the text \"ou=People,dc=example,dc=com\". If an attribute contains the value to use as the bind DN for pass-through authentication, then the pattern may simply be the name of that attribute in curly braces (e.g., if the seeAlso attribute contains the bind DN for the target user, then a bind DN pattern of \"{seeAlso}\" would be appropriate).  Note that a bind DN pattern can be used to construct a bind DN that is not actually a valid LDAP distinguished name. For example, if authentication is being passed through to a Microsoft Active Directory server, then a bind DN pattern could be used to construct a user principal name (UPN) as an alternative to a distinguished name.",
@@ -855,9 +828,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_resource_stat": schema.SetAttribute{
 				Description: "Specifies whether statistics related to resource utilization such as JVM memory.",
@@ -865,9 +835,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"histogram_format": schema.StringAttribute{
 				Description: "The format of the data in the processing time histogram.",
@@ -883,9 +850,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"scope": schema.StringAttribute{
 				Description: "The scope to use for the search.",
@@ -898,9 +862,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"gauge_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for Gauges.",
@@ -950,9 +911,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
@@ -960,9 +918,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retention_policy": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The retention policy to use for the Periodic Stats Logger Plugin . When the `type` attribute is set to `monitor-history`: The retention policy to use for the Monitor History Plugin .",
@@ -971,9 +926,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"logging_error_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
@@ -1027,9 +979,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: A reference to connection criteria that will be used to indicate which bind requests should be passed through to the PingOne service. When the `type` attribute is set to `pass-through-authentication`: Specifies a set of connection criteria that must match the client associated with the bind request for the bind to be passed through to an alternate server. When the `type` attribute is set to `simple-to-external-bind`: Specifies a connection criteria object that may be used to indicate the set of clients for which this plugin should be used. If a value is provided, then this plugin will only be used for requests from client connections matching this criteria. When the `type` attribute is set to `delay`: Specifies a set of connection criteria used to indicate that only operations from clients matching this criteria should be subject to the configured delay. When the `type` attribute is set to `pluggable-pass-through-authentication`: A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
@@ -1092,9 +1041,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_mapping_local_attribute": schema.SetAttribute{
 				Description: "The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.",
@@ -1124,9 +1070,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"invoke_gc_time_utc": schema.SetAttribute{
 				Description: "Specifies the times of the day at which garbage collection may be explicitly invoked. The times should be specified in \"HH:MM\" format, with \"HH\" as a two-digit numeric value between 00 and 23 representing the hour of the day, and MM as a two-digit numeric value between 00 and 59 representing the minute of the hour. All times will be interpreted in the UTC time zone.",
@@ -1199,9 +1142,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_threads": schema.Int64Attribute{
 				Description: "Specifies the number of concurrent threads that should be used to process the search operations.",
@@ -1218,9 +1158,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"lower_bound": schema.Int64Attribute{
 				Description: "Specifies the lower bound for the numeric value which will be inserted into the search filter.",
@@ -1305,9 +1242,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_ldap_application": schema.SetAttribute{
 				Description: "If statistics should not be included for all applications, this property names the subset of applications that should be included.",
@@ -1315,9 +1249,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"request_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `last-access-time`: Specifies a set of request criteria that may be used to indicate whether to apply access time updates for the associated operation. When the `type` attribute is set to `ping-one-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the PingOne service. When the `type` attribute is set to `sub-operation-timing`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be counted when aggregating timing data. When the `type` attribute is set to `third-party`: Specifies a set of request criteria that may be used to indicate that this Third Party Plugin should only be invoked for operations in which the associated request matches this criteria. When the `type` attribute is set to `pass-through-authentication`: Specifies a set of request criteria that must match the bind request for the bind to be passed through to an alternate server. When the `type` attribute is set to `simple-to-external-bind`: Specifies a request criteria object that may be used to indicate the set of requests for which this plugin should be used. If a value is provided, then this plugin will only be used for bind requests matching this criteria. When the `type` attribute is set to `coalesce-modifications`: A reference to request criteria that indicates which modify requests should be coalesced. When the `type` attribute is set to `delay`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be subject to the configured delay. When the `type` attribute is set to `groovy-scripted`: Specifies a set of request criteria that may be used to indicate that this Groovy Scripted Plugin should only be invoked for operations in which the associated request matches this criteria. When the `type` attribute is set to `pluggable-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",

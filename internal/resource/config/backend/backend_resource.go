@@ -377,9 +377,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"compress_entries": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to compress entries before storing them in the database.",
@@ -468,9 +465,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used for any database for which the cache mode is not explicitly specified. This includes the id2entry database, which stores encoded entries, and all attribute indexes.",
@@ -539,9 +533,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"system_index_to_prime_internal_nodes_only": schema.SetAttribute{
 				Description: "Specifies the system index(es) for which internal database nodes only (i.e., the database keys but not values) should be primed when the backend is initialized.",
@@ -549,9 +540,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"background_prime": schema.BoolAttribute{
 				Description: "Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.",
@@ -721,9 +709,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"notification_manager": schema.StringAttribute{
 				Description: "Specifies a notification manager for changes resulting from operations processed through this Backend",

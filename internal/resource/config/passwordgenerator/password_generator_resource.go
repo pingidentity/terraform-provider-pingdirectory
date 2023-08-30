@@ -143,9 +143,6 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dictionary_file": schema.StringAttribute{
 				Description: "The path to the dictionary file that will be used to obtain the words for use in generated passwords.",
@@ -185,9 +182,6 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_character_set": schema.SetAttribute{
 				Description: "Specifies one or more named character sets.",

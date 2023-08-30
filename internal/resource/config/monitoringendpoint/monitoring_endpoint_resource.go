@@ -10,9 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -131,18 +129,12 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(8125),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_type": schema.StringAttribute{
 				Description: "Specifies the protocol and security that this StatsD Monitoring Endpoint should use to connect to the configured endpoint.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("unencrypted-udp"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL over TCP is to be used for connection-level security.",
@@ -154,9 +146,6 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether this Monitoring Endpoint is enabled for use in the Directory Server.",

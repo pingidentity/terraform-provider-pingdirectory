@@ -140,9 +140,6 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"fingerprint_attribute": schema.StringAttribute{
 				Description: "Specifies the attribute in which to look for the fingerprint.",
@@ -175,9 +172,6 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subject_attribute": schema.StringAttribute{
 				Description: "Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.",
@@ -194,9 +188,6 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:            true,
 				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Certificate Mapper",

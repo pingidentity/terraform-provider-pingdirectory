@@ -179,9 +179,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"min_unique_characters": schema.Int64Attribute{
 				Description: "Specifies the minimum number of unique characters that a password will be allowed to contain.",
@@ -285,9 +282,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_non_ascii_characters": schema.BoolAttribute{
 				Description: "Indicates whether passwords will be allowed to include characters from outside the ASCII character set.",
@@ -381,9 +375,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_allowed_percent_of_password": schema.Int64Attribute{
 				Description: "The maximum allowed percent of a proposed password that any single dictionary word is allowed to comprise. A value of 100 indicates that a proposed password will only be rejected if the dictionary contains the entire proposed password (after any configured transformations have been applied).",
@@ -399,9 +390,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"test_password_substring_of_attribute_value": schema.BoolAttribute{
 				Description: "Indicates whether to reject any proposed password that is a substring of a value in one of the match attributes in the target user's entry.",

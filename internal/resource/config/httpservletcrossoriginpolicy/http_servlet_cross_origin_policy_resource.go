@@ -11,10 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -139,9 +137,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				Default:     setdefault.StaticValue(corsAllowedMethodsDefaults),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cors_allowed_origins": schema.SetAttribute{
 				Description: "A list of origins that are allowed to execute cross-origin requests.",
@@ -149,9 +144,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cors_exposed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers other than the simple response headers that browsers are allowed to access.",
@@ -159,9 +151,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cors_allowed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers that are supported by the resource and can be specified in a cross-origin request.",
@@ -169,9 +158,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				Default:     setdefault.StaticValue(corsAllowedHeadersDefaults),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cors_preflight_max_age": schema.StringAttribute{
 				Description: "The maximum amount of time that a preflight request can be cached by a client.",
@@ -186,9 +172,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -129,36 +128,24 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(49),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_missing_user_result_code": schema.Int64Attribute{
 				Description: "Specifies the result code that should be returned if a bind attempt fails because the target user entry does not exist in the server.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(49),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_missing_password_result_code": schema.Int64Attribute{
 				Description: "Specifies the result code that should be returned if a password-based bind attempt fails because the target user entry does not have a password.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(49),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"server_error_result_code": schema.Int64Attribute{
 				Description: "Specifies the result code that should be returned if a generic error occurs within the server.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(80),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
