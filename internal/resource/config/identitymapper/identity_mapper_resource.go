@@ -232,9 +232,15 @@ func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.Mo
 	resourceType := model.Type.ValueString()
 	// Set defaults for exact-match type
 	if resourceType == "exact-match" {
+		if !internaltypes.IsDefined(model.MatchAttribute) {
+			model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+		}
 	}
 	// Set defaults for regular-expression type
 	if resourceType == "regular-expression" {
+		if !internaltypes.IsDefined(model.MatchAttribute) {
+			model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+		}
 	}
 	resp.Plan.Set(ctx, &model)
 }

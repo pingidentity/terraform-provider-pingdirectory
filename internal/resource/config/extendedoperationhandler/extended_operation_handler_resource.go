@@ -346,6 +346,9 @@ func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req r
 		if !internaltypes.IsDefined(model.AllowRemotelyProvidedCertificates) {
 			model.AllowRemotelyProvidedCertificates = types.BoolValue(false)
 		}
+		if !internaltypes.IsDefined(model.AllowedOperation) {
+			model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("replace-listener-certificate"), types.StringValue("replace-inter-server-certificate"), types.StringValue("purge-retired-listener-certificates"), types.StringValue("purge-retired-inter-server-certificates")})
+		}
 	}
 	resp.Plan.Set(ctx, &model)
 }

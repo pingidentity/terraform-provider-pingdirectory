@@ -318,6 +318,15 @@ func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resou
 	}
 	// Set defaults for jwt type
 	if resourceType == "jwt" {
+		if !internaltypes.IsDefined(model.AllowedSigningAlgorithm) {
+			model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RS256"), types.StringValue("RS384"), types.StringValue("RS512")})
+		}
+		if !internaltypes.IsDefined(model.AllowedKeyEncryptionAlgorithm) {
+			model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RSA_OAEP")})
+		}
+		if !internaltypes.IsDefined(model.AllowedContentEncryptionAlgorithm) {
+			model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("A128CBC_HS256"), types.StringValue("A192CBC_HS384"), types.StringValue("A256CBC_HS512")})
+		}
 		if !internaltypes.IsDefined(model.ClientIDClaimName) {
 			model.ClientIDClaimName = types.StringValue("client_id")
 		}

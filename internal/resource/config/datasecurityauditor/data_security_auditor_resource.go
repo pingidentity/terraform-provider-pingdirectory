@@ -275,6 +275,9 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 	resourceType := model.Type.ValueString()
 	// Set defaults for expired-password type
 	if resourceType == "expired-password" {
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("pwdChangedTime"), types.StringValue("ds-pwp-warned-time"), types.StringValue("ds-pwp-last-login-time")})
+		}
 	}
 	// Set defaults for idle-account type
 	if resourceType == "idle-account" {
@@ -292,6 +295,12 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 	if resourceType == "weakly-encoded-password" {
 		if !internaltypes.IsDefined(model.ReportFile) {
 			model.ReportFile = types.StringValue("users-with-weakly-encoded-passwords.ldif")
+		}
+		if !internaltypes.IsDefined(model.WeakPasswordStorageScheme) {
+			model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("3DES"), types.StringValue("AES"), types.StringValue("Base64"), types.StringValue("Blowfish"), types.StringValue("Clear"), types.StringValue("CRYPT"), types.StringValue("MD5"), types.StringValue("RC4"), types.StringValue("SHA-1"), types.StringValue("Salted MD5"), types.StringValue("Salted SHA-1")})
+		}
+		if !internaltypes.IsDefined(model.WeakCryptEncoding) {
+			model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("crypt"), types.StringValue("md5")})
 		}
 	}
 	// Set defaults for privilege type
@@ -311,11 +320,17 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 		if !internaltypes.IsDefined(model.ReportFile) {
 			model.ReportFile = types.StringValue("locked-accounts.ldif")
 		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("pwdAccountLockedTime"), types.StringValue("ds-pwp-auth-failure"), types.StringValue("ds-pwp-last-login-time")})
+		}
 	}
 	// Set defaults for account-validity-window type
 	if resourceType == "account-validity-window" {
 		if !internaltypes.IsDefined(model.ReportFile) {
 			model.ReportFile = types.StringValue("account-validity-window.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-pwp-account-activation-time"), types.StringValue("ds-pwp-account-expiration-time")})
 		}
 	}
 	// Set defaults for multiple-password type
@@ -335,11 +350,17 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 		if !internaltypes.IsDefined(model.ReportFile) {
 			model.ReportFile = types.StringValue("nonexistent-password-policies.ldif")
 		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-pwp-password-policy-dn")})
+		}
 	}
 	// Set defaults for access-control type
 	if resourceType == "access-control" {
 		if !internaltypes.IsDefined(model.ReportFile) {
 			model.ReportFile = types.StringValue("entries-with-acis.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("aci")})
 		}
 	}
 	resp.Plan.Set(ctx, &model)

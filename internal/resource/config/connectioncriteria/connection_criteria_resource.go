@@ -401,6 +401,9 @@ func (r *connectionCriteriaResource) ModifyPlan(ctx context.Context, req resourc
 		if !internaltypes.IsDefined(model.CommunicationSecurityLevel) {
 			model.CommunicationSecurityLevel = types.StringValue("any")
 		}
+		if !internaltypes.IsDefined(model.UserAuthType) {
+			model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("simple"), types.StringValue("sasl"), types.StringValue("internal")})
+		}
 		if !internaltypes.IsDefined(model.AuthenticationSecurityLevel) {
 			model.AuthenticationSecurityLevel = types.StringValue("any")
 		}

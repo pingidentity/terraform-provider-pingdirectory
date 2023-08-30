@@ -990,6 +990,9 @@ func (r *backendResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 		if !internaltypes.IsDefined(model.DefaultCacheMode) {
 			model.DefaultCacheMode = types.StringValue("cache-keys-and-values")
 		}
+		if !internaltypes.IsDefined(model.PrimeMethod) {
+			model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none")})
+		}
 		if !internaltypes.IsDefined(model.PrimeThreadCount) {
 			model.PrimeThreadCount = types.Int64Value(2)
 		}

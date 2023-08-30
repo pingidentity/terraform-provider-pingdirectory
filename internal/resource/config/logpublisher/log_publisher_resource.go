@@ -1115,6 +1115,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
 			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
 		}
+		if !internaltypes.IsDefined(model.ExcludeAttribute) {
+			model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-sync-hist")})
+		}
 		if !internaltypes.IsDefined(model.IncludeReplicationChangeID) {
 			model.IncludeReplicationChangeID = types.BoolValue(true)
 		}
@@ -1135,6 +1138,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		}
 		if !internaltypes.IsDefined(model.QueueSize) {
 			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
 		}
 	}
 	// Set defaults for third-party-file-based-access type
@@ -1388,6 +1394,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.QueueSize) {
 			model.QueueSize = types.Int64Value(10000)
 		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
+		}
 	}
 	// Set defaults for jdbc-based-access type
 	if resourceType == "jdbc-based-access" {
@@ -1466,6 +1475,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 	}
 	// Set defaults for syslog-text-error type
 	if resourceType == "syslog-text-error" {
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-error"), types.StringValue("severe-warning"), types.StringValue("notice")})
+		}
 		if !internaltypes.IsDefined(model.SyslogFacility) {
 			model.SyslogFacility = types.StringValue("system-daemons")
 		}
@@ -1655,6 +1667,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
 			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
 		}
+		if !internaltypes.IsDefined(model.ExcludeAttribute) {
+			model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-sync-hist")})
+		}
 		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
 			model.SuppressInternalOperations = types.BoolValue(false)
 		}
@@ -1787,9 +1802,15 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.TimestampPrecision) {
 			model.TimestampPrecision = types.StringValue("milliseconds")
 		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
+		}
 	}
 	// Set defaults for third-party-error type
 	if resourceType == "third-party-error" {
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
+		}
 	}
 	// Set defaults for syslog-text-access type
 	if resourceType == "syslog-text-access" {
@@ -1952,8 +1973,14 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.LogRequestHeaders) {
 			model.LogRequestHeaders = types.StringValue("none")
 		}
+		if !internaltypes.IsDefined(model.SuppressedRequestHeaderName) {
+			model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Authorization"), types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Cookie")})
+		}
 		if !internaltypes.IsDefined(model.LogResponseHeaders) {
 			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SuppressedResponseHeaderName) {
+			model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Location"), types.StringValue("Set-Cookie")})
 		}
 		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
 			model.LogRequestAuthorizationType = types.BoolValue(true)
@@ -2153,6 +2180,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.ObscureSensitiveContent) {
 			model.ObscureSensitiveContent = types.BoolValue(true)
 		}
+		if !internaltypes.IsDefined(model.ObscureAttribute) {
+			model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("userPassword"), types.StringValue("authPassword")})
+		}
 		if !internaltypes.IsDefined(model.DebugACIEnabled) {
 			model.DebugACIEnabled = types.BoolValue(false)
 		}
@@ -2228,8 +2258,14 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.LogRequestHeaders) {
 			model.LogRequestHeaders = types.StringValue("none")
 		}
+		if !internaltypes.IsDefined(model.SuppressedRequestHeaderName) {
+			model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Authorization"), types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Cookie")})
+		}
 		if !internaltypes.IsDefined(model.LogResponseHeaders) {
 			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SuppressedResponseHeaderName) {
+			model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Location"), types.StringValue("Set-Cookie")})
 		}
 		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
 			model.LogRequestAuthorizationType = types.BoolValue(true)
@@ -2348,6 +2384,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
 			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
 		}
+		if !internaltypes.IsDefined(model.ExcludeAttribute) {
+			model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-sync-hist")})
+		}
 		if !internaltypes.IsDefined(model.Asynchronous) {
 			model.Asynchronous = types.BoolValue(true)
 		}
@@ -2419,6 +2458,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		}
 		if !internaltypes.IsDefined(model.GenerifyMessageStringsWhenPossible) {
 			model.GenerifyMessageStringsWhenPossible = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
 		}
 	}
 	// Set defaults for groovy-scripted-file-based-access type
@@ -2515,6 +2557,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		}
 		if !internaltypes.IsDefined(model.QueueSize) {
 			model.QueueSize = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
 		}
 	}
 	// Set defaults for syslog-json-access type
@@ -2696,6 +2741,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.QueueSize) {
 			model.QueueSize = types.Int64Value(10000)
 		}
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
+		}
 	}
 	// Set defaults for console-json-audit type
 	if resourceType == "console-json-audit" {
@@ -2716,6 +2764,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		}
 		if !internaltypes.IsDefined(model.IncludeIntermediateClientRequestControl) {
 			model.IncludeIntermediateClientRequestControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ExcludeAttribute) {
+			model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-sync-hist")})
 		}
 		if !internaltypes.IsDefined(model.SuppressInternalOperations) {
 			model.SuppressInternalOperations = types.BoolValue(false)
@@ -2783,8 +2834,14 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.LogRequestHeaders) {
 			model.LogRequestHeaders = types.StringValue("none")
 		}
+		if !internaltypes.IsDefined(model.SuppressedRequestHeaderName) {
+			model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Authorization"), types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Cookie")})
+		}
 		if !internaltypes.IsDefined(model.LogResponseHeaders) {
 			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SuppressedResponseHeaderName) {
+			model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Location"), types.StringValue("Set-Cookie")})
 		}
 		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
 			model.LogRequestAuthorizationType = types.BoolValue(true)
@@ -2942,6 +2999,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 	}
 	// Set defaults for groovy-scripted-error type
 	if resourceType == "groovy-scripted-error" {
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-warning"), types.StringValue("severe-error")})
+		}
 	}
 	// Set defaults for file-based-json-http-operation type
 	if resourceType == "file-based-json-http-operation" {
@@ -2996,8 +3056,14 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 		if !internaltypes.IsDefined(model.LogRequestHeaders) {
 			model.LogRequestHeaders = types.StringValue("none")
 		}
+		if !internaltypes.IsDefined(model.SuppressedRequestHeaderName) {
+			model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Authorization"), types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Cookie")})
+		}
 		if !internaltypes.IsDefined(model.LogResponseHeaders) {
 			model.LogResponseHeaders = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.SuppressedResponseHeaderName) {
+			model.SuppressedResponseHeaderName, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Content-Length"), types.StringValue("Content-Type"), types.StringValue("Location"), types.StringValue("Set-Cookie")})
 		}
 		if !internaltypes.IsDefined(model.LogRequestAuthorizationType) {
 			model.LogRequestAuthorizationType = types.BoolValue(true)
@@ -3023,6 +3089,9 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 	}
 	// Set defaults for syslog-json-error type
 	if resourceType == "syslog-json-error" {
+		if !internaltypes.IsDefined(model.DefaultSeverity) {
+			model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("fatal-error"), types.StringValue("severe-error"), types.StringValue("severe-warning"), types.StringValue("notice")})
+		}
 		if !internaltypes.IsDefined(model.SyslogFacility) {
 			model.SyslogFacility = types.StringValue("system-daemons")
 		}

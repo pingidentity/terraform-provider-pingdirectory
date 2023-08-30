@@ -550,6 +550,9 @@ func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource
 		if !internaltypes.IsDefined(model.AllowUnknownCharacters) {
 			model.AllowUnknownCharacters = types.BoolValue(false)
 		}
+		if !internaltypes.IsDefined(model.AllowedCharacterType) {
+			model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("letters"), types.StringValue("numbers"), types.StringValue("punctuation"), types.StringValue("symbols"), types.StringValue("spaces"), types.StringValue("marks")})
+		}
 	}
 	// Set defaults for pwned-passwords type
 	if resourceType == "pwned-passwords" {

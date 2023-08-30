@@ -613,6 +613,12 @@ func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.Mo
 	}
 	// Set defaults for replication-assurance type
 	if resourceType == "replication-assurance" {
+		if !internaltypes.IsDefined(model.LocalAssuranceLevel) {
+			model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-server"), types.StringValue("processed-all-servers")})
+		}
+		if !internaltypes.IsDefined(model.RemoteAssuranceLevel) {
+			model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-remote-location"), types.StringValue("received-all-remote-locations"), types.StringValue("processed-all-remote-servers")})
+		}
 		if !internaltypes.IsDefined(model.AssuranceTimeoutCriteria) {
 			model.AssuranceTimeoutCriteria = types.StringValue("any")
 		}

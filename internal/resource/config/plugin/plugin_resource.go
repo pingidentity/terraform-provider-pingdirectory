@@ -1387,6 +1387,12 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for seven-bit-clean type
 	if resourceType == "seven-bit-clean" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preparseadd"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		}
+		if !internaltypes.IsDefined(model.AttributeType) {
+			model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid"), types.StringValue("mail"), types.StringValue("userPassword")})
+		}
 		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
 			model.InvokeForInternalOperations = types.BoolValue(true)
 		}
@@ -1402,6 +1408,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for periodic-gc type
 	if resourceType == "periodic-gc" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("startup")})
+		}
 		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
 			model.InvokeForInternalOperations = types.BoolValue(true)
 		}
@@ -1486,6 +1495,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for sub-operation-timing type
 	if resourceType == "sub-operation-timing" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("postresponseadd"), types.StringValue("postresponsebind"), types.StringValue("postresponsecompare"), types.StringValue("postresponsedelete"), types.StringValue("postresponseextended"), types.StringValue("postresponsemodify"), types.StringValue("postresponsemodifydn"), types.StringValue("postresponsesearch")})
+		}
 		if !internaltypes.IsDefined(model.NumMostExpensivePhasesShown) {
 			model.NumMostExpensivePhasesShown = types.Int64Value(10)
 		}
@@ -1501,6 +1513,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for pass-through-authentication type
 	if resourceType == "pass-through-authentication" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationbind"), types.StringValue("postoperationbind")})
+		}
 		if !internaltypes.IsDefined(model.TryLocalBind) {
 			model.TryLocalBind = types.BoolValue(true)
 		}
@@ -1528,6 +1543,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for dn-mapper type
 	if resourceType == "dn-mapper" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		}
 		if !internaltypes.IsDefined(model.EnableAttributeMapping) {
 			model.EnableAttributeMapping = types.BoolValue(true)
 		}
@@ -1543,6 +1561,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for referral-on-update type
 	if resourceType == "referral-on-update" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseadd"), types.StringValue("preparsedelete"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		}
 		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
 			model.InvokeForInternalOperations = types.BoolValue(false)
 		}
@@ -1579,6 +1600,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for composed-attribute type
 	if resourceType == "composed-attribute" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn")})
+		}
 		if !internaltypes.IsDefined(model.MultipleValuePatternBehavior) {
 			model.MultipleValuePatternBehavior = types.StringValue("use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject")
 		}
@@ -1609,6 +1633,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for attribute-mapper type
 	if resourceType == "attribute-mapper" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		}
 		if !internaltypes.IsDefined(model.EnableControlMapping) {
 			model.EnableControlMapping = types.BoolValue(true)
 		}
@@ -1621,6 +1648,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for delay type
 	if resourceType == "delay" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind")})
+		}
 		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
 			model.InvokeForInternalOperations = types.BoolValue(true)
 		}
@@ -1660,6 +1690,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for referential-integrity type
 	if resourceType == "referential-integrity" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationdelete"), types.StringValue("postoperationdelete"), types.StringValue("postoperationmodifydn"), types.StringValue("subordinatemodifydn")})
+		}
 		if !internaltypes.IsDefined(model.LogFile) {
 			model.LogFile = types.StringValue("logs/referint")
 		}
@@ -1669,6 +1702,9 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	// Set defaults for unique-attribute type
 	if resourceType == "unique-attribute" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn"), types.StringValue("postsynchronizationadd"), types.StringValue("postsynchronizationmodify"), types.StringValue("postsynchronizationmodifydn")})
+		}
 		if !internaltypes.IsDefined(model.MultipleAttributeBehavior) {
 			model.MultipleAttributeBehavior = types.StringValue("unique-within-each-attribute")
 		}

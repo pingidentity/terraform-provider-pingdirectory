@@ -783,6 +783,9 @@ func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resou
 		if !internaltypes.IsDefined(model.DebugLevel) {
 			model.DebugLevel = types.StringValue("info")
 		}
+		if !internaltypes.IsDefined(model.DebugType) {
+			model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("coding-error"), types.StringValue("exception")})
+		}
 		if !internaltypes.IsDefined(model.IncludeStackTrace) {
 			model.IncludeStackTrace = types.BoolValue(false)
 		}
@@ -792,11 +795,17 @@ func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resou
 		if !internaltypes.IsDefined(model.EnableDirectoryIndexing) {
 			model.EnableDirectoryIndexing = types.BoolValue(false)
 		}
+		if !internaltypes.IsDefined(model.IndexFile) {
+			model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("index.html"), types.StringValue("index.htm")})
+		}
 		if !internaltypes.IsDefined(model.DefaultMIMEType) {
 			model.DefaultMIMEType = types.StringValue("application/octet-stream")
 		}
 		if !internaltypes.IsDefined(model.RequireAuthentication) {
 			model.RequireAuthentication = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowedAuthenticationType) {
+			model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("basic"), types.StringValue("access-token"), types.StringValue("id-token")})
 		}
 		if !internaltypes.IsDefined(model.RequireFileServletAccessPrivilege) {
 			model.RequireFileServletAccessPrivilege = types.BoolValue(false)

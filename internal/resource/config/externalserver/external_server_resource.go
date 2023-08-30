@@ -548,6 +548,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
 		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
 		}
@@ -578,6 +581,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
 		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
 		}
@@ -604,6 +610,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		}
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
 		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
@@ -647,6 +656,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
 		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
 		}
@@ -677,6 +689,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
 		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
 		}
@@ -704,6 +719,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
 		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
 		}
@@ -730,6 +748,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		}
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
 		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)
@@ -769,6 +790,9 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		}
 		if !internaltypes.IsDefined(model.MaxConnections) {
 			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
 		}
 		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
 			model.AbandonOnTimeout = types.BoolValue(true)

@@ -240,6 +240,9 @@ func (r *velocityContextProviderResource) ModifyPlan(ctx context.Context, req re
 	resourceType := model.Type.ValueString()
 	// Set defaults for third-party type
 	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.HttpMethod) {
+			model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("GET")})
+		}
 	}
 	resp.Plan.Set(ctx, &model)
 }

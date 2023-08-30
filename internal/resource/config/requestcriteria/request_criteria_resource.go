@@ -422,9 +422,18 @@ func (r *requestCriteriaResource) ModifyPlan(ctx context.Context, req resource.M
 	resourceType := model.Type.ValueString()
 	// Set defaults for root-dse type
 	if resourceType == "root-dse" {
+		if !internaltypes.IsDefined(model.OperationType) {
+			model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("compare")})
+		}
 	}
 	// Set defaults for simple type
 	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.OperationType) {
+			model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("abandon"), types.StringValue("add"), types.StringValue("bind"), types.StringValue("compare"), types.StringValue("delete"), types.StringValue("extended"), types.StringValue("modify"), types.StringValue("modify-dn"), types.StringValue("search"), types.StringValue("unbind")})
+		}
+		if !internaltypes.IsDefined(model.IncludedSearchScope) {
+			model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("base-object"), types.StringValue("single-level"), types.StringValue("whole-subtree"), types.StringValue("subordinate-subtree")})
+		}
 		if !internaltypes.IsDefined(model.UsingAdministrativeSessionWorkerThread) {
 			model.UsingAdministrativeSessionWorkerThread = types.StringValue("any")
 		}
