@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -167,10 +166,8 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 				Description: "A set of name-value pairs for labels that should be included in the published metric for the target attribute.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -190,7 +187,7 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *prometheusMonitorAttributeMetricResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPrometheusMonitorAttributeMetric(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_prometheus_monitor_attribute_metric")
 }

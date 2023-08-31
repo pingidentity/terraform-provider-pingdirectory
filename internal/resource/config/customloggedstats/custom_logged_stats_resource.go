@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -150,9 +148,6 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"monitor_objectclass": schema.StringAttribute{
 				Description: "The objectclass name of the monitor entries to examine for generating these statistics.",
@@ -171,10 +166,8 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Optionally, specifies an explicit name for each column header instead of having these names automatically generated from the monitored attribute name.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"statistic_type": schema.SetAttribute{
 				Description: "Specifies the type of statistic to include in the output for each monitored attribute.",
@@ -210,18 +203,12 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("#.##"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"non_zero_implies_not_idle": schema.BoolAttribute{
 				Description: "If this property is set to true, then the value of any of the monitored attributes here can contribute to whether an interval is considered \"idle\" by the Periodic Stats Logger.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

@@ -138,10 +138,8 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The set of arguments used to customize the behavior for the Third Party Certificate Mapper. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"fingerprint_attribute": schema.StringAttribute{
 				Description: "Specifies the attribute in which to look for the fingerprint.",
@@ -172,10 +170,8 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The set of arguments used to customize the behavior for the Scripted Certificate Mapper. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subject_attribute": schema.StringAttribute{
 				Description: "Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.",
@@ -190,10 +186,8 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`subject-dn-to-user-attribute`, `subject-attribute-to-user-attribute`]: Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry.\n  - `fingerprint`: Specifies the set of base DNs below which to search for users.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Certificate Mapper",
@@ -219,6 +213,26 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *certificateMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model certificateMapperResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for subject-dn-to-user-attribute type
+	if resourceType == "subject-dn-to-user-attribute" {
+		if !internaltypes.IsDefined(model.SubjectAttribute) {
+			model.SubjectAttribute = types.StringValue("ds-certificate-subject-dn")
+		}
+	}
+	// Set defaults for fingerprint type
+	if resourceType == "fingerprint" {
+		if !internaltypes.IsDefined(model.FingerprintAttribute) {
+			model.FingerprintAttribute = types.StringValue("ds-certificate-fingerprint")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

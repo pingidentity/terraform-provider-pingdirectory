@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -144,10 +143,8 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The set of arguments used to customize the behavior for the Third Party Key Manager Provider. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
@@ -236,9 +233,19 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *keyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model keyManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for pkcs11 type
+	if resourceType == "pkcs11" {
+		if !internaltypes.IsDefined(model.Pkcs11KeyStoreType) {
+			model.Pkcs11KeyStoreType = types.StringValue("PKCS11")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

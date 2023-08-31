@@ -209,10 +209,8 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The set of arguments used to customize the behavior for the Third Party Recurring Task. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"target_directory": schema.StringAttribute{
 				Description: "The path to the directory containing the files to examine. The directory must exist.",
@@ -290,28 +288,22 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The set of data security auditors that should be invoked. If no auditors are specified, then all auditors defined in the configuration will be used.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"backend": schema.SetAttribute{
 				Description: "The set of backends that should be examined. If no backends are specified, then all backends that support this functionality will be included.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_filter": schema.SetAttribute{
 				Description: "A filter that will be used to identify entries that may be included in the generated report. If multiple filters are specified, then any entry that matches at least one of the filters will be included. If no filters are specified, then all entries will be included.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_report_count": schema.Int64Attribute{
 				Description: "The minimum number of previous reports that should be preserved after a new report is generated.",
@@ -333,19 +325,15 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The backend ID for a backend to be exported.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_backend_id": schema.SetAttribute{
 				Description: "The backend ID for a backend to be excluded from the export.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"output_directory": schema.StringAttribute{
 				Description: "The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.",
@@ -476,10 +464,8 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The set of attribute values that should be included in the tasks that are scheduled from this Statically Defined Recurring Task. Each value must be in the form {attribute-type}={value}, where {attribute-type} is the name or OID of an attribute type that is defined in the schema and permitted with the configured set of object classes, and {value} is a value to assign to an attribute with that type. A multivalued attribute can be created by providing multiple name-value pairs with the same name and different values.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sleep_duration": schema.StringAttribute{
 				Description: "The length of time to sleep before the task completes.",
@@ -493,10 +479,8 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "An LDAP URL that provides the criteria for a search request that is expected to return at least one entry. The search will be performed internally, and only the base DN, scope, and filter from the URL will be used; any host, port, or requested attributes included in the URL will be ignored.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_interval": schema.StringAttribute{
 				Description: "The length of time the server should sleep between searches performed using the criteria from the ldap-url-for-search-expected-to-return-entries property.",
@@ -530,19 +514,15 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The backend IDs of any backends that should be included in the backup.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_backend_id": schema.SetAttribute{
 				Description: "The backend IDs of any backends that should be excluded from the backup. All backends that support backups and are not listed will be included.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"compress": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `backup`: Indicates whether to compress the data as it is written into the backup. When the `type` attribute is set to `ldif-export`: Indicates whether to compress the LDIF data as it is exported.",
@@ -602,10 +582,8 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "An optional set of additional paths to files within the instance root that should be included in the generated server profile. All paths must be within the instance root, and relative paths will be relative to the instance root.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_profile_count": schema.Int64Attribute{
 				Description: "The minimum number of previous server profile zip files that should be preserved after a new profile is generated.",
@@ -624,63 +602,45 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_start": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_success": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_on_failure": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_start": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_success": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alert_on_failure": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -700,9 +660,76 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_recurring_task")
+	var model recurringTaskResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for backup type
+	if resourceType == "backup" {
+		if !internaltypes.IsDefined(model.BackupDirectory) {
+			model.BackupDirectory = types.StringValue("bak")
+		}
+	}
+	// Set defaults for delay type
+	if resourceType == "delay" {
+		if !internaltypes.IsDefined(model.TaskReturnStateIfTimeoutIsEncountered) {
+			model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("stopped-by-error")
+		}
+	}
+	// Set defaults for collect-support-data type
+	if resourceType == "collect-support-data" {
+		if !internaltypes.IsDefined(model.IncludeExpensiveData) {
+			model.IncludeExpensiveData = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeReplicationStateDump) {
+			model.IncludeReplicationStateDump = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeBinaryFiles) {
+			model.IncludeBinaryFiles = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeExtensionSource) {
+			model.IncludeExtensionSource = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseSequentialMode) {
+			model.UseSequentialMode = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SecurityLevel) {
+			model.SecurityLevel = types.StringValue("obscure-secrets")
+		}
+		if !internaltypes.IsDefined(model.JstackCount) {
+			model.JstackCount = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.ReportCount) {
+			model.ReportCount = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.ReportIntervalSeconds) {
+			model.ReportIntervalSeconds = types.Int64Value(1)
+		}
+	}
+	// Set defaults for ldif-export type
+	if resourceType == "ldif-export" {
+		if !internaltypes.IsDefined(model.LdifDirectory) {
+			model.LdifDirectory = types.StringValue("ldif")
+		}
+	}
+	// Set defaults for audit-data-security type
+	if resourceType == "audit-data-security" {
+		if !internaltypes.IsDefined(model.BaseOutputDirectory) {
+			model.BaseOutputDirectory = types.StringValue("reports/audit-data-security")
+		}
+	}
+	// Set defaults for exec type
+	if resourceType == "exec" {
+		if !internaltypes.IsDefined(model.LogCommandOutput) {
+			model.LogCommandOutput = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.TaskCompletionStateForNonzeroExitCode) {
+			model.TaskCompletionStateForNonzeroExitCode = types.StringValue("stopped-by-error")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -749,10 +776,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -765,11 +793,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

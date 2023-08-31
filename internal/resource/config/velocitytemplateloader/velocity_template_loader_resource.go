@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -137,18 +135,12 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"evaluation_order_index": schema.Int64Attribute{
 				Description: "This property determines the evaluation order for determining the correct Velocity Template Loader to load a template for generating content for a particular request.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(9999),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"mime_type_matcher": schema.StringAttribute{
 				Description: "Specifies a media type for matching Accept request-header values.",

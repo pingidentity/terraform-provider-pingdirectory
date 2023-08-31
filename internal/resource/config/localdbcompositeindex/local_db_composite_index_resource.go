@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -163,18 +162,12 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_internal_nodes_only": schema.BoolAttribute{
 				Description: "Indicates whether to only prime the internal nodes of the index database, rather than priming both internal and leaf nodes.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cache_mode": schema.StringAttribute{
 				Description: "The behavior that the server should exhibit when storing information from this index in the database cache.",

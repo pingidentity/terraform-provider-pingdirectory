@@ -10,11 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -177,45 +174,31 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_secure_password_changes": schema.BoolAttribute{
 				Description: "Indicates whether users with the associated password policy are required to change their password in a secure manner that does not expose the credentials.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_status_notification_handler": schema.SetAttribute{
 				Description: "Specifies the names of the account status notification handlers that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"state_update_failure_policy": schema.StringAttribute{
 				Description: "Specifies how the server deals with the inability to update password policy state information during an authentication attempt.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reactive"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"enable_debug": schema.BoolAttribute{
 				Description: "Indicates whether to enable debugging for the password policy state.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_attribute": schema.StringAttribute{
 				Description: "Specifies the attribute type used to hold user passwords.",
@@ -230,46 +213,34 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password storage schemes that are considered deprecated for this password policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_pre_encoded_passwords": schema.StringAttribute{
 				Description: "Indicates whether users can change their passwords by providing a pre-encoded value.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("false"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that should be invoked for bind operations.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"minimum_bind_password_validation_frequency": schema.StringAttribute{
 				Description: "Indicates how frequently password validation should be performed during bind operations for each user to whom this password policy is assigned.",
@@ -284,9 +255,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("force-password-change"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_generator": schema.StringAttribute{
 				Description: "Specifies the name of the password generator that is used with the associated password policy.",
@@ -297,9 +265,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_history_duration": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that passwords remain in the password history.",
@@ -338,36 +303,24 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"return_password_expiration_controls": schema.StringAttribute{
 				Description: "Indicates whether the server should return the password expiring and password expired response controls (as described in draft-vchu-ldap-pwd-policy).",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("unless-password-policy-control-is-used"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_expired_password_changes": schema.BoolAttribute{
 				Description: "Indicates whether a user whose password is expired is still allowed to change that password using the password modify extended operation.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"grace_login_count": schema.Int64Attribute{
 				Description: "Specifies the number of grace logins that a user is allowed after the account has expired to allow that user to choose a new password.",
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_change_by_time": schema.StringAttribute{
 				Description: "Specifies the time by which all users with the associated password policy must change their passwords.",
@@ -378,9 +331,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(0),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"lockout_duration": schema.StringAttribute{
 				Description: "Specifies the length of time that an account is locked after too many authentication failures.",
@@ -403,9 +353,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"failure_lockout_action": schema.StringAttribute{
 				Description: "The action that the server should take for authentication attempts that target a user with more than the configured number of outstanding authentication failures.",
@@ -424,27 +371,19 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_change_requires_current_password": schema.BoolAttribute{
 				Description: "Indicates whether user password changes must use the password modify extended operation and must include the user's current password before the change is allowed.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_retirement_behavior": schema.SetAttribute{
 				Description: "Specifies the conditions under which the server may retire a user's current password in the course of setting a new password for that user (whether via a modify operation or a password modify extended operation).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_retired_password_age": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a retired password should be considered valid and may be used to authenticate to the server.",
@@ -458,28 +397,20 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The set of conditions under which a user governed by this Password Policy will be permitted to generate a password reset token via the deliver password reset token extended operation, and to use that token in lieu of the current password via the password modify extended operation.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"force_change_on_add": schema.BoolAttribute{
 				Description: "Indicates whether users are forced to change their passwords upon first authenticating to the Directory Server after their account has been created.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"force_change_on_reset": schema.BoolAttribute{
 				Description: "Indicates whether users are forced to change their passwords if they are reset by an administrator. If a user's password is changed by any other user, that is considered an administrative password reset.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_password_reset_age": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that users have to change passwords after they have been reset by an administrator before they become locked.",
@@ -494,9 +425,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_recent_login_history_successful_authentication_count": schema.Int64Attribute{
 				Description: "The maximum number of successful authentication attempts to include in the recent login history for each account.",
@@ -519,9 +447,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("collapse-similar-attempts-on-the-same-date"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"last_login_ip_address_attribute": schema.StringAttribute{
 				Description: "Specifies the name or OID of the attribute type that is used to hold the IP address of the client from which the user last authenticated.",
@@ -532,9 +457,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("ds-pwp-last-login-time"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"last_login_time_format": schema.StringAttribute{
 				Description: "Specifies the format string that is used to generate the last login time value for users with the associated password policy. Last login time values will be written using the UTC (also known as GMT, or Greenwich Mean Time) time zone.",
@@ -544,10 +466,8 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the format string(s) that might have been used with the last login time at any point in the past for users associated with the password policy.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}

@@ -162,6 +162,29 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *failureLockoutActionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model failureLockoutActionResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for delay-bind-response type
+	if resourceType == "delay-bind-response" {
+		if !internaltypes.IsDefined(model.AllowBlockingDelay) {
+			model.AllowBlockingDelay = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.GenerateAccountStatusNotification) {
+			model.GenerateAccountStatusNotification = types.BoolValue(false)
+		}
+	}
+	// Set defaults for no-operation type
+	if resourceType == "no-operation" {
+		if !internaltypes.IsDefined(model.GenerateAccountStatusNotification) {
+			model.GenerateAccountStatusNotification = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsFailureLockoutAction() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

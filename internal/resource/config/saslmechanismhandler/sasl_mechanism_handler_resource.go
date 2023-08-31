@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -191,28 +190,22 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party SASL Mechanism Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_token_validator": schema.SetAttribute{
 				Description: "An access token validator that will ensure that each presented OAuth access token is authentic and trustworthy. It must be configured with an identity mapper that will be used to map the access token to a local entry.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id_token_validator": schema.SetAttribute{
 				Description: "An ID token validator that will ensure that each presented OpenID Connect ID token is authentic and trustworthy, and that will map the token to a local entry.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_both_access_token_and_id_token": schema.BoolAttribute{
 				Description: "Indicates whether bind requests will be required to have both an OAuth access token (in the \"auth\" element of the bind request) and an OpenID Connect ID token (in the \"pingidentityidtoken\" element of the bind request).",
@@ -239,19 +232,15 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of OAuth scopes that will all be required for any access tokens that will be allowed for authentication.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"any_required_scope": schema.SetAttribute{
 				Description: "The set of OAuth scopes that a token may have to be allowed for authentication.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"otp_validity_duration": schema.StringAttribute{
 				Description: "The maximum length of time that a one-time password value should be considered valid.",
@@ -378,9 +367,22 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *saslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanSaslMechanismHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model saslMechanismHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for oauth-bearer type
+	if resourceType == "oauth-bearer" {
+		if !internaltypes.IsDefined(model.RequireBothAccessTokenAndIDToken) {
+			model.RequireBothAccessTokenAndIDToken = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.ValidateAccessTokenWhenIDTokenIsAlsoProvided) {
+			model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("validate-only-the-id-token")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

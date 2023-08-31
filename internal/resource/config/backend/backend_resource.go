@@ -375,10 +375,8 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"compress_entries": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to compress entries before storing them in the database.",
@@ -465,10 +463,8 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend.\n  - `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used for any database for which the cache mode is not explicitly specified. This includes the id2entry database, which stores encoded entries, and all attribute indexes.",
@@ -535,19 +531,15 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies which system index(es) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"system_index_to_prime_internal_nodes_only": schema.SetAttribute{
 				Description: "Specifies the system index(es) for which internal database nodes only (i.e., the database keys but not values) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"background_prime": schema.BoolAttribute{
 				Description: "Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.",
@@ -717,9 +709,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"notification_manager": schema.StringAttribute{
 				Description: "Specifies a notification manager for changes resulting from operations processed through this Backend",
@@ -939,9 +928,121 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *backendResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model backendResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for local-db type
+	if resourceType == "local-db" {
+		if !internaltypes.IsDefined(model.UncachedId2entryCacheMode) {
+			model.UncachedId2entryCacheMode = types.StringValue("cache-keys-only")
+		}
+		if !internaltypes.IsDefined(model.WritabilityMode) {
+			model.WritabilityMode = types.StringValue("enabled")
+		}
+		if !internaltypes.IsDefined(model.SetDegradedAlertForUntrustedIndex) {
+			model.SetDegradedAlertForUntrustedIndex = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ReturnUnavailableForUntrustedIndex) {
+			model.ReturnUnavailableForUntrustedIndex = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ProcessFiltersWithUndefinedAttributeTypes) {
+			model.ProcessFiltersWithUndefinedAttributeTypes = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IsPrivateBackend) {
+			model.IsPrivateBackend = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DbDirectory) {
+			model.DbDirectory = types.StringValue("db")
+		}
+		if !internaltypes.IsDefined(model.DbDirectoryPermissions) {
+			model.DbDirectoryPermissions = types.StringValue("700")
+		}
+		if !internaltypes.IsDefined(model.CompressEntries) {
+			model.CompressEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.HashEntries) {
+			model.HashEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DbNumCleanerThreads) {
+			model.DbNumCleanerThreads = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DbCleanerMinUtilization) {
+			model.DbCleanerMinUtilization = types.Int64Value(75)
+		}
+		if !internaltypes.IsDefined(model.DbEvictorCriticalPercentage) {
+			model.DbEvictorCriticalPercentage = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DbUseThreadLocalHandles) {
+			model.DbUseThreadLocalHandles = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.DbLogFileMax) {
+			model.DbLogFileMax = types.StringValue("50 mb")
+		}
+		if !internaltypes.IsDefined(model.DbLoggingLevel) {
+			model.DbLoggingLevel = types.StringValue("CONFIG")
+		}
+		if !internaltypes.IsDefined(model.DbCachePercent) {
+			model.DbCachePercent = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.DefaultCacheMode) {
+			model.DefaultCacheMode = types.StringValue("cache-keys-and-values")
+		}
+		if !internaltypes.IsDefined(model.PrimeMethod) {
+			model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none")})
+		}
+		if !internaltypes.IsDefined(model.PrimeThreadCount) {
+			model.PrimeThreadCount = types.Int64Value(2)
+		}
+		if !internaltypes.IsDefined(model.PrimeAllIndexes) {
+			model.PrimeAllIndexes = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.BackgroundPrime) {
+			model.BackgroundPrime = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IndexEntryLimit) {
+			model.IndexEntryLimit = types.Int64Value(4000)
+		}
+		if !internaltypes.IsDefined(model.CompositeIndexEntryLimit) {
+			model.CompositeIndexEntryLimit = types.Int64Value(100000)
+		}
+		if !internaltypes.IsDefined(model.ImportTempDirectory) {
+			model.ImportTempDirectory = types.StringValue("import-tmp")
+		}
+		if !internaltypes.IsDefined(model.ImportThreadCount) {
+			model.ImportThreadCount = types.Int64Value(16)
+		}
+		if !internaltypes.IsDefined(model.ExportThreadCount) {
+			model.ExportThreadCount = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DbImportCachePercent) {
+			model.DbImportCachePercent = types.Int64Value(60)
+		}
+		if !internaltypes.IsDefined(model.DbTxnWriteNoSync) {
+			model.DbTxnWriteNoSync = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.DeadlockRetryLimit) {
+			model.DeadlockRetryLimit = types.Int64Value(3)
+		}
+		if !internaltypes.IsDefined(model.ExternalTxnDefaultBackendLockBehavior) {
+			model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("acquire-after-retries")
+		}
+		if !internaltypes.IsDefined(model.SingleWriterLockBehavior) {
+			model.SingleWriterLockBehavior = types.StringValue("acquire-on-retry")
+		}
+		if !internaltypes.IsDefined(model.SubtreeDeleteSizeLimit) {
+			model.SubtreeDeleteSizeLimit = types.Int64Value(5000)
+		}
+		if !internaltypes.IsDefined(model.NumRecentChanges) {
+			model.NumRecentChanges = types.Int64Value(50000)
+		}
+		if !internaltypes.IsDefined(model.SetDegradedAlertWhenDisabled) {
+			model.SetDegradedAlertWhenDisabled = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

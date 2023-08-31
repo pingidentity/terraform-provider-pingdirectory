@@ -198,28 +198,22 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies information about servlets that will be provided via this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"web_application_extension": schema.SetAttribute{
 				Description: "Specifies information about web applications that will be provided via this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_operation_log_publisher": schema.SetAttribute{
 				Description: "Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_ssl": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `jmx`: Indicates whether the JMX Connection Handler should use SSL. When the `type` attribute is set to `ldap`: Indicates whether the LDAP Connection Handler should use SSL. When the `type` attribute is set to `http`: Indicates whether the HTTP Connection Handler should use SSL.",
@@ -329,10 +323,8 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_correlation_id_header": schema.BoolAttribute{
 				Description: "If enabled, a correlation ID header will be added to outgoing HTTP responses.",
@@ -354,10 +346,8 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the set of HTTP request headers that may contain a value to be used as the correlation ID. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_tcp_keep_alive": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
@@ -439,20 +429,16 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.\n  - `http`: Specifies the names of the SSL protocols that are allowed for use in SSL communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_cipher_suite": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry. When the `type` attribute is set to `http`: Specifies the names of the SSL cipher suites that are allowed for use in SSL communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.\n  - `http`: Specifies the names of the SSL cipher suites that are allowed for use in SSL communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_blocked_write_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that attempts to write data to LDAP clients should be allowed to block.",
@@ -498,19 +484,15 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies a set of address masks that determines the addresses of the clients that are allowed to establish connections to this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"denied_client": schema.SetAttribute{
 				Description: "Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -528,6 +510,107 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model connectionHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for jmx type
+	if resourceType == "jmx" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldap type
+	if resourceType == "ldap" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowStartTLS) {
+			model.AllowStartTLS = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLDAPV2) {
+			model.AllowLDAPV2 = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UseTCPKeepAlive) {
+			model.UseTCPKeepAlive = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.SendRejectionNotice) {
+			model.SendRejectionNotice = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.MaxRequestSize) {
+			model.MaxRequestSize = types.StringValue("5 megabytes")
+		}
+		if !internaltypes.IsDefined(model.MaxCancelHandlers) {
+			model.MaxCancelHandlers = types.Int64Value(16)
+		}
+		if !internaltypes.IsDefined(model.NumAcceptHandlers) {
+			model.NumAcceptHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.NumRequestHandlers) {
+			model.NumRequestHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.AcceptBacklog) {
+			model.AcceptBacklog = types.Int64Value(128)
+		}
+		if !internaltypes.IsDefined(model.AutoAuthenticateUsingClientCertificate) {
+			model.AutoAuthenticateUsingClientCertificate = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CloseConnectionsWhenUnavailable) {
+			model.CloseConnectionsWhenUnavailable = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.CloseConnectionsOnExplicitGC) {
+			model.CloseConnectionsOnExplicitGC = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldif type
+	if resourceType == "ldif" {
+		if !internaltypes.IsDefined(model.LdifDirectory) {
+			model.LdifDirectory = types.StringValue("config/auto-process-ldif")
+		}
+	}
+	// Set defaults for http type
+	if resourceType == "http" {
+		if !internaltypes.IsDefined(model.UseSSL) {
+			model.UseSSL = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.NumRequestHandlers) {
+			model.NumRequestHandlers = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.KeepStats) {
+			model.KeepStats = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AcceptBacklog) {
+			model.AcceptBacklog = types.Int64Value(128)
+		}
+		if !internaltypes.IsDefined(model.AllowTCPReuseAddress) {
+			model.AllowTCPReuseAddress = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LowResourcesConnectionThreshold) {
+			model.LowResourcesConnectionThreshold = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.EnableMultipartMIMEParameters) {
+			model.EnableMultipartMIMEParameters = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UseForwardedHeaders) {
+			model.UseForwardedHeaders = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.HttpRequestHeaderSize) {
+			model.HttpRequestHeaderSize = types.Int64Value(8192)
+		}
+		if !internaltypes.IsDefined(model.UseCorrelationIDHeader) {
+			model.UseCorrelationIDHeader = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.CorrelationIDResponseHeader) {
+			model.CorrelationIDResponseHeader = types.StringValue("Correlation-Id")
+		}
+		if !internaltypes.IsDefined(model.SslClientAuthPolicy) {
+			model.SslClientAuthPolicy = types.StringValue("disabled")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

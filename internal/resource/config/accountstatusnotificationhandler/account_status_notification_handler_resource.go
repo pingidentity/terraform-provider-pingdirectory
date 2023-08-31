@@ -169,10 +169,8 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of arguments used to customize the behavior for the Third Party Account Status Notification Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_temporarily_failure_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account becomes temporarily locked as a result of too many authentication failures.",
@@ -268,19 +266,15 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of arguments used to customize the behavior for the Scripted Account Status Notification Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_address_attribute_type": schema.SetAttribute{
 				Description: "Specifies which attribute in the user's entries may be used to obtain the email address when notifying the end user.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_address_json_field": schema.StringAttribute{
 				Description: "The name of the JSON field whose value is the email address to which the message should be sent. The email address must be contained in a top-level field whose value is a single string.",
@@ -294,10 +288,8 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies an email address to which notification messages are sent, either instead of or in addition to the end user for whom the notification has been generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"send_message_without_end_user_address": schema.BoolAttribute{
 				Description: "Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).",
@@ -342,9 +334,6 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"account_authentication_notification_result_criteria": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.3.0.0+. A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler.",
@@ -380,9 +369,19 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model accountStatusNotificationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for smtp type
+	if resourceType == "smtp" {
+		if !internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) {
+			model.SendMessageWithoutEndUserAddress = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -167,45 +165,30 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"is_array": schema.StringAttribute{
 				Description: "Indicates whether the value of the target field may be an array of values rather than a single value. If this property is set to \"required\" or \"optional\", then the constraints defined for this field will be applied to each element of the array.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("prohibited"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_null_value": schema.BoolAttribute{
 				Description: "Indicates whether the target field may have a value that is the JSON null value as an alternative to a value (or array of values) of the specified value-type.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_empty_object": schema.BoolAttribute{
 				Description: "Indicates whether the target field may have a value that is an empty JSON object (i.e., a JSON object with zero fields). This may only be set to true if value-type property is set to object.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"index_values": schema.BoolAttribute{
 				Description: "Indicates whether backends that support JSON indexing should maintain an index for values of the target field.",
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that may contain a particular value for the target field before the server will stop maintaining the index for that value.",
@@ -216,9 +199,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.",
@@ -229,27 +209,20 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(false),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_value": schema.SetAttribute{
 				Description: "Specifies an explicit set of string values that will be the only values permitted for the target field. If a set of allowed values is defined, then the server will reject any attempt to store a JSON object with a value for the target field that is not included in that set.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_value_regular_expression": schema.SetAttribute{
 				Description: "Specifies an explicit set of regular expressions that may be used to restrict the set of values that may be used for the target field. If a set of allowed value regular expressions is defined, then the server will reject any attempt to store a JSON object with a value for the target field that does not match at least one of those regular expressions.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"minimum_numeric_value": schema.StringAttribute{
 				Description: "Specifies the smallest numeric value that may be used as the value for the target field. If configured, then the server will reject any attempt to store a JSON object with a value for the target field that is less than that minimum numeric value.",

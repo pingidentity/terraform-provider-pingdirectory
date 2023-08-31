@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -135,10 +134,8 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 				Description: "The set of arguments used to customize the behavior for the Third Party Log File Rotation Listener. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"copy_to_directory": schema.StringAttribute{
 				Description: "The path to the directory to which log files should be copied. It must be different from the directory to which the log file is originally written, and administrators should ensure that the filesystem has sufficient space to hold files as they are copied.",
@@ -180,6 +177,20 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model logFileRotationListenerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for copy type
+	if resourceType == "copy" {
+		if !internaltypes.IsDefined(model.CompressOnCopy) {
+			model.CompressOnCopy = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

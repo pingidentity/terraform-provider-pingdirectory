@@ -154,10 +154,8 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party Access Token Validator. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_signing_algorithm": schema.SetAttribute{
 				Description: "Specifies an allow list of JWT signing algorithms that will be accepted by the JWT Access Token Validator.",
@@ -172,10 +170,8 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies the locally stored certificates that may be used to validate the signature of an incoming JWT access token. If this property is specified, the JWT Access Token Validator will not use a JWKS endpoint to retrieve public keys.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"jwks_endpoint_path": schema.StringAttribute{
 				Description: "The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.",
@@ -282,9 +278,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("sub"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Access Token Validator",
@@ -310,6 +303,53 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model accessTokenValidatorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for ping-federate type
+	if resourceType == "ping-federate" {
+		if !internaltypes.IsDefined(model.IncludeAudParameter) {
+			model.IncludeAudParameter = types.BoolValue(false)
+		}
+	}
+	// Set defaults for jwt type
+	if resourceType == "jwt" {
+		if !internaltypes.IsDefined(model.AllowedSigningAlgorithm) {
+			model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RS256"), types.StringValue("RS384"), types.StringValue("RS512")})
+		}
+		if !internaltypes.IsDefined(model.AllowedKeyEncryptionAlgorithm) {
+			model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RSA_OAEP")})
+		}
+		if !internaltypes.IsDefined(model.AllowedContentEncryptionAlgorithm) {
+			model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("A128CBC_HS256"), types.StringValue("A192CBC_HS384"), types.StringValue("A256CBC_HS512")})
+		}
+		if !internaltypes.IsDefined(model.ClientIDClaimName) {
+			model.ClientIDClaimName = types.StringValue("client_id")
+		}
+		if !internaltypes.IsDefined(model.ScopeClaimName) {
+			model.ScopeClaimName = types.StringValue("scope")
+		}
+		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
+			model.EvaluationOrderIndex = types.Int64Value(1000)
+		}
+	}
+	// Set defaults for mock type
+	if resourceType == "mock" {
+		if !internaltypes.IsDefined(model.ClientIDClaimName) {
+			model.ClientIDClaimName = types.StringValue("client_id")
+		}
+		if !internaltypes.IsDefined(model.ScopeClaimName) {
+			model.ScopeClaimName = types.StringValue("scope")
+		}
+		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
+			model.EvaluationOrderIndex = types.Int64Value(9999)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

@@ -161,10 +161,8 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of arguments used to customize the behavior for the Third Party Pass Through Authentication Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subordinate_pass_through_authentication_handler": schema.SetAttribute{
 				Description: "The set of subordinate pass-through authentication handlers that may be used to perform the authentication processing. Handlers will be invoked in order until one is found for which the bind operation matches the associated criteria and either succeeds or fails in a manner that should not be ignored.",
@@ -179,10 +177,8 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The set of pass-through authentication failure types that should not result in an immediate failure, but should instead allow the aggregate handler to proceed with the next configured subordinate handler.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"server": schema.SetAttribute{
 				Description: "Specifies the LDAP external server(s) to which authentication attempts should be forwarded.",
@@ -205,10 +201,8 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_dn_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct the bind DN for the simple bind request to send to the remote server. This may consist of a combination of static text and attribute values and other directives enclosed in curly braces.  For example, the value \"cn={cn},ou=People,dc=example,dc=com\" indicates that the remote bind DN should be constructed from the text \"cn=\" followed by the value of the local entry's cn attribute followed by the text \"ou=People,dc=example,dc=com\". If an attribute contains the value to use as the bind DN for pass-through authentication, then the pattern may simply be the name of that attribute in curly braces (e.g., if the seeAlso attribute contains the bind DN for the target user, then a bind DN pattern of \"{seeAlso}\" would be appropriate).  Note that a bind DN pattern can be used to construct a bind DN that is not actually a valid LDAP distinguished name. For example, if authentication is being passed through to a Microsoft Active Directory server, then a bind DN pattern could be used to construct a user principal name (UPN) as an alternative to a distinguished name.",
@@ -329,10 +323,8 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_criteria": schema.StringAttribute{
 				Description: "A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
@@ -360,9 +352,28 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_pass_through_authentication_handler")
+	var model passThroughAuthenticationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for ldap type
+	if resourceType == "ldap" {
+		if !internaltypes.IsDefined(model.ServerAccessMode) {
+			model.ServerAccessMode = types.StringValue("round-robin")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.UseLocation) {
+			model.UseLocation = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

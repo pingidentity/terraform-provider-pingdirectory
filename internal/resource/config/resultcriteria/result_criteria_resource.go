@@ -180,10 +180,8 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The set of arguments used to customize the behavior for the Third Party Result Criteria. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"local_assurance_level": schema.SetAttribute{
 				Description: "The local assurance level values that will be allowed to match this Replication Assurance Result Criteria.",
@@ -247,37 +245,29 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies a result criteria object that must match the associated operation result in order to match the aggregate result criteria. If one or more all-included result criteria objects are provided, then an operation result must match all of them in order to match the aggregate result criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"any_included_result_criteria": schema.SetAttribute{
 				Description: "Specifies a result criteria object that may match the associated operation result in order to match the aggregate result criteria. If one or more any-included result criteria objects are provided, then an operation result must match at least one of them in order to match the aggregate result criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"not_all_included_result_criteria": schema.SetAttribute{
 				Description: "Specifies a result criteria object that should not match the associated operation result in order to match the aggregate result criteria. If one or more not-all-included result criteria objects are provided, then an operation result must not match all of them (that is, it may match zero or more of them, but it must not match all of them) in order to match the aggregate result criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"none_included_result_criteria": schema.SetAttribute{
 				Description: "Specifies a result criteria object that must not match the associated operation result in order to match the aggregate result criteria. If one or more none-included result criteria objects are provided, then an operation result must not match any of them in order to match the aggregate result criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"request_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `successful-bind`: Specifies a request criteria object that must match the associated request for operations included in this Successful Bind Result Criteria. When the `type` attribute is set to `simple`: Specifies a request criteria object that must match the associated request for operations included in this Simple Result Criteria.",
@@ -296,10 +286,8 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the operation result code values for results included in this Simple Result Criteria. This will only be taken into account if the \"result-code-criteria\" property has a value of \"selected-result-codes\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"processing_time_criteria": schema.StringAttribute{
 				Description: "Indicates whether the time required to process the operation should be taken into consideration when determining whether to include the operation in this Simple Result Criteria. If the processing time should be taken into account, then the \"processing-time-value\" property should contain the boundary value.",
@@ -345,37 +333,29 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the OID of a control that must be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must contain all of those controls.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"any_included_response_control": schema.SetAttribute{
 				Description: "Specifies the OID of a control that may be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must contain at least one of those controls.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"not_all_included_response_control": schema.SetAttribute{
 				Description: "Specifies the OID of a control that should not be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must not contain at least one of those controls (that is, the response may contain zero or more of those controls, but not all of them).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"none_included_response_control": schema.SetAttribute{
 				Description: "Specifies the OID of a control that must not be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must not contain any of those controls.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"used_alternate_authzid": schema.StringAttribute{
 				Description: "Indicates whether operation results in which the associated operation used an authorization identity that is different from the authentication identity (e.g., as the result of using a proxied authorization control) should be included in this Simple Result Criteria. If no value is provided, then whether an operation used an alternate authorization identity will not be considered when determining whether it matches this Simple Result Criteria.",
@@ -397,10 +377,8 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the name of a privilege that must have been used during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have used at least one of those privileges. If no privilege names were provided, then the set of privileges used will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"missing_any_privilege": schema.StringAttribute{
 				Description: "Indicates whether operations in which one or more privileges were missing should be included in this Simple Result Criteria. If no value is provided, then whether there were any missing privileges will not be considered when determining whether an operation matches this Simple Result Criteria.",
@@ -414,10 +392,8 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the name of a privilege that must have been missing during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have been missing at least one of those privileges. If no privilege names were provided, then the set of privileges missing will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retired_password_used_for_bind": schema.StringAttribute{
 				Description: "Indicates whether the use of a retired password for authentication should be considered when determining whether a bind operation should be included in this Simple Result Criteria. This will be ignored for all operations other than bind.",
@@ -471,55 +447,43 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies a base DN below which authorization user entries may exist for operations included in this Simple Result Criteria. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_authz_user_base_dn": schema.SetAttribute{
 				Description: "Specifies a base DN below which authorization user entries may exist for operations excluded from this Simple Result Criteria. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_included_authz_user_group_dn": schema.SetAttribute{
 				Description: "Specifies the DN of a group in which authorization users must exist for operations included in this Simple Result Criteria. If any group DNs are provided, then the authorization user must be a member of all of those groups. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"any_included_authz_user_group_dn": schema.SetAttribute{
 				Description: "Specifies the DN of a group in which authorization users may exist for operations included in this Simple Result Criteria. If any group DNs are provided, then the authorization user must be a member of at least one of those groups. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"not_all_included_authz_user_group_dn": schema.SetAttribute{
 				Description: "Specifies the DN of a group in which authorization users should not exist for operations included in this Simple Result Criteria. If any group DNs are provided, then the authorization user must not be a member of at least one of those groups (that is, the user may be a member of zero or more of those groups, but not of all of them). The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"none_included_authz_user_group_dn": schema.SetAttribute{
 				Description: "Specifies the DN of a group in which authorization users must not exist for operations included in this Simple Result Criteria. If any group DNs are provided, then the authorization user must not be a member any of those groups. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_anonymous_binds": schema.BoolAttribute{
 				Description: "Indicates whether this criteria will be permitted to match bind operations that resulted in anonymous authentication.",
@@ -533,55 +497,43 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "A set of base DNs for authenticated users that will be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_user_base_dn": schema.SetAttribute{
 				Description: "A set of base DNs for authenticated users that will not be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_user_filter": schema.SetAttribute{
 				Description: "A set of filters that may be used to identify entries for authenticated users that will be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_user_filter": schema.SetAttribute{
 				Description: "A set of filters that may be used to identify entries for authenticated users that will not be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_user_group_dn": schema.SetAttribute{
 				Description: "The DNs of the groups whose members will be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"excluded_user_group_dn": schema.SetAttribute{
 				Description: "The DNs of the groups whose members will not be permitted to match this criteria.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Result Criteria",
@@ -605,9 +557,82 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanResultCriteria(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_result_criteria")
+	var model resultCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for successful-bind type
+	if resourceType == "successful-bind" {
+		if !internaltypes.IsDefined(model.IncludeAnonymousBinds) {
+			model.IncludeAnonymousBinds = types.BoolValue(false)
+		}
+	}
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.ResultCodeCriteria) {
+			model.ResultCodeCriteria = types.StringValue("all-result-codes")
+		}
+		if !internaltypes.IsDefined(model.ProcessingTimeCriteria) {
+			model.ProcessingTimeCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.QueueTimeCriteria) {
+			model.QueueTimeCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.ReferralReturned) {
+			model.ReferralReturned = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.UsedAlternateAuthzid) {
+			model.UsedAlternateAuthzid = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.UsedAnyPrivilege) {
+			model.UsedAnyPrivilege = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.MissingAnyPrivilege) {
+			model.MissingAnyPrivilege = types.StringValue("optional")
+		}
+		if !internaltypes.IsDefined(model.RetiredPasswordUsedForBind) {
+			model.RetiredPasswordUsedForBind = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchEntryReturnedCriteria) {
+			model.SearchEntryReturnedCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchEntryReturnedCount) {
+			model.SearchEntryReturnedCount = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.SearchReferenceReturnedCriteria) {
+			model.SearchReferenceReturnedCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.SearchReferenceReturnedCount) {
+			model.SearchReferenceReturnedCount = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.SearchIndexedCriteria) {
+			model.SearchIndexedCriteria = types.StringValue("any")
+		}
+	}
+	// Set defaults for replication-assurance type
+	if resourceType == "replication-assurance" {
+		if !internaltypes.IsDefined(model.LocalAssuranceLevel) {
+			model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-server"), types.StringValue("processed-all-servers")})
+		}
+		if !internaltypes.IsDefined(model.RemoteAssuranceLevel) {
+			model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-remote-location"), types.StringValue("received-all-remote-locations"), types.StringValue("processed-all-remote-servers")})
+		}
+		if !internaltypes.IsDefined(model.AssuranceTimeoutCriteria) {
+			model.AssuranceTimeoutCriteria = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.ResponseDelayedByAssurance) {
+			model.ResponseDelayedByAssurance = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.AssuranceBehaviorAlteredByControl) {
+			model.AssuranceBehaviorAlteredByControl = types.StringValue("any")
+		}
+		if !internaltypes.IsDefined(model.AssuranceSatisfied) {
+			model.AssuranceSatisfied = types.StringValue("any")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

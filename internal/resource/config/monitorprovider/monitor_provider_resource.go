@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -161,10 +160,8 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "The set of arguments used to customize the behavior for the Third Party Monitor Provider. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"check_frequency": schema.StringAttribute{
 				Description: "The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.",
@@ -252,9 +249,19 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_monitor_provider")
+	var model monitorProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for encryption-settings-database-accessibility type
+	if resourceType == "encryption-settings-database-accessibility" {
+		if !internaltypes.IsDefined(model.ProlongedOutageBehavior) {
+			model.ProlongedOutageBehavior = types.StringValue("none")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

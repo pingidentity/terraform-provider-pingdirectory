@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -132,9 +131,6 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"evaluation_order_index": schema.Int64Attribute{
 				Description: "When multiple Replication Assurance Policies are defined, this property determines the evaluation order for finding a Replication Assurance Policy match against an operation. Policies are evaluated based on this index from least to greatest. Values of this property must be unique but not necessarily contiguous.",
@@ -145,18 +141,12 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"remote_level": schema.StringAttribute{
 				Description: "Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for the replication assurance requirements to be met before timing out and replying to the client.",

@@ -178,10 +178,8 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				Description: "The set of arguments used to customize the behavior for the Third Party Extended Operation Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"default_token_delivery_mechanism": schema.SetAttribute{
 				Description: "The set of delivery mechanisms that may be used to deliver password reset tokens to users for requests that do not specify one or more preferred delivery mechanisms.",
@@ -324,6 +322,35 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model extendedOperationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for validate-totp-password type
+	if resourceType == "validate-totp-password" {
+		if !internaltypes.IsDefined(model.SharedSecretAttributeType) {
+			model.SharedSecretAttributeType = types.StringValue("ds-auth-totp-shared-secret")
+		}
+		if !internaltypes.IsDefined(model.AdjacentIntervalsToCheck) {
+			model.AdjacentIntervalsToCheck = types.Int64Value(2)
+		}
+		if !internaltypes.IsDefined(model.PreventTOTPReuse) {
+			model.PreventTOTPReuse = types.BoolValue(false)
+		}
+	}
+	// Set defaults for replace-certificate type
+	if resourceType == "replace-certificate" {
+		if !internaltypes.IsDefined(model.AllowRemotelyProvidedCertificates) {
+			model.AllowRemotelyProvidedCertificates = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowedOperation) {
+			model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("replace-listener-certificate"), types.StringValue("replace-inter-server-certificate"), types.StringValue("purge-retired-listener-certificates"), types.StringValue("purge-retired-inter-server-certificates")})
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

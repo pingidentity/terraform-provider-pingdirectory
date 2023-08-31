@@ -2,6 +2,8 @@ package types
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/defaults"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -76,4 +78,14 @@ func ObjectsObjectType() types.ObjectType {
 			"type": types.StringType,
 		},
 	}
+}
+
+func EmptySetDefault(elementType attr.Type) defaults.Set {
+	empty := EmptySet(elementType)
+	return setdefault.StaticValue(empty)
+}
+
+func EmptySet(elementType attr.Type) types.Set {
+	result, _ := types.SetValue(elementType, []attr.Value{})
+	return result
 }

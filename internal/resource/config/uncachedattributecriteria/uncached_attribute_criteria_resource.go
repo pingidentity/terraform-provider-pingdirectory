@@ -137,10 +137,8 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Description: "The set of arguments used to customize the behavior for the Third Party Uncached Attribute Criteria. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"attribute_type": schema.SetAttribute{
 				Description: "Specifies the attribute types for attributes that may be written to the uncached-id2entry database.",
@@ -175,10 +173,8 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Description: "The set of arguments used to customize the behavior for the Scripted Uncached Attribute Criteria. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Uncached Attribute Criteria",
@@ -204,6 +200,23 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model uncachedAttributeCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for simple type
+	if resourceType == "simple" {
+		if !internaltypes.IsDefined(model.MinValueCount) {
+			model.MinValueCount = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MinTotalValueSize) {
+			model.MinTotalValueSize = types.StringValue("0b")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

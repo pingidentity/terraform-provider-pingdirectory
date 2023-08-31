@@ -267,10 +267,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Servlet Extension.",
@@ -301,10 +299,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Scripted HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"oauth_token_handler": schema.StringAttribute{
 				Description: "Specifies the OAuth Token Handler implementation that should be used to validate OAuth 2.0 bearer tokens when they are included in a SCIM request.",
@@ -332,10 +328,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_file_servlet_access_privilege": schema.BoolAttribute{
 				Description: "Indicates whether the servlet extension should only accept requests from authenticated clients that have the file-servlet-access privilege.",
@@ -349,10 +343,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The DN of a group whose members will be permitted to access to the associated files. If multiple group DNs are configured, then anyone who is a member of at least one of those groups will be granted access.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"resource_mapping_file": schema.StringAttribute{
 				Description: "The path to an XML file defining the resources supported by the SCIM interface and the SCIM-to-LDAP attribute mappings to use.",
@@ -366,37 +358,29 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies the LDAP object classes that should be exposed directly as SCIM resources.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_ldap_objectclass": schema.SetAttribute{
 				Description: "Specifies the LDAP object classes that should be not be exposed directly as SCIM resources.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_ldap_base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches of the DIT that should be exposed via the Identity Access API.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_ldap_base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches of the DIT that should not be exposed via the Identity Access API.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"entity_tag_ldap_attribute": schema.StringAttribute{
 				Description: "Specifies the LDAP attribute whose value should be used as the entity tag value to enable SCIM resource versioning support.",
@@ -559,10 +543,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "A set of name-value pairs for labels that should be included in all metrics exposed by this Directory Server instance.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"available_status_code": schema.Int64Attribute{
 				Description: "Specifies the HTTP status code that the servlet should return if the server considers itself to be available.",
@@ -615,10 +597,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `delegated-admin`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Delegated Admin HTTP Servlet Extension.\n  - `consent`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Consent HTTP Servlet Extension.\n  - `file-server`: The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token.\n  - `scim2`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this SCIM2 HTTP Servlet Extension.\n  - `directory-rest-api`: If specified, the Access Token Validator(s) that may be used to validate access tokens for requests submitted to this Directory REST API HTTP Servlet Extension.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
@@ -633,10 +613,8 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`delegated-admin`, `quickstart`, `availability-state`, `prometheus-monitoring`, `consent`, `ldap-mapped-scim`, `groovy-scripted`, `file-server`, `config`, `scim2`, `directory-rest-api`, `third-party`]: Specifies HTTP header fields and values added to response headers for all requests.\n  - `velocity`: Specifies HTTP header fields and values added to response headers for all template page requests.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
@@ -734,9 +712,106 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
+	var model httpServletExtensionResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for availability-state type
+	if resourceType == "availability-state" {
+		if !internaltypes.IsDefined(model.IncludeResponseBody) {
+			model.IncludeResponseBody = types.BoolValue(true)
+		}
+	}
+	// Set defaults for prometheus-monitoring type
+	if resourceType == "prometheus-monitoring" {
+		if !internaltypes.IsDefined(model.BaseContextPath) {
+			model.BaseContextPath = types.StringValue("/metrics")
+		}
+		if !internaltypes.IsDefined(model.IncludeInstanceNameLabel) {
+			model.IncludeInstanceNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeProductNameLabel) {
+			model.IncludeProductNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeLocationNameLabel) {
+			model.IncludeLocationNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AlwaysIncludeMonitorEntryNameLabel) {
+			model.AlwaysIncludeMonitorEntryNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeMonitorObjectClassNameLabel) {
+			model.IncludeMonitorObjectClassNameLabel = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IncludeMonitorAttributeNameLabel) {
+			model.IncludeMonitorAttributeNameLabel = types.BoolValue(false)
+		}
+	}
+	// Set defaults for ldap-mapped-scim type
+	if resourceType == "ldap-mapped-scim" {
+		if !internaltypes.IsDefined(model.BasicAuthEnabled) {
+			model.BasicAuthEnabled = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ResourceMappingFile) {
+			model.ResourceMappingFile = types.StringValue("config/scim-resources.xml")
+		}
+		if !internaltypes.IsDefined(model.BaseContextPath) {
+			model.BaseContextPath = types.StringValue("/")
+		}
+		if !internaltypes.IsDefined(model.TemporaryDirectory) {
+			model.TemporaryDirectory = types.StringValue("scim-data-tmp")
+		}
+		if !internaltypes.IsDefined(model.TemporaryDirectoryPermissions) {
+			model.TemporaryDirectoryPermissions = types.StringValue("700")
+		}
+		if !internaltypes.IsDefined(model.MaxResults) {
+			model.MaxResults = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.BulkMaxOperations) {
+			model.BulkMaxOperations = types.Int64Value(10000)
+		}
+		if !internaltypes.IsDefined(model.BulkMaxPayloadSize) {
+			model.BulkMaxPayloadSize = types.StringValue("10 MB")
+		}
+		if !internaltypes.IsDefined(model.BulkMaxConcurrentRequests) {
+			model.BulkMaxConcurrentRequests = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.DebugEnabled) {
+			model.DebugEnabled = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.DebugLevel) {
+			model.DebugLevel = types.StringValue("info")
+		}
+		if !internaltypes.IsDefined(model.DebugType) {
+			model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("coding-error"), types.StringValue("exception")})
+		}
+		if !internaltypes.IsDefined(model.IncludeStackTrace) {
+			model.IncludeStackTrace = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-server type
+	if resourceType == "file-server" {
+		if !internaltypes.IsDefined(model.EnableDirectoryIndexing) {
+			model.EnableDirectoryIndexing = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.IndexFile) {
+			model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("index.html"), types.StringValue("index.htm")})
+		}
+		if !internaltypes.IsDefined(model.DefaultMIMEType) {
+			model.DefaultMIMEType = types.StringValue("application/octet-stream")
+		}
+		if !internaltypes.IsDefined(model.RequireAuthentication) {
+			model.RequireAuthentication = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowedAuthenticationType) {
+			model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("basic"), types.StringValue("access-token"), types.StringValue("id-token")})
+		}
+		if !internaltypes.IsDefined(model.RequireFileServletAccessPrivilege) {
+			model.RequireFileServletAccessPrivilege = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

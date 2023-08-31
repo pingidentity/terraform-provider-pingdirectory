@@ -159,7 +159,6 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Computed:    true,
 				Default:     int64default.StaticInt64(4000),
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
 					int64planmodifier.RequiresReplace(),
 				},
 			},

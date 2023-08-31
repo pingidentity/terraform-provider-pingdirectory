@@ -143,10 +143,8 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the locally stored certificates that may be used to validate the signature of an incoming ID token. This property may be specified if a JWKS endpoint should not be used to retrieve public signing keys.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"issuer_url": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one`: Specifies a PingOne base issuer URL. When the `type` attribute is set to `openid-connect`: Specifies the OpenID Connect provider's issuer URL.",
@@ -191,9 +189,6 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("sub"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"clock_skew_grace_period": schema.StringAttribute{
 				Description: "Specifies the amount of clock skew that is tolerated by the ID Token Validator when evaluating whether a token is within its valid time interval. The duration specified by this parameter will be subtracted from the token's not-before (nbf) time and added to the token's expiration (exp) time, if present, to allow for any time difference between the local server's clock and the token issuer's clock.",

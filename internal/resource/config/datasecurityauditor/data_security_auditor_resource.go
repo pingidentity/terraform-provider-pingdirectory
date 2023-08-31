@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -149,10 +148,8 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 				Description: "The set of arguments used to customize the behavior for the Third Party Data Security Auditor. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"report_file": schema.StringAttribute{
 				Description: "Specifies the name of the detailed report file.",
@@ -179,10 +176,8 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 				Description: "If defined, only entries with the specified privileges will be reported. By default, entries with any privilege assigned will be reported.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_idle_time": schema.StringAttribute{
 				Description: "If set, users that have not authenticated for more than the specified time will be reported even if idle account lockout is not configured. Note that users may only be reported if the last login time tracking is enabled.",
@@ -240,27 +235,19 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Default:     booldefault.StaticBool(true),
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"audit_backend": schema.SetAttribute{
 				Description: "Specifies which backends the data security auditor may be applied to. By default, the data security auditors will audit entries in all backend types that support data auditing (Local DB, LDIF, and Config File Handler).",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"audit_severity": schema.StringAttribute{
 				Description: "Specifies the severity of events to include in the report.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("notice"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -280,9 +267,103 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_data_security_auditor")
+	var model dataSecurityAuditorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for expired-password type
+	if resourceType == "expired-password" {
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("pwdChangedTime"), types.StringValue("ds-pwp-warned-time"), types.StringValue("ds-pwp-last-login-time")})
+		}
+	}
+	// Set defaults for idle-account type
+	if resourceType == "idle-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("idle-accounts.ldif")
+		}
+	}
+	// Set defaults for disabled-account type
+	if resourceType == "disabled-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-disabled-accounts.ldif")
+		}
+	}
+	// Set defaults for weakly-encoded-password type
+	if resourceType == "weakly-encoded-password" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("users-with-weakly-encoded-passwords.ldif")
+		}
+		if !internaltypes.IsDefined(model.WeakPasswordStorageScheme) {
+			model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("3DES"), types.StringValue("AES"), types.StringValue("Base64"), types.StringValue("Blowfish"), types.StringValue("Clear"), types.StringValue("CRYPT"), types.StringValue("MD5"), types.StringValue("RC4"), types.StringValue("SHA-1"), types.StringValue("Salted MD5"), types.StringValue("Salted SHA-1")})
+		}
+		if !internaltypes.IsDefined(model.WeakCryptEncoding) {
+			model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("crypt"), types.StringValue("md5")})
+		}
+	}
+	// Set defaults for privilege type
+	if resourceType == "privilege" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-privileges.ldif")
+		}
+	}
+	// Set defaults for account-usability-issues type
+	if resourceType == "account-usability-issues" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("account-usability-issues.ldif")
+		}
+	}
+	// Set defaults for locked-account type
+	if resourceType == "locked-account" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("locked-accounts.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("pwdAccountLockedTime"), types.StringValue("ds-pwp-auth-failure"), types.StringValue("ds-pwp-last-login-time")})
+		}
+	}
+	// Set defaults for account-validity-window type
+	if resourceType == "account-validity-window" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("account-validity-window.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-pwp-account-activation-time"), types.StringValue("ds-pwp-account-expiration-time")})
+		}
+	}
+	// Set defaults for multiple-password type
+	if resourceType == "multiple-password" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("users-with-multiple-passwords.ldif")
+		}
+	}
+	// Set defaults for deprecated-password-storage-scheme type
+	if resourceType == "deprecated-password-storage-scheme" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("deprecated-password-storage-schemes.ldif")
+		}
+	}
+	// Set defaults for nonexistent-password-policy type
+	if resourceType == "nonexistent-password-policy" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("nonexistent-password-policies.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ds-pwp-password-policy-dn")})
+		}
+	}
+	// Set defaults for access-control type
+	if resourceType == "access-control" {
+		if !internaltypes.IsDefined(model.ReportFile) {
+			model.ReportFile = types.StringValue("entries-with-acis.ldif")
+		}
+		if !internaltypes.IsDefined(model.IncludeAttribute) {
+			model.IncludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("aci")})
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

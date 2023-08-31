@@ -899,7 +899,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {

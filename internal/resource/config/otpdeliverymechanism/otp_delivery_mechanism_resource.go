@@ -148,10 +148,8 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party OTP Delivery Mechanism. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_address_attribute_type": schema.StringAttribute{
 				Description: "The name or OID of the attribute that holds the email address to which the message should be sent.",
@@ -257,9 +255,28 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model otpDeliveryMechanismResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for twilio type
+	if resourceType == "twilio" {
+		if !internaltypes.IsDefined(model.PhoneNumberAttributeType) {
+			model.PhoneNumberAttributeType = types.StringValue("mobile")
+		}
+	}
+	// Set defaults for email type
+	if resourceType == "email" {
+		if !internaltypes.IsDefined(model.EmailAddressAttributeType) {
+			model.EmailAddressAttributeType = types.StringValue("mail")
+		}
+		if !internaltypes.IsDefined(model.MessageSubject) {
+			model.MessageSubject = types.StringValue("Your one-time password")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

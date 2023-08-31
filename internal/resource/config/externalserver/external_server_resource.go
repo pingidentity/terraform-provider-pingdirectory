@@ -341,10 +341,8 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the connection properties for the JDBC datasource.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"transaction_isolation_level": schema.StringAttribute{
 				Description: "This property specifies the default transaction isolation level for connections to this JDBC External Server.",
@@ -496,10 +494,8 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the connection properties for the smtp server.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",
@@ -523,9 +519,298 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_external_server")
+	var model externalServerResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for smtp type
+	if resourceType == "smtp" {
+		if !internaltypes.IsDefined(model.SmtpSecurity) {
+			model.SmtpSecurity = types.StringValue("none")
+		}
+	}
+	// Set defaults for nokia-ds type
+	if resourceType == "nokia-ds" {
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for ping-identity-ds type
+	if resourceType == "ping-identity-ds" {
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		}
+		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
+			model.UseAdministrativeOperationControl = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for active-directory type
+	if resourceType == "active-directory" {
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for jdbc type
+	if resourceType == "jdbc" {
+		if !internaltypes.IsDefined(model.TransactionIsolationLevel) {
+			model.TransactionIsolationLevel = types.StringValue("read-committed")
+		}
+	}
+	// Set defaults for syslog type
+	if resourceType == "syslog" {
+		if !internaltypes.IsDefined(model.TrustManagerProvider) {
+			model.TrustManagerProvider = types.StringValue("JVM-Default")
+		}
+	}
+	// Set defaults for ping-identity-proxy-server type
+	if resourceType == "ping-identity-proxy-server" {
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		}
+		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
+			model.UseAdministrativeOperationControl = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for nokia-proxy-server type
+	if resourceType == "nokia-proxy-server" {
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		}
+		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
+			model.UseAdministrativeOperationControl = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for opendj type
+	if resourceType == "opendj" {
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for ldap type
+	if resourceType == "ldap" {
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for ping-one-http type
+	if resourceType == "ping-one-http" {
+		if !internaltypes.IsDefined(model.HostnameVerificationMethod) {
+			model.HostnameVerificationMethod = types.StringValue("strict")
+		}
+	}
+	// Set defaults for http type
+	if resourceType == "http" {
+		if !internaltypes.IsDefined(model.HostnameVerificationMethod) {
+			model.HostnameVerificationMethod = types.StringValue("strict")
+		}
+	}
+	// Set defaults for oracle-unified-directory type
+	if resourceType == "oracle-unified-directory" {
+		if !internaltypes.IsDefined(model.ServerPort) {
+			model.ServerPort = types.Int64Value(389)
+		}
+		if !internaltypes.IsDefined(model.ConnectionSecurity) {
+			model.ConnectionSecurity = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.AuthenticationMethod) {
+			model.AuthenticationMethod = types.StringValue("simple")
+		}
+		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
+			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		}
+		if !internaltypes.IsDefined(model.MaxResponseSize) {
+			model.MaxResponseSize = types.StringValue("10 mb")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
+			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		}
+		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
+			model.AbandonOnTimeout = types.BoolValue(true)
+		}
+	}
+	// Set defaults for conjur type
+	if resourceType == "conjur" {
+		if !internaltypes.IsDefined(model.TrustStoreType) {
+			model.TrustStoreType = types.StringValue("JKS")
+		}
+	}
+	// Set defaults for vault type
+	if resourceType == "vault" {
+		if !internaltypes.IsDefined(model.TrustStoreType) {
+			model.TrustStoreType = types.StringValue("JKS")
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -558,18 +843,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("password"),
-				path.MatchRoot("passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-aws"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

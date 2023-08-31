@@ -141,10 +141,8 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The set of arguments used to customize the behavior for the Third Party Password Generator. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dictionary_file": schema.StringAttribute{
 				Description: "The path to the dictionary file that will be used to obtain the words for use in generated passwords.",
@@ -182,10 +180,8 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The set of arguments used to customize the behavior for the Scripted Password Generator. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password_character_set": schema.SetAttribute{
 				Description: "Specifies one or more named character sets.",
@@ -224,6 +220,26 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *passwordGeneratorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model passwordGeneratorResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for passphrase type
+	if resourceType == "passphrase" {
+		if !internaltypes.IsDefined(model.MinimumPasswordCharacters) {
+			model.MinimumPasswordCharacters = types.Int64Value(20)
+		}
+		if !internaltypes.IsDefined(model.MinimumPasswordWords) {
+			model.MinimumPasswordWords = types.Int64Value(4)
+		}
+		if !internaltypes.IsDefined(model.CapitalizeWords) {
+			model.CapitalizeWords = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

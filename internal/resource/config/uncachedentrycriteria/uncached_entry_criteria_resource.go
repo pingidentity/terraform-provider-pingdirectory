@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -137,10 +136,8 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "The set of arguments used to customize the behavior for the Third Party Uncached Entry Criteria. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Uncached Entry Criteria.",
@@ -150,10 +147,8 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "The set of arguments used to customize the behavior for the Scripted Uncached Entry Criteria. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"filter": schema.StringAttribute{
 				Description: "Specifies the search filter that should be used to differentiate entries into cached and uncached sets.",
@@ -195,6 +190,20 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model uncachedEntryCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for filter-based type
+	if resourceType == "filter-based" {
+		if !internaltypes.IsDefined(model.FilterIdentifiesUncachedEntries) {
+			model.FilterIdentifiesUncachedEntries = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

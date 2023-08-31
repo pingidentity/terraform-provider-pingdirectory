@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -171,10 +170,8 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"vault_external_server": schema.StringAttribute{
 				Description: "An external server definition with information needed to connect and authenticate to the Vault server.",
@@ -184,10 +181,8 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The base URL needed to access the Vault server. The base URL should consist of the protocol (\"http\" or \"https\"), the server address (resolvable name or IP address), and the port number. For example, \"https://vault.example.com:8200/\".",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"vault_authentication_method": schema.StringAttribute{
 				Description: "The mechanism used to authenticate to the Vault server.",
@@ -418,9 +413,76 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanCipherStreamProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	var model cipherStreamProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for amazon-key-management-service type
+	if resourceType == "amazon-key-management-service" {
+		if !internaltypes.IsDefined(model.EncryptedPassphraseFile) {
+			model.EncryptedPassphraseFile = types.StringValue("config/encryption-settings-passphrase.kms-encrypted")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	// Set defaults for amazon-secrets-manager type
+	if resourceType == "amazon-secrets-manager" {
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	// Set defaults for azure-key-vault type
+	if resourceType == "azure-key-vault" {
+		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
+			model.EncryptionMetadataFile = types.StringValue("config/azure-key-vault-encryption-metadata.json")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	// Set defaults for file-based type
+	if resourceType == "file-based" {
+		if !internaltypes.IsDefined(model.WaitForPasswordFile) {
+			model.WaitForPasswordFile = types.BoolValue(true)
+		}
+	}
+	// Set defaults for conjur type
+	if resourceType == "conjur" {
+		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
+			model.EncryptionMetadataFile = types.StringValue("config/conjur-encryption-metadata.json")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	// Set defaults for pkcs11 type
+	if resourceType == "pkcs11" {
+		if !internaltypes.IsDefined(model.Pkcs11KeyStoreType) {
+			model.Pkcs11KeyStoreType = types.StringValue("PKCS11")
+		}
+		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
+			model.EncryptionMetadataFile = types.StringValue("config/pkcs11-cipher-stream-provider-encryption-metadata.json")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	// Set defaults for vault type
+	if resourceType == "vault" {
+		if !internaltypes.IsDefined(model.VaultEncryptionMetadataFile) {
+			model.VaultEncryptionMetadataFile = types.StringValue("config/vault-encryption-metadata.json")
+		}
+		if !internaltypes.IsDefined(model.TrustStoreType) {
+			model.TrustStoreType = types.StringValue("JKS")
+		}
+		if !internaltypes.IsDefined(model.IterationCount) {
+			model.IterationCount = types.Int64Value(600000)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -461,18 +523,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("secret_version_id"),
-				path.MatchRoot("secret_version_stage"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("secret_version_id"),
+				path.MatchRoot("secret_version_stage"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

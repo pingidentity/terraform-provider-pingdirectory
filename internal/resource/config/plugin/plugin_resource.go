@@ -449,10 +449,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of arguments used to customize the behavior for the Scripted Plugin. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"delay": schema.StringAttribute{
 				Description: "The delay to inject for operations matching the associated criteria.",
@@ -527,37 +525,29 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of base DNs below which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"exclude_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"updated_entry_newly_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.",
@@ -583,10 +573,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"agentx_address": schema.StringAttribute{
 				Description: "The hostname or IP address of the SNMP master agent.",
@@ -672,10 +660,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies a set of specific attributes for which DN mapping should be applied. This will only be applicable if the enable-attribute-mapping property has a value of \"true\". Any attributes listed must be defined in the server schema with either the distinguished name syntax or the name and optional UID syntax.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"enable_control_mapping": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `dn-mapper`: Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin. When the `type` attribute is set to `attribute-mapper`: Indicates whether mapping should be applied to attribute types that may be present in specific controls. If enabled, attribute mapping will only be applied for control types which are specifically supported by the attribute mapper plugin.",
@@ -708,10 +694,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The set of arguments used to customize the behavior for the Third Party Plugin. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"datetime_attribute": schema.StringAttribute{
 				Description: "The LDAP attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.",
@@ -753,10 +737,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_dn_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct the bind DN for the simple bind request to send to the remote server. This may consist of a combination of static text and attribute values and other directives enclosed in curly braces.  For example, the value \"cn={cn},ou=People,dc=example,dc=com\" indicates that the remote bind DN should be constructed from the text \"cn=\" followed by the value of the local entry's cn attribute followed by the text \"ou=People,dc=example,dc=com\". If an attribute contains the value to use as the bind DN for pass-through authentication, then the pattern may simply be the name of that attribute in curly braces (e.g., if the seeAlso attribute contains the bind DN for the target user, then a bind DN pattern of \"{seeAlso}\" would be appropriate).  Note that a bind DN pattern can be used to construct a bind DN that is not actually a valid LDAP distinguished name. For example, if authentication is being passed through to a Microsoft Active Directory server, then a bind DN pattern could be used to construct a user principal name (UPN) as an alternative to a distinguished name.",
@@ -844,19 +826,15 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the types of statistics related to LDAP connections and operation processing that should be included in the output.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_resource_stat": schema.SetAttribute{
 				Description: "Specifies whether statistics related to resource utilization such as JVM memory.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"histogram_format": schema.StringAttribute{
 				Description: "The format of the data in the processing time histogram.",
@@ -870,10 +848,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"scope": schema.StringAttribute{
 				Description: "The scope to use for the search.",
@@ -884,10 +860,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `search-shutdown`: The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded).\n  - `last-mod`: Specifies the name or OID of an attribute type that must be updated in order for the modifiersName and modifyTimestamp attributes to be updated in the target entry.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"gauge_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for Gauges.",
@@ -935,29 +909,23 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The rotation policy to use for the Periodic Stats Logger Plugin .",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retention_policy": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The retention policy to use for the Periodic Stats Logger Plugin . When the `type` attribute is set to `monitor-history`: The retention policy to use for the Monitor History Plugin .",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `periodic-stats-logger`: The retention policy to use for the Periodic Stats Logger Plugin .\n  - `monitor-history`: The retention policy to use for the Monitor History Plugin .",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"logging_error_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
@@ -1009,10 +977,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the PingOne service.\n  - `pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to an alternate server.\n  - `pluggable-pass-through-authentication`: The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: A reference to connection criteria that will be used to indicate which bind requests should be passed through to the PingOne service. When the `type` attribute is set to `pass-through-authentication`: Specifies a set of connection criteria that must match the client associated with the bind request for the bind to be passed through to an alternate server. When the `type` attribute is set to `simple-to-external-bind`: Specifies a connection criteria object that may be used to indicate the set of clients for which this plugin should be used. If a value is provided, then this plugin will only be used for requests from client connections matching this criteria. When the `type` attribute is set to `delay`: Specifies a set of connection criteria used to indicate that only operations from clients matching this criteria should be subject to the configured delay. When the `type` attribute is set to `pluggable-pass-through-authentication`: A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
@@ -1073,10 +1039,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.\n  - `pluggable-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the external service. This option can only be used if try-local-bind is true.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_mapping_local_attribute": schema.SetAttribute{
 				Description: "The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.",
@@ -1104,10 +1068,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the days of the week which the Periodic GC Plugin should run. If no values are provided, then the plugin will run every day at the specified time.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"invoke_gc_time_utc": schema.SetAttribute{
 				Description: "Specifies the times of the day at which garbage collection may be explicitly invoked. The times should be specified in \"HH:MM\" format, with \"HH\" as a two-digit numeric value between 00 and 23 representing the hour of the day, and MM as a two-digit numeric value between 00 and 59 representing the minute of the hour. All times will be interpreted in the UTC time zone.",
@@ -1178,10 +1140,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `modifiable-password-policy-state`: A filter that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.\n  - `search-shutdown`: The filter to use for the search.\n  - `purge-expired-data`: Only entries that match this LDAP filter will be eligible for having data purged.\n  - `unique-attribute`: Specifies the search filter to apply to determine if attribute uniqueness is enforced for the matching entries.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_threads": schema.Int64Attribute{
 				Description: "Specifies the number of concurrent threads that should be used to process the search operations.",
@@ -1196,10 +1156,8 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`clean-up-expired-pingfederate-persistent-access-grants`, `purge-expired-data`, `clean-up-inactive-pingfederate-persistent-sessions`, `clean-up-expired-pingfederate-persistent-sessions`]: Only entries located within the subtree specified by this base DN are eligible for purging.\n  - `internal-search-rate`: Specifies the base DN to use for the searches to perform.\n  - `modifiable-password-policy-state`: A base DN that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.\n  - `seven-bit-clean`: Specifies the base DN below which the checking is performed.\n  - `search-shutdown`: The base DN to use for the search.\n  - `referral-on-update`: Specifies a base DN for requests for which to send referrals in response to update operations.\n  - `referential-integrity`: Specifies the base DN that limits the scope within which referential integrity is maintained.\n  - `unique-attribute`: Specifies a base DN within which the attribute must be unique.",
 				Optional:            true,
 				Computed:            true,
+				Default:             internaltypes.EmptySetDefault(types.StringType),
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"lower_bound": schema.Int64Attribute{
 				Description: "Specifies the lower bound for the numeric value which will be inserted into the search filter.",
@@ -1282,19 +1240,15 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_ldap_application": schema.SetAttribute{
 				Description: "If statistics should not be included for all applications, this property names the subset of applications that should be included.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"request_criteria": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `last-access-time`: Specifies a set of request criteria that may be used to indicate whether to apply access time updates for the associated operation. When the `type` attribute is set to `ping-one-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the PingOne service. When the `type` attribute is set to `sub-operation-timing`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be counted when aggregating timing data. When the `type` attribute is set to `third-party`: Specifies a set of request criteria that may be used to indicate that this Third Party Plugin should only be invoked for operations in which the associated request matches this criteria. When the `type` attribute is set to `pass-through-authentication`: Specifies a set of request criteria that must match the bind request for the bind to be passed through to an alternate server. When the `type` attribute is set to `simple-to-external-bind`: Specifies a request criteria object that may be used to indicate the set of requests for which this plugin should be used. If a value is provided, then this plugin will only be used for bind requests matching this criteria. When the `type` attribute is set to `coalesce-modifications`: A reference to request criteria that indicates which modify requests should be coalesced. When the `type` attribute is set to `delay`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be subject to the configured delay. When the `type` attribute is set to `groovy-scripted`: Specifies a set of request criteria that may be used to indicate that this Groovy Scripted Plugin should only be invoked for operations in which the associated request matches this criteria. When the `type` attribute is set to `pluggable-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
@@ -1413,9 +1367,355 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
+// Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_plugin")
+	var model pluginResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.ResourceType.ValueString()
+	// Set defaults for internal-search-rate type
+	if resourceType == "internal-search-rate" {
+		if !internaltypes.IsDefined(model.NumThreads) {
+			model.NumThreads = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.LowerBound) {
+			model.LowerBound = types.Int64Value(0)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for seven-bit-clean type
+	if resourceType == "seven-bit-clean" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preparseadd"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		}
+		if !internaltypes.IsDefined(model.AttributeType) {
+			model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid"), types.StringValue("mail"), types.StringValue("userPassword")})
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for clean-up-expired-pingfederate-persistent-access-grants type
+	if resourceType == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for periodic-gc type
+	if resourceType == "periodic-gc" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("startup")})
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for ping-one-pass-through-authentication type
+	if resourceType == "ping-one-pass-through-authentication" {
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for periodic-stats-logger type
+	if resourceType == "periodic-stats-logger" {
+		if !internaltypes.IsDefined(model.SuppressIfIdle) {
+			model.SuppressIfIdle = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.HeaderPrefixPerColumn) {
+			model.HeaderPrefixPerColumn = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.EmptyInsteadOfZero) {
+			model.EmptyInsteadOfZero = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LinesBetweenHeader) {
+			model.LinesBetweenHeader = types.Int64Value(50)
+		}
+		if !internaltypes.IsDefined(model.HistogramFormat) {
+			model.HistogramFormat = types.StringValue("count")
+		}
+		if !internaltypes.IsDefined(model.PerApplicationLDAPStats) {
+			model.PerApplicationLDAPStats = types.StringValue("aggregate-only")
+		}
+		if !internaltypes.IsDefined(model.StatusSummaryInfo) {
+			model.StatusSummaryInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LdapChangelogInfo) {
+			model.LdapChangelogInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.GaugeInfo) {
+			model.GaugeInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.LogFileFormat) {
+			model.LogFileFormat = types.StringValue("csv")
+		}
+		if !internaltypes.IsDefined(model.LogFilePermissions) {
+			model.LogFilePermissions = types.StringValue("600")
+		}
+		if !internaltypes.IsDefined(model.Append) {
+			model.Append = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.LoggingErrorBehavior) {
+			model.LoggingErrorBehavior = types.StringValue("standard-error")
+		}
+		if !internaltypes.IsDefined(model.LocalDBBackendInfo) {
+			model.LocalDBBackendInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.ReplicationInfo) {
+			model.ReplicationInfo = types.StringValue("none")
+		}
+		if !internaltypes.IsDefined(model.EntryCacheInfo) {
+			model.EntryCacheInfo = types.StringValue("none")
+		}
+	}
+	// Set defaults for purge-expired-data type
+	if resourceType == "purge-expired-data" {
+		if !internaltypes.IsDefined(model.DatetimeFormat) {
+			model.DatetimeFormat = types.StringValue("generalized-time")
+		}
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for sub-operation-timing type
+	if resourceType == "sub-operation-timing" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("postresponseadd"), types.StringValue("postresponsebind"), types.StringValue("postresponsecompare"), types.StringValue("postresponsedelete"), types.StringValue("postresponseextended"), types.StringValue("postresponsemodify"), types.StringValue("postresponsemodifydn"), types.StringValue("postresponsesearch")})
+		}
+		if !internaltypes.IsDefined(model.NumMostExpensivePhasesShown) {
+			model.NumMostExpensivePhasesShown = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for pass-through-authentication type
+	if resourceType == "pass-through-authentication" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationbind"), types.StringValue("postoperationbind")})
+		}
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
+			model.OverrideLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.ServerAccessMode) {
+			model.ServerAccessMode = types.StringValue("round-robin")
+		}
+		if !internaltypes.IsDefined(model.InitialConnections) {
+			model.InitialConnections = types.Int64Value(1)
+		}
+		if !internaltypes.IsDefined(model.MaxConnections) {
+			model.MaxConnections = types.Int64Value(10)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for dn-mapper type
+	if resourceType == "dn-mapper" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		}
+		if !internaltypes.IsDefined(model.EnableAttributeMapping) {
+			model.EnableAttributeMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.EnableControlMapping) {
+			model.EnableControlMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
+			model.AlwaysMapResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for referral-on-update type
+	if resourceType == "referral-on-update" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseadd"), types.StringValue("preparsedelete"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for snmp-subagent type
+	if resourceType == "snmp-subagent" {
+		if !internaltypes.IsDefined(model.AgentxAddress) {
+			model.AgentxAddress = types.StringValue("localhost")
+		}
+		if !internaltypes.IsDefined(model.AgentxPort) {
+			model.AgentxPort = types.Int64Value(705)
+		}
+		if !internaltypes.IsDefined(model.NumWorkerThreads) {
+			model.NumWorkerThreads = types.Int64Value(4)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for coalesce-modifications type
+	if resourceType == "coalesce-modifications" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(false)
+		}
+	}
+	// Set defaults for clean-up-inactive-pingfederate-persistent-sessions type
+	if resourceType == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for composed-attribute type
+	if resourceType == "composed-attribute" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn")})
+		}
+		if !internaltypes.IsDefined(model.MultipleValuePatternBehavior) {
+			model.MultipleValuePatternBehavior = types.StringValue("use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject")
+		}
+		if !internaltypes.IsDefined(model.MultiValuedAttributeBehavior) {
+			model.MultiValuedAttributeBehavior = types.StringValue("use-all-values-if-possible-but-reject-if-not")
+		}
+		if !internaltypes.IsDefined(model.TargetAttributeExistsDuringInitialPopulationBehavior) {
+			model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("preserve-existing-values")
+		}
+		if !internaltypes.IsDefined(model.UpdateSourceAttributeBehavior) {
+			model.UpdateSourceAttributeBehavior = types.StringValue("replace-composed-values")
+		}
+		if !internaltypes.IsDefined(model.SourceAttributeRemovalBehavior) {
+			model.SourceAttributeRemovalBehavior = types.StringValue("preserve-non-composed-values")
+		}
+		if !internaltypes.IsDefined(model.UpdateTargetAttributeBehavior) {
+			model.UpdateTargetAttributeBehavior = types.StringValue("always-allow")
+		}
+		if !internaltypes.IsDefined(model.UpdatedEntryNewlyMatchesCriteriaBehavior) {
+			model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("preserve-existing-values-and-compose-new-values")
+		}
+		if !internaltypes.IsDefined(model.UpdatedEntryNoLongerMatchesCriteriaBehavior) {
+			model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("preserve-all-values")
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for attribute-mapper type
+	if resourceType == "attribute-mapper" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		}
+		if !internaltypes.IsDefined(model.EnableControlMapping) {
+			model.EnableControlMapping = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
+			model.AlwaysMapResponses = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for delay type
+	if resourceType == "delay" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind")})
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for clean-up-expired-pingfederate-persistent-sessions type
+	if resourceType == "clean-up-expired-pingfederate-persistent-sessions" {
+		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
+			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		}
+		if !internaltypes.IsDefined(model.NumDeleteThreads) {
+			model.NumDeleteThreads = types.Int64Value(1)
+		}
+	}
+	// Set defaults for groovy-scripted type
+	if resourceType == "groovy-scripted" {
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for pluggable-pass-through-authentication type
+	if resourceType == "pluggable-pass-through-authentication" {
+		if !internaltypes.IsDefined(model.TryLocalBind) {
+			model.TryLocalBind = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
+			model.OverrideLocalPassword = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
+			model.UpdateLocalPassword = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
+			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for referential-integrity type
+	if resourceType == "referential-integrity" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationdelete"), types.StringValue("postoperationdelete"), types.StringValue("postoperationmodifydn"), types.StringValue("subordinatemodifydn")})
+		}
+		if !internaltypes.IsDefined(model.LogFile) {
+			model.LogFile = types.StringValue("logs/referint")
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	// Set defaults for unique-attribute type
+	if resourceType == "unique-attribute" {
+		if !internaltypes.IsDefined(model.PluginType) {
+			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn"), types.StringValue("postsynchronizationadd"), types.StringValue("postsynchronizationmodify"), types.StringValue("postsynchronizationmodifydn")})
+		}
+		if !internaltypes.IsDefined(model.MultipleAttributeBehavior) {
+			model.MultipleAttributeBehavior = types.StringValue("unique-within-each-attribute")
+		}
+		if !internaltypes.IsDefined(model.PreventConflictsWithSoftDeletedEntries) {
+			model.PreventConflictsWithSoftDeletedEntries = types.BoolValue(false)
+		}
+		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
+			model.InvokeForInternalOperations = types.BoolValue(true)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -1457,6 +1757,22 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1468,7 +1784,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1483,24 +1799,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

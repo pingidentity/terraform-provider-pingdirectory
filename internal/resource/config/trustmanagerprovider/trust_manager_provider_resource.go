@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -137,10 +136,8 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"trust_store_file": schema.StringAttribute{
 				Description: "Specifies the path to the file containing the trust information. It can be an absolute path or a path that is relative to the Directory Server instance root.",
@@ -191,6 +188,32 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model trustManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	resourceType := model.Type.ValueString()
+	// Set defaults for blind type
+	if resourceType == "blind" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	// Set defaults for file-based type
+	if resourceType == "file-based" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	// Set defaults for third-party type
+	if resourceType == "third-party" {
+		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
+			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		}
+	}
+	resp.Plan.Set(ctx, &model)
 }
 
 // Add config validators that apply to both default_ and non-default_

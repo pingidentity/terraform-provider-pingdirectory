@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -139,10 +138,8 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_base_dn": schema.StringAttribute{
 				Description: "Specifies the base DN of the branch of the LDAP directory that can be accessed by this Correlated LDAP Data View.",
@@ -152,19 +149,15 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_operational_attribute": schema.SetAttribute{
 				Description: "Specifies the set of operational LDAP attributes to be provided by this Correlated LDAP Data View.",
 				Optional:    true,
 				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"create_dn_pattern": schema.StringAttribute{
 				Description: "Specifies the template to use for the DN when creating new entries.",
