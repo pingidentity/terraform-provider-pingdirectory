@@ -38,7 +38,6 @@ resource "pingdirectory_default_mac_secret_key" "myMacSecretKey" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
 - `type` (String) The type of Mac Secret Key resource. Options are ['mac-secret-key']

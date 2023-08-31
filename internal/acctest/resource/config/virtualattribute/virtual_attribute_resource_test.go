@@ -64,12 +64,11 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccMirrorVirtualAttributeResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_virtual_attribute." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccMirrorVirtualAttributeResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_virtual_attribute." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

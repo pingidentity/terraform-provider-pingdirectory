@@ -73,12 +73,11 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDirectoryserverInstanceResource(resourceName, instanceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_server_instance." + resourceName,
-				ImportStateId:           instanceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDirectoryserverInstanceResource(resourceName, instanceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_server_instance." + resourceName,
+				ImportStateId:     instanceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

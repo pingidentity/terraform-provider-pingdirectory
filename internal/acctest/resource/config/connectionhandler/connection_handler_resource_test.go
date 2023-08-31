@@ -67,12 +67,11 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccHttpConnectionHandler(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_connection_handler." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccHttpConnectionHandler(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_connection_handler." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

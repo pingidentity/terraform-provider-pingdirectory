@@ -68,9 +68,6 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 				ImportStateId:     updatedResourceModel.restResourceTypeName + "/" + updatedResourceModel.attributeType,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

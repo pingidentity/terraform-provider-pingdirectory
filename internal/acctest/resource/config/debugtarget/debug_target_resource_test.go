@@ -60,12 +60,11 @@ func TestAccDebugTarget(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDebugTargetResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_debug_target." + resourceName,
-				ImportStateId:           updatedResourceModel.logPublisherName + "/" + updatedResourceModel.debugScope,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDebugTargetResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_debug_target." + resourceName,
+				ImportStateId:     updatedResourceModel.logPublisherName + "/" + updatedResourceModel.debugScope,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

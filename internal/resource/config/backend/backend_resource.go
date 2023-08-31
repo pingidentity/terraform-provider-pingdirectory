@@ -2,7 +2,6 @@ package backend
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -90,7 +89,6 @@ func (r *defaultBackendResource) Configure(_ context.Context, req resource.Confi
 
 type backendResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
-	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
 	Type                                      types.String `tfsdk:"type"`
@@ -156,7 +154,6 @@ type backendResourceModel struct {
 
 type defaultBackendResourceModel struct {
 	Id                                          types.String `tfsdk:"id"`
-	LastUpdated                                 types.String `tfsdk:"last_updated"`
 	Notifications                               types.Set    `tfsdk:"notifications"`
 	RequiredActions                             types.Set    `tfsdk:"required_actions"`
 	Type                                        types.String `tfsdk:"type"`
@@ -2891,9 +2888,6 @@ func (r *backendResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -3036,8 +3030,6 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -3193,8 +3185,6 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 		if updateResponse.LocalDbBackendResponse != nil {
 			readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -3283,8 +3273,6 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

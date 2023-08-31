@@ -2,7 +2,6 @@ package logfilerotationlistener
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -86,7 +85,6 @@ func (r *defaultLogFileRotationListenerResource) Configure(_ context.Context, re
 type logFileRotationListenerResourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	Name              types.String `tfsdk:"name"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
 	Type              types.String `tfsdk:"type"`
@@ -326,7 +324,6 @@ func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.Copy
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogFileRotationListenerUnknownValues(state)
-	//state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Sample" + r.)})
 }
 
 // Read a ThirdPartyLogFileRotationListenerResponse object into the model struct
@@ -490,9 +487,6 @@ func (r *logFileRotationListenerResource) Create(ctx context.Context, req resour
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -569,8 +563,6 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -690,8 +682,6 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

@@ -2,7 +2,6 @@ package saslmechanismhandler
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -89,7 +88,6 @@ func (r *defaultSaslMechanismHandlerResource) Configure(_ context.Context, req r
 type saslMechanismHandlerResourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
 	Name                                         types.String `tfsdk:"name"`
-	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
 	Type                                         types.String `tfsdk:"type"`
@@ -112,7 +110,6 @@ type saslMechanismHandlerResourceModel struct {
 type defaultSaslMechanismHandlerResourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
 	Name                                         types.String `tfsdk:"name"`
-	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
 	Type                                         types.String `tfsdk:"type"`
@@ -1375,9 +1372,6 @@ func (r *saslMechanismHandlerResource) Create(ctx context.Context, req resource.
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1520,8 +1514,6 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponseDefault(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -1686,8 +1678,6 @@ func (r *saslMechanismHandlerResource) Update(ctx context.Context, req resource.
 		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponse(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -1776,8 +1766,6 @@ func (r *defaultSaslMechanismHandlerResource) Update(ctx context.Context, req re
 		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponseDefault(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

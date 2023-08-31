@@ -45,9 +45,6 @@ func TestAccServerGroup(t *testing.T) {
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

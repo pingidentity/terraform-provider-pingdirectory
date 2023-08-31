@@ -49,11 +49,10 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDseeCompatAccessControlHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_access_control_handler." + resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDseeCompatAccessControlHandlerResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_access_control_handler." + resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

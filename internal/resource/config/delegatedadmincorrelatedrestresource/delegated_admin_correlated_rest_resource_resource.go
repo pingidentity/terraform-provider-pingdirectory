@@ -3,7 +3,6 @@ package delegatedadmincorrelatedrestresource
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -87,7 +86,6 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Configure(_ contex
 type delegatedAdminCorrelatedRestResourceResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
 	Name                                      types.String `tfsdk:"name"`
-	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
 	Type                                      types.String `tfsdk:"type"`
@@ -274,8 +272,6 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Create(ctx context.Contex
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -337,8 +333,6 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 
 		// Read the response
 		readDelegatedAdminCorrelatedRestResourceResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -443,8 +437,6 @@ func updateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 
 		// Read the response
 		readDelegatedAdminCorrelatedRestResourceResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

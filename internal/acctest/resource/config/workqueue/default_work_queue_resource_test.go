@@ -57,9 +57,6 @@ func TestAccHighThroughputWorkQueue(t *testing.T) {
 				ResourceName:      "pingdirectory_default_work_queue." + resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

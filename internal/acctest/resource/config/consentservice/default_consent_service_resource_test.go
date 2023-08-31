@@ -69,12 +69,11 @@ func TestAccConsentService(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccConsentServiceResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_consent_service." + resourceName,
-				ImportStateId:           resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccConsentServiceResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_consent_service." + resourceName,
+				ImportStateId:     resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

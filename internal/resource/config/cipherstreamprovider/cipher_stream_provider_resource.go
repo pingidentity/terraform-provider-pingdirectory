@@ -2,7 +2,6 @@ package cipherstreamprovider
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -90,7 +89,6 @@ func (r *defaultCipherStreamProviderResource) Configure(_ context.Context, req r
 type cipherStreamProviderResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	Name                            types.String `tfsdk:"name"`
-	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
 	Type                            types.String `tfsdk:"type"`
@@ -523,18 +521,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-key-management-service"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-secrets-manager"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("secret_version_id"),
 				path.MatchRoot("secret_version_stage"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1698,8 +1696,6 @@ func (r *cipherStreamProviderResource) Create(ctx context.Context, req resource.
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -1813,8 +1809,6 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 		if updateResponse.ThirdPartyCipherStreamProviderResponse != nil {
 			readThirdPartyCipherStreamProviderResponse(ctx, updateResponse.ThirdPartyCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -1971,8 +1965,6 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.ThirdPartyCipherStreamProviderResponse != nil {
 			readThirdPartyCipherStreamProviderResponse(ctx, updateResponse.ThirdPartyCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

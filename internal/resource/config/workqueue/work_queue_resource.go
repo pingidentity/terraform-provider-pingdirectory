@@ -2,7 +2,6 @@ package workqueue
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -58,7 +57,6 @@ func (r *workQueueResource) Configure(_ context.Context, req resource.ConfigureR
 
 type workQueueResourceModel struct {
 	Id                                       types.String `tfsdk:"id"`
-	LastUpdated                              types.String `tfsdk:"last_updated"`
 	Notifications                            types.Set    `tfsdk:"notifications"`
 	RequiredActions                          types.Set    `tfsdk:"required_actions"`
 	Type                                     types.String `tfsdk:"type"`
@@ -293,8 +291,6 @@ func (r *workQueueResource) Create(ctx context.Context, req resource.CreateReque
 
 		// Read the response
 		readHighThroughputWorkQueueResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -372,8 +368,6 @@ func (r *workQueueResource) Update(ctx context.Context, req resource.UpdateReque
 
 		// Read the response
 		readHighThroughputWorkQueueResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

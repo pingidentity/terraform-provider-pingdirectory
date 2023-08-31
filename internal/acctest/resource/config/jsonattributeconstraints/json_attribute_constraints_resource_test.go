@@ -63,9 +63,6 @@ func TestAccJsonAttributeConstraints(t *testing.T) {
 				ImportStateId:     updatedResourceModel.attributeType,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

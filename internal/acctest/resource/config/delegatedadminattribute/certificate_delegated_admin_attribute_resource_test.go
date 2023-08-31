@@ -60,9 +60,6 @@ func TestAccCertificateDelegatedAdminAttribute(t *testing.T) {
 				ImportStateId:     updatedResourceModel.restResourceTypeName + "/" + updatedResourceModel.attributeType,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

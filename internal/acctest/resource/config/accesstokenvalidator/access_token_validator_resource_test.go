@@ -76,7 +76,7 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Can't verify import state for a sensitive attribute that PD won't return
-				ImportStateVerifyIgnore: []string{"last_updated", "client_secret"},
+				ImportStateVerifyIgnore: []string{"client_secret"},
 			},
 			{
 				// Test plan after removing config on PD

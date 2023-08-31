@@ -56,12 +56,11 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_request_criteria." + resourceName,
-				ImportStateId:           initialResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_request_criteria." + resourceName,
+				ImportStateId:     initialResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

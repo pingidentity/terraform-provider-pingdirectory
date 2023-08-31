@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -91,7 +90,6 @@ func (r *defaultPluginResource) Configure(_ context.Context, req resource.Config
 type pluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
 	Name                                                 types.String `tfsdk:"name"`
-	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
@@ -226,7 +224,6 @@ type pluginResourceModel struct {
 type defaultPluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
 	Name                                                 types.String `tfsdk:"name"`
-	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
@@ -1757,22 +1754,6 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1784,7 +1765,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1799,8 +1780,24 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -7322,8 +7319,6 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -7611,8 +7606,6 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -7915,8 +7908,6 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -8078,8 +8069,6 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

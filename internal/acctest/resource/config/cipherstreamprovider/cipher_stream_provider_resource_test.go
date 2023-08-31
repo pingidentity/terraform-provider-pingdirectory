@@ -63,7 +63,6 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"aws_secret_access_key",
 				},
 			},

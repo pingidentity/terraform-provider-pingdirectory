@@ -2,7 +2,6 @@ package logfieldbehavior
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -84,7 +83,6 @@ func (r *defaultLogFieldBehaviorResource) Configure(_ context.Context, req resou
 type logFieldBehaviorResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
 	Name                             types.String `tfsdk:"name"`
-	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
 	Type                             types.String `tfsdk:"type"`
@@ -674,9 +672,6 @@ func (r *logFieldBehaviorResource) Create(ctx context.Context, req resource.Crea
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -747,8 +742,6 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -862,8 +855,6 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

@@ -56,9 +56,6 @@ func TestAccHttpConfiguration(t *testing.T) {
 				ImportStateId:     resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

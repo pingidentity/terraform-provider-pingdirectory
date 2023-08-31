@@ -74,12 +74,11 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccInternalSearchRatePluginResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_plugin." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccInternalSearchRatePluginResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_plugin." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

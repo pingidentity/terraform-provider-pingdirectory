@@ -2,7 +2,6 @@ package externalserver
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -91,7 +90,6 @@ func (r *defaultExternalServerResource) Configure(_ context.Context, req resourc
 type externalServerResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
 	Name                                   types.String `tfsdk:"name"`
-	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
 	Type                                   types.String `tfsdk:"type"`
@@ -843,18 +841,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("password"),
 				path.MatchRoot("passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -3797,8 +3795,6 @@ func (r *externalServerResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -3960,8 +3956,6 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -4166,8 +4160,6 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

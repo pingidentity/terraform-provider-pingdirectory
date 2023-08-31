@@ -64,7 +64,6 @@ func TestAccVaultAuthenticationMethod(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"vault_access_token",
 				},
 			},

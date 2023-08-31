@@ -2,7 +2,6 @@ package monitorprovider
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -87,7 +86,6 @@ func (r *defaultMonitorProviderResource) Configure(_ context.Context, req resour
 type monitorProviderResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
-	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
 	Type                    types.String `tfsdk:"type"`
@@ -103,7 +101,6 @@ type monitorProviderResourceModel struct {
 type defaultMonitorProviderResourceModel struct {
 	Id                                   types.String `tfsdk:"id"`
 	Name                                 types.String `tfsdk:"name"`
-	LastUpdated                          types.String `tfsdk:"last_updated"`
 	Notifications                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                      types.Set    `tfsdk:"required_actions"`
 	Type                                 types.String `tfsdk:"type"`
@@ -825,9 +822,6 @@ func (r *monitorProviderResource) Create(ctx context.Context, req resource.Creat
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -964,8 +958,6 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1120,8 +1112,6 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponse(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -1207,8 +1197,6 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

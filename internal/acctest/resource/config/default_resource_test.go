@@ -57,12 +57,11 @@ func TestAccDefaultLocation(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDefaultLocationResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_location." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDefaultLocationResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_location." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -139,12 +138,11 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDefaultLogPublisherResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_log_publisher." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDefaultLogPublisherResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_log_publisher." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

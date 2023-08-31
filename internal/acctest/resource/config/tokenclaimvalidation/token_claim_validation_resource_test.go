@@ -67,9 +67,6 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 				ImportStateId:     updatedResourceModel.idTokenValidatorName + "/" + updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

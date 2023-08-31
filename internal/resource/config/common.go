@@ -34,12 +34,6 @@ func GetRequiredActionsObjectType() types.ObjectType {
 
 // Get schema elements common to all resources
 func AddCommonResourceSchema(s *schema.Schema, addNameAttribute bool) {
-	s.Attributes["last_updated"] = schema.StringAttribute{
-		Description: "Timestamp of the last Terraform update of this resource.",
-		Computed:    true,
-		Required:    false,
-		Optional:    false,
-	}
 	s.Attributes["notifications"] = schema.SetAttribute{
 		Description: "Notifications returned by the PingDirectory Configuration API.",
 		ElementType: types.StringType,

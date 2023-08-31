@@ -64,9 +64,6 @@ func TestAccScimAttribute(t *testing.T) {
 				ImportStateId:     updatedResourceModel.scimSchemaName + "/" + updatedResourceModel.name,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

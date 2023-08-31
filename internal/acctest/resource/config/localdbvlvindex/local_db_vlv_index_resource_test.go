@@ -77,9 +77,6 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 				ImportStateId:     updatedResourceModel.backendName + "/" + updatedResourceModel.name,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

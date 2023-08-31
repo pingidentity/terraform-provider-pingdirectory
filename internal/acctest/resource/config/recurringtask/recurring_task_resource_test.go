@@ -58,12 +58,11 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccGenerateServerProfileRecurringTaskResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_recurring_task." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccGenerateServerProfileRecurringTaskResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_recurring_task." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

@@ -43,12 +43,11 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccFileBasedTrustManagerProviderResource(resourceName, tmpName, false, "config/truststore", "PKCS12"),
-				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
-				ImportStateId:           tmpName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccFileBasedTrustManagerProviderResource(resourceName, tmpName, false, "config/truststore", "PKCS12"),
+				ResourceName:      "pingdirectory_trust_manager_provider." + resourceName,
+				ImportStateId:     tmpName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD
@@ -91,12 +90,11 @@ func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccJvmDefaultTrustManagerProviderResource(resourceName, tmpName, true),
-				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
-				ImportStateId:           tmpName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccJvmDefaultTrustManagerProviderResource(resourceName, tmpName, true),
+				ResourceName:      "pingdirectory_trust_manager_provider." + resourceName,
+				ImportStateId:     tmpName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -134,11 +132,10 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 				// Test importing the resource
 				Config: testAccThirdPartyTrustManagerProviderResource(resourceName, tmpName, false,
 					extensionClass, updatedArguments),
-				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
-				ImportStateId:           tmpName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				ResourceName:      "pingdirectory_trust_manager_provider." + resourceName,
+				ImportStateId:     tmpName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

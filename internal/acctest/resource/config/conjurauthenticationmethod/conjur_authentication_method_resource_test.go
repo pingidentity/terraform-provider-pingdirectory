@@ -64,7 +64,6 @@ func TestAccConjurAuthenticationMethod(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"password",
 					"api_key",
 				},

@@ -64,7 +64,6 @@ func TestAccObscuredValue(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"obscured_value",
 				},
 			},

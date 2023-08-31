@@ -59,12 +59,11 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccExactMatchIdentityMapperResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_identity_mapper." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccExactMatchIdentityMapperResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_identity_mapper." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

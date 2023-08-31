@@ -52,7 +52,6 @@ func TestAccKeyPair(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"private_key",
 				},
 			},

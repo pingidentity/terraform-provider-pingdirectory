@@ -68,12 +68,11 @@ func TestAccConsentDefinitionLocalization(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccConsentDefinitionLocalizationResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_consent_definition_localization." + resourceName,
-				ImportStateId:           updatedResourceModel.consentDefinitionName + "/" + updatedResourceModel.locale,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccConsentDefinitionLocalizationResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_consent_definition_localization." + resourceName,
+				ImportStateId:     updatedResourceModel.consentDefinitionName + "/" + updatedResourceModel.locale,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

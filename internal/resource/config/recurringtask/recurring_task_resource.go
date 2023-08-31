@@ -2,7 +2,6 @@ package recurringtask
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -92,7 +91,6 @@ func (r *defaultRecurringTaskResource) Configure(_ context.Context, req resource
 type recurringTaskResourceModel struct {
 	Id                                      types.String `tfsdk:"id"`
 	Name                                    types.String `tfsdk:"name"`
-	LastUpdated                             types.String `tfsdk:"last_updated"`
 	Notifications                           types.Set    `tfsdk:"notifications"`
 	RequiredActions                         types.Set    `tfsdk:"required_actions"`
 	Type                                    types.String `tfsdk:"type"`
@@ -776,11 +774,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -793,10 +790,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -2982,9 +2980,6 @@ func (r *recurringTaskResource) Create(ctx context.Context, req resource.CreateR
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -3115,8 +3110,6 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -3290,8 +3283,6 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

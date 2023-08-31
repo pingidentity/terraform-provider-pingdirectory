@@ -3,7 +3,6 @@ package logpublisher
 import (
 	"context"
 	"strconv"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -91,7 +90,6 @@ func (r *defaultLogPublisherResource) Configure(_ context.Context, req resource.
 type logPublisherResourceModel struct {
 	Id                                                  types.String `tfsdk:"id"`
 	Name                                                types.String `tfsdk:"name"`
-	LastUpdated                                         types.String `tfsdk:"last_updated"`
 	Notifications                                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                                     types.Set    `tfsdk:"required_actions"`
 	Type                                                types.String `tfsdk:"type"`
@@ -11489,9 +11487,6 @@ func (r *logPublisherResource) Create(ctx context.Context, req resource.CreateRe
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -11778,8 +11773,6 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -12109,8 +12102,6 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

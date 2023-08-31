@@ -59,12 +59,11 @@ func TestAccSmtpExternalServer(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccSmtpExternalServerResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_external_server." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccSmtpExternalServerResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_external_server." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

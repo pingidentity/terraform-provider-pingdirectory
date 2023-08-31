@@ -34,9 +34,6 @@ func TestAccLicense(t *testing.T) {
 				ImportStateId:     testIdLicense,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

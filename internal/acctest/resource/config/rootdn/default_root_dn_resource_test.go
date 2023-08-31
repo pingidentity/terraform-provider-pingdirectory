@@ -81,10 +81,9 @@ func TestAccRootDn(t *testing.T) {
 				Config:       testAccRootDnResource(resourceName, defaultPermissionsList),
 				ResourceName: "pingdirectory_default_root_dn." + resourceName,
 				// The id doesn't matter for singleton config objects
-				ImportStateId:           resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				ImportStateId:     resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
