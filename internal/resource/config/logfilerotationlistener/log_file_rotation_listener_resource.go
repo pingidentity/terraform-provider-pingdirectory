@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -145,9 +144,6 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 				Description: "Indicates whether the file should be gzip-compressed as it is copied into the destination directory.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"output_directory": schema.StringAttribute{
 				Description: "The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.",
@@ -181,16 +177,20 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model logFileRotationListenerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel logFileRotationListenerResourceModel
+	// If a type with a default is null in the config, set it to the appropriate default value in the plan
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
 	// Set defaults for copy type
 	if resourceType == "copy" {
-		if !internaltypes.IsDefined(model.CompressOnCopy) {
-			model.CompressOnCopy = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CompressOnCopy) && planModel.CompressOnCopy.ValueBool() != false {
+			planModel.Notifications = types.SetUnknown(types.StringType)
+			planModel.RequiredActions = types.SetUnknown(types.StringType)
+			planModel.CompressOnCopy = types.BoolValue(false)
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -326,6 +326,7 @@ func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.Copy
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogFileRotationListenerUnknownValues(state)
+	//state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("Sample" + r.)})
 }
 
 // Read a ThirdPartyLogFileRotationListenerResponse object into the model struct
