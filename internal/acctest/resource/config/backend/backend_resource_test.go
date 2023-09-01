@@ -70,12 +70,11 @@ func TestAccLocalDbBackend(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccLocalDbBackendResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_backend." + resourceName,
-				ImportStateId:           updatedResourceModel.backendId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccLocalDbBackendResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_backend." + resourceName,
+				ImportStateId:     updatedResourceModel.backendId,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

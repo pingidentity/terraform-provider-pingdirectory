@@ -2,7 +2,6 @@ package oauthtokenhandler
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -86,7 +85,6 @@ func (r *defaultOauthTokenHandlerResource) Configure(_ context.Context, req reso
 type oauthTokenHandlerResourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	Name              types.String `tfsdk:"name"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
 	Type              types.String `tfsdk:"type"`
@@ -390,9 +388,6 @@ func (r *oauthTokenHandlerResource) Create(ctx context.Context, req resource.Cre
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -463,8 +458,6 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -578,8 +571,6 @@ func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, re
 		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

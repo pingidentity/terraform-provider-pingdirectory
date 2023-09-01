@@ -2,7 +2,6 @@ package extendedoperationhandler
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -89,7 +86,6 @@ func (r *defaultExtendedOperationHandlerResource) Configure(_ context.Context, r
 type extendedOperationHandlerResourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
 	Name                                  types.String `tfsdk:"name"`
-	LastUpdated                           types.String `tfsdk:"last_updated"`
 	Notifications                         types.Set    `tfsdk:"notifications"`
 	RequiredActions                       types.Set    `tfsdk:"required_actions"`
 	Type                                  types.String `tfsdk:"type"`
@@ -116,7 +112,6 @@ type extendedOperationHandlerResourceModel struct {
 type defaultExtendedOperationHandlerResourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
 	Name                                  types.String `tfsdk:"name"`
-	LastUpdated                           types.String `tfsdk:"last_updated"`
 	Notifications                         types.Set    `tfsdk:"notifications"`
 	RequiredActions                       types.Set    `tfsdk:"required_actions"`
 	Type                                  types.String `tfsdk:"type"`
@@ -230,18 +225,12 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				Description: "Indicates whether clients should be allowed to directly provide a new listener or inter-server certificate chain in the extended request.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_operation": schema.SetAttribute{
 				Description: "The types of replace certificate operations that clients will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"connection_criteria": schema.StringAttribute{
 				Description: "A set of criteria that client connections must satisfy before they will be allowed to request the associated extended operations.",
@@ -255,9 +244,6 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"time_interval_duration": schema.StringAttribute{
 				Description: "The duration of the time interval used for TOTP processing.",
@@ -271,17 +257,11 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				Description: "The number of adjacent time intervals (both before and after the current time) that should be checked when performing authentication.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"prevent_totp_reuse": schema.BoolAttribute{
 				Description: "Indicates whether to prevent clients from re-using TOTP passwords.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Extended Operation Handler",
@@ -326,31 +306,57 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model extendedOperationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel extendedOperationHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for validate-totp-password type
 	if resourceType == "validate-totp-password" {
-		if !internaltypes.IsDefined(model.SharedSecretAttributeType) {
-			model.SharedSecretAttributeType = types.StringValue("ds-auth-totp-shared-secret")
+		if !internaltypes.IsDefined(configModel.SharedSecretAttributeType) {
+			defaultVal := types.StringValue("ds-auth-totp-shared-secret")
+			if !planModel.SharedSecretAttributeType.Equal(defaultVal) {
+				planModel.SharedSecretAttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AdjacentIntervalsToCheck) {
-			model.AdjacentIntervalsToCheck = types.Int64Value(2)
+		if !internaltypes.IsDefined(configModel.AdjacentIntervalsToCheck) {
+			defaultVal := types.Int64Value(2)
+			if !planModel.AdjacentIntervalsToCheck.Equal(defaultVal) {
+				planModel.AdjacentIntervalsToCheck = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PreventTOTPReuse) {
-			model.PreventTOTPReuse = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.PreventTOTPReuse) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.PreventTOTPReuse.Equal(defaultVal) {
+				planModel.PreventTOTPReuse = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for replace-certificate type
 	if resourceType == "replace-certificate" {
-		if !internaltypes.IsDefined(model.AllowRemotelyProvidedCertificates) {
-			model.AllowRemotelyProvidedCertificates = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowRemotelyProvidedCertificates) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowRemotelyProvidedCertificates.Equal(defaultVal) {
+				planModel.AllowRemotelyProvidedCertificates = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowedOperation) {
-			model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("replace-listener-certificate"), types.StringValue("replace-inter-server-certificate"), types.StringValue("purge-retired-listener-certificates"), types.StringValue("purge-retired-inter-server-certificates")})
+		if !internaltypes.IsDefined(configModel.AllowedOperation) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("replace-listener-certificate"), types.StringValue("replace-inter-server-certificate"), types.StringValue("purge-retired-listener-certificates"), types.StringValue("purge-retired-inter-server-certificates")})
+			if !planModel.AllowedOperation.Equal(defaultVal) {
+				planModel.AllowedOperation = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -1529,9 +1535,6 @@ func (r *extendedOperationHandlerResource) Create(ctx context.Context, req resou
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1722,8 +1725,6 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponseDefault(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1923,8 +1924,6 @@ func (r *extendedOperationHandlerResource) Update(ctx context.Context, req resou
 		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponse(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -2037,8 +2036,6 @@ func (r *defaultExtendedOperationHandlerResource) Update(ctx context.Context, re
 		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponseDefault(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

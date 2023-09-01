@@ -69,7 +69,6 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"last_updated",
 					"key_store_pin",
 					"private_key_pin",
 				},

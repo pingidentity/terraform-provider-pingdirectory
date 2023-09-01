@@ -59,9 +59,6 @@ func TestAccServerInstanceListener(t *testing.T) {
 				ImportStateId:     initialResourceModel.serverInstanceName + "/" + initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

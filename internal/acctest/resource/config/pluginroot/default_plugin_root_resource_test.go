@@ -53,9 +53,6 @@ func TestAccPluginRoot(t *testing.T) {
 				ImportStateId:     initialResourceModel.pluginOrderPreParseSearch,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

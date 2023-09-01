@@ -2,7 +2,6 @@ package resultcriteria
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,10 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -90,7 +86,6 @@ func (r *defaultResultCriteriaResource) Configure(_ context.Context, req resourc
 type resultCriteriaResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
 	Name                              types.String `tfsdk:"name"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
 	Type                              types.String `tfsdk:"type"`
@@ -188,26 +183,17 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"remote_assurance_level": schema.SetAttribute{
 				Description: "The local assurance level values that will be allowed to match this Replication Assurance Result Criteria.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"assurance_timeout_criteria": schema.StringAttribute{
 				Description: "The criteria to use when performing matching based on the assurance timeout.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"assurance_timeout_value": schema.StringAttribute{
 				Description: "The value to use for performing matching based on the assurance timeout. This will be ignored if the assurance-timeout-criteria is \"any\".",
@@ -221,25 +207,16 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the response to the client was delayed by assurance processing.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"assurance_behavior_altered_by_control": schema.StringAttribute{
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the assurance requirements were altered by a control included in the request from the client.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"assurance_satisfied": schema.StringAttribute{
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the assurance requirements have been satisfied.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_included_result_criteria": schema.SetAttribute{
 				Description: "Specifies a result criteria object that must match the associated operation result in order to match the aggregate result criteria. If one or more all-included result criteria objects are provided, then an operation result must match all of them in order to match the aggregate result criteria.",
@@ -278,9 +255,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies which operation result codes are allowed for operations included in this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"result_code_value": schema.SetAttribute{
 				Description: "Specifies the operation result code values for results included in this Simple Result Criteria. This will only be taken into account if the \"result-code-criteria\" property has a value of \"selected-result-codes\".",
@@ -293,9 +267,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the time required to process the operation should be taken into consideration when determining whether to include the operation in this Simple Result Criteria. If the processing time should be taken into account, then the \"processing-time-value\" property should contain the boundary value.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"processing_time_value": schema.StringAttribute{
 				Description: "Specifies the boundary value to use for the operation processing time when determining whether to include that operation in this Simple Result Criteria. This will be ignored if the \"processing-time-criteria\" property has a value of \"any\".",
@@ -309,9 +280,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the time the operation was required to wait on the work queue should be taken into consideration when determining whether to include the operation in this Simple Result Criteria. If the queue time should be taken into account, then the \"queue-time-value\" property should contain the boundary value. This property should only be given a value other than \"any\" if the work queue has been configured to monitor the time operations have spent on the work queue.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"queue_time_value": schema.StringAttribute{
 				Description: "Specifies the boundary value to use for the time an operation spent on the work queue when determining whether to include that operation in this Simple Result Criteria. This will be ignored if the \"queue-time-criteria\" property has a value of \"any\".",
@@ -325,9 +293,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operation results which include one or more referral URLs should be included in this Simple Result Criteria. If no value is provided, then whether an operation includes any referral URLs will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"all_included_response_control": schema.SetAttribute{
 				Description: "Specifies the OID of a control that must be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must contain all of those controls.",
@@ -361,17 +326,11 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operation results in which the associated operation used an authorization identity that is different from the authentication identity (e.g., as the result of using a proxied authorization control) should be included in this Simple Result Criteria. If no value is provided, then whether an operation used an alternate authorization identity will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"used_any_privilege": schema.StringAttribute{
 				Description: "Indicates whether operations in which one or more privileges were used should be included in this Simple Result Criteria. If no value is provided, then whether an operation used any privileges will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"used_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that must have been used during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have used at least one of those privileges. If no privilege names were provided, then the set of privileges used will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
@@ -384,9 +343,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operations in which one or more privileges were missing should be included in this Simple Result Criteria. If no value is provided, then whether there were any missing privileges will not be considered when determining whether an operation matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"missing_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that must have been missing during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have been missing at least one of those privileges. If no privilege names were provided, then the set of privileges missing will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
@@ -399,49 +355,31 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the use of a retired password for authentication should be considered when determining whether a bind operation should be included in this Simple Result Criteria. This will be ignored for all operations other than bind.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_entry_returned_criteria": schema.StringAttribute{
 				Description: "Indicates whether the number of entries returned should be considered when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_entry_returned_count": schema.Int64Attribute{
 				Description: "Specifies the target number of entries returned for use when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search, and it will be ignored for search operations if the \"search-entry-criteria\" property has a value of \"any\".",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_reference_returned_criteria": schema.StringAttribute{
 				Description: "Indicates whether the number of references returned should be considered when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_reference_returned_count": schema.Int64Attribute{
 				Description: "Specifies the target number of references returned for use when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search, and it will be ignored for search operations if the \"search-reference-criteria\" property has a value of \"any\".",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"search_indexed_criteria": schema.StringAttribute{
 				Description: "Indicates whether a search operation should be matched by this Simple Result Criteria based on whether it is considered indexed by the server. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_authz_user_base_dn": schema.SetAttribute{
 				Description: "Specifies a base DN below which authorization user entries may exist for operations included in this Simple Result Criteria. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",
@@ -489,9 +427,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether this criteria will be permitted to match bind operations that resulted in anonymous authentication.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_user_base_dn": schema.SetAttribute{
 				Description: "A set of base DNs for authenticated users that will be permitted to match this criteria.",
@@ -560,79 +495,165 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanResultCriteria(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_result_criteria")
-	var model resultCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel resultCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for successful-bind type
 	if resourceType == "successful-bind" {
-		if !internaltypes.IsDefined(model.IncludeAnonymousBinds) {
-			model.IncludeAnonymousBinds = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeAnonymousBinds) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeAnonymousBinds.Equal(defaultVal) {
+				planModel.IncludeAnonymousBinds = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for simple type
 	if resourceType == "simple" {
-		if !internaltypes.IsDefined(model.ResultCodeCriteria) {
-			model.ResultCodeCriteria = types.StringValue("all-result-codes")
+		if !internaltypes.IsDefined(configModel.ResultCodeCriteria) {
+			defaultVal := types.StringValue("all-result-codes")
+			if !planModel.ResultCodeCriteria.Equal(defaultVal) {
+				planModel.ResultCodeCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ProcessingTimeCriteria) {
-			model.ProcessingTimeCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.ProcessingTimeCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.ProcessingTimeCriteria.Equal(defaultVal) {
+				planModel.ProcessingTimeCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.QueueTimeCriteria) {
-			model.QueueTimeCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.QueueTimeCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.QueueTimeCriteria.Equal(defaultVal) {
+				planModel.QueueTimeCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ReferralReturned) {
-			model.ReferralReturned = types.StringValue("optional")
+		if !internaltypes.IsDefined(configModel.ReferralReturned) {
+			defaultVal := types.StringValue("optional")
+			if !planModel.ReferralReturned.Equal(defaultVal) {
+				planModel.ReferralReturned = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UsedAlternateAuthzid) {
-			model.UsedAlternateAuthzid = types.StringValue("optional")
+		if !internaltypes.IsDefined(configModel.UsedAlternateAuthzid) {
+			defaultVal := types.StringValue("optional")
+			if !planModel.UsedAlternateAuthzid.Equal(defaultVal) {
+				planModel.UsedAlternateAuthzid = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UsedAnyPrivilege) {
-			model.UsedAnyPrivilege = types.StringValue("optional")
+		if !internaltypes.IsDefined(configModel.UsedAnyPrivilege) {
+			defaultVal := types.StringValue("optional")
+			if !planModel.UsedAnyPrivilege.Equal(defaultVal) {
+				planModel.UsedAnyPrivilege = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MissingAnyPrivilege) {
-			model.MissingAnyPrivilege = types.StringValue("optional")
+		if !internaltypes.IsDefined(configModel.MissingAnyPrivilege) {
+			defaultVal := types.StringValue("optional")
+			if !planModel.MissingAnyPrivilege.Equal(defaultVal) {
+				planModel.MissingAnyPrivilege = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RetiredPasswordUsedForBind) {
-			model.RetiredPasswordUsedForBind = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.RetiredPasswordUsedForBind) {
+			defaultVal := types.StringValue("any")
+			if !planModel.RetiredPasswordUsedForBind.Equal(defaultVal) {
+				planModel.RetiredPasswordUsedForBind = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SearchEntryReturnedCriteria) {
-			model.SearchEntryReturnedCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.SearchEntryReturnedCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.SearchEntryReturnedCriteria.Equal(defaultVal) {
+				planModel.SearchEntryReturnedCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SearchEntryReturnedCount) {
-			model.SearchEntryReturnedCount = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.SearchEntryReturnedCount) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.SearchEntryReturnedCount.Equal(defaultVal) {
+				planModel.SearchEntryReturnedCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SearchReferenceReturnedCriteria) {
-			model.SearchReferenceReturnedCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.SearchReferenceReturnedCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.SearchReferenceReturnedCriteria.Equal(defaultVal) {
+				planModel.SearchReferenceReturnedCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SearchReferenceReturnedCount) {
-			model.SearchReferenceReturnedCount = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.SearchReferenceReturnedCount) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.SearchReferenceReturnedCount.Equal(defaultVal) {
+				planModel.SearchReferenceReturnedCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SearchIndexedCriteria) {
-			model.SearchIndexedCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.SearchIndexedCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.SearchIndexedCriteria.Equal(defaultVal) {
+				planModel.SearchIndexedCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for replication-assurance type
 	if resourceType == "replication-assurance" {
-		if !internaltypes.IsDefined(model.LocalAssuranceLevel) {
-			model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-server"), types.StringValue("processed-all-servers")})
+		if !internaltypes.IsDefined(configModel.LocalAssuranceLevel) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-server"), types.StringValue("processed-all-servers")})
+			if !planModel.LocalAssuranceLevel.Equal(defaultVal) {
+				planModel.LocalAssuranceLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RemoteAssuranceLevel) {
-			model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-remote-location"), types.StringValue("received-all-remote-locations"), types.StringValue("processed-all-remote-servers")})
+		if !internaltypes.IsDefined(configModel.RemoteAssuranceLevel) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("received-any-remote-location"), types.StringValue("received-all-remote-locations"), types.StringValue("processed-all-remote-servers")})
+			if !planModel.RemoteAssuranceLevel.Equal(defaultVal) {
+				planModel.RemoteAssuranceLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AssuranceTimeoutCriteria) {
-			model.AssuranceTimeoutCriteria = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.AssuranceTimeoutCriteria) {
+			defaultVal := types.StringValue("any")
+			if !planModel.AssuranceTimeoutCriteria.Equal(defaultVal) {
+				planModel.AssuranceTimeoutCriteria = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ResponseDelayedByAssurance) {
-			model.ResponseDelayedByAssurance = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.ResponseDelayedByAssurance) {
+			defaultVal := types.StringValue("any")
+			if !planModel.ResponseDelayedByAssurance.Equal(defaultVal) {
+				planModel.ResponseDelayedByAssurance = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AssuranceBehaviorAlteredByControl) {
-			model.AssuranceBehaviorAlteredByControl = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.AssuranceBehaviorAlteredByControl) {
+			defaultVal := types.StringValue("any")
+			if !planModel.AssuranceBehaviorAlteredByControl.Equal(defaultVal) {
+				planModel.AssuranceBehaviorAlteredByControl = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AssuranceSatisfied) {
-			model.AssuranceSatisfied = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.AssuranceSatisfied) {
+			defaultVal := types.StringValue("any")
+			if !planModel.AssuranceSatisfied.Equal(defaultVal) {
+				planModel.AssuranceSatisfied = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -1847,9 +1868,6 @@ func (r *resultCriteriaResource) Create(ctx context.Context, req resource.Create
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1938,8 +1956,6 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 		if updateResponse.ThirdPartyResultCriteriaResponse != nil {
 			readThirdPartyResultCriteriaResponse(ctx, updateResponse.ThirdPartyResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -2071,8 +2087,6 @@ func updateResultCriteria(ctx context.Context, req resource.UpdateRequest, resp 
 		if updateResponse.ThirdPartyResultCriteriaResponse != nil {
 			readThirdPartyResultCriteriaResponse(ctx, updateResponse.ThirdPartyResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

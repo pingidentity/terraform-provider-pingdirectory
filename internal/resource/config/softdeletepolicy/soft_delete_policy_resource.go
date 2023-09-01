@@ -2,7 +2,6 @@ package softdeletepolicy
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -85,7 +84,6 @@ func (r *defaultSoftDeletePolicyResource) Configure(_ context.Context, req resou
 type softDeletePolicyResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
 	Name                             types.String `tfsdk:"name"`
-	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
 	Type                             types.String `tfsdk:"type"`
@@ -267,9 +265,6 @@ func (r *softDeletePolicyResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -330,8 +325,6 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 
 		// Read the response
 		readSoftDeletePolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -435,8 +428,6 @@ func updateSoftDeletePolicy(ctx context.Context, req resource.UpdateRequest, res
 
 		// Read the response
 		readSoftDeletePolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

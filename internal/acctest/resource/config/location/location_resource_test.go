@@ -60,12 +60,11 @@ func TestAccLocation(t *testing.T) {
 			},
 			{
 				// Test importing the default location, which should not have a description attribute
-				Config:                  testAccLocationResource(resourceName, updatedLocationName, locationDescription),
-				ResourceName:            "pingdirectory_location." + resourceName,
-				ImportStateId:           updatedLocationName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccLocationResource(resourceName, updatedLocationName, locationDescription),
+				ResourceName:      "pingdirectory_location." + resourceName,
+				ImportStateId:     updatedLocationName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

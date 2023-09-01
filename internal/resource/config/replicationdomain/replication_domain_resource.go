@@ -3,7 +3,6 @@ package replicationdomain
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -60,7 +59,6 @@ func (r *replicationDomainResource) Configure(_ context.Context, req resource.Co
 type replicationDomainResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
 	Name                                      types.String `tfsdk:"name"`
-	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
 	Type                                      types.String `tfsdk:"type"`
@@ -269,8 +267,6 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 
 		// Read the response
 		readReplicationDomainResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -349,8 +345,6 @@ func (r *replicationDomainResource) Update(ctx context.Context, req resource.Upd
 
 		// Read the response
 		readReplicationDomainResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

@@ -54,12 +54,11 @@ func TestAccIndicatorGauge(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccIndicatorGaugeResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_gauge." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccIndicatorGaugeResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_gauge." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

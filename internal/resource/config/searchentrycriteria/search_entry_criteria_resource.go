@@ -2,7 +2,6 @@ package searchentrycriteria
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -86,7 +85,6 @@ func (r *defaultSearchEntryCriteriaResource) Configure(_ context.Context, req re
 type searchEntryCriteriaResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
 	Name                              types.String `tfsdk:"name"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
 	Type                              types.String `tfsdk:"type"`
@@ -836,9 +834,6 @@ func (r *searchEntryCriteriaResource) Create(ctx context.Context, req resource.C
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -915,8 +910,6 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 		if updateResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 			readThirdPartySearchEntryCriteriaResponse(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1036,8 +1029,6 @@ func updateSearchEntryCriteria(ctx context.Context, req resource.UpdateRequest, 
 		if updateResponse.ThirdPartySearchEntryCriteriaResponse != nil {
 			readThirdPartySearchEntryCriteriaResponse(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

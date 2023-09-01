@@ -2,14 +2,12 @@ package failurelockoutaction
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -86,7 +84,6 @@ func (r *defaultFailureLockoutActionResource) Configure(_ context.Context, req r
 type failureLockoutActionResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
 	Name                              types.String `tfsdk:"name"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
 	Type                              types.String `tfsdk:"type"`
@@ -127,18 +124,12 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether to delay the response for authentication attempts even if that delay may block the thread being used to process the attempt.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"generate_account_status_notification": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout. When the `type` attribute is set to `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `delay-bind-response`: Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.\n  - `no-operation`: Indicates whether to generate an account status notification for cases in which this failure lockout action is invoked for a bind attempt with too many outstanding authentication failures.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Failure Lockout Action",
@@ -164,25 +155,43 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *failureLockoutActionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model failureLockoutActionResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel failureLockoutActionResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for delay-bind-response type
 	if resourceType == "delay-bind-response" {
-		if !internaltypes.IsDefined(model.AllowBlockingDelay) {
-			model.AllowBlockingDelay = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowBlockingDelay) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowBlockingDelay.Equal(defaultVal) {
+				planModel.AllowBlockingDelay = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.GenerateAccountStatusNotification) {
-			model.GenerateAccountStatusNotification = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.GenerateAccountStatusNotification) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.GenerateAccountStatusNotification.Equal(defaultVal) {
+				planModel.GenerateAccountStatusNotification = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for no-operation type
 	if resourceType == "no-operation" {
-		if !internaltypes.IsDefined(model.GenerateAccountStatusNotification) {
-			model.GenerateAccountStatusNotification = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.GenerateAccountStatusNotification) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.GenerateAccountStatusNotification.Equal(defaultVal) {
+				planModel.GenerateAccountStatusNotification = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -438,9 +447,6 @@ func (r *failureLockoutActionResource) Create(ctx context.Context, req resource.
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -517,8 +523,6 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -638,8 +642,6 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

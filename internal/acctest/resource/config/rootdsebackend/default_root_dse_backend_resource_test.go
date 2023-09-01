@@ -53,9 +53,6 @@ func TestAccRootDseBackend(t *testing.T) {
 				ResourceName:      "pingdirectory_default_root_dse_backend." + resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

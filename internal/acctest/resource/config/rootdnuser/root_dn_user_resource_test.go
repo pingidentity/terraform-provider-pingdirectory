@@ -83,12 +83,11 @@ func TestAccRootDnUser(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccRootDnUserResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_root_dn_user." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccRootDnUserResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_root_dn_user." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

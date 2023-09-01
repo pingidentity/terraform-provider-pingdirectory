@@ -2,7 +2,6 @@ package gaugedatasource
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -86,7 +85,6 @@ func (r *defaultGaugeDataSourceResource) Configure(_ context.Context, req resour
 type gaugeDataSourceResourceModel struct {
 	Id                            types.String  `tfsdk:"id"`
 	Name                          types.String  `tfsdk:"name"`
-	LastUpdated                   types.String  `tfsdk:"last_updated"`
 	Notifications                 types.Set     `tfsdk:"notifications"`
 	RequiredActions               types.Set     `tfsdk:"required_actions"`
 	Type                          types.String  `tfsdk:"type"`
@@ -132,17 +130,11 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Indicates whether a higher or lower value is a more severe condition.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"statistic_type": schema.StringAttribute{
 				Description: "Specifies the type of statistic to include in the output for the monitored attribute.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"divide_value_by": schema.Float64Attribute{
 				Description: "An optional floating point value that can be used to scale the resulting value.",
@@ -215,19 +207,33 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *gaugeDataSourceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model gaugeDataSourceResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel gaugeDataSourceResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for numeric type
 	if resourceType == "numeric" {
-		if !internaltypes.IsDefined(model.DataOrientation) {
-			model.DataOrientation = types.StringValue("lower-is-better")
+		if !internaltypes.IsDefined(configModel.DataOrientation) {
+			defaultVal := types.StringValue("lower-is-better")
+			if !planModel.DataOrientation.Equal(defaultVal) {
+				planModel.DataOrientation = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.StatisticType) {
-			model.StatisticType = types.StringValue("average")
+		if !internaltypes.IsDefined(configModel.StatisticType) {
+			defaultVal := types.StringValue("average")
+			if !planModel.StatisticType.Equal(defaultVal) {
+				planModel.StatisticType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -566,9 +572,6 @@ func (r *gaugeDataSourceResource) Create(ctx context.Context, req resource.Creat
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -639,8 +642,6 @@ func (r *defaultGaugeDataSourceResource) Create(ctx context.Context, req resourc
 		if updateResponse.NumericGaugeDataSourceResponse != nil {
 			readNumericGaugeDataSourceResponse(ctx, updateResponse.NumericGaugeDataSourceResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -754,8 +755,6 @@ func updateGaugeDataSource(ctx context.Context, req resource.UpdateRequest, resp
 		if updateResponse.NumericGaugeDataSourceResponse != nil {
 			readNumericGaugeDataSourceResponse(ctx, updateResponse.NumericGaugeDataSourceResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

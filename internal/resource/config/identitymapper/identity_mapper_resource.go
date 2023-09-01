@@ -2,7 +2,6 @@ package identitymapper
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -88,7 +86,6 @@ func (r *defaultIdentityMapperResource) Configure(_ context.Context, req resourc
 type identityMapperResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
 	Name                      types.String `tfsdk:"name"`
-	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
 	Type                      types.String `tfsdk:"type"`
@@ -175,9 +172,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:            true,
 				Computed:            true,
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_pattern": schema.StringAttribute{
 				Description: "Specifies the regular expression pattern that is used to identify portions of the ID string that will be replaced.",
@@ -227,22 +221,36 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model identityMapperResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel identityMapperResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for exact-match type
 	if resourceType == "exact-match" {
-		if !internaltypes.IsDefined(model.MatchAttribute) {
-			model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+		if !internaltypes.IsDefined(configModel.MatchAttribute) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+			if !planModel.MatchAttribute.Equal(defaultVal) {
+				planModel.MatchAttribute = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for regular-expression type
 	if resourceType == "regular-expression" {
-		if !internaltypes.IsDefined(model.MatchAttribute) {
-			model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+		if !internaltypes.IsDefined(configModel.MatchAttribute) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("uid")})
+			if !planModel.MatchAttribute.Equal(defaultVal) {
+				planModel.MatchAttribute = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -779,9 +787,6 @@ func (r *identityMapperResource) Create(ctx context.Context, req resource.Create
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -870,8 +875,6 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 		if updateResponse.ThirdPartyIdentityMapperResponse != nil {
 			readThirdPartyIdentityMapperResponse(ctx, updateResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1003,8 +1006,6 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 		if updateResponse.ThirdPartyIdentityMapperResponse != nil {
 			readThirdPartyIdentityMapperResponse(ctx, updateResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

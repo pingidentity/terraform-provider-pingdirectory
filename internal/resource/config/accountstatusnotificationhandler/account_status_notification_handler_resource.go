@@ -2,7 +2,6 @@ package accountstatusnotificationhandler
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -11,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -90,7 +88,6 @@ func (r *defaultAccountStatusNotificationHandlerResource) Configure(_ context.Co
 type accountStatusNotificationHandlerResourceModel struct {
 	Id                                              types.String `tfsdk:"id"`
 	Name                                            types.String `tfsdk:"name"`
-	LastUpdated                                     types.String `tfsdk:"last_updated"`
 	Notifications                                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                                 types.Set    `tfsdk:"required_actions"`
 	Type                                            types.String `tfsdk:"type"`
@@ -295,9 +292,6 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sender_address": schema.StringAttribute{
 				Description: "Specifies the email address from which the message is sent. Note that this does not necessarily have to be a legitimate email address.",
@@ -372,16 +366,26 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model accountStatusNotificationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel accountStatusNotificationHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for smtp type
 	if resourceType == "smtp" {
-		if !internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) {
-			model.SendMessageWithoutEndUserAddress = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.SendMessageWithoutEndUserAddress) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.SendMessageWithoutEndUserAddress.Equal(defaultVal) {
+				planModel.SendMessageWithoutEndUserAddress = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -1444,9 +1448,6 @@ func (r *accountStatusNotificationHandlerResource) Create(ctx context.Context, r
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1541,8 +1542,6 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 		if updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 			readThirdPartyAccountStatusNotificationHandlerResponse(ctx, updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1680,8 +1679,6 @@ func updateAccountStatusNotificationHandler(ctx context.Context, req resource.Up
 		if updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 			readThirdPartyAccountStatusNotificationHandlerResponse(ctx, updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

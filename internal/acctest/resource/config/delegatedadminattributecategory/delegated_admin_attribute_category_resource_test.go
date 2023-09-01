@@ -62,9 +62,6 @@ func TestAccDelegatedAdminAttributeCategory(t *testing.T) {
 				ImportStateId:     updatedResourceModel.displayName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

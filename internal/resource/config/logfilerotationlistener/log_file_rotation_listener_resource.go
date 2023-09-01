@@ -2,7 +2,6 @@ package logfilerotationlistener
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -87,7 +85,6 @@ func (r *defaultLogFileRotationListenerResource) Configure(_ context.Context, re
 type logFileRotationListenerResourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	Name              types.String `tfsdk:"name"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
 	Type              types.String `tfsdk:"type"`
@@ -145,9 +142,6 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 				Description: "Indicates whether the file should be gzip-compressed as it is copied into the destination directory.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"output_directory": schema.StringAttribute{
 				Description: "The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.",
@@ -181,16 +175,26 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model logFileRotationListenerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel logFileRotationListenerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for copy type
 	if resourceType == "copy" {
-		if !internaltypes.IsDefined(model.CompressOnCopy) {
-			model.CompressOnCopy = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CompressOnCopy) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CompressOnCopy.Equal(defaultVal) {
+				planModel.CompressOnCopy = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -489,9 +493,6 @@ func (r *logFileRotationListenerResource) Create(ctx context.Context, req resour
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -568,8 +569,6 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -689,8 +688,6 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

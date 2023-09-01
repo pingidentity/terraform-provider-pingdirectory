@@ -2,7 +2,6 @@ package groupimplementation
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -58,7 +57,6 @@ func (r *groupImplementationResource) Configure(_ context.Context, req resource.
 type groupImplementationResourceModel struct {
 	Id              types.String `tfsdk:"id"`
 	Name            types.String `tfsdk:"name"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
 	Type            types.String `tfsdk:"type"`
@@ -211,8 +209,6 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 		if updateResponse.DynamicGroupImplementationResponse != nil {
 			readDynamicGroupImplementationResponse(ctx, updateResponse.DynamicGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -306,8 +302,6 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 		if updateResponse.DynamicGroupImplementationResponse != nil {
 			readDynamicGroupImplementationResponse(ctx, updateResponse.DynamicGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

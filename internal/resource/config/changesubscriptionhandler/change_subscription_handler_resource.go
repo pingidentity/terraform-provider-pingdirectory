@@ -2,7 +2,6 @@ package changesubscriptionhandler
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -86,7 +85,6 @@ func (r *defaultChangeSubscriptionHandlerResource) Configure(_ context.Context, 
 type changeSubscriptionHandlerResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
-	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
 	Type               types.String `tfsdk:"type"`
@@ -141,9 +139,6 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 				Description: "Specifies the log file in which the change notification messages will be written.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Change Subscription Handler.",
@@ -191,16 +186,26 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *changeSubscriptionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model changeSubscriptionHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel changeSubscriptionHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for logging type
 	if resourceType == "logging" {
-		if !internaltypes.IsDefined(model.LogFile) {
-			model.LogFile = types.StringValue("logs/change-notifications.log")
+		if !internaltypes.IsDefined(configModel.LogFile) {
+			defaultVal := types.StringValue("logs/change-notifications.log")
+			if !planModel.LogFile.Equal(defaultVal) {
+				planModel.LogFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -523,9 +528,6 @@ func (r *changeSubscriptionHandlerResource) Create(ctx context.Context, req reso
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -602,8 +604,6 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -723,8 +723,6 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

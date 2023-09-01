@@ -2,7 +2,6 @@ package requestcriteria
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -88,7 +86,6 @@ func (r *defaultRequestCriteriaResource) Configure(_ context.Context, req resour
 type requestCriteriaResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
 	Name                                   types.String `tfsdk:"name"`
-	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
 	Type                                   types.String `tfsdk:"type"`
@@ -200,9 +197,6 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:            true,
 				Computed:            true,
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"operation_origin": schema.SetAttribute{
 				Description: "Specifies the origin for operations to be included in this Simple Request Criteria. If no values are provided, then the operation origin will not be taken into consideration when determining whether an operation matches this Simple Request Criteria.",
@@ -367,17 +361,11 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"using_administrative_session_worker_thread": schema.StringAttribute{
 				Description: "Indicates whether operations being processed using a dedicated administrative session worker thread should be included in this Simple Request Criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_application_name": schema.SetAttribute{
 				Description: "Specifies an application name for requests included in this Simple Request Criteria.",
@@ -417,28 +405,50 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *requestCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model requestCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel requestCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for root-dse type
 	if resourceType == "root-dse" {
-		if !internaltypes.IsDefined(model.OperationType) {
-			model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("compare")})
+		if !internaltypes.IsDefined(configModel.OperationType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("compare")})
+			if !planModel.OperationType.Equal(defaultVal) {
+				planModel.OperationType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for simple type
 	if resourceType == "simple" {
-		if !internaltypes.IsDefined(model.OperationType) {
-			model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("abandon"), types.StringValue("add"), types.StringValue("bind"), types.StringValue("compare"), types.StringValue("delete"), types.StringValue("extended"), types.StringValue("modify"), types.StringValue("modify-dn"), types.StringValue("search"), types.StringValue("unbind")})
+		if !internaltypes.IsDefined(configModel.OperationType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("abandon"), types.StringValue("add"), types.StringValue("bind"), types.StringValue("compare"), types.StringValue("delete"), types.StringValue("extended"), types.StringValue("modify"), types.StringValue("modify-dn"), types.StringValue("search"), types.StringValue("unbind")})
+			if !planModel.OperationType.Equal(defaultVal) {
+				planModel.OperationType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludedSearchScope) {
-			model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("base-object"), types.StringValue("single-level"), types.StringValue("whole-subtree"), types.StringValue("subordinate-subtree")})
+		if !internaltypes.IsDefined(configModel.IncludedSearchScope) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("base-object"), types.StringValue("single-level"), types.StringValue("whole-subtree"), types.StringValue("subordinate-subtree")})
+			if !planModel.IncludedSearchScope.Equal(defaultVal) {
+				planModel.IncludedSearchScope = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UsingAdministrativeSessionWorkerThread) {
-			model.UsingAdministrativeSessionWorkerThread = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.UsingAdministrativeSessionWorkerThread) {
+			defaultVal := types.StringValue("any")
+			if !planModel.UsingAdministrativeSessionWorkerThread.Equal(defaultVal) {
+				planModel.UsingAdministrativeSessionWorkerThread = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -1309,9 +1319,6 @@ func (r *requestCriteriaResource) Create(ctx context.Context, req resource.Creat
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1394,8 +1401,6 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1521,8 +1526,6 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

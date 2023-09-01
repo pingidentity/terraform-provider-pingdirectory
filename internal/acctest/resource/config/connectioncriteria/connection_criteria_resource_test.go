@@ -61,12 +61,11 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccSimpleConnectionCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_connection_criteria." + resourceName,
-				ImportStateId:           initialResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccSimpleConnectionCriteriaResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_connection_criteria." + resourceName,
+				ImportStateId:     initialResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

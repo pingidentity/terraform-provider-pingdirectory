@@ -2,7 +2,6 @@ package rootdsebackend
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -58,7 +57,6 @@ func (r *rootDseBackendResource) Configure(_ context.Context, req resource.Confi
 
 type rootDseBackendResourceModel struct {
 	Id                            types.String `tfsdk:"id"`
-	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
 	Type                          types.String `tfsdk:"type"`
@@ -199,8 +197,6 @@ func (r *rootDseBackendResource) Create(ctx context.Context, req resource.Create
 
 		// Read the response
 		readRootDseBackendResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -278,8 +274,6 @@ func (r *rootDseBackendResource) Update(ctx context.Context, req resource.Update
 
 		// Read the response
 		readRootDseBackendResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

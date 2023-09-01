@@ -2,7 +2,6 @@ package certificatemapper
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -87,7 +86,6 @@ func (r *defaultCertificateMapperResource) Configure(_ context.Context, req reso
 type certificateMapperResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
-	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
 	Type                    types.String `tfsdk:"type"`
@@ -145,9 +143,6 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the attribute in which to look for the fingerprint.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"fingerprint_algorithm": schema.StringAttribute{
 				Description: "Specifies the name of the digest algorithm to compute the fingerprint of client certificates.",
@@ -177,9 +172,6 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to  one of [`subject-dn-to-user-attribute`, `subject-attribute-to-user-attribute`]: Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry. When the `type` attribute is set to `fingerprint`: Specifies the set of base DNs below which to search for users.",
@@ -217,22 +209,36 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *certificateMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model certificateMapperResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel certificateMapperResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for subject-dn-to-user-attribute type
 	if resourceType == "subject-dn-to-user-attribute" {
-		if !internaltypes.IsDefined(model.SubjectAttribute) {
-			model.SubjectAttribute = types.StringValue("ds-certificate-subject-dn")
+		if !internaltypes.IsDefined(configModel.SubjectAttribute) {
+			defaultVal := types.StringValue("ds-certificate-subject-dn")
+			if !planModel.SubjectAttribute.Equal(defaultVal) {
+				planModel.SubjectAttribute = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for fingerprint type
 	if resourceType == "fingerprint" {
-		if !internaltypes.IsDefined(model.FingerprintAttribute) {
-			model.FingerprintAttribute = types.StringValue("ds-certificate-fingerprint")
+		if !internaltypes.IsDefined(configModel.FingerprintAttribute) {
+			defaultVal := types.StringValue("ds-certificate-fingerprint")
+			if !planModel.FingerprintAttribute.Equal(defaultVal) {
+				planModel.FingerprintAttribute = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -793,9 +799,6 @@ func (r *certificateMapperResource) Create(ctx context.Context, req resource.Cre
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -890,8 +893,6 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1029,8 +1030,6 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

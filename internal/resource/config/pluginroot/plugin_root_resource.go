@@ -2,7 +2,6 @@ package pluginroot
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -56,7 +55,6 @@ func (r *pluginRootResource) Configure(_ context.Context, req resource.Configure
 
 type pluginRootResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
-	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
 	Type                                   types.String `tfsdk:"type"`
@@ -701,8 +699,6 @@ func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequ
 
 		// Read the response
 		readPluginRootResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -780,8 +776,6 @@ func (r *pluginRootResource) Update(ctx context.Context, req resource.UpdateRequ
 
 		// Read the response
 		readPluginRootResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

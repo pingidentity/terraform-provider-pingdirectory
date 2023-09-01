@@ -2,7 +2,6 @@ package trustmanagerprovider
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -87,7 +85,6 @@ func (r *defaultTrustManagerProviderResource) Configure(_ context.Context, req r
 type trustManagerProviderResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	Name                            types.String `tfsdk:"name"`
-	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
 	Type                            types.String `tfsdk:"type"`
@@ -168,9 +165,6 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -192,28 +186,46 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model trustManagerProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel trustManagerProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for blind type
 	if resourceType == "blind" {
-		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
-			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeJVMDefaultIssuers) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeJVMDefaultIssuers.Equal(defaultVal) {
+				planModel.IncludeJVMDefaultIssuers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for file-based type
 	if resourceType == "file-based" {
-		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
-			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeJVMDefaultIssuers) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeJVMDefaultIssuers.Equal(defaultVal) {
+				planModel.IncludeJVMDefaultIssuers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for third-party type
 	if resourceType == "third-party" {
-		if !internaltypes.IsDefined(model.IncludeJVMDefaultIssuers) {
-			model.IncludeJVMDefaultIssuers = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeJVMDefaultIssuers) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeJVMDefaultIssuers.Equal(defaultVal) {
+				planModel.IncludeJVMDefaultIssuers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -605,8 +617,6 @@ func (r *trustManagerProviderResource) Create(ctx context.Context, req resource.
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -690,8 +700,6 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -818,8 +826,6 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

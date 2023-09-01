@@ -2,7 +2,6 @@ package restresourcetype
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -87,7 +86,6 @@ func (r *defaultRestResourceTypeResource) Configure(_ context.Context, req resou
 type restResourceTypeResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
 	Name                           types.String `tfsdk:"name"`
-	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
 	Type                           types.String `tfsdk:"type"`
@@ -241,17 +239,11 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the name of the group member column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"nonmembers_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group nonmember column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -273,28 +265,50 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *restResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model restResourceTypeResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel restResourceTypeResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for generic type
 	if resourceType == "generic" {
-		if !internaltypes.IsDefined(model.MembersColumnName) {
-			model.MembersColumnName = types.StringValue("Member Groups")
+		if !internaltypes.IsDefined(configModel.MembersColumnName) {
+			defaultVal := types.StringValue("Member Groups")
+			if !planModel.MembersColumnName.Equal(defaultVal) {
+				planModel.MembersColumnName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NonmembersColumnName) {
-			model.NonmembersColumnName = types.StringValue("Nonmember Groups")
+		if !internaltypes.IsDefined(configModel.NonmembersColumnName) {
+			defaultVal := types.StringValue("Nonmember Groups")
+			if !planModel.NonmembersColumnName.Equal(defaultVal) {
+				planModel.NonmembersColumnName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for group type
 	if resourceType == "group" {
-		if !internaltypes.IsDefined(model.MembersColumnName) {
-			model.MembersColumnName = types.StringValue("Members")
+		if !internaltypes.IsDefined(configModel.MembersColumnName) {
+			defaultVal := types.StringValue("Members")
+			if !planModel.MembersColumnName.Equal(defaultVal) {
+				planModel.MembersColumnName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NonmembersColumnName) {
-			model.NonmembersColumnName = types.StringValue("Nonmembers")
+		if !internaltypes.IsDefined(configModel.NonmembersColumnName) {
+			defaultVal := types.StringValue("Nonmembers")
+			if !planModel.NonmembersColumnName.Equal(defaultVal) {
+				planModel.NonmembersColumnName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -846,9 +860,6 @@ func (r *restResourceTypeResource) Create(ctx context.Context, req resource.Crea
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -925,8 +936,6 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -1046,8 +1055,6 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

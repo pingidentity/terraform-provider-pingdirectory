@@ -2,7 +2,6 @@ package monitorprovider
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -87,7 +86,6 @@ func (r *defaultMonitorProviderResource) Configure(_ context.Context, req resour
 type monitorProviderResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
-	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
 	Type                    types.String `tfsdk:"type"`
@@ -103,7 +101,6 @@ type monitorProviderResourceModel struct {
 type defaultMonitorProviderResourceModel struct {
 	Id                                   types.String `tfsdk:"id"`
 	Name                                 types.String `tfsdk:"name"`
-	LastUpdated                          types.String `tfsdk:"last_updated"`
 	Notifications                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                      types.Set    `tfsdk:"required_actions"`
 	Type                                 types.String `tfsdk:"type"`
@@ -183,9 +180,6 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Monitor Provider",
@@ -252,16 +246,26 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_monitor_provider")
-	var model monitorProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel monitorProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for encryption-settings-database-accessibility type
 	if resourceType == "encryption-settings-database-accessibility" {
-		if !internaltypes.IsDefined(model.ProlongedOutageBehavior) {
-			model.ProlongedOutageBehavior = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ProlongedOutageBehavior) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ProlongedOutageBehavior.Equal(defaultVal) {
+				planModel.ProlongedOutageBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -825,9 +829,6 @@ func (r *monitorProviderResource) Create(ctx context.Context, req resource.Creat
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -964,8 +965,6 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1120,8 +1119,6 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponse(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -1207,8 +1204,6 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

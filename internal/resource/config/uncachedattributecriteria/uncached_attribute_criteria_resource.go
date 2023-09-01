@@ -2,7 +2,6 @@ package uncachedattributecriteria
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -88,7 +86,6 @@ func (r *defaultUncachedAttributeCriteriaResource) Configure(_ context.Context, 
 type uncachedAttributeCriteriaResourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	Name              types.String `tfsdk:"name"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
 	Type              types.String `tfsdk:"type"`
@@ -153,17 +150,11 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Description: "Specifies the minimum number of values that an attribute must have before it will be written into the uncached-id2entry database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"min_total_value_size": schema.StringAttribute{
 				Description: "Specifies the minimum total value size (i.e., the sum of the sizes of all values) that an attribute must have before it will be written into the uncached-id2entry database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Uncached Attribute Criteria.",
@@ -204,19 +195,33 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model uncachedAttributeCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel uncachedAttributeCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for simple type
 	if resourceType == "simple" {
-		if !internaltypes.IsDefined(model.MinValueCount) {
-			model.MinValueCount = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.MinValueCount) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.MinValueCount.Equal(defaultVal) {
+				planModel.MinValueCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MinTotalValueSize) {
-			model.MinTotalValueSize = types.StringValue("0b")
+		if !internaltypes.IsDefined(configModel.MinTotalValueSize) {
+			defaultVal := types.StringValue("0b")
+			if !planModel.MinTotalValueSize.Equal(defaultVal) {
+				planModel.MinTotalValueSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -609,9 +614,6 @@ func (r *uncachedAttributeCriteriaResource) Create(ctx context.Context, req reso
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -694,8 +696,6 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.populateAllComputedStringAttributes()
@@ -821,8 +821,6 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

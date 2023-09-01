@@ -55,12 +55,11 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccQuickstartHttpServletExtensionResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_http_servlet_extension." + resourceName,
-				ImportStateId:           initialResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccQuickstartHttpServletExtensionResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_http_servlet_extension." + resourceName,
+				ImportStateId:     initialResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

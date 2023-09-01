@@ -2,7 +2,6 @@ package vaultauthenticationmethod
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -85,7 +84,6 @@ func (r *defaultVaultAuthenticationMethodResource) Configure(_ context.Context, 
 type vaultAuthenticationMethodResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
-	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
 	Type               types.String `tfsdk:"type"`
@@ -144,9 +142,6 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server.\n  - `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"vault_access_token": schema.StringAttribute{
 				Description: "The static token used to authenticate to the Vault server.",
@@ -177,16 +172,26 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *vaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model vaultAuthenticationMethodResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel vaultAuthenticationMethodResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for user-pass type
 	if resourceType == "user-pass" {
-		if !internaltypes.IsDefined(model.LoginMechanismName) {
-			model.LoginMechanismName = types.StringValue("userpass")
+		if !internaltypes.IsDefined(configModel.LoginMechanismName) {
+			defaultVal := types.StringValue("userpass")
+			if !planModel.LoginMechanismName.Equal(defaultVal) {
+				planModel.LoginMechanismName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -508,8 +513,6 @@ func (r *vaultAuthenticationMethodResource) Create(ctx context.Context, req reso
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -587,8 +590,6 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -709,8 +710,6 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

@@ -55,12 +55,11 @@ func TestAccConsentDefinition(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccConsentDefinitionResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_consent_definition." + resourceName,
-				ImportStateId:           updatedResourceModel.uniqueId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccConsentDefinitionResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_consent_definition." + resourceName,
+				ImportStateId:     updatedResourceModel.uniqueId,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

@@ -60,9 +60,6 @@ func TestAccCustomSynchronizationProvider(t *testing.T) {
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 		},
 	})

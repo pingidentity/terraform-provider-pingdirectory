@@ -301,7 +301,6 @@ Manages a Log Publisher.
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
 - `type` (String) The type of Log Publisher resource. Options are ['syslog-json-audit', 'syslog-based-error', 'third-party-file-based-access', 'operation-timing-access', 'third-party-http-operation', 'admin-alert-access', 'file-based-trace', 'jdbc-based-error', 'jdbc-based-access', 'common-log-file-http-operation', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'debug-access', 'syslog-json-http-operation', 'third-party-access', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'groovy-scripted-file-based-error', 'syslog-json-access', 'groovy-scripted-access', 'third-party-file-based-error', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'groovy-scripted-error', 'file-based-json-http-operation', 'syslog-json-error', 'groovy-scripted-http-operation']

@@ -86,9 +86,6 @@ O153rbh1O3sXFjeKFSvpi6BM4OBaTDwtlZL+ZtDjvLX5xY278udB140n+XYdJaW7
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

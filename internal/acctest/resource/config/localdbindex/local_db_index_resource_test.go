@@ -66,9 +66,6 @@ func TestAccLocalDbIndex(t *testing.T) {
 				ImportStateId:     updatedResourceModel.backendName + "/" + updatedResourceModel.attribute,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

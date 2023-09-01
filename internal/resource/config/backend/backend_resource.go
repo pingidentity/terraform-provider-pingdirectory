@@ -2,7 +2,6 @@ package backend
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -11,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -90,7 +87,6 @@ func (r *defaultBackendResource) Configure(_ context.Context, req resource.Confi
 
 type backendResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
-	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
 	Type                                      types.String `tfsdk:"type"`
@@ -156,7 +152,6 @@ type backendResourceModel struct {
 
 type defaultBackendResourceModel struct {
 	Id                                          types.String `tfsdk:"id"`
-	LastUpdated                                 types.String `tfsdk:"last_updated"`
 	Notifications                               types.Set    `tfsdk:"notifications"`
 	RequiredActions                             types.Set    `tfsdk:"required_actions"`
 	Type                                        types.String `tfsdk:"type"`
@@ -302,9 +297,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the uncached-id2entry database, which provides a way to store complete or partial encoded entries with a different (and presumably less memory-intensive) cache mode than records written to id2entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"uncached_attribute_criteria": schema.StringAttribute{
 				Description: "The criteria that will be used to identify attributes that should be written into the uncached-id2entry database rather than the id2entry database. This will only be used for entries in which the associated uncached-entry-criteria does not indicate that the entire entry should be uncached.",
@@ -325,51 +317,33 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Determines whether the Directory Server enters a DEGRADED state when this Local DB Backend has an index whose contents cannot be trusted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"return_unavailable_for_untrusted_index": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server returns UNAVAILABLE for any LDAP search operation in this Local DB Backend that would use an index whose contents cannot be trusted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"process_filters_with_undefined_attribute_types": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server should continue filter processing for LDAP search operations in this Local DB Backend that includes a search filter with an attribute that is not defined in the schema. This will only apply if check-schema is enabled in the global configuration.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_directory": schema.StringAttribute{
 				Description: "Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_directory_permissions": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend. When the `type` attribute is set to `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup of the backend.\n  - `local-db`: Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_cache_percent": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache. When the `type` attribute is set to `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `changelog`: Specifies the percentage of JVM memory to allocate to the changelog database cache.\n  - `local-db`: Specifies the percentage of JVM memory to allocate to the database cache.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"compact_common_parent_dn": schema.SetAttribute{
 				Description: "Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.",
@@ -382,41 +356,26 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Indicates whether the backend should attempt to compress entries before storing them in the database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"hash_entries": schema.BoolAttribute{
 				Description: "Indicates whether to calculate and store a message digest of the entry contents along with the entry data, in order to provide a means of verifying the integrity of the entry data.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_num_cleaner_threads": schema.Int64Attribute{
 				Description: "Specifies the number of threads that the backend should maintain to keep the database log files at or near the desired utilization. A value of zero indicates that the number of cleaner threads should be automatically configured based on the number of available CPUs.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_cleaner_min_utilization": schema.Int64Attribute{
 				Description: "Specifies the minimum percentage of \"live\" data that the database cleaner attempts to keep in database log files.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_evictor_critical_percentage": schema.Int64Attribute{
 				Description: "Specifies the percentage over the configured maximum that the database cache is allowed to grow. It is recommended to set this value slightly above zero when the database is too large to fully cache in memory. In this case, a dedicated background evictor thread is used to perform evictions once the cache fills up reducing the possibility that server threads are blocked.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_checkpointer_wakeup_interval": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that should pass between checkpoints.",
@@ -438,25 +397,16 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Indicates whether to use thread-local database handles to reduce contention in the backend.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_log_file_max": schema.StringAttribute{
 				Description: "Specifies the maximum size for a database log file.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_logging_level": schema.StringAttribute{
 				Description: "Specifies the log level that should be used by the database when it is writing information into the je.info file.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"je_property": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `changelog`: Specifies the database and environment properties for the Berkeley DB Java Edition database for this changelog backend. When the `type` attribute is set to `local-db`: Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
@@ -470,9 +420,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used for any database for which the cache mode is not explicitly specified. This includes the id2entry database, which stores encoded entries, and all attribute indexes.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2entry_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
@@ -499,17 +446,11 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use when priming. At present, this applies only to the preload and cursor-across-indexes prime methods.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"prime_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that the backend prime should be allowed to run. A duration of zero seconds indicates that there should not be a time limit.",
@@ -523,9 +464,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Indicates whether to prime all indexes associated with this backend, or to only prime the specified set of indexes (as configured with the system-index-to-prime property for the system indexes, and the prime-index property in the attribute index definition for attribute indexes).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"system_index_to_prime": schema.SetAttribute{
 				Description: "Specifies which system index(es) should be primed when the backend is initialized.",
@@ -545,25 +483,16 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"composite_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that are allowed to match a given composite index key before that particular composite index key is no longer maintained.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"id2children_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2children system index (which keeps track of the immediate children for an entry, to assist in otherwise unindexed searches with a single-level scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
@@ -577,81 +506,51 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"import_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use for concurrent processing during an LDIF import.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"export_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use for concurrently retrieving and encoding entries during an LDIF export.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_import_cache_percent": schema.Int64Attribute{
 				Description: "The percentage of JVM memory to allocate to the database cache during import operations.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"db_txn_write_no_sync": schema.BoolAttribute{
 				Description: "Indicates whether the database should synchronously flush data as it is written to disk.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"deadlock_retry_limit": schema.Int64Attribute{
 				Description: "Specifies the number of times that the server should retry an attempted operation in the backend if a deadlock results from two concurrent requests that interfere with each other in a conflicting manner.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"external_txn_default_backend_lock_behavior": schema.StringAttribute{
 				Description: "Specifies the default behavior that should be exhibited by external transactions (e.g., an LDAP transaction or an atomic multi-update operation) with regard to acquiring an exclusive lock in this backend.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"single_writer_lock_behavior": schema.StringAttribute{
 				Description: "Specifies the condition under which to acquire a single-writer lock to ensure that the associated operation will be the only write in progress at the time the lock is held. The single-writer lock can help avoid problems that result from database lock conflicts that arise between two write operations being processed at the same time in the same backend. This will not have any effect on the read operations processed while the write is in progress.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"subtree_delete_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be deleted from the backend when using the subtree delete control.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_recent_changes": schema.Int64Attribute{
 				Description: "Specifies the number of recent LDAP entry changes per replica for which the backend keeps a record to allow replication to recover in the event that the server is abruptly terminated. Increasing this value can lead to an increased peak server modification rate as well as increased replication throughput.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"offline_process_database_open_timeout": schema.StringAttribute{
 				Description: "Specifies a timeout duration which will be used for opening the database environment by an offline process, such as export-ldif.",
@@ -666,9 +565,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.\n  - `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DN(s) for the data that the backend handles.",
@@ -684,9 +580,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the behavior that the backend should use when processing write operations.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Backend",
@@ -700,9 +593,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Determines whether the Directory Server enters a DEGRADED state (and sends a corresponding alert) when this Backend is disabled.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"return_unavailable_when_disabled": schema.BoolAttribute{
 				Description: "Determines whether any LDAP operation that would use this Backend is to return UNAVAILABLE when this Backend is disabled.",
@@ -931,118 +821,264 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *backendResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanBackend(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model backendResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel backendResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for local-db type
 	if resourceType == "local-db" {
-		if !internaltypes.IsDefined(model.UncachedId2entryCacheMode) {
-			model.UncachedId2entryCacheMode = types.StringValue("cache-keys-only")
+		if !internaltypes.IsDefined(configModel.UncachedId2entryCacheMode) {
+			defaultVal := types.StringValue("cache-keys-only")
+			if !planModel.UncachedId2entryCacheMode.Equal(defaultVal) {
+				planModel.UncachedId2entryCacheMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.WritabilityMode) {
-			model.WritabilityMode = types.StringValue("enabled")
+		if !internaltypes.IsDefined(configModel.WritabilityMode) {
+			defaultVal := types.StringValue("enabled")
+			if !planModel.WritabilityMode.Equal(defaultVal) {
+				planModel.WritabilityMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SetDegradedAlertForUntrustedIndex) {
-			model.SetDegradedAlertForUntrustedIndex = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.SetDegradedAlertForUntrustedIndex) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.SetDegradedAlertForUntrustedIndex.Equal(defaultVal) {
+				planModel.SetDegradedAlertForUntrustedIndex = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ReturnUnavailableForUntrustedIndex) {
-			model.ReturnUnavailableForUntrustedIndex = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.ReturnUnavailableForUntrustedIndex) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.ReturnUnavailableForUntrustedIndex.Equal(defaultVal) {
+				planModel.ReturnUnavailableForUntrustedIndex = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ProcessFiltersWithUndefinedAttributeTypes) {
-			model.ProcessFiltersWithUndefinedAttributeTypes = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.ProcessFiltersWithUndefinedAttributeTypes) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.ProcessFiltersWithUndefinedAttributeTypes.Equal(defaultVal) {
+				planModel.ProcessFiltersWithUndefinedAttributeTypes = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IsPrivateBackend) {
-			model.IsPrivateBackend = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IsPrivateBackend) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IsPrivateBackend.Equal(defaultVal) {
+				planModel.IsPrivateBackend = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbDirectory) {
-			model.DbDirectory = types.StringValue("db")
+		if !internaltypes.IsDefined(configModel.DbDirectory) {
+			defaultVal := types.StringValue("db")
+			if !planModel.DbDirectory.Equal(defaultVal) {
+				planModel.DbDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbDirectoryPermissions) {
-			model.DbDirectoryPermissions = types.StringValue("700")
+		if !internaltypes.IsDefined(configModel.DbDirectoryPermissions) {
+			defaultVal := types.StringValue("700")
+			if !planModel.DbDirectoryPermissions.Equal(defaultVal) {
+				planModel.DbDirectoryPermissions = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CompressEntries) {
-			model.CompressEntries = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CompressEntries) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CompressEntries.Equal(defaultVal) {
+				planModel.CompressEntries = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.HashEntries) {
-			model.HashEntries = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.HashEntries) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.HashEntries.Equal(defaultVal) {
+				planModel.HashEntries = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbNumCleanerThreads) {
-			model.DbNumCleanerThreads = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.DbNumCleanerThreads) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.DbNumCleanerThreads.Equal(defaultVal) {
+				planModel.DbNumCleanerThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbCleanerMinUtilization) {
-			model.DbCleanerMinUtilization = types.Int64Value(75)
+		if !internaltypes.IsDefined(configModel.DbCleanerMinUtilization) {
+			defaultVal := types.Int64Value(75)
+			if !planModel.DbCleanerMinUtilization.Equal(defaultVal) {
+				planModel.DbCleanerMinUtilization = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbEvictorCriticalPercentage) {
-			model.DbEvictorCriticalPercentage = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.DbEvictorCriticalPercentage) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.DbEvictorCriticalPercentage.Equal(defaultVal) {
+				planModel.DbEvictorCriticalPercentage = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbUseThreadLocalHandles) {
-			model.DbUseThreadLocalHandles = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.DbUseThreadLocalHandles) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.DbUseThreadLocalHandles.Equal(defaultVal) {
+				planModel.DbUseThreadLocalHandles = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbLogFileMax) {
-			model.DbLogFileMax = types.StringValue("50 mb")
+		if !internaltypes.IsDefined(configModel.DbLogFileMax) {
+			defaultVal := types.StringValue("50 mb")
+			if !planModel.DbLogFileMax.Equal(defaultVal) {
+				planModel.DbLogFileMax = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbLoggingLevel) {
-			model.DbLoggingLevel = types.StringValue("CONFIG")
+		if !internaltypes.IsDefined(configModel.DbLoggingLevel) {
+			defaultVal := types.StringValue("CONFIG")
+			if !planModel.DbLoggingLevel.Equal(defaultVal) {
+				planModel.DbLoggingLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbCachePercent) {
-			model.DbCachePercent = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.DbCachePercent) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.DbCachePercent.Equal(defaultVal) {
+				planModel.DbCachePercent = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefaultCacheMode) {
-			model.DefaultCacheMode = types.StringValue("cache-keys-and-values")
+		if !internaltypes.IsDefined(configModel.DefaultCacheMode) {
+			defaultVal := types.StringValue("cache-keys-and-values")
+			if !planModel.DefaultCacheMode.Equal(defaultVal) {
+				planModel.DefaultCacheMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PrimeMethod) {
-			model.PrimeMethod, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none")})
+		if !internaltypes.IsDefined(configModel.PrimeMethod) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("none")})
+			if !planModel.PrimeMethod.Equal(defaultVal) {
+				planModel.PrimeMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PrimeThreadCount) {
-			model.PrimeThreadCount = types.Int64Value(2)
+		if !internaltypes.IsDefined(configModel.PrimeThreadCount) {
+			defaultVal := types.Int64Value(2)
+			if !planModel.PrimeThreadCount.Equal(defaultVal) {
+				planModel.PrimeThreadCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PrimeAllIndexes) {
-			model.PrimeAllIndexes = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.PrimeAllIndexes) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.PrimeAllIndexes.Equal(defaultVal) {
+				planModel.PrimeAllIndexes = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.BackgroundPrime) {
-			model.BackgroundPrime = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.BackgroundPrime) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.BackgroundPrime.Equal(defaultVal) {
+				planModel.BackgroundPrime = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IndexEntryLimit) {
-			model.IndexEntryLimit = types.Int64Value(4000)
+		if !internaltypes.IsDefined(configModel.IndexEntryLimit) {
+			defaultVal := types.Int64Value(4000)
+			if !planModel.IndexEntryLimit.Equal(defaultVal) {
+				planModel.IndexEntryLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CompositeIndexEntryLimit) {
-			model.CompositeIndexEntryLimit = types.Int64Value(100000)
+		if !internaltypes.IsDefined(configModel.CompositeIndexEntryLimit) {
+			defaultVal := types.Int64Value(100000)
+			if !planModel.CompositeIndexEntryLimit.Equal(defaultVal) {
+				planModel.CompositeIndexEntryLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ImportTempDirectory) {
-			model.ImportTempDirectory = types.StringValue("import-tmp")
+		if !internaltypes.IsDefined(configModel.ImportTempDirectory) {
+			defaultVal := types.StringValue("import-tmp")
+			if !planModel.ImportTempDirectory.Equal(defaultVal) {
+				planModel.ImportTempDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ImportThreadCount) {
-			model.ImportThreadCount = types.Int64Value(16)
+		if !internaltypes.IsDefined(configModel.ImportThreadCount) {
+			defaultVal := types.Int64Value(16)
+			if !planModel.ImportThreadCount.Equal(defaultVal) {
+				planModel.ImportThreadCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ExportThreadCount) {
-			model.ExportThreadCount = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.ExportThreadCount) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.ExportThreadCount.Equal(defaultVal) {
+				planModel.ExportThreadCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbImportCachePercent) {
-			model.DbImportCachePercent = types.Int64Value(60)
+		if !internaltypes.IsDefined(configModel.DbImportCachePercent) {
+			defaultVal := types.Int64Value(60)
+			if !planModel.DbImportCachePercent.Equal(defaultVal) {
+				planModel.DbImportCachePercent = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DbTxnWriteNoSync) {
-			model.DbTxnWriteNoSync = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.DbTxnWriteNoSync) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.DbTxnWriteNoSync.Equal(defaultVal) {
+				planModel.DbTxnWriteNoSync = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DeadlockRetryLimit) {
-			model.DeadlockRetryLimit = types.Int64Value(3)
+		if !internaltypes.IsDefined(configModel.DeadlockRetryLimit) {
+			defaultVal := types.Int64Value(3)
+			if !planModel.DeadlockRetryLimit.Equal(defaultVal) {
+				planModel.DeadlockRetryLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ExternalTxnDefaultBackendLockBehavior) {
-			model.ExternalTxnDefaultBackendLockBehavior = types.StringValue("acquire-after-retries")
+		if !internaltypes.IsDefined(configModel.ExternalTxnDefaultBackendLockBehavior) {
+			defaultVal := types.StringValue("acquire-after-retries")
+			if !planModel.ExternalTxnDefaultBackendLockBehavior.Equal(defaultVal) {
+				planModel.ExternalTxnDefaultBackendLockBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SingleWriterLockBehavior) {
-			model.SingleWriterLockBehavior = types.StringValue("acquire-on-retry")
+		if !internaltypes.IsDefined(configModel.SingleWriterLockBehavior) {
+			defaultVal := types.StringValue("acquire-on-retry")
+			if !planModel.SingleWriterLockBehavior.Equal(defaultVal) {
+				planModel.SingleWriterLockBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SubtreeDeleteSizeLimit) {
-			model.SubtreeDeleteSizeLimit = types.Int64Value(5000)
+		if !internaltypes.IsDefined(configModel.SubtreeDeleteSizeLimit) {
+			defaultVal := types.Int64Value(5000)
+			if !planModel.SubtreeDeleteSizeLimit.Equal(defaultVal) {
+				planModel.SubtreeDeleteSizeLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumRecentChanges) {
-			model.NumRecentChanges = types.Int64Value(50000)
+		if !internaltypes.IsDefined(configModel.NumRecentChanges) {
+			defaultVal := types.Int64Value(50000)
+			if !planModel.NumRecentChanges.Equal(defaultVal) {
+				planModel.NumRecentChanges = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SetDegradedAlertWhenDisabled) {
-			model.SetDegradedAlertWhenDisabled = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.SetDegradedAlertWhenDisabled) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.SetDegradedAlertWhenDisabled.Equal(defaultVal) {
+				planModel.SetDegradedAlertWhenDisabled = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -2891,9 +2927,6 @@ func (r *backendResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -3036,8 +3069,6 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -3193,8 +3224,6 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 		if updateResponse.LocalDbBackendResponse != nil {
 			readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -3283,8 +3312,6 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

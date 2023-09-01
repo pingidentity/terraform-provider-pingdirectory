@@ -3,7 +3,6 @@ package localdbvlvindex
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -87,7 +86,6 @@ func (r *defaultLocalDbVlvIndexResource) Configure(_ context.Context, req resour
 
 type localDbVlvIndexResourceModel struct {
 	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
 	Type            types.String `tfsdk:"type"`
@@ -319,8 +317,6 @@ func (r *localDbVlvIndexResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -382,8 +378,6 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 
 		// Read the response
 		readLocalDbVlvIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -488,8 +482,6 @@ func updateLocalDbVlvIndex(ctx context.Context, req resource.UpdateRequest, resp
 
 		// Read the response
 		readLocalDbVlvIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

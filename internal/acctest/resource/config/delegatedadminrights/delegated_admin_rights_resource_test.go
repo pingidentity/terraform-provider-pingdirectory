@@ -59,12 +59,11 @@ func TestAccDelegatedAdminRights(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccDelegatedAdminRightsResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_delegated_admin_rights." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccDelegatedAdminRightsResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_delegated_admin_rights." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

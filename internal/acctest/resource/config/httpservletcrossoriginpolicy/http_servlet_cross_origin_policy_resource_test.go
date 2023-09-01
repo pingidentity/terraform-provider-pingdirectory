@@ -56,12 +56,11 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:                  testAccHttpServletCrossOriginPolicyResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_http_servlet_cross_origin_policy." + resourceName,
-				ImportStateId:           initialResourceModel.id,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccHttpServletCrossOriginPolicyResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_http_servlet_cross_origin_policy." + resourceName,
+				ImportStateId:     initialResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// Test plan after removing config on PD

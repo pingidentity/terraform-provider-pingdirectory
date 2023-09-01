@@ -3,7 +3,6 @@ package velocitycontextprovider
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -90,7 +88,6 @@ func (r *defaultVelocityContextProviderResource) Configure(_ context.Context, re
 type velocityContextProviderResourceModel struct {
 	Id                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
-	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
 	Type                     types.String `tfsdk:"type"`
@@ -184,9 +181,6 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"object_scope": schema.StringAttribute{
 				Description: "Scope for context objects contributed by this Velocity Context Provider. Must be either 'request' or 'session' or 'application'.",
@@ -235,16 +229,26 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *velocityContextProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model velocityContextProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel velocityContextProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for third-party type
 	if resourceType == "third-party" {
-		if !internaltypes.IsDefined(model.HttpMethod) {
-			model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("GET")})
+		if !internaltypes.IsDefined(configModel.HttpMethod) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("GET")})
+			if !planModel.HttpMethod.Equal(defaultVal) {
+				planModel.HttpMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -592,8 +596,6 @@ func (r *velocityContextProviderResource) Create(ctx context.Context, req resour
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -671,8 +673,6 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -793,8 +793,6 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

@@ -2,7 +2,6 @@ package otpdeliverymechanism
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -89,7 +88,6 @@ func (r *defaultOtpDeliveryMechanismResource) Configure(_ context.Context, req r
 type otpDeliveryMechanismResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
 	Name                              types.String `tfsdk:"name"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
 	Type                              types.String `tfsdk:"type"`
@@ -155,9 +153,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The name or OID of the attribute that holds the email address to which the message should be sent.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"email_address_json_field": schema.StringAttribute{
 				Description: "The name of the JSON field whose value is the email address to which the message should be sent. The email address must be contained in a top-level field whose value is a single string.",
@@ -175,9 +170,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The subject to use for the e-mail message.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
@@ -200,9 +192,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The name or OID of the attribute in the user's entry that holds the phone number to which the message should be sent.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"phone_number_json_field": schema.StringAttribute{
 				Description: "The name of the JSON field whose value is the phone number to which the message should be sent. The phone number must be contained in a top-level field whose value is a single string.",
@@ -258,25 +247,43 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model otpDeliveryMechanismResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel otpDeliveryMechanismResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for twilio type
 	if resourceType == "twilio" {
-		if !internaltypes.IsDefined(model.PhoneNumberAttributeType) {
-			model.PhoneNumberAttributeType = types.StringValue("mobile")
+		if !internaltypes.IsDefined(configModel.PhoneNumberAttributeType) {
+			defaultVal := types.StringValue("mobile")
+			if !planModel.PhoneNumberAttributeType.Equal(defaultVal) {
+				planModel.PhoneNumberAttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for email type
 	if resourceType == "email" {
-		if !internaltypes.IsDefined(model.EmailAddressAttributeType) {
-			model.EmailAddressAttributeType = types.StringValue("mail")
+		if !internaltypes.IsDefined(configModel.EmailAddressAttributeType) {
+			defaultVal := types.StringValue("mail")
+			if !planModel.EmailAddressAttributeType.Equal(defaultVal) {
+				planModel.EmailAddressAttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MessageSubject) {
-			model.MessageSubject = types.StringValue("Your one-time password")
+		if !internaltypes.IsDefined(configModel.MessageSubject) {
+			defaultVal := types.StringValue("Your one-time password")
+			if !planModel.MessageSubject.Equal(defaultVal) {
+				planModel.MessageSubject = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -795,8 +802,6 @@ func (r *otpDeliveryMechanismResource) Create(ctx context.Context, req resource.
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -874,8 +879,6 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 		if updateResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 			readThirdPartyOtpDeliveryMechanismResponse(ctx, updateResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -996,8 +999,6 @@ func updateOtpDeliveryMechanism(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 			readThirdPartyOtpDeliveryMechanismResponse(ctx, updateResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

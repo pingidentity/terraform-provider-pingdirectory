@@ -2,7 +2,6 @@ package license
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -56,7 +55,6 @@ func (r *licenseResource) Configure(_ context.Context, req resource.ConfigureReq
 
 type licenseResourceModel struct {
 	Id                          types.String `tfsdk:"id"`
-	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
 	Type                        types.String `tfsdk:"type"`
@@ -162,8 +160,6 @@ func (r *licenseResource) Create(ctx context.Context, req resource.CreateRequest
 
 		// Read the response
 		readLicenseResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -241,8 +237,6 @@ func (r *licenseResource) Update(ctx context.Context, req resource.UpdateRequest
 
 		// Read the response
 		readLicenseResponse(ctx, updateResponse, &state, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

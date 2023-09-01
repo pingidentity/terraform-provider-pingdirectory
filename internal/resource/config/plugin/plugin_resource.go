@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -11,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -91,7 +88,6 @@ func (r *defaultPluginResource) Configure(_ context.Context, req resource.Config
 type pluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
 	Name                                                 types.String `tfsdk:"name"`
-	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
@@ -226,7 +222,6 @@ type pluginResourceModel struct {
 type defaultPluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
 	Name                                                 types.String `tfsdk:"name"`
-	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
@@ -421,9 +416,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit if multiple attribute types are specified.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Plugin.",
@@ -433,9 +425,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Indicates whether this Unique Attribute Plugin should reject a change that would result in one or more conflicts, even if those conflicts only exist in soft-deleted entries.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_interval": schema.StringAttribute{
 				Description: "Specifies the interval in seconds when referential integrity updates are made.",
@@ -477,49 +466,31 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit if the plugin is configured with multiple value patterns.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"multi_valued_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for source attributes that have multiple values.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"target_attribute_exists_during_initial_population_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit if the target attribute exists when initially populating the entry with composed values (whether during an LDIF import, an add operation, or an invocation of the populate composed attribute values task).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_source_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update one or more of the source attributes used in any of the value patterns.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"source_attribute_removal_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update an entry to remove source attributes in such a way that this plugin would no longer generate any composed values for that entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_target_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that attempt to update the set of values for the target attribute.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values may be generated.",
@@ -553,17 +524,11 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"updated_entry_no_longer_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously satisfied the base DN and filter criteria, but now no longer satisfies that criteria.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
@@ -580,25 +545,16 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The hostname or IP address of the SNMP master agent.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"agentx_port": schema.Int64Attribute{
 				Description: "The port number on which the SNMP master agent will be contacted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_worker_threads": schema.Int64Attribute{
 				Description: "The number of worker threads to use to handle SNMP requests.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"session_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum amount of time to wait for a session to the master agent to be established.",
@@ -652,9 +608,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Indicates whether DN mapping should be applied to the values of attributes with appropriate syntaxes.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"map_attribute": schema.SetAttribute{
 				Description: "Specifies a set of specific attributes for which DN mapping should be applied. This will only be applicable if the enable-attribute-mapping property has a value of \"true\". Any attributes listed must be defined in the server schema with either the distinguished name syntax or the name and optional UID syntax.",
@@ -668,18 +621,12 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `dn-mapper`: Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin.\n  - `attribute-mapper`: Indicates whether mapping should be applied to attribute types that may be present in specific controls. If enabled, attribute mapping will only be applied for control types which are specifically supported by the attribute mapper plugin.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"always_map_responses": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `dn-mapper`: Indicates whether DNs in response messages containing the target DN should always be remapped back to the source DN. If this is \"false\", then mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request. When the `type` attribute is set to `attribute-mapper`: Indicates whether the target attribute in response messages should always be remapped back to the source attribute. If this is \"false\", then the mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `dn-mapper`: Indicates whether DNs in response messages containing the target DN should always be remapped back to the source DN. If this is \"false\", then mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request.\n  - `attribute-mapper`: Indicates whether the target attribute in response messages should always be remapped back to the source attribute. If this is \"false\", then the mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"server": schema.SetAttribute{
 				Description: "Specifies the LDAP external server(s) to which authentication attempts should be forwarded.",
@@ -709,25 +656,16 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_most_expensive_phases_shown": schema.Int64Attribute{
 				Description: "This controls how many of the most expensive phases are included per operation type in the monitor entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"datetime_format": schema.StringAttribute{
 				Description: "Specifies the format of the datetime stored within the entry that determines when data should be purged.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"custom_datetime_format": schema.StringAttribute{
 				Description: "When the datetime-format property is configured with a value of \"custom\", this specifies the format (using a string compatible with the java.text.SimpleDateFormat class) that will be used to search for expired data.",
@@ -756,17 +694,11 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the initial number of connections to establish to each external server against which authentication may be attempted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"custom_timezone": schema.StringAttribute{
 				Description: "Specifies the time zone to use when generating a date string using the configured custom-datetime-format value. The provided value must be accepted by java.util.TimeZone.getTimeZone.",
@@ -794,33 +726,21 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "If the server is idle during the specified interval, then do not log any output if this property is set to true. The server is idle if during the interval, no new connections were established, no operations were processed, and no operations are pending.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"header_prefix_per_column": schema.BoolAttribute{
 				Description: "This property controls whether the header prefix, which applies to a group of columns, appears at the start of each column header or only the first column in a group.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"empty_instead_of_zero": schema.BoolAttribute{
 				Description: "This property controls whether a value in the output is shown as empty if the value is zero.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"lines_between_header": schema.Int64Attribute{
 				Description: "The number of lines to log between logging the header line that summarizes the columns in the table.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_ldap_stat": schema.SetAttribute{
 				Description: "Specifies the types of statistics related to LDAP connections and operation processing that should be included in the output.",
@@ -840,9 +760,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The format of the data in the processing time histogram.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"histogram_op_type": schema.SetAttribute{
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
@@ -867,43 +784,28 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the level of detail to include for Gauges.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_format": schema.StringAttribute{
 				Description: "Specifies the format to use when logging server statistics.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The file name to use for the log files generated by the Periodic Stats Logger Plugin. The path to the file can be specified either as relative to the server root or as an absolute path. When the `type` attribute is set to `monitor-history`: The file name to use for the log files generated by the Monitor History Plugin. The path to the file can be specified either as relative to the server root or as an absolute path. When the `type` attribute is set to `referential-integrity`: Specifies the log file location where the update records are written when the plug-in is in background-mode processing.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `periodic-stats-logger`: The file name to use for the log files generated by the Periodic Stats Logger Plugin. The path to the file can be specified either as relative to the server root or as an absolute path.\n  - `monitor-history`: The file name to use for the log files generated by the Monitor History Plugin. The path to the file can be specified either as relative to the server root or as an absolute path.\n  - `referential-integrity`: Specifies the log file location where the update records are written when the plug-in is in background-mode processing.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The UNIX permissions of the log files created by this Periodic Stats Logger Plugin. When the `type` attribute is set to `monitor-history`: The UNIX permissions of the log files created by this Monitor History Plugin.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `periodic-stats-logger`: The UNIX permissions of the log files created by this Periodic Stats Logger Plugin.\n  - `monitor-history`: The UNIX permissions of the log files created by this Monitor History Plugin.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"append": schema.BoolAttribute{
 				Description: "Specifies whether to append to existing log files.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Periodic Stats Logger Plugin .",
@@ -931,9 +833,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"output_file": schema.StringAttribute{
 				Description: "The path of an LDIF file that should be created with the results of the search.",
@@ -998,27 +897,18 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: Indicates whether to attempt the bind in the local server first, or to only send it to the PingOne service.\n  - `pass-through-authentication`: Indicates whether the bind attempt should first be attempted against the local server. Depending on the value of the override-local-password property, the bind attempt may then be attempted against a remote server if the local bind fails.\n  - `pluggable-pass-through-authentication`: Indicates whether to attempt the bind in the local server first and only send the request to the external authentication service if the local bind attempt fails, or to only attempt the bind in the external service.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"override_local_password": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: Indicates whether to attempt the authentication in the PingOne service if the local user entry includes a password. This property will only be used if try-local-bind is true. When the `type` attribute is set to `pass-through-authentication`: Indicates whether the bind attempt should be attempted against a remote server in the event that the local bind fails but the local password is present. When the `type` attribute is set to `pluggable-pass-through-authentication`: Indicates whether to attempt the authentication in the external service if the local user entry includes a password. This property will be ignored if try-local-bind is false.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: Indicates whether to attempt the authentication in the PingOne service if the local user entry includes a password. This property will only be used if try-local-bind is true.\n  - `pass-through-authentication`: Indicates whether the bind attempt should be attempted against a remote server in the event that the local bind fails but the local password is present.\n  - `pluggable-pass-through-authentication`: Indicates whether to attempt the authentication in the external service if the local user entry includes a password. This property will be ignored if try-local-bind is false.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_local_password": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: Indicates whether to overwrite the user's local password if the local bind fails but the authentication attempt succeeds when attempted in the PingOne service. When the `type` attribute is set to `pass-through-authentication`: Indicates whether the local password value should be updated to the value used in the bind request in the event that the local bind fails but the remote bind succeeds. When the `type` attribute is set to `pluggable-pass-through-authentication`: Indicates whether to overwrite the user's local password if the local bind fails but the authentication attempt succeeds when attempted in the external service. This property may only be set to true if try-local-bind is also true.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: Indicates whether to overwrite the user's local password if the local bind fails but the authentication attempt succeeds when attempted in the PingOne service.\n  - `pass-through-authentication`: Indicates whether the local password value should be updated to the value used in the bind request in the event that the local bind fails but the remote bind succeeds.\n  - `pluggable-pass-through-authentication`: Indicates whether to overwrite the user's local password if the local bind fails but the authentication attempt succeeds when attempted in the external service. This property may only be set to true if try-local-bind is also true.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"update_local_password_dn": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: This is the DN of the user that will be used to overwrite the user's local password if update-local-password is set. The DN put here should be added to 'ignore-changes-by-dn' in the appropriate Sync Source. When the `type` attribute is set to `pluggable-pass-through-authentication`: The DN of the authorization identity that will be used when updating the user's local password if update-local-password is true. This is primarily intended for use if the Data Sync Server will be used to synchronize passwords between the local server and the external service, and in that case, the DN used here should also be added to the ignore-changes-by-dn property in the appropriate Sync Source object in the Data Sync Server configuration.",
@@ -1030,9 +920,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-pass-through-authentication`: Indicates whether to overwrite the user's local password even if the password used to authenticate to the PingOne service would have failed validation if the user attempted to set it directly.\n  - `pass-through-authentication`: Indicates whether updates to the local password value should accept passwords that do not meet password policy constraints.\n  - `pluggable-pass-through-authentication`: Indicates whether to overwrite the user's local password even if the password used to authenticate to the external service would have failed validation if the user attempted to set it directly.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ignored_password_policy_state_error_condition": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true. When the `type` attribute is set to `pluggable-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the external service. This option can only be used if try-local-bind is true.",
@@ -1105,25 +992,16 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_updates_per_second": schema.Int64Attribute{
 				Description: "This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_delete_threads": schema.Int64Attribute{
 				Description: "The number of threads used to delete expired entries.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"attribute_type": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `seven-bit-clean`: Specifies the name or OID of an attribute type for which values should be checked to ensure that they are 7-bit clean. When the `type` attribute is set to `encrypt-attribute-values`: The attribute types whose values should be encrypted. When the `type` attribute is set to `composed-attribute`: The name or OID of the attribute type for which values are to be generated. When the `type` attribute is set to `referential-integrity`: Specifies the attribute types for which referential integrity is to be maintained.",
@@ -1131,9 +1009,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:            true,
 				Computed:            true,
 				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"filter": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `modifiable-password-policy-state`: A filter that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute. When the `type` attribute is set to `search-shutdown`: The filter to use for the search. When the `type` attribute is set to `purge-expired-data`: Only entries that match this LDAP filter will be eligible for having data purged. When the `type` attribute is set to `unique-attribute`: Specifies the search filter to apply to determine if attribute uniqueness is enforced for the matching entries.",
@@ -1147,9 +1022,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the number of concurrent threads that should be used to process the search operations.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to  one of [`clean-up-expired-pingfederate-persistent-access-grants`, `purge-expired-data`, `clean-up-inactive-pingfederate-persistent-sessions`, `clean-up-expired-pingfederate-persistent-sessions`]: Only entries located within the subtree specified by this base DN are eligible for purging. When the `type` attribute is set to `internal-search-rate`: Specifies the base DN to use for the searches to perform. When the `type` attribute is set to `modifiable-password-policy-state`: A base DN that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute. When the `type` attribute is set to `seven-bit-clean`: Specifies the base DN below which the checking is performed. When the `type` attribute is set to `search-shutdown`: The base DN to use for the search. When the `type` attribute is set to `referral-on-update`: Specifies a base DN for requests for which to send referrals in response to update operations. When the `type` attribute is set to `referential-integrity`: Specifies the base DN that limits the scope within which referential integrity is maintained. When the `type` attribute is set to `unique-attribute`: Specifies a base DN within which the attribute must be unique.",
@@ -1163,9 +1035,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the lower bound for the numeric value which will be inserted into the search filter.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"upper_bound": schema.Int64Attribute{
 				Description: "Specifies the upper bound for the numeric value which will be inserted into the search filter.",
@@ -1192,49 +1061,31 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Controls whether per application LDAP statistics are included in the output for selected LDAP operation statistics.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ldap_changelog_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for the LDAP changelog.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"status_summary_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the status summary monitor entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"local_db_backend_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the Local DB Backends.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"replication_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about replication.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"entry_cache_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for each entry cache.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"host_info": schema.SetAttribute{
 				Description: "Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.",
@@ -1259,9 +1110,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -1370,352 +1218,722 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_plugin")
-	var model pluginResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.ResourceType.ValueString()
+	var planModel, configModel pluginResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.ResourceType.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for internal-search-rate type
 	if resourceType == "internal-search-rate" {
-		if !internaltypes.IsDefined(model.NumThreads) {
-			model.NumThreads = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.NumThreads) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.NumThreads.Equal(defaultVal) {
+				planModel.NumThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LowerBound) {
-			model.LowerBound = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.LowerBound) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.LowerBound.Equal(defaultVal) {
+				planModel.LowerBound = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for seven-bit-clean type
 	if resourceType == "seven-bit-clean" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preparseadd"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preparseadd"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AttributeType) {
-			model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("uid"), types.StringValue("mail"), types.StringValue("userPassword")})
+		if !internaltypes.IsDefined(configModel.AttributeType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("uid"), types.StringValue("mail"), types.StringValue("userPassword")})
+			if !planModel.AttributeType.Equal(defaultVal) {
+				planModel.AttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for clean-up-expired-pingfederate-persistent-access-grants type
 	if resourceType == "clean-up-expired-pingfederate-persistent-access-grants" {
-		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
-			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaxUpdatesPerSecond) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaxUpdatesPerSecond.Equal(defaultVal) {
+				planModel.MaxUpdatesPerSecond = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumDeleteThreads) {
-			model.NumDeleteThreads = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.NumDeleteThreads) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.NumDeleteThreads.Equal(defaultVal) {
+				planModel.NumDeleteThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for periodic-gc type
 	if resourceType == "periodic-gc" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("startup")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("startup")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ping-one-pass-through-authentication type
 	if resourceType == "ping-one-pass-through-authentication" {
-		if !internaltypes.IsDefined(model.TryLocalBind) {
-			model.TryLocalBind = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.TryLocalBind) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.TryLocalBind.Equal(defaultVal) {
+				planModel.TryLocalBind = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
-			model.UpdateLocalPassword = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UpdateLocalPassword) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UpdateLocalPassword.Equal(defaultVal) {
+				planModel.UpdateLocalPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
-			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowLaxPassThroughAuthenticationPasswords) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowLaxPassThroughAuthenticationPasswords.Equal(defaultVal) {
+				planModel.AllowLaxPassThroughAuthenticationPasswords = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for periodic-stats-logger type
 	if resourceType == "periodic-stats-logger" {
-		if !internaltypes.IsDefined(model.SuppressIfIdle) {
-			model.SuppressIfIdle = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.SuppressIfIdle) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.SuppressIfIdle.Equal(defaultVal) {
+				planModel.SuppressIfIdle = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.HeaderPrefixPerColumn) {
-			model.HeaderPrefixPerColumn = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.HeaderPrefixPerColumn) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.HeaderPrefixPerColumn.Equal(defaultVal) {
+				planModel.HeaderPrefixPerColumn = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EmptyInsteadOfZero) {
-			model.EmptyInsteadOfZero = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.EmptyInsteadOfZero) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.EmptyInsteadOfZero.Equal(defaultVal) {
+				planModel.EmptyInsteadOfZero = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LinesBetweenHeader) {
-			model.LinesBetweenHeader = types.Int64Value(50)
+		if !internaltypes.IsDefined(configModel.LinesBetweenHeader) {
+			defaultVal := types.Int64Value(50)
+			if !planModel.LinesBetweenHeader.Equal(defaultVal) {
+				planModel.LinesBetweenHeader = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.HistogramFormat) {
-			model.HistogramFormat = types.StringValue("count")
+		if !internaltypes.IsDefined(configModel.HistogramFormat) {
+			defaultVal := types.StringValue("count")
+			if !planModel.HistogramFormat.Equal(defaultVal) {
+				planModel.HistogramFormat = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PerApplicationLDAPStats) {
-			model.PerApplicationLDAPStats = types.StringValue("aggregate-only")
+		if !internaltypes.IsDefined(configModel.PerApplicationLDAPStats) {
+			defaultVal := types.StringValue("aggregate-only")
+			if !planModel.PerApplicationLDAPStats.Equal(defaultVal) {
+				planModel.PerApplicationLDAPStats = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.StatusSummaryInfo) {
-			model.StatusSummaryInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.StatusSummaryInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.StatusSummaryInfo.Equal(defaultVal) {
+				planModel.StatusSummaryInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LdapChangelogInfo) {
-			model.LdapChangelogInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.LdapChangelogInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.LdapChangelogInfo.Equal(defaultVal) {
+				planModel.LdapChangelogInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.GaugeInfo) {
-			model.GaugeInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.GaugeInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.GaugeInfo.Equal(defaultVal) {
+				planModel.GaugeInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LogFileFormat) {
-			model.LogFileFormat = types.StringValue("csv")
+		if !internaltypes.IsDefined(configModel.LogFileFormat) {
+			defaultVal := types.StringValue("csv")
+			if !planModel.LogFileFormat.Equal(defaultVal) {
+				planModel.LogFileFormat = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LogFilePermissions) {
-			model.LogFilePermissions = types.StringValue("600")
+		if !internaltypes.IsDefined(configModel.LogFilePermissions) {
+			defaultVal := types.StringValue("600")
+			if !planModel.LogFilePermissions.Equal(defaultVal) {
+				planModel.LogFilePermissions = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.Append) {
-			model.Append = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.Append) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.Append.Equal(defaultVal) {
+				planModel.Append = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LoggingErrorBehavior) {
-			model.LoggingErrorBehavior = types.StringValue("standard-error")
+		if !internaltypes.IsDefined(configModel.LoggingErrorBehavior) {
+			defaultVal := types.StringValue("standard-error")
+			if !planModel.LoggingErrorBehavior.Equal(defaultVal) {
+				planModel.LoggingErrorBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LocalDBBackendInfo) {
-			model.LocalDBBackendInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.LocalDBBackendInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.LocalDBBackendInfo.Equal(defaultVal) {
+				planModel.LocalDBBackendInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ReplicationInfo) {
-			model.ReplicationInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ReplicationInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ReplicationInfo.Equal(defaultVal) {
+				planModel.ReplicationInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EntryCacheInfo) {
-			model.EntryCacheInfo = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.EntryCacheInfo) {
+			defaultVal := types.StringValue("none")
+			if !planModel.EntryCacheInfo.Equal(defaultVal) {
+				planModel.EntryCacheInfo = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for purge-expired-data type
 	if resourceType == "purge-expired-data" {
-		if !internaltypes.IsDefined(model.DatetimeFormat) {
-			model.DatetimeFormat = types.StringValue("generalized-time")
+		if !internaltypes.IsDefined(configModel.DatetimeFormat) {
+			defaultVal := types.StringValue("generalized-time")
+			if !planModel.DatetimeFormat.Equal(defaultVal) {
+				planModel.DatetimeFormat = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
-			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaxUpdatesPerSecond) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaxUpdatesPerSecond.Equal(defaultVal) {
+				planModel.MaxUpdatesPerSecond = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumDeleteThreads) {
-			model.NumDeleteThreads = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.NumDeleteThreads) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.NumDeleteThreads.Equal(defaultVal) {
+				planModel.NumDeleteThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for sub-operation-timing type
 	if resourceType == "sub-operation-timing" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("postresponseadd"), types.StringValue("postresponsebind"), types.StringValue("postresponsecompare"), types.StringValue("postresponsedelete"), types.StringValue("postresponseextended"), types.StringValue("postresponsemodify"), types.StringValue("postresponsemodifydn"), types.StringValue("postresponsesearch")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("postresponseadd"), types.StringValue("postresponsebind"), types.StringValue("postresponsecompare"), types.StringValue("postresponsedelete"), types.StringValue("postresponseextended"), types.StringValue("postresponsemodify"), types.StringValue("postresponsemodifydn"), types.StringValue("postresponsesearch")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumMostExpensivePhasesShown) {
-			model.NumMostExpensivePhasesShown = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.NumMostExpensivePhasesShown) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.NumMostExpensivePhasesShown.Equal(defaultVal) {
+				planModel.NumMostExpensivePhasesShown = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for third-party type
 	if resourceType == "third-party" {
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for pass-through-authentication type
 	if resourceType == "pass-through-authentication" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationbind"), types.StringValue("postoperationbind")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationbind"), types.StringValue("postoperationbind")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TryLocalBind) {
-			model.TryLocalBind = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.TryLocalBind) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.TryLocalBind.Equal(defaultVal) {
+				planModel.TryLocalBind = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
-			model.OverrideLocalPassword = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.OverrideLocalPassword) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.OverrideLocalPassword.Equal(defaultVal) {
+				planModel.OverrideLocalPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
-			model.UpdateLocalPassword = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UpdateLocalPassword) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UpdateLocalPassword.Equal(defaultVal) {
+				planModel.UpdateLocalPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
-			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowLaxPassThroughAuthenticationPasswords) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowLaxPassThroughAuthenticationPasswords.Equal(defaultVal) {
+				planModel.AllowLaxPassThroughAuthenticationPasswords = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ServerAccessMode) {
-			model.ServerAccessMode = types.StringValue("round-robin")
+		if !internaltypes.IsDefined(configModel.ServerAccessMode) {
+			defaultVal := types.StringValue("round-robin")
+			if !planModel.ServerAccessMode.Equal(defaultVal) {
+				planModel.ServerAccessMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for dn-mapper type
 	if resourceType == "dn-mapper" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EnableAttributeMapping) {
-			model.EnableAttributeMapping = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.EnableAttributeMapping) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.EnableAttributeMapping.Equal(defaultVal) {
+				planModel.EnableAttributeMapping = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EnableControlMapping) {
-			model.EnableControlMapping = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.EnableControlMapping) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.EnableControlMapping.Equal(defaultVal) {
+				planModel.EnableControlMapping = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
-			model.AlwaysMapResponses = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AlwaysMapResponses) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AlwaysMapResponses.Equal(defaultVal) {
+				planModel.AlwaysMapResponses = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for referral-on-update type
 	if resourceType == "referral-on-update" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseadd"), types.StringValue("preparsedelete"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseadd"), types.StringValue("preparsedelete"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for snmp-subagent type
 	if resourceType == "snmp-subagent" {
-		if !internaltypes.IsDefined(model.AgentxAddress) {
-			model.AgentxAddress = types.StringValue("localhost")
+		if !internaltypes.IsDefined(configModel.AgentxAddress) {
+			defaultVal := types.StringValue("localhost")
+			if !planModel.AgentxAddress.Equal(defaultVal) {
+				planModel.AgentxAddress = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AgentxPort) {
-			model.AgentxPort = types.Int64Value(705)
+		if !internaltypes.IsDefined(configModel.AgentxPort) {
+			defaultVal := types.Int64Value(705)
+			if !planModel.AgentxPort.Equal(defaultVal) {
+				planModel.AgentxPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumWorkerThreads) {
-			model.NumWorkerThreads = types.Int64Value(4)
+		if !internaltypes.IsDefined(configModel.NumWorkerThreads) {
+			defaultVal := types.Int64Value(4)
+			if !planModel.NumWorkerThreads.Equal(defaultVal) {
+				planModel.NumWorkerThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for coalesce-modifications type
 	if resourceType == "coalesce-modifications" {
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for clean-up-inactive-pingfederate-persistent-sessions type
 	if resourceType == "clean-up-inactive-pingfederate-persistent-sessions" {
-		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
-			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaxUpdatesPerSecond) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaxUpdatesPerSecond.Equal(defaultVal) {
+				planModel.MaxUpdatesPerSecond = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumDeleteThreads) {
-			model.NumDeleteThreads = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.NumDeleteThreads) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.NumDeleteThreads.Equal(defaultVal) {
+				planModel.NumDeleteThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for composed-attribute type
 	if resourceType == "composed-attribute" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("ldifimport"), types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleValuePatternBehavior) {
-			model.MultipleValuePatternBehavior = types.StringValue("use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject")
+		if !internaltypes.IsDefined(configModel.MultipleValuePatternBehavior) {
+			defaultVal := types.StringValue("use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject")
+			if !planModel.MultipleValuePatternBehavior.Equal(defaultVal) {
+				planModel.MultipleValuePatternBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultiValuedAttributeBehavior) {
-			model.MultiValuedAttributeBehavior = types.StringValue("use-all-values-if-possible-but-reject-if-not")
+		if !internaltypes.IsDefined(configModel.MultiValuedAttributeBehavior) {
+			defaultVal := types.StringValue("use-all-values-if-possible-but-reject-if-not")
+			if !planModel.MultiValuedAttributeBehavior.Equal(defaultVal) {
+				planModel.MultiValuedAttributeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TargetAttributeExistsDuringInitialPopulationBehavior) {
-			model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringValue("preserve-existing-values")
+		if !internaltypes.IsDefined(configModel.TargetAttributeExistsDuringInitialPopulationBehavior) {
+			defaultVal := types.StringValue("preserve-existing-values")
+			if !planModel.TargetAttributeExistsDuringInitialPopulationBehavior.Equal(defaultVal) {
+				planModel.TargetAttributeExistsDuringInitialPopulationBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdateSourceAttributeBehavior) {
-			model.UpdateSourceAttributeBehavior = types.StringValue("replace-composed-values")
+		if !internaltypes.IsDefined(configModel.UpdateSourceAttributeBehavior) {
+			defaultVal := types.StringValue("replace-composed-values")
+			if !planModel.UpdateSourceAttributeBehavior.Equal(defaultVal) {
+				planModel.UpdateSourceAttributeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SourceAttributeRemovalBehavior) {
-			model.SourceAttributeRemovalBehavior = types.StringValue("preserve-non-composed-values")
+		if !internaltypes.IsDefined(configModel.SourceAttributeRemovalBehavior) {
+			defaultVal := types.StringValue("preserve-non-composed-values")
+			if !planModel.SourceAttributeRemovalBehavior.Equal(defaultVal) {
+				planModel.SourceAttributeRemovalBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdateTargetAttributeBehavior) {
-			model.UpdateTargetAttributeBehavior = types.StringValue("always-allow")
+		if !internaltypes.IsDefined(configModel.UpdateTargetAttributeBehavior) {
+			defaultVal := types.StringValue("always-allow")
+			if !planModel.UpdateTargetAttributeBehavior.Equal(defaultVal) {
+				planModel.UpdateTargetAttributeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdatedEntryNewlyMatchesCriteriaBehavior) {
-			model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringValue("preserve-existing-values-and-compose-new-values")
+		if !internaltypes.IsDefined(configModel.UpdatedEntryNewlyMatchesCriteriaBehavior) {
+			defaultVal := types.StringValue("preserve-existing-values-and-compose-new-values")
+			if !planModel.UpdatedEntryNewlyMatchesCriteriaBehavior.Equal(defaultVal) {
+				planModel.UpdatedEntryNewlyMatchesCriteriaBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdatedEntryNoLongerMatchesCriteriaBehavior) {
-			model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringValue("preserve-all-values")
+		if !internaltypes.IsDefined(configModel.UpdatedEntryNoLongerMatchesCriteriaBehavior) {
+			defaultVal := types.StringValue("preserve-all-values")
+			if !planModel.UpdatedEntryNoLongerMatchesCriteriaBehavior.Equal(defaultVal) {
+				planModel.UpdatedEntryNoLongerMatchesCriteriaBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for attribute-mapper type
 	if resourceType == "attribute-mapper" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind"), types.StringValue("postoperationadd"), types.StringValue("postoperationbind"), types.StringValue("postoperationcompare"), types.StringValue("postoperationdelete"), types.StringValue("postoperationextended"), types.StringValue("postoperationmodify"), types.StringValue("postoperationmodifydn"), types.StringValue("postoperationsearch"), types.StringValue("searchresultentry"), types.StringValue("searchresultreference")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EnableControlMapping) {
-			model.EnableControlMapping = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.EnableControlMapping) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.EnableControlMapping.Equal(defaultVal) {
+				planModel.EnableControlMapping = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AlwaysMapResponses) {
-			model.AlwaysMapResponses = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AlwaysMapResponses) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AlwaysMapResponses.Equal(defaultVal) {
+				planModel.AlwaysMapResponses = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for delay type
 	if resourceType == "delay" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preparseabandon"), types.StringValue("preparseadd"), types.StringValue("preparsebind"), types.StringValue("preparsecompare"), types.StringValue("preparsedelete"), types.StringValue("preparseextended"), types.StringValue("preparsemodify"), types.StringValue("preparsemodifydn"), types.StringValue("preparsesearch"), types.StringValue("preparseunbind")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for clean-up-expired-pingfederate-persistent-sessions type
 	if resourceType == "clean-up-expired-pingfederate-persistent-sessions" {
-		if !internaltypes.IsDefined(model.MaxUpdatesPerSecond) {
-			model.MaxUpdatesPerSecond = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaxUpdatesPerSecond) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaxUpdatesPerSecond.Equal(defaultVal) {
+				planModel.MaxUpdatesPerSecond = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumDeleteThreads) {
-			model.NumDeleteThreads = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.NumDeleteThreads) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.NumDeleteThreads.Equal(defaultVal) {
+				planModel.NumDeleteThreads = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for groovy-scripted type
 	if resourceType == "groovy-scripted" {
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for pluggable-pass-through-authentication type
 	if resourceType == "pluggable-pass-through-authentication" {
-		if !internaltypes.IsDefined(model.TryLocalBind) {
-			model.TryLocalBind = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.TryLocalBind) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.TryLocalBind.Equal(defaultVal) {
+				planModel.TryLocalBind = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.OverrideLocalPassword) {
-			model.OverrideLocalPassword = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.OverrideLocalPassword) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.OverrideLocalPassword.Equal(defaultVal) {
+				planModel.OverrideLocalPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UpdateLocalPassword) {
-			model.UpdateLocalPassword = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UpdateLocalPassword) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UpdateLocalPassword.Equal(defaultVal) {
+				planModel.UpdateLocalPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowLaxPassThroughAuthenticationPasswords) {
-			model.AllowLaxPassThroughAuthenticationPasswords = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowLaxPassThroughAuthenticationPasswords) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowLaxPassThroughAuthenticationPasswords.Equal(defaultVal) {
+				planModel.AllowLaxPassThroughAuthenticationPasswords = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for referential-integrity type
 	if resourceType == "referential-integrity" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationdelete"), types.StringValue("postoperationdelete"), types.StringValue("postoperationmodifydn"), types.StringValue("subordinatemodifydn")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationdelete"), types.StringValue("postoperationdelete"), types.StringValue("postoperationmodifydn"), types.StringValue("subordinatemodifydn")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LogFile) {
-			model.LogFile = types.StringValue("logs/referint")
+		if !internaltypes.IsDefined(configModel.LogFile) {
+			defaultVal := types.StringValue("logs/referint")
+			if !planModel.LogFile.Equal(defaultVal) {
+				planModel.LogFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for unique-attribute type
 	if resourceType == "unique-attribute" {
-		if !internaltypes.IsDefined(model.PluginType) {
-			model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn"), types.StringValue("postsynchronizationadd"), types.StringValue("postsynchronizationmodify"), types.StringValue("postsynchronizationmodifydn")})
+		if !internaltypes.IsDefined(configModel.PluginType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("preoperationadd"), types.StringValue("preoperationmodify"), types.StringValue("preoperationmodifydn"), types.StringValue("postsynchronizationadd"), types.StringValue("postsynchronizationmodify"), types.StringValue("postsynchronizationmodifydn")})
+			if !planModel.PluginType.Equal(defaultVal) {
+				planModel.PluginType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleAttributeBehavior) {
-			model.MultipleAttributeBehavior = types.StringValue("unique-within-each-attribute")
+		if !internaltypes.IsDefined(configModel.MultipleAttributeBehavior) {
+			defaultVal := types.StringValue("unique-within-each-attribute")
+			if !planModel.MultipleAttributeBehavior.Equal(defaultVal) {
+				planModel.MultipleAttributeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.PreventConflictsWithSoftDeletedEntries) {
-			model.PreventConflictsWithSoftDeletedEntries = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.PreventConflictsWithSoftDeletedEntries) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.PreventConflictsWithSoftDeletedEntries.Equal(defaultVal) {
+				planModel.PreventConflictsWithSoftDeletedEntries = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForInternalOperations) {
-			model.InvokeForInternalOperations = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -1757,22 +1975,6 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1784,7 +1986,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1799,8 +2001,24 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -7322,8 +7540,6 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
@@ -7611,8 +7827,6 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -7915,8 +8129,6 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -8078,8 +8290,6 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}

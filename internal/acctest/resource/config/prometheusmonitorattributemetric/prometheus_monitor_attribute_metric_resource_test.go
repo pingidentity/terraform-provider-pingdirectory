@@ -86,9 +86,6 @@ func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
 				ImportStateId:     updatedResourceModel.httpServletExtensionName + "/" + updatedResourceModel.metricName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
 			},
 			{
 				// Test plan after removing config on PD

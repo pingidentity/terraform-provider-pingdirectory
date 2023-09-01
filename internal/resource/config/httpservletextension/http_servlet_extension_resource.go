@@ -2,7 +2,6 @@ package httpservletextension
 
 import (
 	"context"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -11,10 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -91,7 +87,6 @@ func (r *defaultHttpServletExtensionResource) Configure(_ context.Context, req r
 type httpServletExtensionResourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
 	Name                               types.String `tfsdk:"name"`
-	LastUpdated                        types.String `tfsdk:"last_updated"`
 	Notifications                      types.Set    `tfsdk:"notifications"`
 	RequiredActions                    types.Set    `tfsdk:"required_actions"`
 	Type                               types.String `tfsdk:"type"`
@@ -153,7 +148,6 @@ type httpServletExtensionResourceModel struct {
 type defaultHttpServletExtensionResourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
 	Name                               types.String `tfsdk:"name"`
-	LastUpdated                        types.String `tfsdk:"last_updated"`
 	Notifications                      types.Set    `tfsdk:"notifications"`
 	RequiredActions                    types.Set    `tfsdk:"required_actions"`
 	Type                               types.String `tfsdk:"type"`
@@ -282,18 +276,12 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether to generate a default HTML page with a listing of available files if the requested path refers to a directory rather than a file, and that directory does not contain an index file.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"index_file": schema.SetAttribute{
 				Description: "Specifies the name of a file whose contents may be returned to the client if the requested path refers to a directory rather than a file.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Scripted HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.",
@@ -311,18 +299,12 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_context_path": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`availability-state`, `prometheus-monitoring`]: Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` attribute is set to `velocity`: The context path to use to access all template-based and static content. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` attribute is set to `ldap-mapped-scim`: The context path to use to access the SCIM interface. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` attribute is set to `file-server`: Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path. When the `type` attribute is set to `scim2`: The context path to use to access the SCIM 2.0 interface. The value must start with a forward slash and must represent a valid HTTP context path.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`availability-state`, `prometheus-monitoring`]: Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.\n  - `velocity`: The context path to use to access all template-based and static content. The value must start with a forward slash and must represent a valid HTTP context path.\n  - `ldap-mapped-scim`: The context path to use to access the SCIM interface. The value must start with a forward slash and must represent a valid HTTP context path.\n  - `file-server`: Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path.\n  - `scim2`: The context path to use to access the SCIM 2.0 interface. The value must start with a forward slash and must represent a valid HTTP context path.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id_token_validator": schema.SetAttribute{
 				Description: "The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.",
@@ -335,9 +317,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the servlet extension should only accept requests from authenticated clients that have the file-servlet-access privilege.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_group": schema.SetAttribute{
 				Description: "The DN of a group whose members will be permitted to access to the associated files. If multiple group DNs are configured, then anyone who is a member of at least one of those groups will be granted access.",
@@ -350,9 +329,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The path to an XML file defining the resources supported by the SCIM interface and the SCIM-to-LDAP attribute mappings to use.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_ldap_objectclass": schema.SetAttribute{
 				Description: "Specifies the LDAP object classes that should be exposed directly as SCIM resources.",
@@ -390,83 +366,53 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies the location of the directory that is used to create temporary files containing SCIM request data.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"temporary_directory_permissions": schema.StringAttribute{
 				Description: "Specifies the permissions that should be applied to the directory that is used to create temporary files.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_results": schema.Int64Attribute{
 				Description: "The maximum number of resources that are returned in a response.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"bulk_max_operations": schema.Int64Attribute{
 				Description: "The maximum number of operations that are permitted in a bulk request.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"bulk_max_payload_size": schema.StringAttribute{
 				Description: "The maximum payload size in bytes of a bulk request.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bulk_max_concurrent_requests": schema.Int64Attribute{
 				Description: "The maximum number of bulk requests that may be processed concurrently by the server. Any bulk request that would cause this limit to be exceeded is rejected with HTTP status code 503.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"debug_enabled": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `ldap-mapped-scim`: Enables debug logging of the SCIM SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.server.extensions.scim.SCIMHTTPServletExtension. When the `type` attribute is set to `scim2`: Enables debug logging of the SCIM 2.0 SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.broker.http.scim2.extension.SCIM2HTTPServletExtension.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap-mapped-scim`: Enables debug logging of the SCIM SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.server.extensions.scim.SCIMHTTPServletExtension.\n  - `scim2`: Enables debug logging of the SCIM 2.0 SDK. Debug messages will be forwarded to the Directory Server debug logger with the scope of com.unboundid.directory.broker.http.scim2.extension.SCIM2HTTPServletExtension.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"debug_level": schema.StringAttribute{
 				Description: "The minimum debug level that should be used for messages to be logged.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"debug_type": schema.SetAttribute{
 				Description: "The types of debug messages that should be logged.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_stack_trace": schema.BoolAttribute{
 				Description: "Indicates whether a stack trace of the thread which called the debug method should be included in debug log messages.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"mime_types_file": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `velocity`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file. When the `type` attribute is set to `file-server`: Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
@@ -478,66 +424,42 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `velocity`: Specifies the default value that will be used in the response's Content-Type header that indicates the type of content to return.\n  - `file-server`: Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_instance_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include an \"instance\" label whose value is the instance name for this Directory Server instance.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"require_authentication": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `velocity`: Require authentication when accessing Velocity templates. When the `type` attribute is set to `file-server`: Indicates whether the servlet extension should only accept requests from authenticated clients.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `velocity`: Require authentication when accessing Velocity templates.\n  - `file-server`: Indicates whether the servlet extension should only accept requests from authenticated clients.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_product_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include a \"product\" label whose value is the product name for this Directory Server instance.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_location_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include a \"location\" label whose value is the location name for this Directory Server instance.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"always_include_monitor_entry_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should always include a \"monitor_entry\" label whose value is the name of the monitor entry from which the metric was obtained.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_monitor_object_class_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include a \"monitor_object_class\" label whose value is the name of the object class for the monitor entry from which the metric was obtained.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_monitor_attribute_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include a \"monitor_attribute\" label whose value is the name of the monitor attribute from which the metric was obtained.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"label_name_value_pair": schema.SetAttribute{
 				Description: "A set of name-value pairs for labels that should be included in all metrics exposed by this Directory Server instance.",
@@ -566,9 +488,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the response should include a body that is a JSON object.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"additional_response_contents": schema.StringAttribute{
 				Description: "A JSON-formatted string containing additional fields to be returned in the response body. For example, an additional-response-contents value of '{ \"key\": \"value\" }' would add the key and value to the root of the JSON response body.",
@@ -583,9 +502,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`delegated-admin`, `consent`, `directory-rest-api`]: Enables HTTP Basic authentication, using a username and password. The Identity Mapper specified by the identity-mapper property will be used to map the username to a DN.\n  - `ldap-mapped-scim`: Enables HTTP Basic authentication, using a username and password.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `delegated-admin`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `velocity`: Specifies the name of the identity mapper that is to be used for associating basic authentication credentials with user entries. When the `type` attribute is set to `consent`: Specifies the Identity Mapper that is to be used for associating basic authentication usernames with DNs. When the `type` attribute is set to `ldap-mapped-scim`: Specifies the name of the identity mapper that is to be used to match the username included in the HTTP Basic authentication header to the corresponding user in the directory. When the `type` attribute is set to `file-server`: The identity mapper that will be used to identify the entry with which a username is associated. When the `type` attribute is set to `config`: Specifies the name of the identity mapper that is to be used for associating user entries with basic authentication user names. When the `type` attribute is set to `directory-rest-api`: Specifies the Identity Mapper that is to be used for associating user entries with basic authentication usernames.",
@@ -715,103 +631,217 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
-	var model httpServletExtensionResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel httpServletExtensionResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for availability-state type
 	if resourceType == "availability-state" {
-		if !internaltypes.IsDefined(model.IncludeResponseBody) {
-			model.IncludeResponseBody = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.IncludeResponseBody) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.IncludeResponseBody.Equal(defaultVal) {
+				planModel.IncludeResponseBody = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for prometheus-monitoring type
 	if resourceType == "prometheus-monitoring" {
-		if !internaltypes.IsDefined(model.BaseContextPath) {
-			model.BaseContextPath = types.StringValue("/metrics")
+		if !internaltypes.IsDefined(configModel.BaseContextPath) {
+			defaultVal := types.StringValue("/metrics")
+			if !planModel.BaseContextPath.Equal(defaultVal) {
+				planModel.BaseContextPath = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeInstanceNameLabel) {
-			model.IncludeInstanceNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeInstanceNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeInstanceNameLabel.Equal(defaultVal) {
+				planModel.IncludeInstanceNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeProductNameLabel) {
-			model.IncludeProductNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeProductNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeProductNameLabel.Equal(defaultVal) {
+				planModel.IncludeProductNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeLocationNameLabel) {
-			model.IncludeLocationNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeLocationNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeLocationNameLabel.Equal(defaultVal) {
+				planModel.IncludeLocationNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AlwaysIncludeMonitorEntryNameLabel) {
-			model.AlwaysIncludeMonitorEntryNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AlwaysIncludeMonitorEntryNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AlwaysIncludeMonitorEntryNameLabel.Equal(defaultVal) {
+				planModel.AlwaysIncludeMonitorEntryNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeMonitorObjectClassNameLabel) {
-			model.IncludeMonitorObjectClassNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeMonitorObjectClassNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeMonitorObjectClassNameLabel.Equal(defaultVal) {
+				planModel.IncludeMonitorObjectClassNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeMonitorAttributeNameLabel) {
-			model.IncludeMonitorAttributeNameLabel = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeMonitorAttributeNameLabel) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeMonitorAttributeNameLabel.Equal(defaultVal) {
+				planModel.IncludeMonitorAttributeNameLabel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ldap-mapped-scim type
 	if resourceType == "ldap-mapped-scim" {
-		if !internaltypes.IsDefined(model.BasicAuthEnabled) {
-			model.BasicAuthEnabled = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.BasicAuthEnabled) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.BasicAuthEnabled.Equal(defaultVal) {
+				planModel.BasicAuthEnabled = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ResourceMappingFile) {
-			model.ResourceMappingFile = types.StringValue("config/scim-resources.xml")
+		if !internaltypes.IsDefined(configModel.ResourceMappingFile) {
+			defaultVal := types.StringValue("config/scim-resources.xml")
+			if !planModel.ResourceMappingFile.Equal(defaultVal) {
+				planModel.ResourceMappingFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.BaseContextPath) {
-			model.BaseContextPath = types.StringValue("/")
+		if !internaltypes.IsDefined(configModel.BaseContextPath) {
+			defaultVal := types.StringValue("/")
+			if !planModel.BaseContextPath.Equal(defaultVal) {
+				planModel.BaseContextPath = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TemporaryDirectory) {
-			model.TemporaryDirectory = types.StringValue("scim-data-tmp")
+		if !internaltypes.IsDefined(configModel.TemporaryDirectory) {
+			defaultVal := types.StringValue("scim-data-tmp")
+			if !planModel.TemporaryDirectory.Equal(defaultVal) {
+				planModel.TemporaryDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TemporaryDirectoryPermissions) {
-			model.TemporaryDirectoryPermissions = types.StringValue("700")
+		if !internaltypes.IsDefined(configModel.TemporaryDirectoryPermissions) {
+			defaultVal := types.StringValue("700")
+			if !planModel.TemporaryDirectoryPermissions.Equal(defaultVal) {
+				planModel.TemporaryDirectoryPermissions = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResults) {
-			model.MaxResults = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaxResults) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaxResults.Equal(defaultVal) {
+				planModel.MaxResults = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.BulkMaxOperations) {
-			model.BulkMaxOperations = types.Int64Value(10000)
+		if !internaltypes.IsDefined(configModel.BulkMaxOperations) {
+			defaultVal := types.Int64Value(10000)
+			if !planModel.BulkMaxOperations.Equal(defaultVal) {
+				planModel.BulkMaxOperations = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.BulkMaxPayloadSize) {
-			model.BulkMaxPayloadSize = types.StringValue("10 MB")
+		if !internaltypes.IsDefined(configModel.BulkMaxPayloadSize) {
+			defaultVal := types.StringValue("10 MB")
+			if !planModel.BulkMaxPayloadSize.Equal(defaultVal) {
+				planModel.BulkMaxPayloadSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.BulkMaxConcurrentRequests) {
-			model.BulkMaxConcurrentRequests = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.BulkMaxConcurrentRequests) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.BulkMaxConcurrentRequests.Equal(defaultVal) {
+				planModel.BulkMaxConcurrentRequests = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DebugEnabled) {
-			model.DebugEnabled = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.DebugEnabled) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.DebugEnabled.Equal(defaultVal) {
+				planModel.DebugEnabled = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DebugLevel) {
-			model.DebugLevel = types.StringValue("info")
+		if !internaltypes.IsDefined(configModel.DebugLevel) {
+			defaultVal := types.StringValue("info")
+			if !planModel.DebugLevel.Equal(defaultVal) {
+				planModel.DebugLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DebugType) {
-			model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("coding-error"), types.StringValue("exception")})
+		if !internaltypes.IsDefined(configModel.DebugType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("coding-error"), types.StringValue("exception")})
+			if !planModel.DebugType.Equal(defaultVal) {
+				planModel.DebugType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeStackTrace) {
-			model.IncludeStackTrace = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeStackTrace) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeStackTrace.Equal(defaultVal) {
+				planModel.IncludeStackTrace = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for file-server type
 	if resourceType == "file-server" {
-		if !internaltypes.IsDefined(model.EnableDirectoryIndexing) {
-			model.EnableDirectoryIndexing = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.EnableDirectoryIndexing) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.EnableDirectoryIndexing.Equal(defaultVal) {
+				planModel.EnableDirectoryIndexing = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IndexFile) {
-			model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("index.html"), types.StringValue("index.htm")})
+		if !internaltypes.IsDefined(configModel.IndexFile) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("index.html"), types.StringValue("index.htm")})
+			if !planModel.IndexFile.Equal(defaultVal) {
+				planModel.IndexFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefaultMIMEType) {
-			model.DefaultMIMEType = types.StringValue("application/octet-stream")
+		if !internaltypes.IsDefined(configModel.DefaultMIMEType) {
+			defaultVal := types.StringValue("application/octet-stream")
+			if !planModel.DefaultMIMEType.Equal(defaultVal) {
+				planModel.DefaultMIMEType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireAuthentication) {
-			model.RequireAuthentication = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireAuthentication) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireAuthentication.Equal(defaultVal) {
+				planModel.RequireAuthentication = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowedAuthenticationType) {
-			model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("basic"), types.StringValue("access-token"), types.StringValue("id-token")})
+		if !internaltypes.IsDefined(configModel.AllowedAuthenticationType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("basic"), types.StringValue("access-token"), types.StringValue("id-token")})
+			if !planModel.AllowedAuthenticationType.Equal(defaultVal) {
+				planModel.AllowedAuthenticationType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireFileServletAccessPrivilege) {
-			model.RequireFileServletAccessPrivilege = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireFileServletAccessPrivilege) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireFileServletAccessPrivilege.Equal(defaultVal) {
+				planModel.RequireFileServletAccessPrivilege = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -2670,9 +2700,6 @@ func (r *httpServletExtensionResource) Create(ctx context.Context, req resource.
 		}
 	}
 
-	// Populate Computed attribute values
-	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -2809,8 +2836,6 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponseDefault(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -2980,8 +3005,6 @@ func (r *httpServletExtensionResource) Update(ctx context.Context, req resource.
 		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponse(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -3067,8 +3090,6 @@ func (r *defaultHttpServletExtensionResource) Update(ctx context.Context, req re
 		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponseDefault(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
