@@ -176,17 +176,23 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	var planModel, configModel logFileRotationListenerResourceModel
-	// If a type with a default is null in the config, set it to the appropriate default value in the plan
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
 	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for copy type
 	if resourceType == "copy" {
-		if !internaltypes.IsDefined(configModel.CompressOnCopy) && planModel.CompressOnCopy.ValueBool() != false {
-			planModel.Notifications = types.SetUnknown(types.StringType)
-			planModel.RequiredActions = types.SetUnknown(types.StringType)
-			planModel.CompressOnCopy = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CompressOnCopy) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CompressOnCopy.Equal(defaultVal) {
+				planModel.CompressOnCopy = defaultVal
+				anyDefaultsSet = true
+			}
 		}
+	}
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
 	resp.Plan.Set(ctx, &planModel)
 }

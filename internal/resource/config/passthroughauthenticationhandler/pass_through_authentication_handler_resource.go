@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -191,9 +190,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"dn_map": schema.SetAttribute{
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
@@ -218,25 +214,16 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies the initial number of connections to establish to each external server against which authentication may be attempted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_location": schema.BoolAttribute{
 				Description: "Indicates whether to take server locations into account when prioritizing the servers to use for pass-through authentication attempts.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"maximum_allowed_local_response_time": schema.StringAttribute{
 				Description: "The maximum length of time to wait for a response from an external server in the same location as this Directory Server before considering it unavailable.",
@@ -353,25 +340,47 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_pass_through_authentication_handler")
-	var model passThroughAuthenticationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel passThroughAuthenticationHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for ldap type
 	if resourceType == "ldap" {
-		if !internaltypes.IsDefined(model.ServerAccessMode) {
-			model.ServerAccessMode = types.StringValue("round-robin")
+		if !internaltypes.IsDefined(configModel.ServerAccessMode) {
+			defaultVal := types.StringValue("round-robin")
+			if !planModel.ServerAccessMode.Equal(defaultVal) {
+				planModel.ServerAccessMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseLocation) {
-			model.UseLocation = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.UseLocation) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.UseLocation.Equal(defaultVal) {
+				planModel.UseLocation = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

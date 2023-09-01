@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -151,17 +150,11 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 				Description: "Specifies the minimum number of values that an attribute must have before it will be written into the uncached-id2entry database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"min_total_value_size": schema.StringAttribute{
 				Description: "Specifies the minimum total value size (i.e., the sum of the sizes of all values) that an attribute must have before it will be written into the uncached-id2entry database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Uncached Attribute Criteria.",
@@ -202,19 +195,33 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model uncachedAttributeCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel uncachedAttributeCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for simple type
 	if resourceType == "simple" {
-		if !internaltypes.IsDefined(model.MinValueCount) {
-			model.MinValueCount = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.MinValueCount) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.MinValueCount.Equal(defaultVal) {
+				planModel.MinValueCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MinTotalValueSize) {
-			model.MinTotalValueSize = types.StringValue("0b")
+		if !internaltypes.IsDefined(configModel.MinTotalValueSize) {
+			defaultVal := types.StringValue("0b")
+			if !planModel.MinTotalValueSize.Equal(defaultVal) {
+				planModel.MinTotalValueSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

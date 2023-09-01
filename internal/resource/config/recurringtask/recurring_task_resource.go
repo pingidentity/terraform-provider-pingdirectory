@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -258,17 +257,11 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the command's output (both standard output and standard error) should be recorded in the server's error log.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"task_completion_state_for_nonzero_exit_code": schema.StringAttribute{
 				Description: "The final task state that a task instance should have if the task executes the specified command and that command completes with a nonzero exit code, which generally means that the command did not complete successfully.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"working_directory": schema.StringAttribute{
 				Description: "The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.",
@@ -278,9 +271,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The base directory below which generated reports will be written. Each invocation of the audit-data-security task will create a new subdirectory below this base directory whose name is a timestamp indicating when the report was generated.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"data_security_auditor": schema.SetAttribute{
 				Description: "The set of data security auditors that should be invoked. If no auditors are specified, then all auditors defined in the configuration will be used.",
@@ -315,9 +305,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The directory in which LDIF export files will be placed. The directory must already exist.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"backend_id": schema.SetAttribute{
 				Description: "The backend ID for a backend to be exported.",
@@ -345,17 +332,11 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the support data archive should include information that may be expensive to obtain, and that may temporarily affect the server's performance or responsiveness.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_replication_state_dump": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include a replication state dump, which may be several megabytes in size.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"retain_previous_ldif_export_count": schema.Int64Attribute{
 				Description: "The minimum number of previous LDIF exports that should be preserved after a new export completes successfully.",
@@ -369,57 +350,36 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"include_extension_source": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include the source code (if available) for any third-party extensions that may be installed in the server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_sequential_mode": schema.BoolAttribute{
 				Description: "Indicates whether to capture support data information sequentially rather than in parallel. Capturing data in sequential mode may reduce the amount of memory that the tool requires to operate, at the cost of taking longer to run.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"security_level": schema.StringAttribute{
 				Description: "The security level to use when deciding which information to include in or exclude from the support data archive, and which included data should be obscured or redacted.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"jstack_count": schema.Int64Attribute{
 				Description: "The number of times to invoke the jstack utility to obtain a stack trace of all threads running in the JVM. A value of zero indicates that the jstack utility should not be invoked.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"report_count": schema.Int64Attribute{
 				Description: "The number of intervals of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat. A value of zero indicates that these kinds of tools should not be used to collect any information.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"report_interval_seconds": schema.Int64Attribute{
 				Description: "The duration (in seconds) between each interval of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"log_duration": schema.StringAttribute{
 				Description: "The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.",
@@ -496,17 +456,11 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The return state to use if a timeout is encountered while waiting for the server work queue to become idle (if the duration-to-wait-for-work-queue-idle property has a value), or if the time specified by the duration-to-wait-for-search-to-return-entries elapses without the associated search returning any entries.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"backup_directory": schema.StringAttribute{
 				Description: "The directory in which backup files will be placed. When backing up a single backend, the backup files will be placed directly in this directory. When backing up multiple backends, the backup files for each backend will be placed in a subdirectory whose name is the corresponding backend ID.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_backend_id": schema.SetAttribute{
 				Description: "The backend IDs of any backends that should be included in the backup.",
@@ -661,73 +615,139 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_recurring_task")
-	var model recurringTaskResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel recurringTaskResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for backup type
 	if resourceType == "backup" {
-		if !internaltypes.IsDefined(model.BackupDirectory) {
-			model.BackupDirectory = types.StringValue("bak")
+		if !internaltypes.IsDefined(configModel.BackupDirectory) {
+			defaultVal := types.StringValue("bak")
+			if !planModel.BackupDirectory.Equal(defaultVal) {
+				planModel.BackupDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for delay type
 	if resourceType == "delay" {
-		if !internaltypes.IsDefined(model.TaskReturnStateIfTimeoutIsEncountered) {
-			model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("stopped-by-error")
+		if !internaltypes.IsDefined(configModel.TaskReturnStateIfTimeoutIsEncountered) {
+			defaultVal := types.StringValue("stopped-by-error")
+			if !planModel.TaskReturnStateIfTimeoutIsEncountered.Equal(defaultVal) {
+				planModel.TaskReturnStateIfTimeoutIsEncountered = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for collect-support-data type
 	if resourceType == "collect-support-data" {
-		if !internaltypes.IsDefined(model.IncludeExpensiveData) {
-			model.IncludeExpensiveData = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeExpensiveData) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeExpensiveData.Equal(defaultVal) {
+				planModel.IncludeExpensiveData = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeReplicationStateDump) {
-			model.IncludeReplicationStateDump = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeReplicationStateDump) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeReplicationStateDump.Equal(defaultVal) {
+				planModel.IncludeReplicationStateDump = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeBinaryFiles) {
-			model.IncludeBinaryFiles = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeBinaryFiles) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeBinaryFiles.Equal(defaultVal) {
+				planModel.IncludeBinaryFiles = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IncludeExtensionSource) {
-			model.IncludeExtensionSource = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeExtensionSource) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeExtensionSource.Equal(defaultVal) {
+				planModel.IncludeExtensionSource = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseSequentialMode) {
-			model.UseSequentialMode = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.UseSequentialMode) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.UseSequentialMode.Equal(defaultVal) {
+				planModel.UseSequentialMode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SecurityLevel) {
-			model.SecurityLevel = types.StringValue("obscure-secrets")
+		if !internaltypes.IsDefined(configModel.SecurityLevel) {
+			defaultVal := types.StringValue("obscure-secrets")
+			if !planModel.SecurityLevel.Equal(defaultVal) {
+				planModel.SecurityLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.JstackCount) {
-			model.JstackCount = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.JstackCount) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.JstackCount.Equal(defaultVal) {
+				planModel.JstackCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ReportCount) {
-			model.ReportCount = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.ReportCount) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.ReportCount.Equal(defaultVal) {
+				planModel.ReportCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ReportIntervalSeconds) {
-			model.ReportIntervalSeconds = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.ReportIntervalSeconds) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.ReportIntervalSeconds.Equal(defaultVal) {
+				planModel.ReportIntervalSeconds = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ldif-export type
 	if resourceType == "ldif-export" {
-		if !internaltypes.IsDefined(model.LdifDirectory) {
-			model.LdifDirectory = types.StringValue("ldif")
+		if !internaltypes.IsDefined(configModel.LdifDirectory) {
+			defaultVal := types.StringValue("ldif")
+			if !planModel.LdifDirectory.Equal(defaultVal) {
+				planModel.LdifDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for audit-data-security type
 	if resourceType == "audit-data-security" {
-		if !internaltypes.IsDefined(model.BaseOutputDirectory) {
-			model.BaseOutputDirectory = types.StringValue("reports/audit-data-security")
+		if !internaltypes.IsDefined(configModel.BaseOutputDirectory) {
+			defaultVal := types.StringValue("reports/audit-data-security")
+			if !planModel.BaseOutputDirectory.Equal(defaultVal) {
+				planModel.BaseOutputDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for exec type
 	if resourceType == "exec" {
-		if !internaltypes.IsDefined(model.LogCommandOutput) {
-			model.LogCommandOutput = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.LogCommandOutput) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.LogCommandOutput.Equal(defaultVal) {
+				planModel.LogCommandOutput = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TaskCompletionStateForNonzeroExitCode) {
-			model.TaskCompletionStateForNonzeroExitCode = types.StringValue("stopped-by-error")
+		if !internaltypes.IsDefined(configModel.TaskCompletionStateForNonzeroExitCode) {
+			defaultVal := types.StringValue("stopped-by-error")
+			if !planModel.TaskCompletionStateForNonzeroExitCode.Equal(defaultVal) {
+				planModel.TaskCompletionStateForNonzeroExitCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

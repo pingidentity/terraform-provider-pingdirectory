@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -156,9 +155,6 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Indicates whether the associated filter identifies those entries which should be stored in the uncached-id2entry database (if true) or entries which should be stored in the id2entry database (if false).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_time_threshold": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that has passed since an entry was last accessed that it should still be included in the id2entry database. Entries that have not been accessed in more than this length of time may be written into the uncached-id2entry database.",
@@ -192,16 +188,26 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model uncachedEntryCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel uncachedEntryCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for filter-based type
 	if resourceType == "filter-based" {
-		if !internaltypes.IsDefined(model.FilterIdentifiesUncachedEntries) {
-			model.FilterIdentifiesUncachedEntries = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.FilterIdentifiesUncachedEntries) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.FilterIdentifiesUncachedEntries.Equal(defaultVal) {
+				planModel.FilterIdentifiesUncachedEntries = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -169,9 +168,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Description: "Indicates whether this Delegated Admin Attribute is to be included in the summary display for a resource.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"multi_valued": schema.BoolAttribute{
 				Description: "Indicates whether this Delegated Admin Attribute may have multiple values.",
@@ -223,16 +219,26 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *delegatedAdminAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model delegatedAdminAttributeResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel delegatedAdminAttributeResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for generic type
 	if resourceType == "generic" {
-		if !internaltypes.IsDefined(model.IncludeInSummary) {
-			model.IncludeInSummary = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeInSummary) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeInSummary.Equal(defaultVal) {
+				planModel.IncludeInSummary = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

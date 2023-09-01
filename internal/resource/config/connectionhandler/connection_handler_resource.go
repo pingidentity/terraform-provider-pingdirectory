@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -180,9 +178,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the path to the directory in which the LDIF files should be placed.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"poll_interval": schema.StringAttribute{
 				Description: "Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.",
@@ -218,17 +213,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `jmx`: Indicates whether the JMX Connection Handler should use SSL.\n  - `ldap`: Indicates whether the LDAP Connection Handler should use SSL.\n  - `http`: Indicates whether the HTTP Connection Handler should use SSL.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_start_tls": schema.BoolAttribute{
 				Description: "Indicates whether clients are allowed to use StartTLS.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication. When the `type` attribute is set to `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication. When the `type` attribute is set to `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
@@ -249,25 +238,16 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether to enable statistics collection for this connection handler.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_ldap_v2": schema.BoolAttribute{
 				Description: "Indicates whether connections from LDAPv2 clients are allowed.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_tcp_reuse_address": schema.BoolAttribute{
 				Description: "Indicates whether the server should attempt to reuse socket descriptors. This may be useful in environments with a high rate of connection establishment and termination.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"idle_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum idle time for a connection. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.",
@@ -281,9 +261,6 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the number of connections, which if exceeded, places this handler in a low resource state where a different idle time limit is applied on the connections.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"low_resources_idle_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum idle time for a connection when this handler is in a low resource state as defined by low-resource-connections. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.",
@@ -297,25 +274,16 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Determines whether request form parameters submitted in multipart/ form-data (RFC 2388) format should be processed as request parameters.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_forwarded_headers": schema.BoolAttribute{
 				Description: "Indicates whether to use \"Forwarded\" and \"X-Forwarded-*\" request headers to override corresponding HTTP request information available during request processing.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_request_header_size": schema.Int64Attribute{
 				Description: "Specifies the maximum buffer size of an http request including the request uri and all of the request headers.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
@@ -328,17 +296,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "If enabled, a correlation ID header will be added to outgoing HTTP responses.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"correlation_id_request_header": schema.SetAttribute{
 				Description: "Specifies the set of HTTP request headers that may contain a value to be used as the correlation ID. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
@@ -351,17 +313,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"send_rejection_notice": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"failed_bind_response_delay": schema.StringAttribute{
 				Description: "Specifies the length of time that the server should delay the response to non-successful bind operations. A value of zero milliseconds indicates that non-successful bind operations should not be delayed.",
@@ -375,52 +331,34 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the size of the largest LDAP request message that will be allowed by this LDAP Connection handler.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_cancel_handlers": schema.Int64Attribute{
 				Description: "Specifies the maximum number of threads that are used to process cancel and abandon requests from clients.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_accept_handlers": schema.Int64Attribute{
 				Description: "Specifies the number of threads that are used to accept new client connections, and to perform any initial preparation on those connections that may be needed before the connection can be used to read requests and send responses.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_request_handlers": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the number of request handlers that are used to read requests from clients. When the `type` attribute is set to `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the number of request handlers that are used to read requests from clients.\n  - `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_client_auth_policy": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates. When the `type` attribute is set to `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates.\n  - `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"accept_backlog": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the maximum number of pending connection attempts that are allowed to queue up in the accept backlog before the server starts rejecting new connection attempts. When the `type` attribute is set to `http`: Specifies the number of concurrent outstanding connection attempts that the connection handler should allow. The default value should be acceptable in most cases, but it may need to be increased in environments that may attempt to establish large numbers of connections simultaneously.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the maximum number of pending connection attempts that are allowed to queue up in the accept backlog before the server starts rejecting new connection attempts.\n  - `http`: Specifies the number of concurrent outstanding connection attempts that the connection handler should allow. The default value should be acceptable in most cases, but it may need to be increased in environments that may attempt to establish large numbers of connections simultaneously.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_protocol": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry. When the `type` attribute is set to `http`: Specifies the names of the SSL protocols that are allowed for use in SSL communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.",
@@ -450,25 +388,16 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether to attempt to automatically authenticate a client connection that has established a secure communication channel (using either SSL or StartTLS) and presented its own client certificate. Generally, clients should use the SASL EXTERNAL mechanism to authenticate using a client certificate, but some clients may not support that capability and/or may expect automatic authentication.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"close_connections_when_unavailable": schema.BoolAttribute{
 				Description: "Indicates whether all connections associated with this LDAP Connection Handler should be closed and no new connections accepted when the server has determined that it is \"unavailable.\" This allows clients (or a network load balancer) to route requests to another server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"close_connections_on_explicit_gc": schema.BoolAttribute{
 				Description: "Indicates whether all connections associated with this LDAP Connection Handler should be closed before an explicit garbage collection is performed to allow clients to route requests to another server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Connection Handler",
@@ -512,103 +441,217 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model connectionHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel connectionHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for jmx type
 	if resourceType == "jmx" {
-		if !internaltypes.IsDefined(model.UseSSL) {
-			model.UseSSL = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseSSL) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseSSL.Equal(defaultVal) {
+				planModel.UseSSL = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ldap type
 	if resourceType == "ldap" {
-		if !internaltypes.IsDefined(model.UseSSL) {
-			model.UseSSL = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseSSL) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseSSL.Equal(defaultVal) {
+				planModel.UseSSL = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowStartTLS) {
-			model.AllowStartTLS = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowStartTLS) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowStartTLS.Equal(defaultVal) {
+				planModel.AllowStartTLS = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowLDAPV2) {
-			model.AllowLDAPV2 = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowLDAPV2) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowLDAPV2.Equal(defaultVal) {
+				planModel.AllowLDAPV2 = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseTCPKeepAlive) {
-			model.UseTCPKeepAlive = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.UseTCPKeepAlive) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.UseTCPKeepAlive.Equal(defaultVal) {
+				planModel.UseTCPKeepAlive = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SendRejectionNotice) {
-			model.SendRejectionNotice = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.SendRejectionNotice) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.SendRejectionNotice.Equal(defaultVal) {
+				planModel.SendRejectionNotice = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxRequestSize) {
-			model.MaxRequestSize = types.StringValue("5 megabytes")
+		if !internaltypes.IsDefined(configModel.MaxRequestSize) {
+			defaultVal := types.StringValue("5 megabytes")
+			if !planModel.MaxRequestSize.Equal(defaultVal) {
+				planModel.MaxRequestSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxCancelHandlers) {
-			model.MaxCancelHandlers = types.Int64Value(16)
+		if !internaltypes.IsDefined(configModel.MaxCancelHandlers) {
+			defaultVal := types.Int64Value(16)
+			if !planModel.MaxCancelHandlers.Equal(defaultVal) {
+				planModel.MaxCancelHandlers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumAcceptHandlers) {
-			model.NumAcceptHandlers = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.NumAcceptHandlers) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.NumAcceptHandlers.Equal(defaultVal) {
+				planModel.NumAcceptHandlers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumRequestHandlers) {
-			model.NumRequestHandlers = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.NumRequestHandlers) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.NumRequestHandlers.Equal(defaultVal) {
+				planModel.NumRequestHandlers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AcceptBacklog) {
-			model.AcceptBacklog = types.Int64Value(128)
+		if !internaltypes.IsDefined(configModel.AcceptBacklog) {
+			defaultVal := types.Int64Value(128)
+			if !planModel.AcceptBacklog.Equal(defaultVal) {
+				planModel.AcceptBacklog = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AutoAuthenticateUsingClientCertificate) {
-			model.AutoAuthenticateUsingClientCertificate = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AutoAuthenticateUsingClientCertificate) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AutoAuthenticateUsingClientCertificate.Equal(defaultVal) {
+				planModel.AutoAuthenticateUsingClientCertificate = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CloseConnectionsWhenUnavailable) {
-			model.CloseConnectionsWhenUnavailable = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CloseConnectionsWhenUnavailable) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CloseConnectionsWhenUnavailable.Equal(defaultVal) {
+				planModel.CloseConnectionsWhenUnavailable = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CloseConnectionsOnExplicitGC) {
-			model.CloseConnectionsOnExplicitGC = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CloseConnectionsOnExplicitGC) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CloseConnectionsOnExplicitGC.Equal(defaultVal) {
+				planModel.CloseConnectionsOnExplicitGC = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ldif type
 	if resourceType == "ldif" {
-		if !internaltypes.IsDefined(model.LdifDirectory) {
-			model.LdifDirectory = types.StringValue("config/auto-process-ldif")
+		if !internaltypes.IsDefined(configModel.LdifDirectory) {
+			defaultVal := types.StringValue("config/auto-process-ldif")
+			if !planModel.LdifDirectory.Equal(defaultVal) {
+				planModel.LdifDirectory = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for http type
 	if resourceType == "http" {
-		if !internaltypes.IsDefined(model.UseSSL) {
-			model.UseSSL = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseSSL) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseSSL.Equal(defaultVal) {
+				planModel.UseSSL = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumRequestHandlers) {
-			model.NumRequestHandlers = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.NumRequestHandlers) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.NumRequestHandlers.Equal(defaultVal) {
+				planModel.NumRequestHandlers = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.KeepStats) {
-			model.KeepStats = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.KeepStats) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.KeepStats.Equal(defaultVal) {
+				planModel.KeepStats = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AcceptBacklog) {
-			model.AcceptBacklog = types.Int64Value(128)
+		if !internaltypes.IsDefined(configModel.AcceptBacklog) {
+			defaultVal := types.Int64Value(128)
+			if !planModel.AcceptBacklog.Equal(defaultVal) {
+				planModel.AcceptBacklog = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowTCPReuseAddress) {
-			model.AllowTCPReuseAddress = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowTCPReuseAddress) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowTCPReuseAddress.Equal(defaultVal) {
+				planModel.AllowTCPReuseAddress = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.LowResourcesConnectionThreshold) {
-			model.LowResourcesConnectionThreshold = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.LowResourcesConnectionThreshold) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.LowResourcesConnectionThreshold.Equal(defaultVal) {
+				planModel.LowResourcesConnectionThreshold = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EnableMultipartMIMEParameters) {
-			model.EnableMultipartMIMEParameters = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.EnableMultipartMIMEParameters) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.EnableMultipartMIMEParameters.Equal(defaultVal) {
+				planModel.EnableMultipartMIMEParameters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseForwardedHeaders) {
-			model.UseForwardedHeaders = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseForwardedHeaders) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseForwardedHeaders.Equal(defaultVal) {
+				planModel.UseForwardedHeaders = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.HttpRequestHeaderSize) {
-			model.HttpRequestHeaderSize = types.Int64Value(8192)
+		if !internaltypes.IsDefined(configModel.HttpRequestHeaderSize) {
+			defaultVal := types.Int64Value(8192)
+			if !planModel.HttpRequestHeaderSize.Equal(defaultVal) {
+				planModel.HttpRequestHeaderSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseCorrelationIDHeader) {
-			model.UseCorrelationIDHeader = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.UseCorrelationIDHeader) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.UseCorrelationIDHeader.Equal(defaultVal) {
+				planModel.UseCorrelationIDHeader = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CorrelationIDResponseHeader) {
-			model.CorrelationIDResponseHeader = types.StringValue("Correlation-Id")
+		if !internaltypes.IsDefined(configModel.CorrelationIDResponseHeader) {
+			defaultVal := types.StringValue("Correlation-Id")
+			if !planModel.CorrelationIDResponseHeader.Equal(defaultVal) {
+				planModel.CorrelationIDResponseHeader = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SslClientAuthPolicy) {
-			model.SslClientAuthPolicy = types.StringValue("disabled")
+		if !internaltypes.IsDefined(configModel.SslClientAuthPolicy) {
+			defaultVal := types.StringValue("disabled")
+			if !planModel.SslClientAuthPolicy.Equal(defaultVal) {
+				planModel.SslClientAuthPolicy = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

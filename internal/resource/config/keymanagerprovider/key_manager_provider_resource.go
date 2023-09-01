@@ -156,9 +156,6 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_max_cache_duration": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
@@ -234,16 +231,26 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *keyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model keyManagerProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel keyManagerProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for pkcs11 type
 	if resourceType == "pkcs11" {
-		if !internaltypes.IsDefined(model.Pkcs11KeyStoreType) {
-			model.Pkcs11KeyStoreType = types.StringValue("PKCS11")
+		if !internaltypes.IsDefined(configModel.Pkcs11KeyStoreType) {
+			defaultVal := types.StringValue("PKCS11")
+			if !planModel.Pkcs11KeyStoreType.Equal(defaultVal) {
+				planModel.Pkcs11KeyStoreType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

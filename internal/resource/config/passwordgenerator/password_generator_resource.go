@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -150,25 +148,16 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The minimum number of characters that generated passwords will be required to have.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"minimum_password_words": schema.Int64Attribute{
 				Description: "The minimum number of words that must be concatenated in the course of generating a password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"capitalize_words": schema.BoolAttribute{
 				Description: "Indicates whether to capitalize each word used in the generated password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Password Generator.",
@@ -222,22 +211,40 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordGeneratorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model passwordGeneratorResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel passwordGeneratorResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for passphrase type
 	if resourceType == "passphrase" {
-		if !internaltypes.IsDefined(model.MinimumPasswordCharacters) {
-			model.MinimumPasswordCharacters = types.Int64Value(20)
+		if !internaltypes.IsDefined(configModel.MinimumPasswordCharacters) {
+			defaultVal := types.Int64Value(20)
+			if !planModel.MinimumPasswordCharacters.Equal(defaultVal) {
+				planModel.MinimumPasswordCharacters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MinimumPasswordWords) {
-			model.MinimumPasswordWords = types.Int64Value(4)
+		if !internaltypes.IsDefined(configModel.MinimumPasswordWords) {
+			defaultVal := types.Int64Value(4)
+			if !planModel.MinimumPasswordWords.Equal(defaultVal) {
+				planModel.MinimumPasswordWords = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CapitalizeWords) {
-			model.CapitalizeWords = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.CapitalizeWords) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.CapitalizeWords.Equal(defaultVal) {
+				planModel.CapitalizeWords = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

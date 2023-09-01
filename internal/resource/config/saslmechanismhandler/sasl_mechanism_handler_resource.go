@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -208,17 +207,11 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether bind requests will be required to have both an OAuth access token (in the \"auth\" element of the bind request) and an OpenID Connect ID token (in the \"pingidentityidtoken\" element of the bind request).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"validate_access_token_when_id_token_is_also_provided": schema.StringAttribute{
 				Description: "Indicates whether to validate the OAuth access token in addition to the OpenID Connect ID token in OAUTHBEARER bind requests that contain both types of tokens.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alternate_authorization_identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
@@ -367,19 +360,33 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *saslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanSaslMechanismHandler(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model saslMechanismHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel saslMechanismHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for oauth-bearer type
 	if resourceType == "oauth-bearer" {
-		if !internaltypes.IsDefined(model.RequireBothAccessTokenAndIDToken) {
-			model.RequireBothAccessTokenAndIDToken = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireBothAccessTokenAndIDToken) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireBothAccessTokenAndIDToken.Equal(defaultVal) {
+				planModel.RequireBothAccessTokenAndIDToken = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ValidateAccessTokenWhenIDTokenIsAlsoProvided) {
-			model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("validate-only-the-id-token")
+		if !internaltypes.IsDefined(configModel.ValidateAccessTokenWhenIDTokenIsAlsoProvided) {
+			defaultVal := types.StringValue("validate-only-the-id-token")
+			if !planModel.ValidateAccessTokenWhenIDTokenIsAlsoProvided.Equal(defaultVal) {
+				planModel.ValidateAccessTokenWhenIDTokenIsAlsoProvided = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

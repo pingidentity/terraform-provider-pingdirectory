@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -144,25 +143,16 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the exponent that should be used for the CPU/memory cost factor. The cost factor must be a power of two, so the value of this property represents the power to which two is raised. The CPU/memory cost factor specifies the number of iterations required for encoding the password, and also affects the amount of memory required during processing. A higher cost factor requires more processing and more memory to generate a password, which makes attacks against the password more expensive.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"scrypt_block_size": schema.Int64Attribute{
 				Description: "Specifies the block size for the digest that will be used in the course of encoding passwords. Increasing the block size while keeping the CPU/memory cost factor constant will increase the amount of memory required to encode a password, but it also increases the ratio of sequential memory access to random memory access (and sequential memory access is generally faster than random memory access).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"scrypt_parallelization_parameter": schema.Int64Attribute{
 				Description: "Specifies the number of times that scrypt has to perform the entire encoding process to produce the final result.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"conjur_external_server": schema.StringAttribute{
 				Description: "An external server definition with information needed to connect and authenticate to the Conjur instance containing user passwords.",
@@ -188,9 +178,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the cost factor to use when encoding passwords with Bcrypt. A higher cost factor requires more processing to generate a password, which makes attacks against the password more expensive.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
 				Description: "The identifier for the encryption settings definition that should be used to derive the encryption key to use when encrypting new passwords. If this is not provided, the server's preferred encryption settings definition will be used.",
@@ -200,9 +187,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the digest algorithm that will be used when encoding passwords.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"extension_class": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
@@ -232,34 +216,22 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the mechanism that should be used to encode clear-text passwords for use with this scheme.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"num_digest_rounds": schema.Int64Attribute{
 				Description: "Specifies the number of digest rounds to use for the SHA-2 encodings. This will not be used for the legacy or MD5-based encodings.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_password_length": schema.Int64Attribute{
 				Description: "Specifies the maximum allowed length, in bytes, for passwords encoded with this scheme, which can help mitigate denial of service attacks from clients that attempt to bind with very long passwords.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"iteration_count": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password. When the `type` attribute is set to `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password.\n  - `pbkdf2`: Specifies the number of iterations to use when encoding passwords. The value must be greater than or equal to 1000.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"parallelism_factor": schema.Int64Attribute{
 				Description: "The number of concurrent threads that will be used in the course of encoding each password.",
@@ -274,18 +246,12 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`salted-sha256`, `salted-md5`, `salted-sha384`, `salted-sha1`, `salted-sha512`]: Specifies the number of bytes to use for the generated salt.\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the generated salt.\n  - `pbkdf2`: Specifies the number of bytes to use for the generated salt. The value must be greater than or equal to 8.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"derived_key_length_bytes": schema.Int64Attribute{
 				Description:         "When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512. When the `type` attribute is set to `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.\n  - `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Storage Scheme",
@@ -317,61 +283,119 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_storage_scheme")
-	var model passwordStorageSchemeResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel passwordStorageSchemeResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for crypt type
 	if resourceType == "crypt" {
-		if !internaltypes.IsDefined(model.PasswordEncodingMechanism) {
-			model.PasswordEncodingMechanism = types.StringValue("sha-2-256")
+		if !internaltypes.IsDefined(configModel.PasswordEncodingMechanism) {
+			defaultVal := types.StringValue("sha-2-256")
+			if !planModel.PasswordEncodingMechanism.Equal(defaultVal) {
+				planModel.PasswordEncodingMechanism = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.NumDigestRounds) {
-			model.NumDigestRounds = types.Int64Value(5000)
+		if !internaltypes.IsDefined(configModel.NumDigestRounds) {
+			defaultVal := types.Int64Value(5000)
+			if !planModel.NumDigestRounds.Equal(defaultVal) {
+				planModel.NumDigestRounds = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxPasswordLength) {
-			model.MaxPasswordLength = types.Int64Value(200)
+		if !internaltypes.IsDefined(configModel.MaxPasswordLength) {
+			defaultVal := types.Int64Value(200)
+			if !planModel.MaxPasswordLength.Equal(defaultVal) {
+				planModel.MaxPasswordLength = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for pbkdf2 type
 	if resourceType == "pbkdf2" {
-		if !internaltypes.IsDefined(model.DigestAlgorithm) {
-			model.DigestAlgorithm = types.StringValue("sha-1")
+		if !internaltypes.IsDefined(configModel.DigestAlgorithm) {
+			defaultVal := types.StringValue("sha-1")
+			if !planModel.DigestAlgorithm.Equal(defaultVal) {
+				planModel.DigestAlgorithm = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(10000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(10000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.SaltLengthBytes) {
-			model.SaltLengthBytes = types.Int64Value(16)
+		if !internaltypes.IsDefined(configModel.SaltLengthBytes) {
+			defaultVal := types.Int64Value(16)
+			if !planModel.SaltLengthBytes.Equal(defaultVal) {
+				planModel.SaltLengthBytes = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DerivedKeyLengthBytes) {
-			model.DerivedKeyLengthBytes = types.Int64Value(32)
+		if !internaltypes.IsDefined(configModel.DerivedKeyLengthBytes) {
+			defaultVal := types.Int64Value(32)
+			if !planModel.DerivedKeyLengthBytes.Equal(defaultVal) {
+				planModel.DerivedKeyLengthBytes = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxPasswordLength) {
-			model.MaxPasswordLength = types.Int64Value(200)
+		if !internaltypes.IsDefined(configModel.MaxPasswordLength) {
+			defaultVal := types.Int64Value(200)
+			if !planModel.MaxPasswordLength.Equal(defaultVal) {
+				planModel.MaxPasswordLength = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for bcrypt type
 	if resourceType == "bcrypt" {
-		if !internaltypes.IsDefined(model.BcryptCostFactor) {
-			model.BcryptCostFactor = types.Int64Value(10)
+		if !internaltypes.IsDefined(configModel.BcryptCostFactor) {
+			defaultVal := types.Int64Value(10)
+			if !planModel.BcryptCostFactor.Equal(defaultVal) {
+				planModel.BcryptCostFactor = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for scrypt type
 	if resourceType == "scrypt" {
-		if !internaltypes.IsDefined(model.ScryptCpuMemoryCostFactorExponent) {
-			model.ScryptCpuMemoryCostFactorExponent = types.Int64Value(14)
+		if !internaltypes.IsDefined(configModel.ScryptCpuMemoryCostFactorExponent) {
+			defaultVal := types.Int64Value(14)
+			if !planModel.ScryptCpuMemoryCostFactorExponent.Equal(defaultVal) {
+				planModel.ScryptCpuMemoryCostFactorExponent = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ScryptBlockSize) {
-			model.ScryptBlockSize = types.Int64Value(8)
+		if !internaltypes.IsDefined(configModel.ScryptBlockSize) {
+			defaultVal := types.Int64Value(8)
+			if !planModel.ScryptBlockSize.Equal(defaultVal) {
+				planModel.ScryptBlockSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ScryptParallelizationParameter) {
-			model.ScryptParallelizationParameter = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.ScryptParallelizationParameter) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.ScryptParallelizationParameter.Equal(defaultVal) {
+				planModel.ScryptParallelizationParameter = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxPasswordLength) {
-			model.MaxPasswordLength = types.Int64Value(200)
+		if !internaltypes.IsDefined(configModel.MaxPasswordLength) {
+			defaultVal := types.Int64Value(200)
+			if !planModel.MaxPasswordLength.Equal(defaultVal) {
+				planModel.MaxPasswordLength = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -228,9 +226,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Indicates whether to handle requests that request all values for the virtual attribute.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Scripted Virtual Attribute. Each configuration property should be given in the form 'name=value'.",
@@ -251,9 +246,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Indicates whether joined entries will be required to have all values for the source attribute, or only at least one of its values.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"value": schema.SetAttribute{
 				Description: "Specifies the values to be included in the virtual attribute.",
@@ -297,17 +289,11 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The scope for searches used to identify joined entries.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"join_size_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that may be joined with the source entry, which also corresponds to the maximum number of values that the virtual attribute provider will generate for an entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"join_filter": schema.StringAttribute{
 				Description: "An optional filter that specifies additional criteria for identifying joined entries. If a join-filter value is specified, then only entries matching that filter (in addition to satisfying the other join criteria) will be joined with the search result entry.",
@@ -333,17 +319,11 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"direct_memberships_only": schema.BoolAttribute{
 				Description: "Specifies whether to only include groups in which the user is directly associated with and the membership maybe modified via the group entry. Groups in which the user's membership is derived dynamically or through nested groups will not be included.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_group_filter": schema.StringAttribute{
 				Description: "A search filter that will be used to identify which groups should be included in the values of the virtual attribute. With no value defined (which is the default behavior), all groups that contain the target user will be included.",
@@ -353,9 +333,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Search filters that include Is Member Of Virtual Attribute searches on dynamic groups can be updated to include the dynamic group filter in the search filter itself. This can allow the backend to more efficiently process the search filter by using attribute indexes sooner in the search processing.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"source_attribute": schema.StringAttribute{
 				Description: "Specifies the source attribute containing the values to use for this virtual attribute.",
@@ -373,9 +350,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Indicates whether searches performed by this virtual attribute provider should be exempted from access control restrictions.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Virtual Attribute",
@@ -389,9 +363,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
@@ -425,9 +396,6 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"multiple_virtual_attribute_evaluation_order_index": schema.Int64Attribute{
 				Description: "Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.",
@@ -437,17 +405,11 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the behavior that will be exhibited for cases in which multiple virtual attribute definitions apply to the same multivalued attribute type. This will be ignored for single-valued attribute types.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_index_conflicts": schema.BoolAttribute{
 				Description: "Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -488,229 +450,475 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *virtualAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model virtualAttributeResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel virtualAttributeResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for mirror type
 	if resourceType == "mirror" {
-		if !internaltypes.IsDefined(model.BypassAccessControlForSearches) {
-			model.BypassAccessControlForSearches = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.BypassAccessControlForSearches) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.BypassAccessControlForSearches.Equal(defaultVal) {
+				planModel.BypassAccessControlForSearches = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for constructed type
 	if resourceType == "constructed" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for is-member-of type
 	if resourceType == "is-member-of" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("virtual-overrides-real")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("virtual-overrides-real")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AttributeType) {
-			model.AttributeType = types.StringValue("isMemberOf")
+		if !internaltypes.IsDefined(configModel.AttributeType) {
+			defaultVal := types.StringValue("isMemberOf")
+			if !planModel.AttributeType.Equal(defaultVal) {
+				planModel.AttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DirectMembershipsOnly) {
-			model.DirectMembershipsOnly = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.DirectMembershipsOnly) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.DirectMembershipsOnly.Equal(defaultVal) {
+				planModel.DirectMembershipsOnly = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RewriteSearchFilters) {
-			model.RewriteSearchFilters = types.StringValue("within-group-scope")
+		if !internaltypes.IsDefined(configModel.RewriteSearchFilters) {
+			defaultVal := types.StringValue("within-group-scope")
+			if !planModel.RewriteSearchFilters.Equal(defaultVal) {
+				planModel.RewriteSearchFilters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for reverse-dn-join type
 	if resourceType == "reverse-dn-join" {
-		if !internaltypes.IsDefined(model.JoinScope) {
-			model.JoinScope = types.StringValue("whole-subtree")
+		if !internaltypes.IsDefined(configModel.JoinScope) {
+			defaultVal := types.StringValue("whole-subtree")
+			if !planModel.JoinScope.Equal(defaultVal) {
+				planModel.JoinScope = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.JoinSizeLimit) {
-			model.JoinSizeLimit = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.JoinSizeLimit) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.JoinSizeLimit.Equal(defaultVal) {
+				planModel.JoinSizeLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for identify-references type
 	if resourceType == "identify-references" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for user-defined type
 	if resourceType == "user-defined" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for entry-dn type
 	if resourceType == "entry-dn" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("virtual-overrides-real")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("virtual-overrides-real")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AttributeType) {
-			model.AttributeType = types.StringValue("entryDN")
+		if !internaltypes.IsDefined(configModel.AttributeType) {
+			defaultVal := types.StringValue("entryDN")
+			if !planModel.AttributeType.Equal(defaultVal) {
+				planModel.AttributeType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for equality-join type
 	if resourceType == "equality-join" {
-		if !internaltypes.IsDefined(model.JoinMatchAll) {
-			model.JoinMatchAll = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.JoinMatchAll) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.JoinMatchAll.Equal(defaultVal) {
+				planModel.JoinMatchAll = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.JoinScope) {
-			model.JoinScope = types.StringValue("whole-subtree")
+		if !internaltypes.IsDefined(configModel.JoinScope) {
+			defaultVal := types.StringValue("whole-subtree")
+			if !planModel.JoinScope.Equal(defaultVal) {
+				planModel.JoinScope = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.JoinSizeLimit) {
-			model.JoinSizeLimit = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.JoinSizeLimit) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.JoinSizeLimit.Equal(defaultVal) {
+				planModel.JoinSizeLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for groovy-scripted type
 	if resourceType == "groovy-scripted" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for member type
 	if resourceType == "member" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("virtual-overrides-real")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("virtual-overrides-real")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowRetrievingMembership) {
-			model.AllowRetrievingMembership = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowRetrievingMembership) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowRetrievingMembership.Equal(defaultVal) {
+				planModel.AllowRetrievingMembership = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for password-policy-state-json type
 	if resourceType == "password-policy-state-json" {
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for dn-join type
 	if resourceType == "dn-join" {
-		if !internaltypes.IsDefined(model.JoinScope) {
-			model.JoinScope = types.StringValue("whole-subtree")
+		if !internaltypes.IsDefined(configModel.JoinScope) {
+			defaultVal := types.StringValue("whole-subtree")
+			if !planModel.JoinScope.Equal(defaultVal) {
+				planModel.JoinScope = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.JoinSizeLimit) {
-			model.JoinSizeLimit = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.JoinSizeLimit) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.JoinSizeLimit.Equal(defaultVal) {
+				planModel.JoinSizeLimit = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for third-party type
 	if resourceType == "third-party" {
-		if !internaltypes.IsDefined(model.ConflictBehavior) {
-			model.ConflictBehavior = types.StringValue("real-overrides-virtual")
+		if !internaltypes.IsDefined(configModel.ConflictBehavior) {
+			defaultVal := types.StringValue("real-overrides-virtual")
+			if !planModel.ConflictBehavior.Equal(defaultVal) {
+				planModel.ConflictBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.RequireExplicitRequestByName) {
-			model.RequireExplicitRequestByName = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.RequireExplicitRequestByName) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequireExplicitRequestByName.Equal(defaultVal) {
+				planModel.RequireExplicitRequestByName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) {
-			model.MultipleVirtualAttributeMergeBehavior = types.StringValue("use-all-definitions")
+		if !internaltypes.IsDefined(configModel.MultipleVirtualAttributeMergeBehavior) {
+			defaultVal := types.StringValue("use-all-definitions")
+			if !planModel.MultipleVirtualAttributeMergeBehavior.Equal(defaultVal) {
+				planModel.MultipleVirtualAttributeMergeBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowIndexConflicts) {
-			model.AllowIndexConflicts = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowIndexConflicts) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowIndexConflicts.Equal(defaultVal) {
+				planModel.AllowIndexConflicts = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

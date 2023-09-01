@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -234,26 +233,17 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "Indicates whether this Simple Connection Criteria should require or allow clients using a secure communication channel.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_auth_type": schema.SetAttribute{
 				Description: "Specifies the authentication types for client connections that may be included in this Simple Connection Criteria.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"authentication_security_level": schema.StringAttribute{
 				Description: "Indicates whether this Simple Connection Criteria should require or allow clients that authenticated using a secure manner. This will only be taken into account for client connections that have authenticated to the server and will be ignored for unauthenticated client connections.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"included_user_sasl_mechanism": schema.SetAttribute{
 				Description: "Specifies the name of a SASL mechanism that should be used by clients included in this Simple Connection Criteria. This will only be taken into account for client connections that have authenticated to the server using a SASL mechanism and will be ignored for unauthenticated client connections and for client connections that authenticated using some other method (e.g., those performing simple or internal authentication).",
@@ -391,22 +381,40 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *connectionCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model connectionCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel connectionCriteriaResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for simple type
 	if resourceType == "simple" {
-		if !internaltypes.IsDefined(model.CommunicationSecurityLevel) {
-			model.CommunicationSecurityLevel = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.CommunicationSecurityLevel) {
+			defaultVal := types.StringValue("any")
+			if !planModel.CommunicationSecurityLevel.Equal(defaultVal) {
+				planModel.CommunicationSecurityLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UserAuthType) {
-			model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("simple"), types.StringValue("sasl"), types.StringValue("internal")})
+		if !internaltypes.IsDefined(configModel.UserAuthType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("none"), types.StringValue("simple"), types.StringValue("sasl"), types.StringValue("internal")})
+			if !planModel.UserAuthType.Equal(defaultVal) {
+				planModel.UserAuthType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationSecurityLevel) {
-			model.AuthenticationSecurityLevel = types.StringValue("any")
+		if !internaltypes.IsDefined(configModel.AuthenticationSecurityLevel) {
+			defaultVal := types.StringValue("any")
+			if !planModel.AuthenticationSecurityLevel.Equal(defaultVal) {
+				planModel.AuthenticationSecurityLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

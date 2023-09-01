@@ -10,10 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -160,9 +157,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"signing_certificate": schema.SetAttribute{
 				Description: "Specifies the locally stored certificates that may be used to validate the signature of an incoming JWT access token. If this property is specified, the JWT Access Token Validator will not use a JWKS endpoint to retrieve public keys.",
@@ -184,18 +178,12 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_content_encryption_algorithm": schema.SetAttribute{
 				Description: "Specifies an allow list of JWT content encryption algorithms that will be accepted by the JWT Access Token Validator.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"clock_skew_grace_period": schema.StringAttribute{
 				Description: "Specifies the amount of clock skew that is tolerated by the JWT Access Token Validator when evaluating whether a token is within its valid time interval. The duration specified by this parameter will be subtracted from the token's not-before (nbf) time and added to the token's expiration (exp) time, if present, to allow for any time difference between the local server's clock and the token issuer's clock.",
@@ -209,17 +197,11 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The name of the token claim that contains the OAuth2 client Id.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"scope_claim_name": schema.StringAttribute{
 				Description: "The name of the token claim that contains the scopes granted by the token.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"client_id": schema.StringAttribute{
 				Description: "The client identifier to use when authenticating to the PingFederate authorization server.",
@@ -238,9 +220,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Whether to include the incoming request URL as the \"aud\" parameter when calling the PingFederate introspection endpoint. This property is ignored if the access-token-manager-id property is set.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"access_token_manager_id": schema.StringAttribute{
 				Description: "The Access Token Manager instance ID to specify when calling the PingFederate introspection endpoint. If this property is set the include-aud-parameter property is ignored.",
@@ -259,9 +238,6 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `third-party`: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"authorization_server": schema.StringAttribute{
 				Description: "Specifies the external server that will be used to aid in validating access tokens. In most cases this will be the Authorization Server that minted the token.",
@@ -305,49 +281,95 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model accessTokenValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel accessTokenValidatorResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for ping-federate type
 	if resourceType == "ping-federate" {
-		if !internaltypes.IsDefined(model.IncludeAudParameter) {
-			model.IncludeAudParameter = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IncludeAudParameter) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IncludeAudParameter.Equal(defaultVal) {
+				planModel.IncludeAudParameter = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for jwt type
 	if resourceType == "jwt" {
-		if !internaltypes.IsDefined(model.AllowedSigningAlgorithm) {
-			model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RS256"), types.StringValue("RS384"), types.StringValue("RS512")})
+		if !internaltypes.IsDefined(configModel.AllowedSigningAlgorithm) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("RS256"), types.StringValue("RS384"), types.StringValue("RS512")})
+			if !planModel.AllowedSigningAlgorithm.Equal(defaultVal) {
+				planModel.AllowedSigningAlgorithm = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowedKeyEncryptionAlgorithm) {
-			model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("RSA_OAEP")})
+		if !internaltypes.IsDefined(configModel.AllowedKeyEncryptionAlgorithm) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("RSA_OAEP")})
+			if !planModel.AllowedKeyEncryptionAlgorithm.Equal(defaultVal) {
+				planModel.AllowedKeyEncryptionAlgorithm = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowedContentEncryptionAlgorithm) {
-			model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("A128CBC_HS256"), types.StringValue("A192CBC_HS384"), types.StringValue("A256CBC_HS512")})
+		if !internaltypes.IsDefined(configModel.AllowedContentEncryptionAlgorithm) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("A128CBC_HS256"), types.StringValue("A192CBC_HS384"), types.StringValue("A256CBC_HS512")})
+			if !planModel.AllowedContentEncryptionAlgorithm.Equal(defaultVal) {
+				planModel.AllowedContentEncryptionAlgorithm = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ClientIDClaimName) {
-			model.ClientIDClaimName = types.StringValue("client_id")
+		if !internaltypes.IsDefined(configModel.ClientIDClaimName) {
+			defaultVal := types.StringValue("client_id")
+			if !planModel.ClientIDClaimName.Equal(defaultVal) {
+				planModel.ClientIDClaimName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ScopeClaimName) {
-			model.ScopeClaimName = types.StringValue("scope")
+		if !internaltypes.IsDefined(configModel.ScopeClaimName) {
+			defaultVal := types.StringValue("scope")
+			if !planModel.ScopeClaimName.Equal(defaultVal) {
+				planModel.ScopeClaimName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
-			model.EvaluationOrderIndex = types.Int64Value(1000)
+		if !internaltypes.IsDefined(configModel.EvaluationOrderIndex) {
+			defaultVal := types.Int64Value(1000)
+			if !planModel.EvaluationOrderIndex.Equal(defaultVal) {
+				planModel.EvaluationOrderIndex = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for mock type
 	if resourceType == "mock" {
-		if !internaltypes.IsDefined(model.ClientIDClaimName) {
-			model.ClientIDClaimName = types.StringValue("client_id")
+		if !internaltypes.IsDefined(configModel.ClientIDClaimName) {
+			defaultVal := types.StringValue("client_id")
+			if !planModel.ClientIDClaimName.Equal(defaultVal) {
+				planModel.ClientIDClaimName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ScopeClaimName) {
-			model.ScopeClaimName = types.StringValue("scope")
+		if !internaltypes.IsDefined(configModel.ScopeClaimName) {
+			defaultVal := types.StringValue("scope")
+			if !planModel.ScopeClaimName.Equal(defaultVal) {
+				planModel.ScopeClaimName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EvaluationOrderIndex) {
-			model.EvaluationOrderIndex = types.Int64Value(9999)
+		if !internaltypes.IsDefined(configModel.EvaluationOrderIndex) {
+			defaultVal := types.Int64Value(9999)
+			if !planModel.EvaluationOrderIndex.Equal(defaultVal) {
+				planModel.EvaluationOrderIndex = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

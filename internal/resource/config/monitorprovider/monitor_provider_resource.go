@@ -180,9 +180,6 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Monitor Provider",
@@ -249,16 +246,26 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_monitor_provider")
-	var model monitorProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel monitorProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for encryption-settings-database-accessibility type
 	if resourceType == "encryption-settings-database-accessibility" {
-		if !internaltypes.IsDefined(model.ProlongedOutageBehavior) {
-			model.ProlongedOutageBehavior = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ProlongedOutageBehavior) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ProlongedOutageBehavior.Equal(defaultVal) {
+				planModel.ProlongedOutageBehavior = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

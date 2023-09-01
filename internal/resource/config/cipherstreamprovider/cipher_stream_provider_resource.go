@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -205,7 +204,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -222,9 +220,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The store type for the specified trust store file. The value should likely be one of \"JKS\" or \"PKCS12\".",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"pkcs11_provider_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.",
@@ -251,9 +246,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The alias for the certificate in the PKCS #11 token that will be used to wrap the encryption key. The target certificate must exist in the PKCS #11 token, and it must have an RSA key pair because the JVM does not currently provide adequate key wrapping support for elliptic curve key pairs.  If you have also configured the server to use a PKCS #11 token for accessing listener certificates, we strongly recommend that you use a different certificate to protect the contents of the encryption settings database than you use for negotiating TLS sessions with clients. It is imperative that the certificate used by this PKCS11 Cipher Stream Provider remain constant for the life of the provider because if the certificate were to be replaced, then the contents of the encryption settings database could become inaccessible. Unlike with listener certificates used for TLS negotiation that need to be replaced on a regular basis, this PKCS11 Cipher Stream Provider does not consider the validity period for the associated certificate, and it will continue to function even after the certificate has expired.  If you need to rotate the certificate used to protect the server's encryption settings database, you should first install the desired new certificate in the PKCS #11 token under a different alias. Then, you should create a new instance of this PKCS11 Cipher Stream Provider that is configured to use that certificate, and that also uses a different value for the encryption-metadata-file because the information in that file is tied to the certificate used to generate it. Finally, you will need to update the global configuration so that the encryption-settings-cipher-stream-provider property references the new cipher stream provider rather than this one. The update to the global configuration must be done with the server online so that it can properly re-encrypt the contents of the encryption settings database with the correct key tied to the new certificate.",
@@ -281,9 +273,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Indicates whether the server should wait for the password file to become available if it does not exist.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_vault_uri": schema.StringAttribute{
 				Description: "The URI that identifies the Azure Key Vault from which the secret is to be retrieved.",
@@ -309,7 +298,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -347,7 +335,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -381,7 +368,6 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
 					int64planmodifier.RequiresReplace(),
 				},
 			},
@@ -414,73 +400,135 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanCipherStreamProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model cipherStreamProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel cipherStreamProviderResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for amazon-key-management-service type
 	if resourceType == "amazon-key-management-service" {
-		if !internaltypes.IsDefined(model.EncryptedPassphraseFile) {
-			model.EncryptedPassphraseFile = types.StringValue("config/encryption-settings-passphrase.kms-encrypted")
+		if !internaltypes.IsDefined(configModel.EncryptedPassphraseFile) {
+			defaultVal := types.StringValue("config/encryption-settings-passphrase.kms-encrypted")
+			if !planModel.EncryptedPassphraseFile.Equal(defaultVal) {
+				planModel.EncryptedPassphraseFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for amazon-secrets-manager type
 	if resourceType == "amazon-secrets-manager" {
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for azure-key-vault type
 	if resourceType == "azure-key-vault" {
-		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
-			model.EncryptionMetadataFile = types.StringValue("config/azure-key-vault-encryption-metadata.json")
+		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/azure-key-vault-encryption-metadata.json")
+			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
+				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for file-based type
 	if resourceType == "file-based" {
-		if !internaltypes.IsDefined(model.WaitForPasswordFile) {
-			model.WaitForPasswordFile = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.WaitForPasswordFile) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.WaitForPasswordFile.Equal(defaultVal) {
+				planModel.WaitForPasswordFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for conjur type
 	if resourceType == "conjur" {
-		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
-			model.EncryptionMetadataFile = types.StringValue("config/conjur-encryption-metadata.json")
+		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/conjur-encryption-metadata.json")
+			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
+				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for pkcs11 type
 	if resourceType == "pkcs11" {
-		if !internaltypes.IsDefined(model.Pkcs11KeyStoreType) {
-			model.Pkcs11KeyStoreType = types.StringValue("PKCS11")
+		if !internaltypes.IsDefined(configModel.Pkcs11KeyStoreType) {
+			defaultVal := types.StringValue("PKCS11")
+			if !planModel.Pkcs11KeyStoreType.Equal(defaultVal) {
+				planModel.Pkcs11KeyStoreType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.EncryptionMetadataFile) {
-			model.EncryptionMetadataFile = types.StringValue("config/pkcs11-cipher-stream-provider-encryption-metadata.json")
+		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/pkcs11-cipher-stream-provider-encryption-metadata.json")
+			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
+				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for vault type
 	if resourceType == "vault" {
-		if !internaltypes.IsDefined(model.VaultEncryptionMetadataFile) {
-			model.VaultEncryptionMetadataFile = types.StringValue("config/vault-encryption-metadata.json")
+		if !internaltypes.IsDefined(configModel.VaultEncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/vault-encryption-metadata.json")
+			if !planModel.VaultEncryptionMetadataFile.Equal(defaultVal) {
+				planModel.VaultEncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TrustStoreType) {
-			model.TrustStoreType = types.StringValue("JKS")
+		if !internaltypes.IsDefined(configModel.TrustStoreType) {
+			defaultVal := types.StringValue("JKS")
+			if !planModel.TrustStoreType.Equal(defaultVal) {
+				planModel.TrustStoreType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IterationCount) {
-			model.IterationCount = types.Int64Value(600000)
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

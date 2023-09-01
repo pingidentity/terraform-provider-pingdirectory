@@ -142,9 +142,6 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `app-role`: The name used when enabling the desired AppRole authentication mechanism in the Vault server.\n  - `user-pass`: The name used when enabling the desired UserPass authentication mechanism in the Vault server.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"vault_access_token": schema.StringAttribute{
 				Description: "The static token used to authenticate to the Vault server.",
@@ -175,16 +172,26 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *vaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model vaultAuthenticationMethodResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel vaultAuthenticationMethodResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for user-pass type
 	if resourceType == "user-pass" {
-		if !internaltypes.IsDefined(model.LoginMechanismName) {
-			model.LoginMechanismName = types.StringValue("userpass")
+		if !internaltypes.IsDefined(configModel.LoginMechanismName) {
+			defaultVal := types.StringValue("userpass")
+			if !planModel.LoginMechanismName.Equal(defaultVal) {
+				planModel.LoginMechanismName = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

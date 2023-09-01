@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -194,17 +193,11 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the maximum number of characters that can be included in a proposed password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"min_password_length": schema.Int64Attribute{
 				Description: "Specifies the minimum number of characters that must be included in a proposed password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"disallowed_characters": schema.StringAttribute{
 				Description: "A set of characters that will not be allowed anywhere in a password.",
@@ -222,9 +215,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The base URL for requests used to interact with the Pwned Passwords service. The first five characters of the hexadecimal representation of the unsalted SHA-1 digest of a proposed password will be appended to this base URL to construct the HTTP GET request used to obtain information about potential matches.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
@@ -234,33 +224,21 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether this password validator should be used to validate clear-text passwords provided in LDAP add requests.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"invoke_for_self_change": schema.BoolAttribute{
 				Description: "Indicates whether this password validator should be used to validate clear-text passwords provided by an end user in the course of changing their own password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"invoke_for_admin_reset": schema.BoolAttribute{
 				Description: "Indicates whether this password validator should be used to validate clear-text passwords provided by administrators when changing the password for another user.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"accept_password_on_service_error": schema.BoolAttribute{
 				Description: "Indicates whether to accept the proposed password if an error occurs while attempting to interact with the Pwned Passwords service.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description: "Specifies which key manager provider should be used to obtain a client certificate to present to the validation server when performing HTTPS communication. This may be left undefined if communication will not be secured with HTTPS, or if there is no need to present a client certificate to the validation service.",
@@ -285,34 +263,22 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether passwords will be allowed to include characters from outside the ASCII character set.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allow_unknown_characters": schema.BoolAttribute{
 				Description: "Indicates whether passwords will be allowed to include characters that are not recognized by the JVM's Unicode support.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"allowed_character_type": schema.SetAttribute{
 				Description: "Specifies the set of character types that are allowed to be present in passwords.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"assumed_password_guesses_per_second": schema.StringAttribute{
 				Description: "The number of password guesses per second that a potential attacker may be expected to make.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"minimum_acceptable_time_to_exhaust_search_space": schema.StringAttribute{
 				Description: "The minimum length of time (using the configured number of password guesses per second) required to exhaust the entire search space for a proposed password in order for that password to be considered acceptable.",
@@ -326,9 +292,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the path to the file containing a list of words that cannot be used as passwords.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_consecutive_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of times that any character can appear consecutively in a password value.",
@@ -339,33 +302,21 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`repeated-characters`, `unique-characters`]: Indicates whether this password validator should treat password characters in a case-sensitive manner.\n  - `dictionary`: Indicates whether this password validator is to treat password characters in a case-sensitive manner.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ignore_leading_non_alphabetic_characters": schema.BoolAttribute{
 				Description: "Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the beginning of a proposed password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"ignore_trailing_non_alphabetic_characters": schema.BoolAttribute{
 				Description: "Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the end of a proposed password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"strip_diacritical_marks": schema.BoolAttribute{
 				Description: "Indicates whether to strip characters of any diacritical marks (like accents, cedillas, circumflexes, diaereses, tildes, and umlauts) they may contain. Any characters with a diacritical mark would be replaced with a base version",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"alternative_password_character_mapping": schema.SetAttribute{
 				Description: "Provides a set of character substitutions that can be applied to the proposed password when checking to see if it is in the provided dictionary. Each mapping should consist of a single character followed by a colon and a list of the alternative characters that may be used in place of that character.",
@@ -378,9 +329,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The maximum allowed percent of a proposed password that any single dictionary word is allowed to comprise. A value of 100 indicates that a proposed password will only be rejected if the dictionary contains the entire proposed password (after any configured transformations have been applied).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"match_attribute": schema.SetAttribute{
 				Description: "Specifies the name(s) of the attribute(s) whose values should be checked to determine whether they match the provided password. If no values are provided, then the server checks if the proposed password matches the value of any user attribute in the target user's entry.",
@@ -393,34 +341,22 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates whether to reject any proposed password that is a substring of a value in one of the match attributes in the target user's entry.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"test_attribute_value_substring_of_password": schema.BoolAttribute{
 				Description: "Indicates whether to reject any proposed password in which a value in one of the match attributes in the target user's entry is a substring of that password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"minimum_attribute_value_length_for_substring_matches": schema.Int64Attribute{
 				Description: "The minimum length that an attribute value must have for it to be considered when rejecting passwords that contain the value of another attribute as a substring.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"test_reversed_password": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given. When the `type` attribute is set to `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `attribute-value`: Indicates whether to perform matching against the reversed value of the provided password in addition to the order in which it was given.\n  - `dictionary`: Indicates whether this password validator is to test the reversed value of the provided password as well as the order in which it was given.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"min_password_difference": schema.Int64Attribute{
 				Description: "Specifies the minimum difference of new and old password.",
@@ -448,9 +384,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the minimum number of character sets that must be represented in a proposed password.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Validator",
@@ -489,97 +422,191 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_validator")
-	var model passwordValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel passwordValidatorResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for character-set type
 	if resourceType == "character-set" {
-		if !internaltypes.IsDefined(model.MinimumRequiredCharacterSets) {
-			model.MinimumRequiredCharacterSets = types.Int64Value(1)
+		if !internaltypes.IsDefined(configModel.MinimumRequiredCharacterSets) {
+			defaultVal := types.Int64Value(1)
+			if !planModel.MinimumRequiredCharacterSets.Equal(defaultVal) {
+				planModel.MinimumRequiredCharacterSets = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for attribute-value type
 	if resourceType == "attribute-value" {
-		if !internaltypes.IsDefined(model.TestPasswordSubstringOfAttributeValue) {
-			model.TestPasswordSubstringOfAttributeValue = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.TestPasswordSubstringOfAttributeValue) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.TestPasswordSubstringOfAttributeValue.Equal(defaultVal) {
+				planModel.TestPasswordSubstringOfAttributeValue = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TestAttributeValueSubstringOfPassword) {
-			model.TestAttributeValueSubstringOfPassword = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.TestAttributeValueSubstringOfPassword) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.TestAttributeValueSubstringOfPassword.Equal(defaultVal) {
+				planModel.TestAttributeValueSubstringOfPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MinimumAttributeValueLengthForSubstringMatches) {
-			model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Value(4)
+		if !internaltypes.IsDefined(configModel.MinimumAttributeValueLengthForSubstringMatches) {
+			defaultVal := types.Int64Value(4)
+			if !planModel.MinimumAttributeValueLengthForSubstringMatches.Equal(defaultVal) {
+				planModel.MinimumAttributeValueLengthForSubstringMatches = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for dictionary type
 	if resourceType == "dictionary" {
-		if !internaltypes.IsDefined(model.DictionaryFile) {
-			model.DictionaryFile = types.StringValue("For Unix and Linux systems: config/wordlist.txt. For Windows systems: config\\wordlist.txt")
+		if !internaltypes.IsDefined(configModel.DictionaryFile) {
+			defaultVal := types.StringValue("For Unix and Linux systems: config/wordlist.txt. For Windows systems: config\\wordlist.txt")
+			if !planModel.DictionaryFile.Equal(defaultVal) {
+				planModel.DictionaryFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.CaseSensitiveValidation) {
-			model.CaseSensitiveValidation = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.CaseSensitiveValidation) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.CaseSensitiveValidation.Equal(defaultVal) {
+				planModel.CaseSensitiveValidation = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.TestReversedPassword) {
-			model.TestReversedPassword = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.TestReversedPassword) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.TestReversedPassword.Equal(defaultVal) {
+				planModel.TestReversedPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IgnoreLeadingNonAlphabeticCharacters) {
-			model.IgnoreLeadingNonAlphabeticCharacters = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IgnoreLeadingNonAlphabeticCharacters) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IgnoreLeadingNonAlphabeticCharacters.Equal(defaultVal) {
+				planModel.IgnoreLeadingNonAlphabeticCharacters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.IgnoreTrailingNonAlphabeticCharacters) {
-			model.IgnoreTrailingNonAlphabeticCharacters = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.IgnoreTrailingNonAlphabeticCharacters) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.IgnoreTrailingNonAlphabeticCharacters.Equal(defaultVal) {
+				planModel.IgnoreTrailingNonAlphabeticCharacters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.StripDiacriticalMarks) {
-			model.StripDiacriticalMarks = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.StripDiacriticalMarks) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.StripDiacriticalMarks.Equal(defaultVal) {
+				planModel.StripDiacriticalMarks = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaximumAllowedPercentOfPassword) {
-			model.MaximumAllowedPercentOfPassword = types.Int64Value(100)
+		if !internaltypes.IsDefined(configModel.MaximumAllowedPercentOfPassword) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaximumAllowedPercentOfPassword.Equal(defaultVal) {
+				planModel.MaximumAllowedPercentOfPassword = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for haystack type
 	if resourceType == "haystack" {
-		if !internaltypes.IsDefined(model.AssumedPasswordGuessesPerSecond) {
-			model.AssumedPasswordGuessesPerSecond = types.StringValue("100,000,000,000")
+		if !internaltypes.IsDefined(configModel.AssumedPasswordGuessesPerSecond) {
+			defaultVal := types.StringValue("100,000,000,000")
+			if !planModel.AssumedPasswordGuessesPerSecond.Equal(defaultVal) {
+				planModel.AssumedPasswordGuessesPerSecond = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for utf-8 type
 	if resourceType == "utf-8" {
-		if !internaltypes.IsDefined(model.AllowNonAsciiCharacters) {
-			model.AllowNonAsciiCharacters = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AllowNonAsciiCharacters) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AllowNonAsciiCharacters.Equal(defaultVal) {
+				planModel.AllowNonAsciiCharacters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowUnknownCharacters) {
-			model.AllowUnknownCharacters = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.AllowUnknownCharacters) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.AllowUnknownCharacters.Equal(defaultVal) {
+				planModel.AllowUnknownCharacters = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AllowedCharacterType) {
-			model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("letters"), types.StringValue("numbers"), types.StringValue("punctuation"), types.StringValue("symbols"), types.StringValue("spaces"), types.StringValue("marks")})
+		if !internaltypes.IsDefined(configModel.AllowedCharacterType) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("letters"), types.StringValue("numbers"), types.StringValue("punctuation"), types.StringValue("symbols"), types.StringValue("spaces"), types.StringValue("marks")})
+			if !planModel.AllowedCharacterType.Equal(defaultVal) {
+				planModel.AllowedCharacterType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for pwned-passwords type
 	if resourceType == "pwned-passwords" {
-		if !internaltypes.IsDefined(model.PwnedPasswordsBaseURL) {
-			model.PwnedPasswordsBaseURL = types.StringValue("https://api.pwnedpasswords.com/range/")
+		if !internaltypes.IsDefined(configModel.PwnedPasswordsBaseURL) {
+			defaultVal := types.StringValue("https://api.pwnedpasswords.com/range/")
+			if !planModel.PwnedPasswordsBaseURL.Equal(defaultVal) {
+				planModel.PwnedPasswordsBaseURL = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForAdd) {
-			model.InvokeForAdd = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForAdd) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForAdd.Equal(defaultVal) {
+				planModel.InvokeForAdd = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForSelfChange) {
-			model.InvokeForSelfChange = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForSelfChange) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForSelfChange.Equal(defaultVal) {
+				planModel.InvokeForSelfChange = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InvokeForAdminReset) {
-			model.InvokeForAdminReset = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.InvokeForAdminReset) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForAdminReset.Equal(defaultVal) {
+				planModel.InvokeForAdminReset = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AcceptPasswordOnServiceError) {
-			model.AcceptPasswordOnServiceError = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AcceptPasswordOnServiceError) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AcceptPasswordOnServiceError.Equal(defaultVal) {
+				planModel.AcceptPasswordOnServiceError = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for length-based type
 	if resourceType == "length-based" {
-		if !internaltypes.IsDefined(model.MaxPasswordLength) {
-			model.MaxPasswordLength = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxPasswordLength) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxPasswordLength.Equal(defaultVal) {
+				planModel.MaxPasswordLength = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MinPasswordLength) {
-			model.MinPasswordLength = types.Int64Value(6)
+		if !internaltypes.IsDefined(configModel.MinPasswordLength) {
+			defaultVal := types.Int64Value(6)
+			if !planModel.MinPasswordLength.Equal(defaultVal) {
+				planModel.MinPasswordLength = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

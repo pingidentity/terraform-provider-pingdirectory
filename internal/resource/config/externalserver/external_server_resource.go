@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -232,9 +230,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The store type for the specified trust store file. The value should likely be one of \"JKS\", \"PKCS12\", or \"BCFKS\".",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"base_url": schema.StringAttribute{
 				Description: "The base URL of the external server, optionally including port number, for example \"https://externalService:9031\".",
@@ -245,9 +240,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.\n  - `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"jdbc_driver_type": schema.StringAttribute{
 				Description: "Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.",
@@ -293,17 +285,11 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The mechanism to use to verify user credentials while ensuring that the ability to process other operations is not impacted by an alternate authorization identity.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_administrative_operation_control": schema.BoolAttribute{
 				Description: "Indicates whether to include the administrative operation request control in requests sent to this server which are intended for administrative operations (e.g., health checking) rather than requests directly from clients.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"server_host_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The host name or IP address of the target LDAP server. When the `type` attribute is set to `smtp`: The host name of the smtp server. When the `type` attribute is set to `jdbc`: The host name of the database server. This is ignored if jdbc-driver-url is specified. When the `type` attribute is set to `syslog`: The address of the syslog server. When the `type` attribute is set to `http-proxy`: The host name or IP address of the HTTP Proxy External Server.",
@@ -315,9 +301,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The port number on which the server listens for requests.\n  - `smtp`: The port number where the smtp server listens for requests.\n  - `jdbc`: The port number where the database server listens for requests. This is ignored if jdbc-driver-url is specified\n  - `syslog`: The port on which the syslog server accepts connections.\n  - `http-proxy`: The port on which the HTTP Proxy External Server is listening for connections.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"location": schema.StringAttribute{
 				Description: "Specifies the location for the LDAP External Server.",
@@ -346,9 +329,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "This property specifies the default transaction isolation level for connections to this JDBC External Server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"bind_dn": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required. When the `type` attribute is set to `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.",
@@ -359,9 +339,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "This property specifies type of connection security to use when connecting to the outgoing mail server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"user_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `smtp`: The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set. When the `type` attribute is set to `jdbc`: The name of the login account to use when connecting to the database server.",
@@ -372,18 +349,12 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The mechanism to use to secure communication with the directory server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"authentication_method": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server. When the `type` attribute is set to `amazon-aws`: The mechanism to use to authenticate to AWS.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server.\n  - `amazon-aws`: The mechanism to use to authenticate to AWS.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"health_check_connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.",
@@ -419,9 +390,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the maximum response size that should be supported for messages received from the LDAP external server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store. When the `type` attribute is set to `http`: The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
@@ -433,42 +401,27 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.\n  - `syslog`: A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.\n  - `ping-one-http`: The trust manager provider to use for HTTPS connection-level security.\n  - `http`: The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"initial_connections": schema.Int64Attribute{
 				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"max_connections": schema.Int64Attribute{
 				Description: "The maximum number of concurrent connections to maintain for the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"defunct_connection_result_code": schema.SetAttribute{
 				Description: "Specifies the operation result code values that should cause the associated connection should be considered defunct. If an operation fails with one of these result codes, then it will be terminated and an attempt will be made to establish a new connection in its place.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"abandon_on_timeout": schema.BoolAttribute{
 				Description: "Indicates whether to send an abandon request for an operation for which a response timeout is encountered. A request which has timed out on one server may be retried on another server regardless of whether an abandon request is sent, but if the initial attempt is not abandoned then a long-running operation may unnecessarily continue to consume processing resources on the initial server.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"password": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The login password for the specified user. When the `type` attribute is set to `smtp`: The login password for the specified user name. Both username and password must be supplied if this attribute is set. When the `type` attribute is set to `jdbc`: The login password for the specified user name.",
@@ -520,295 +473,621 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_external_server")
-	var model externalServerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel externalServerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for smtp type
 	if resourceType == "smtp" {
-		if !internaltypes.IsDefined(model.SmtpSecurity) {
-			model.SmtpSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.SmtpSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.SmtpSecurity.Equal(defaultVal) {
+				planModel.SmtpSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for nokia-ds type
 	if resourceType == "nokia-ds" {
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ping-identity-ds type
 	if resourceType == "ping-identity-ds" {
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("retain-identity-control")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
-			model.UseAdministrativeOperationControl = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.UseAdministrativeOperationControl) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.UseAdministrativeOperationControl.Equal(defaultVal) {
+				planModel.UseAdministrativeOperationControl = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for active-directory type
 	if resourceType == "active-directory" {
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("separate-connections")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for jdbc type
 	if resourceType == "jdbc" {
-		if !internaltypes.IsDefined(model.TransactionIsolationLevel) {
-			model.TransactionIsolationLevel = types.StringValue("read-committed")
+		if !internaltypes.IsDefined(configModel.TransactionIsolationLevel) {
+			defaultVal := types.StringValue("read-committed")
+			if !planModel.TransactionIsolationLevel.Equal(defaultVal) {
+				planModel.TransactionIsolationLevel = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for syslog type
 	if resourceType == "syslog" {
-		if !internaltypes.IsDefined(model.TrustManagerProvider) {
-			model.TrustManagerProvider = types.StringValue("JVM-Default")
+		if !internaltypes.IsDefined(configModel.TrustManagerProvider) {
+			defaultVal := types.StringValue("JVM-Default")
+			if !planModel.TrustManagerProvider.Equal(defaultVal) {
+				planModel.TrustManagerProvider = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ping-identity-proxy-server type
 	if resourceType == "ping-identity-proxy-server" {
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("retain-identity-control")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
-			model.UseAdministrativeOperationControl = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseAdministrativeOperationControl) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseAdministrativeOperationControl.Equal(defaultVal) {
+				planModel.UseAdministrativeOperationControl = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for nokia-proxy-server type
 	if resourceType == "nokia-proxy-server" {
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("retain-identity-control")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("retain-identity-control")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.UseAdministrativeOperationControl) {
-			model.UseAdministrativeOperationControl = types.BoolValue(false)
+		if !internaltypes.IsDefined(configModel.UseAdministrativeOperationControl) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.UseAdministrativeOperationControl.Equal(defaultVal) {
+				planModel.UseAdministrativeOperationControl = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for opendj type
 	if resourceType == "opendj" {
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("separate-connections")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ldap type
 	if resourceType == "ldap" {
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("separate-connections")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for ping-one-http type
 	if resourceType == "ping-one-http" {
-		if !internaltypes.IsDefined(model.HostnameVerificationMethod) {
-			model.HostnameVerificationMethod = types.StringValue("strict")
+		if !internaltypes.IsDefined(configModel.HostnameVerificationMethod) {
+			defaultVal := types.StringValue("strict")
+			if !planModel.HostnameVerificationMethod.Equal(defaultVal) {
+				planModel.HostnameVerificationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for http type
 	if resourceType == "http" {
-		if !internaltypes.IsDefined(model.HostnameVerificationMethod) {
-			model.HostnameVerificationMethod = types.StringValue("strict")
+		if !internaltypes.IsDefined(configModel.HostnameVerificationMethod) {
+			defaultVal := types.StringValue("strict")
+			if !planModel.HostnameVerificationMethod.Equal(defaultVal) {
+				planModel.HostnameVerificationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for oracle-unified-directory type
 	if resourceType == "oracle-unified-directory" {
-		if !internaltypes.IsDefined(model.ServerPort) {
-			model.ServerPort = types.Int64Value(389)
+		if !internaltypes.IsDefined(configModel.ServerPort) {
+			defaultVal := types.Int64Value(389)
+			if !planModel.ServerPort.Equal(defaultVal) {
+				planModel.ServerPort = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.ConnectionSecurity) {
-			model.ConnectionSecurity = types.StringValue("none")
+		if !internaltypes.IsDefined(configModel.ConnectionSecurity) {
+			defaultVal := types.StringValue("none")
+			if !planModel.ConnectionSecurity.Equal(defaultVal) {
+				planModel.ConnectionSecurity = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AuthenticationMethod) {
-			model.AuthenticationMethod = types.StringValue("simple")
+		if !internaltypes.IsDefined(configModel.AuthenticationMethod) {
+			defaultVal := types.StringValue("simple")
+			if !planModel.AuthenticationMethod.Equal(defaultVal) {
+				planModel.AuthenticationMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.VerifyCredentialsMethod) {
-			model.VerifyCredentialsMethod = types.StringValue("separate-connections")
+		if !internaltypes.IsDefined(configModel.VerifyCredentialsMethod) {
+			defaultVal := types.StringValue("separate-connections")
+			if !planModel.VerifyCredentialsMethod.Equal(defaultVal) {
+				planModel.VerifyCredentialsMethod = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxResponseSize) {
-			model.MaxResponseSize = types.StringValue("10 mb")
+		if !internaltypes.IsDefined(configModel.MaxResponseSize) {
+			defaultVal := types.StringValue("10 mb")
+			if !planModel.MaxResponseSize.Equal(defaultVal) {
+				planModel.MaxResponseSize = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.InitialConnections) {
-			model.InitialConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.InitialConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.InitialConnections.Equal(defaultVal) {
+				planModel.InitialConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.MaxConnections) {
-			model.MaxConnections = types.Int64Value(0)
+		if !internaltypes.IsDefined(configModel.MaxConnections) {
+			defaultVal := types.Int64Value(0)
+			if !planModel.MaxConnections.Equal(defaultVal) {
+				planModel.MaxConnections = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.DefunctConnectionResultCode) {
-			model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+		if !internaltypes.IsDefined(configModel.DefunctConnectionResultCode) {
+			defaultVal, _ := types.SetValue(types.StringType, []attr.Value{types.StringValue("operations-error"), types.StringValue("protocol-error"), types.StringValue("busy"), types.StringValue("unavailable"), types.StringValue("unwilling-to-perform"), types.StringValue("other"), types.StringValue("server-down"), types.StringValue("local-error"), types.StringValue("encoding-error"), types.StringValue("decoding-error"), types.StringValue("no-memory"), types.StringValue("connect-error"), types.StringValue("timeout")})
+			if !planModel.DefunctConnectionResultCode.Equal(defaultVal) {
+				planModel.DefunctConnectionResultCode = defaultVal
+				anyDefaultsSet = true
+			}
 		}
-		if !internaltypes.IsDefined(model.AbandonOnTimeout) {
-			model.AbandonOnTimeout = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.AbandonOnTimeout) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.AbandonOnTimeout.Equal(defaultVal) {
+				planModel.AbandonOnTimeout = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for conjur type
 	if resourceType == "conjur" {
-		if !internaltypes.IsDefined(model.TrustStoreType) {
-			model.TrustStoreType = types.StringValue("JKS")
+		if !internaltypes.IsDefined(configModel.TrustStoreType) {
+			defaultVal := types.StringValue("JKS")
+			if !planModel.TrustStoreType.Equal(defaultVal) {
+				planModel.TrustStoreType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
 	// Set defaults for vault type
 	if resourceType == "vault" {
-		if !internaltypes.IsDefined(model.TrustStoreType) {
-			model.TrustStoreType = types.StringValue("JKS")
+		if !internaltypes.IsDefined(configModel.TrustStoreType) {
+			defaultVal := types.StringValue("JKS")
+			if !planModel.TrustStoreType.Equal(defaultVal) {
+				planModel.TrustStoreType = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

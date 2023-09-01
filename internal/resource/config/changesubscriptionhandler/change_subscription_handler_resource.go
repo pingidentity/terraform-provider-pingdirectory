@@ -139,9 +139,6 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 				Description: "Specifies the log file in which the change notification messages will be written.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Change Subscription Handler.",
@@ -189,16 +186,26 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *changeSubscriptionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model changeSubscriptionHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel changeSubscriptionHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for logging type
 	if resourceType == "logging" {
-		if !internaltypes.IsDefined(model.LogFile) {
-			model.LogFile = types.StringValue("logs/change-notifications.log")
+		if !internaltypes.IsDefined(configModel.LogFile) {
+			defaultVal := types.StringValue("logs/change-notifications.log")
+			if !planModel.LogFile.Equal(defaultVal) {
+				planModel.LogFile = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 // Add config validators that apply to both default_ and non-default_

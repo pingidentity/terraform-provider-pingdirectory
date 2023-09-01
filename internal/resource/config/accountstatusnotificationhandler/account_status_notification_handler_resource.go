@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -293,9 +292,6 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"sender_address": schema.StringAttribute{
 				Description: "Specifies the email address from which the message is sent. Note that this does not necessarily have to be a legitimate email address.",
@@ -370,16 +366,26 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
-	var model accountStatusNotificationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	resourceType := model.Type.ValueString()
+	var planModel, configModel accountStatusNotificationHandlerResourceModel
+	req.Config.Get(ctx, &configModel)
+	req.Plan.Get(ctx, &planModel)
+	resourceType := planModel.Type.ValueString()
+	anyDefaultsSet := false
 	// Set defaults for smtp type
 	if resourceType == "smtp" {
-		if !internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) {
-			model.SendMessageWithoutEndUserAddress = types.BoolValue(true)
+		if !internaltypes.IsDefined(configModel.SendMessageWithoutEndUserAddress) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.SendMessageWithoutEndUserAddress.Equal(defaultVal) {
+				planModel.SendMessageWithoutEndUserAddress = defaultVal
+				anyDefaultsSet = true
+			}
 		}
 	}
-	resp.Plan.Set(ctx, &model)
+	if anyDefaultsSet {
+		planModel.Notifications = types.SetUnknown(types.StringType)
+		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
+	}
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
