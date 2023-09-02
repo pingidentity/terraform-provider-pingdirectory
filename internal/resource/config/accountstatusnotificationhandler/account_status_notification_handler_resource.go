@@ -385,6 +385,7 @@ func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Contex
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -415,6 +416,42 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 	}
 	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
 		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *accountStatusNotificationHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "smtp" {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "groovy-scripted" {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SendMessageWithoutEndUserAddress = types.BoolNull()
+	}
+	if resourceType == "admin-alert" {
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SendMessageWithoutEndUserAddress = types.BoolNull()
+	}
+	if resourceType == "error-log" {
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SendMessageWithoutEndUserAddress = types.BoolNull()
+	}
+	if resourceType == "multi-part-email" {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SendMessageWithoutEndUserAddress = types.BoolNull()
+	}
+	if resourceType == "third-party" {
+		model.AccountStatusNotificationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageTemplateFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SendMessageWithoutEndUserAddress = types.BoolNull()
 	}
 }
 

@@ -441,15 +441,6 @@ func populateServerInstanceUnknownValues(model *serverInstanceResourceModel) {
 	if model.MemberOfServerGroup.IsUnknown() || model.MemberOfServerGroup.IsNull() {
 		model.MemberOfServerGroup, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PreferredSecurity.IsUnknown() || model.PreferredSecurity.IsNull() {
-		model.PreferredSecurity = types.StringValue("")
-	}
-	if model.ServerInstanceType.IsUnknown() || model.ServerInstanceType.IsNull() {
-		model.ServerInstanceType = types.StringValue("")
-	}
-	if model.ClusterName.IsUnknown() || model.ClusterName.IsNull() {
-		model.ClusterName = types.StringValue("")
-	}
 }
 
 // Read a ProxyServerInstanceResponse object into the model struct

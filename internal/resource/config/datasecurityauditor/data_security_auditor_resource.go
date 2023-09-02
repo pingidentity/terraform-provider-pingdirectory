@@ -427,6 +427,7 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -473,6 +474,78 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "third-party" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"third_party\"")
+	}
+}
+
+func (model *dataSecurityAuditorResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "expired-password" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "idle-account" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "disabled-account" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "weakly-encoded-password" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "privilege" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "account-usability-issues" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "locked-account" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "filter" {
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "account-validity-window" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "multiple-password" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "deprecated-password-storage-scheme" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "nonexistent-password-policy" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "access-control" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.Filter, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakPasswordStorageScheme, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.WeakCryptEncoding, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 

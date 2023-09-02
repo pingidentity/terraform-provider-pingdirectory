@@ -233,7 +233,17 @@ func (r *gaugeDataSourceResource) ModifyPlan(ctx context.Context, req resource.M
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *gaugeDataSourceResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "indicator" {
+		model.DataOrientation = types.StringNull()
+		model.StatisticType = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -362,16 +372,6 @@ func addOptionalNumericGaugeDataSourceFields(ctx context.Context, addRequest *cl
 	return nil
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateGaugeDataSourceUnknownValues(model *gaugeDataSourceResourceModel) {
-	if model.StatisticType.IsUnknown() || model.StatisticType.IsNull() {
-		model.StatisticType = types.StringValue("")
-	}
-	if model.DataOrientation.IsUnknown() || model.DataOrientation.IsNull() {
-		model.DataOrientation = types.StringValue("")
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *gaugeDataSourceResourceModel) populateAllComputedStringAttributes() {
 	if model.MonitorAttribute.IsUnknown() || model.MonitorAttribute.IsNull() {
@@ -386,8 +386,14 @@ func (model *gaugeDataSourceResourceModel) populateAllComputedStringAttributes()
 	if model.MonitorObjectclass.IsUnknown() || model.MonitorObjectclass.IsNull() {
 		model.MonitorObjectclass = types.StringValue("")
 	}
+	if model.StatisticType.IsUnknown() || model.StatisticType.IsNull() {
+		model.StatisticType = types.StringValue("")
+	}
 	if model.ResourceType.IsUnknown() || model.ResourceType.IsNull() {
 		model.ResourceType = types.StringValue("")
+	}
+	if model.DataOrientation.IsUnknown() || model.DataOrientation.IsNull() {
+		model.DataOrientation = types.StringValue("")
 	}
 	if model.DivideValueByCounterAttribute.IsUnknown() || model.DivideValueByCounterAttribute.IsNull() {
 		model.DivideValueByCounterAttribute = types.StringValue("")
@@ -422,7 +428,6 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateGaugeDataSourceUnknownValues(state)
 }
 
 // Read a NumericGaugeDataSourceResponse object into the model struct
@@ -447,7 +452,6 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 	config.CheckMismatchedPDFormattedAttributes("minimum_update_interval",
 		expectedValues.MinimumUpdateInterval, state.MinimumUpdateInterval, diagnostics)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateGaugeDataSourceUnknownValues(state)
 }
 
 // Create any update operations necessary to make the state match the plan

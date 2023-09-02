@@ -248,7 +248,16 @@ func (r *velocityContextProviderResource) ModifyPlan(ctx context.Context, req re
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *velocityContextProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "velocity-tools" {
+		model.HttpMethod, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_

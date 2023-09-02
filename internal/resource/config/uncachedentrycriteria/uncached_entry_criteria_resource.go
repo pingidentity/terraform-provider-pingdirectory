@@ -207,7 +207,25 @@ func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req reso
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *uncachedEntryCriteriaResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "default" {
+		model.FilterIdentifiesUncachedEntries = types.BoolNull()
+	}
+	if resourceType == "last-access-time" {
+		model.FilterIdentifiesUncachedEntries = types.BoolNull()
+	}
+	if resourceType == "groovy-scripted" {
+		model.FilterIdentifiesUncachedEntries = types.BoolNull()
+	}
+	if resourceType == "third-party" {
+		model.FilterIdentifiesUncachedEntries = types.BoolNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_

@@ -167,23 +167,19 @@ func addOptionalApiKeyConjurAuthenticationMethodFields(ctx context.Context, addR
 	}
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateConjurAuthenticationMethodUnknownValues(model *conjurAuthenticationMethodResourceModel) {
-	if model.Password.IsUnknown() {
-		model.Password = types.StringNull()
-	}
-	if model.ApiKey.IsUnknown() {
-		model.ApiKey = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *conjurAuthenticationMethodResourceModel) populateAllComputedStringAttributes() {
+	if model.ApiKey.IsUnknown() || model.ApiKey.IsNull() {
+		model.ApiKey = types.StringValue("")
+	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
 	if model.Username.IsUnknown() || model.Username.IsNull() {
 		model.Username = types.StringValue("")
+	}
+	if model.Password.IsUnknown() || model.Password.IsNull() {
+		model.Password = types.StringValue("")
 	}
 }
 
@@ -195,7 +191,6 @@ func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client
 	state.Username = types.StringValue(r.Username)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConjurAuthenticationMethodUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

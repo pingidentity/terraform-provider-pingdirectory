@@ -528,6 +528,7 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -564,23 +565,92 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	}
 }
 
+func (model *cipherStreamProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "amazon-key-management-service" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.TrustStoreType = types.StringNull()
+		model.EncryptionMetadataFile = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+	}
+	if resourceType == "amazon-secrets-manager" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.TrustStoreType = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "azure-key-vault" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.TrustStoreType = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "file-based" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "wait-for-passphrase" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.IterationCount = types.Int64Null()
+		model.TrustStoreType = types.StringNull()
+		model.EncryptionMetadataFile = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "conjur" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.TrustStoreType = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "pkcs11" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.TrustStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "vault" {
+		model.WaitForPasswordFile = types.BoolNull()
+		model.EncryptionMetadataFile = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.VaultEncryptionMetadataFile = types.StringNull()
+		model.WaitForPasswordFile = types.BoolNull()
+		model.IterationCount = types.Int64Null()
+		model.TrustStoreType = types.StringNull()
+		model.EncryptionMetadataFile = types.StringNull()
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EncryptedPassphraseFile = types.StringNull()
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("secret_version_id"),
-				path.MatchRoot("secret_version_stage"),
-			),
-		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("secret_version_id"),
+				path.MatchRoot("secret_version_stage"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1040,30 +1110,6 @@ func populateCipherStreamProviderUnknownValues(model *cipherStreamProviderResour
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.VaultEncryptionMetadataFile.IsUnknown() || model.VaultEncryptionMetadataFile.IsNull() {
-		model.VaultEncryptionMetadataFile = types.StringValue("")
-	}
-	if model.EncryptedPassphraseFile.IsUnknown() || model.EncryptedPassphraseFile.IsNull() {
-		model.EncryptedPassphraseFile = types.StringValue("")
-	}
-	if model.EncryptionMetadataFile.IsUnknown() || model.EncryptionMetadataFile.IsNull() {
-		model.EncryptionMetadataFile = types.StringValue("")
-	}
-	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
-		model.Pkcs11KeyStoreType = types.StringValue("")
-	}
-	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
-		model.TrustStoreType = types.StringValue("")
-	}
-	if model.AwsSecretAccessKey.IsUnknown() {
-		model.AwsSecretAccessKey = types.StringNull()
-	}
-	if model.KeyStorePin.IsUnknown() {
-		model.KeyStorePin = types.StringNull()
-	}
-	if model.TrustStorePin.IsUnknown() {
-		model.TrustStorePin = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -1077,8 +1123,14 @@ func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttribu
 	if model.SecretVersionID.IsUnknown() || model.SecretVersionID.IsNull() {
 		model.SecretVersionID = types.StringValue("")
 	}
+	if model.EncryptionMetadataFile.IsUnknown() || model.EncryptionMetadataFile.IsNull() {
+		model.EncryptionMetadataFile = types.StringValue("")
+	}
 	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
 		model.PasswordFile = types.StringValue("")
+	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
 	}
 	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
 		model.HttpProxyExternalServer = types.StringValue("")
@@ -1095,6 +1147,12 @@ func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttribu
 	if model.KmsEncryptionKeyArn.IsUnknown() || model.KmsEncryptionKeyArn.IsNull() {
 		model.KmsEncryptionKeyArn = types.StringValue("")
 	}
+	if model.EncryptedPassphraseFile.IsUnknown() || model.EncryptedPassphraseFile.IsNull() {
+		model.EncryptedPassphraseFile = types.StringValue("")
+	}
+	if model.KeyStorePin.IsUnknown() || model.KeyStorePin.IsNull() {
+		model.KeyStorePin = types.StringValue("")
+	}
 	if model.SecretID.IsUnknown() || model.SecretID.IsNull() {
 		model.SecretID = types.StringValue("")
 	}
@@ -1109,6 +1167,9 @@ func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttribu
 	}
 	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
 		model.VaultExternalServer = types.StringValue("")
+	}
+	if model.TrustStorePin.IsUnknown() || model.TrustStorePin.IsNull() {
+		model.TrustStorePin = types.StringValue("")
 	}
 	if model.SecretVersionStage.IsUnknown() || model.SecretVersionStage.IsNull() {
 		model.SecretVersionStage = types.StringValue("")
@@ -1137,17 +1198,26 @@ func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttribu
 	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
 		model.ConjurExternalServer = types.StringValue("")
 	}
+	if model.VaultEncryptionMetadataFile.IsUnknown() || model.VaultEncryptionMetadataFile.IsNull() {
+		model.VaultEncryptionMetadataFile = types.StringValue("")
+	}
 	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
 		model.SslCertNickname = types.StringValue("")
 	}
 	if model.KeyStorePinEnvironmentVariable.IsUnknown() || model.KeyStorePinEnvironmentVariable.IsNull() {
 		model.KeyStorePinEnvironmentVariable = types.StringValue("")
 	}
+	if model.AwsSecretAccessKey.IsUnknown() || model.AwsSecretAccessKey.IsNull() {
+		model.AwsSecretAccessKey = types.StringValue("")
+	}
 	if model.KeyVaultURI.IsUnknown() || model.KeyVaultURI.IsNull() {
 		model.KeyVaultURI = types.StringValue("")
 	}
 	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
 		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 }
 

@@ -841,6 +841,7 @@ func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -875,6 +876,178 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "prometheus-monitoring" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
+	}
+}
+
+func (model *httpServletExtensionResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "quickstart" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.IncludeResponseBody = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.BaseContextPath = types.StringNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeStackTrace = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DefaultMIMEType = types.StringNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
+	}
+	if resourceType == "availability-state" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeStackTrace = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DefaultMIMEType = types.StringNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
+	}
+	if resourceType == "prometheus-monitoring" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeResponseBody = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeStackTrace = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultMIMEType = types.StringNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
+	}
+	if resourceType == "ldap-mapped-scim" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.IncludeResponseBody = types.BoolNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DefaultMIMEType = types.StringNull()
+	}
+	if resourceType == "groovy-scripted" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.IncludeResponseBody = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.BaseContextPath = types.StringNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeStackTrace = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DefaultMIMEType = types.StringNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
+	}
+	if resourceType == "file-server" {
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.IncludeResponseBody = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeStackTrace = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
+	}
+	if resourceType == "third-party" {
+		model.RequireFileServletAccessPrivilege = types.BoolNull()
+		model.RequireAuthentication = types.BoolNull()
+		model.EnableDirectoryIndexing = types.BoolNull()
+		model.IncludeMonitorAttributeNameLabel = types.BoolNull()
+		model.BulkMaxPayloadSize = types.StringNull()
+		model.AllowedAuthenticationType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResourceMappingFile = types.StringNull()
+		model.BulkMaxConcurrentRequests = types.Int64Null()
+		model.IncludeLocationNameLabel = types.BoolNull()
+		model.IncludeResponseBody = types.BoolNull()
+		model.TemporaryDirectory = types.StringNull()
+		model.TemporaryDirectoryPermissions = types.StringNull()
+		model.MaxResults = types.Int64Null()
+		model.DebugEnabled = types.BoolNull()
+		model.BaseContextPath = types.StringNull()
+		model.IncludeProductNameLabel = types.BoolNull()
+		model.BasicAuthEnabled = types.BoolNull()
+		model.IndexFile, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeMonitorObjectClassNameLabel = types.BoolNull()
+		model.IncludeStackTrace = types.BoolNull()
+		model.IncludeInstanceNameLabel = types.BoolNull()
+		model.DebugType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AlwaysIncludeMonitorEntryNameLabel = types.BoolNull()
+		model.DefaultMIMEType = types.StringNull()
+		model.DebugLevel = types.StringNull()
+		model.BulkMaxOperations = types.Int64Null()
 	}
 }
 
@@ -1665,27 +1838,6 @@ func populateHttpServletExtensionUnknownValues(model *httpServletExtensionResour
 	if model.IncludeLDAPBaseDN.IsUnknown() || model.IncludeLDAPBaseDN.IsNull() {
 		model.IncludeLDAPBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
-		model.BaseContextPath = types.StringValue("")
-	}
-	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
-		model.ResourceMappingFile = types.StringValue("")
-	}
-	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
-		model.DefaultMIMEType = types.StringValue("")
-	}
-	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
-		model.TemporaryDirectory = types.StringValue("")
-	}
-	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
-		model.TemporaryDirectoryPermissions = types.StringValue("")
-	}
-	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
-		model.BulkMaxPayloadSize = types.StringValue("")
-	}
-	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
-		model.DebugLevel = types.StringValue("")
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -1746,75 +1898,6 @@ func populateHttpServletExtensionUnknownValuesDefault(model *defaultHttpServletE
 	}
 	if model.StaticResponseHeader.IsUnknown() || model.StaticResponseHeader.IsNull() {
 		model.StaticResponseHeader, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.ResourceMappingFile.IsUnknown() || model.ResourceMappingFile.IsNull() {
-		model.ResourceMappingFile = types.StringValue("")
-	}
-	if model.StaticContextPath.IsUnknown() || model.StaticContextPath.IsNull() {
-		model.StaticContextPath = types.StringValue("")
-	}
-	if model.Server.IsUnknown() || model.Server.IsNull() {
-		model.Server = types.StringValue("")
-	}
-	if model.DefaultMIMEType.IsUnknown() || model.DefaultMIMEType.IsNull() {
-		model.DefaultMIMEType = types.StringValue("")
-	}
-	if model.Audience.IsUnknown() || model.Audience.IsNull() {
-		model.Audience = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.OAuthTokenHandler.IsUnknown() || model.OAuthTokenHandler.IsNull() {
-		model.OAuthTokenHandler = types.StringValue("")
-	}
-	if model.StaticContentDirectory.IsUnknown() || model.StaticContentDirectory.IsNull() {
-		model.StaticContentDirectory = types.StringValue("")
-	}
-	if model.MimeTypesFile.IsUnknown() || model.MimeTypesFile.IsNull() {
-		model.MimeTypesFile = types.StringValue("")
-	}
-	if model.TemporaryDirectory.IsUnknown() || model.TemporaryDirectory.IsNull() {
-		model.TemporaryDirectory = types.StringValue("")
-	}
-	if model.AccessTokenScope.IsUnknown() || model.AccessTokenScope.IsNull() {
-		model.AccessTokenScope = types.StringValue("")
-	}
-	if model.EntityTagLDAPAttribute.IsUnknown() || model.EntityTagLDAPAttribute.IsNull() {
-		model.EntityTagLDAPAttribute = types.StringValue("")
-	}
-	if model.BaseContextPath.IsUnknown() || model.BaseContextPath.IsNull() {
-		model.BaseContextPath = types.StringValue("")
-	}
-	if model.MapAccessTokensToLocalUsers.IsUnknown() || model.MapAccessTokensToLocalUsers.IsNull() {
-		model.MapAccessTokensToLocalUsers = types.StringValue("")
-	}
-	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
-		model.IdentityMapper = types.StringValue("")
-	}
-	if model.DocumentRootDirectory.IsUnknown() || model.DocumentRootDirectory.IsNull() {
-		model.DocumentRootDirectory = types.StringValue("")
-	}
-	if model.CharacterEncoding.IsUnknown() || model.CharacterEncoding.IsNull() {
-		model.CharacterEncoding = types.StringValue("")
-	}
-	if model.AdditionalResponseContents.IsUnknown() || model.AdditionalResponseContents.IsNull() {
-		model.AdditionalResponseContents = types.StringValue("")
-	}
-	if model.TemporaryDirectoryPermissions.IsUnknown() || model.TemporaryDirectoryPermissions.IsNull() {
-		model.TemporaryDirectoryPermissions = types.StringValue("")
-	}
-	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
-		model.ScriptClass = types.StringValue("")
-	}
-	if model.StaticCustomDirectory.IsUnknown() || model.StaticCustomDirectory.IsNull() {
-		model.StaticCustomDirectory = types.StringValue("")
-	}
-	if model.BulkMaxPayloadSize.IsUnknown() || model.BulkMaxPayloadSize.IsNull() {
-		model.BulkMaxPayloadSize = types.StringValue("")
-	}
-	if model.DebugLevel.IsUnknown() || model.DebugLevel.IsNull() {
-		model.DebugLevel = types.StringValue("")
 	}
 }
 

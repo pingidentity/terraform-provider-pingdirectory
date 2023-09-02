@@ -226,6 +226,25 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *idTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var planModel idTokenValidatorResourceModel
+	req.Plan.Get(ctx, &planModel)
+	planModel.setNotApplicableAttrsNull()
+	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *idTokenValidatorResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "ping-one" {
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "openid-connect" {
+		model.OpenIDConnectMetadataCacheDuration = types.StringNull()
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsIdTokenValidator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
@@ -336,13 +355,13 @@ func populateIdTokenValidatorUnknownValues(model *idTokenValidatorResourceModel)
 	if model.AllowedSigningAlgorithm.IsUnknown() || model.AllowedSigningAlgorithm.IsNull() {
 		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OpenIDConnectMetadataCacheDuration.IsUnknown() || model.OpenIDConnectMetadataCacheDuration.IsNull() {
-		model.OpenIDConnectMetadataCacheDuration = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *idTokenValidatorResourceModel) populateAllComputedStringAttributes() {
+	if model.OpenIDConnectMetadataCacheDuration.IsUnknown() || model.OpenIDConnectMetadataCacheDuration.IsNull() {
+		model.OpenIDConnectMetadataCacheDuration = types.StringValue("")
+	}
 	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
 		model.JwksEndpointPath = types.StringValue("")
 	}

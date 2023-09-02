@@ -148,15 +148,11 @@ func addOptionalObscuredValueFields(ctx context.Context, addRequest *client.AddO
 	}
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateObscuredValueUnknownValues(model *obscuredValueResourceModel) {
-	if model.ObscuredValue.IsUnknown() {
-		model.ObscuredValue = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *obscuredValueResourceModel) populateAllComputedStringAttributes() {
+	if model.ObscuredValue.IsUnknown() || model.ObscuredValue.IsNull() {
+		model.ObscuredValue = types.StringValue("")
+	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
@@ -169,7 +165,6 @@ func readObscuredValueResponse(ctx context.Context, r *client.ObscuredValueRespo
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateObscuredValueUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

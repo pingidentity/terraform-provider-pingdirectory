@@ -414,7 +414,23 @@ func (r *connectionCriteriaResource) ModifyPlan(ctx context.Context, req resourc
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *connectionCriteriaResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "aggregate" {
+		model.AuthenticationSecurityLevel = types.StringNull()
+		model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.CommunicationSecurityLevel = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.AuthenticationSecurityLevel = types.StringNull()
+		model.UserAuthType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.CommunicationSecurityLevel = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -902,16 +918,16 @@ func populateConnectionCriteriaUnknownValues(model *connectionCriteriaResourceMo
 	if model.NoneIncludedUserGroupDN.IsUnknown() || model.NoneIncludedUserGroupDN.IsNull() {
 		model.NoneIncludedUserGroupDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionCriteriaResourceModel) populateAllComputedStringAttributes() {
 	if model.CommunicationSecurityLevel.IsUnknown() || model.CommunicationSecurityLevel.IsNull() {
 		model.CommunicationSecurityLevel = types.StringValue("")
 	}
 	if model.AuthenticationSecurityLevel.IsUnknown() || model.AuthenticationSecurityLevel.IsNull() {
 		model.AuthenticationSecurityLevel = types.StringValue("")
 	}
-}
-
-// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
-func (model *connectionCriteriaResourceModel) populateAllComputedStringAttributes() {
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}

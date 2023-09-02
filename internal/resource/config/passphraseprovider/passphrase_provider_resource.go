@@ -281,6 +281,10 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passphraseProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	modifyPlanPassphraseProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	var planModel passphraseProviderResourceModel
+	req.Plan.Get(ctx, &planModel)
+	planModel.setNotApplicableAttrsNull()
+	resp.Plan.Set(ctx, &planModel)
 }
 
 func (r *defaultPassphraseProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -301,6 +305,20 @@ func modifyPlanPassphraseProvider(ctx context.Context, req resource.ModifyPlanRe
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *passphraseProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "environment-variable" {
+		model.MaxCacheDuration = types.StringNull()
+	}
+	if resourceType == "obscured-value" {
+		model.MaxCacheDuration = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.MaxCacheDuration = types.StringNull()
 	}
 }
 
@@ -566,12 +584,6 @@ func populatePassphraseProviderUnknownValues(model *passphraseProviderResourceMo
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MaxCacheDuration.IsUnknown() || model.MaxCacheDuration.IsNull() {
-		model.MaxCacheDuration = types.StringValue("")
-	}
-	if model.ObscuredValue.IsUnknown() {
-		model.ObscuredValue = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -600,6 +612,9 @@ func (model *passphraseProviderResourceModel) populateAllComputedStringAttribute
 	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
 		model.AwsExternalServer = types.StringValue("")
 	}
+	if model.MaxCacheDuration.IsUnknown() || model.MaxCacheDuration.IsNull() {
+		model.MaxCacheDuration = types.StringValue("")
+	}
 	if model.ConjurSecretRelativePath.IsUnknown() || model.ConjurSecretRelativePath.IsNull() {
 		model.ConjurSecretRelativePath = types.StringValue("")
 	}
@@ -611,6 +626,9 @@ func (model *passphraseProviderResourceModel) populateAllComputedStringAttribute
 	}
 	if model.SecretName.IsUnknown() || model.SecretName.IsNull() {
 		model.SecretName = types.StringValue("")
+	}
+	if model.ObscuredValue.IsUnknown() || model.ObscuredValue.IsNull() {
+		model.ObscuredValue = types.StringValue("")
 	}
 	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
 		model.ConjurExternalServer = types.StringValue("")

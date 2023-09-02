@@ -651,7 +651,102 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "jmx" {
+		model.KeepStats = types.BoolNull()
+		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.AllowLDAPV2 = types.BoolNull()
+		model.NumAcceptHandlers = types.Int64Null()
+		model.SendRejectionNotice = types.BoolNull()
+		model.PollInterval = types.StringNull()
+		model.AcceptBacklog = types.Int64Null()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.LowResourcesIdleTimeLimit = types.StringNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.MaxRequestSize = types.StringNull()
+		model.MaxBlockedWriteTimeLimit = types.StringNull()
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxCancelHandlers = types.Int64Null()
+		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
+		model.LowResourcesConnectionThreshold = types.Int64Null()
+		model.SslClientAuthPolicy = types.StringNull()
+		model.UseForwardedHeaders = types.BoolNull()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.LdifDirectory = types.StringNull()
+		model.UseCorrelationIDHeader = types.BoolNull()
+		model.IdleTimeLimit = types.StringNull()
+		model.HttpRequestHeaderSize = types.Int64Null()
+		model.FailedBindResponseDelay = types.StringNull()
+		model.CloseConnectionsOnExplicitGC = types.BoolNull()
+		model.NumRequestHandlers = types.Int64Null()
+	}
+	if resourceType == "ldap" {
+		model.KeepStats = types.BoolNull()
+		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.PollInterval = types.StringNull()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.LowResourcesIdleTimeLimit = types.StringNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.LowResourcesConnectionThreshold = types.Int64Null()
+		model.UseForwardedHeaders = types.BoolNull()
+		model.LdifDirectory = types.StringNull()
+		model.UseCorrelationIDHeader = types.BoolNull()
+		model.IdleTimeLimit = types.StringNull()
+		model.HttpRequestHeaderSize = types.Int64Null()
+	}
+	if resourceType == "ldif" {
+		model.KeepStats = types.BoolNull()
+		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.AllowLDAPV2 = types.BoolNull()
+		model.NumAcceptHandlers = types.Int64Null()
+		model.SendRejectionNotice = types.BoolNull()
+		model.AcceptBacklog = types.Int64Null()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.LowResourcesIdleTimeLimit = types.StringNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.UseSSL = types.BoolNull()
+		model.MaxRequestSize = types.StringNull()
+		model.MaxBlockedWriteTimeLimit = types.StringNull()
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxCancelHandlers = types.Int64Null()
+		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
+		model.LowResourcesConnectionThreshold = types.Int64Null()
+		model.SslClientAuthPolicy = types.StringNull()
+		model.UseForwardedHeaders = types.BoolNull()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.UseCorrelationIDHeader = types.BoolNull()
+		model.IdleTimeLimit = types.StringNull()
+		model.HttpRequestHeaderSize = types.Int64Null()
+		model.FailedBindResponseDelay = types.StringNull()
+		model.CloseConnectionsOnExplicitGC = types.BoolNull()
+		model.NumRequestHandlers = types.Int64Null()
+	}
+	if resourceType == "http" {
+		model.AllowLDAPV2 = types.BoolNull()
+		model.NumAcceptHandlers = types.Int64Null()
+		model.SendRejectionNotice = types.BoolNull()
+		model.PollInterval = types.StringNull()
+		model.MaxRequestSize = types.StringNull()
+		model.MaxBlockedWriteTimeLimit = types.StringNull()
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.MaxCancelHandlers = types.Int64Null()
+		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.LdifDirectory = types.StringNull()
+		model.FailedBindResponseDelay = types.StringNull()
+		model.CloseConnectionsOnExplicitGC = types.BoolNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -1204,8 +1299,12 @@ func populateConnectionHandlerUnknownValues(model *connectionHandlerResourceMode
 	if model.DeniedClient.IsUnknown() || model.DeniedClient.IsNull() {
 		model.DeniedClient, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CorrelationIDResponseHeader.IsUnknown() || model.CorrelationIDResponseHeader.IsNull() {
-		model.CorrelationIDResponseHeader = types.StringValue("")
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes() {
+	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
+		model.TrustManagerProvider = types.StringValue("")
 	}
 	if model.LowResourcesIdleTimeLimit.IsUnknown() || model.LowResourcesIdleTimeLimit.IsNull() {
 		model.LowResourcesIdleTimeLimit = types.StringValue("")
@@ -1216,27 +1315,17 @@ func populateConnectionHandlerUnknownValues(model *connectionHandlerResourceMode
 	if model.MaxBlockedWriteTimeLimit.IsUnknown() || model.MaxBlockedWriteTimeLimit.IsNull() {
 		model.MaxBlockedWriteTimeLimit = types.StringValue("")
 	}
-	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
-		model.LdifDirectory = types.StringValue("")
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
 	}
 	if model.PollInterval.IsUnknown() || model.PollInterval.IsNull() {
 		model.PollInterval = types.StringValue("")
 	}
-	if model.MaxRequestSize.IsUnknown() || model.MaxRequestSize.IsNull() {
-		model.MaxRequestSize = types.StringValue("")
-	}
 	if model.SslClientAuthPolicy.IsUnknown() || model.SslClientAuthPolicy.IsNull() {
 		model.SslClientAuthPolicy = types.StringValue("")
 	}
-	if model.IdleTimeLimit.IsUnknown() || model.IdleTimeLimit.IsNull() {
-		model.IdleTimeLimit = types.StringValue("")
-	}
-}
-
-// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
-func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes() {
-	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
-		model.TrustManagerProvider = types.StringValue("")
+	if model.CorrelationIDResponseHeader.IsUnknown() || model.CorrelationIDResponseHeader.IsNull() {
+		model.CorrelationIDResponseHeader = types.StringValue("")
 	}
 	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
 		model.SslCertNickname = types.StringValue("")
@@ -1244,8 +1333,14 @@ func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes
 	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
 		model.KeyManagerProvider = types.StringValue("")
 	}
-	if model.Description.IsUnknown() || model.Description.IsNull() {
-		model.Description = types.StringValue("")
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.MaxRequestSize.IsUnknown() || model.MaxRequestSize.IsNull() {
+		model.MaxRequestSize = types.StringValue("")
+	}
+	if model.IdleTimeLimit.IsUnknown() || model.IdleTimeLimit.IsNull() {
+		model.IdleTimeLimit = types.StringValue("")
 	}
 }
 

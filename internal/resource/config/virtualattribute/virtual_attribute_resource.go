@@ -918,7 +918,159 @@ func (r *virtualAttributeResource) ModifyPlan(ctx context.Context, req resource.
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *virtualAttributeResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "mirror" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "constructed" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "is-member-of" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+	}
+	if resourceType == "reverse-dn-join" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "identify-references" {
+		model.JoinMatchAll = types.BoolNull()
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "user-defined" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "entry-dn" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "equality-join" {
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "groovy-scripted" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "member" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "password-policy-state-json" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.AttributeType = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.ConflictBehavior = types.StringNull()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+		model.MultipleVirtualAttributeMergeBehavior = types.StringNull()
+		model.AllowIndexConflicts = types.BoolNull()
+	}
+	if resourceType == "dn-join" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.JoinMatchAll = types.BoolNull()
+		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DirectMembershipsOnly = types.BoolNull()
+		model.BypassAccessControlForSearches = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinScope = types.StringNull()
+		model.Value, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.JoinSizeLimit = types.Int64Null()
+		model.AllowRetrievingMembership = types.BoolNull()
+		model.RewriteSearchFilters = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -2067,21 +2219,6 @@ func populateVirtualAttributeUnknownValues(model *virtualAttributeResourceModel)
 	if model.ReferencedByAttribute.IsUnknown() || model.ReferencedByAttribute.IsNull() {
 		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.JoinScope.IsUnknown() || model.JoinScope.IsNull() {
-		model.JoinScope = types.StringValue("")
-	}
-	if model.ConflictBehavior.IsUnknown() || model.ConflictBehavior.IsNull() {
-		model.ConflictBehavior = types.StringValue("")
-	}
-	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
-		model.AttributeType = types.StringValue("")
-	}
-	if model.RewriteSearchFilters.IsUnknown() || model.RewriteSearchFilters.IsNull() {
-		model.RewriteSearchFilters = types.StringValue("")
-	}
-	if model.MultipleVirtualAttributeMergeBehavior.IsUnknown() || model.MultipleVirtualAttributeMergeBehavior.IsNull() {
-		model.MultipleVirtualAttributeMergeBehavior = types.StringValue("")
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -2121,63 +2258,6 @@ func populateVirtualAttributeUnknownValuesDefault(model *defaultVirtualAttribute
 	}
 	if model.ReferencedByAttribute.IsUnknown() || model.ReferencedByAttribute.IsNull() {
 		model.ReferencedByAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.Description.IsUnknown() || model.Description.IsNull() {
-		model.Description = types.StringValue("")
-	}
-	if model.IncludedGroupFilter.IsUnknown() || model.IncludedGroupFilter.IsNull() {
-		model.IncludedGroupFilter = types.StringValue("")
-	}
-	if model.JoinScope.IsUnknown() || model.JoinScope.IsNull() {
-		model.JoinScope = types.StringValue("")
-	}
-	if model.ConflictBehavior.IsUnknown() || model.ConflictBehavior.IsNull() {
-		model.ConflictBehavior = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.SourceEntryDNMap.IsUnknown() || model.SourceEntryDNMap.IsNull() {
-		model.SourceEntryDNMap = types.StringValue("")
-	}
-	if model.RewriteSearchFilters.IsUnknown() || model.RewriteSearchFilters.IsNull() {
-		model.RewriteSearchFilters = types.StringValue("")
-	}
-	if model.JoinDNAttribute.IsUnknown() || model.JoinDNAttribute.IsNull() {
-		model.JoinDNAttribute = types.StringValue("")
-	}
-	if model.SourceEntryDNAttribute.IsUnknown() || model.SourceEntryDNAttribute.IsNull() {
-		model.SourceEntryDNAttribute = types.StringValue("")
-	}
-	if model.SourceAttribute.IsUnknown() || model.SourceAttribute.IsNull() {
-		model.SourceAttribute = types.StringValue("")
-	}
-	if model.SequenceNumberAttribute.IsUnknown() || model.SequenceNumberAttribute.IsNull() {
-		model.SequenceNumberAttribute = types.StringValue("")
-	}
-	if model.JoinTargetAttribute.IsUnknown() || model.JoinTargetAttribute.IsNull() {
-		model.JoinTargetAttribute = types.StringValue("")
-	}
-	if model.AttributeType.IsUnknown() || model.AttributeType.IsNull() {
-		model.AttributeType = types.StringValue("")
-	}
-	if model.JoinCustomBaseDN.IsUnknown() || model.JoinCustomBaseDN.IsNull() {
-		model.JoinCustomBaseDN = types.StringValue("")
-	}
-	if model.JoinBaseDNType.IsUnknown() || model.JoinBaseDNType.IsNull() {
-		model.JoinBaseDNType = types.StringValue("")
-	}
-	if model.JoinSourceAttribute.IsUnknown() || model.JoinSourceAttribute.IsNull() {
-		model.JoinSourceAttribute = types.StringValue("")
-	}
-	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
-		model.ScriptClass = types.StringValue("")
-	}
-	if model.MultipleVirtualAttributeMergeBehavior.IsUnknown() || model.MultipleVirtualAttributeMergeBehavior.IsNull() {
-		model.MultipleVirtualAttributeMergeBehavior = types.StringValue("")
-	}
-	if model.JoinFilter.IsUnknown() || model.JoinFilter.IsNull() {
-		model.JoinFilter = types.StringValue("")
 	}
 }
 

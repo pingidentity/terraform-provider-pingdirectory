@@ -250,6 +250,7 @@ func (r *keyManagerProviderResource) ModifyPlan(ctx context.Context, req resourc
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -271,6 +272,19 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *keyManagerProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "file-based" {
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.Pkcs11MaxCacheDuration = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.Pkcs11KeyStoreType = types.StringNull()
+		model.Pkcs11MaxCacheDuration = types.StringNull()
 	}
 }
 
@@ -465,18 +479,6 @@ func populateKeyManagerProviderUnknownValues(model *keyManagerProviderResourceMo
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
-		model.Pkcs11KeyStoreType = types.StringValue("")
-	}
-	if model.Pkcs11MaxCacheDuration.IsUnknown() || model.Pkcs11MaxCacheDuration.IsNull() {
-		model.Pkcs11MaxCacheDuration = types.StringValue("")
-	}
-	if model.KeyStorePin.IsUnknown() {
-		model.KeyStorePin = types.StringNull()
-	}
-	if model.PrivateKeyPin.IsUnknown() {
-		model.PrivateKeyPin = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -484,20 +486,29 @@ func (model *keyManagerProviderResourceModel) populateAllComputedStringAttribute
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
-	if model.KeyStoreType.IsUnknown() || model.KeyStoreType.IsNull() {
-		model.KeyStoreType = types.StringValue("")
-	}
-	if model.PrivateKeyPinFile.IsUnknown() || model.PrivateKeyPinFile.IsNull() {
-		model.PrivateKeyPinFile = types.StringValue("")
-	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
 	}
 	if model.Pkcs11ProviderClass.IsUnknown() || model.Pkcs11ProviderClass.IsNull() {
 		model.Pkcs11ProviderClass = types.StringValue("")
 	}
+	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
+		model.Pkcs11KeyStoreType = types.StringValue("")
+	}
 	if model.KeyStorePinFile.IsUnknown() || model.KeyStorePinFile.IsNull() {
 		model.KeyStorePinFile = types.StringValue("")
+	}
+	if model.KeyStorePinPassphraseProvider.IsUnknown() || model.KeyStorePinPassphraseProvider.IsNull() {
+		model.KeyStorePinPassphraseProvider = types.StringValue("")
+	}
+	if model.KeyStoreType.IsUnknown() || model.KeyStoreType.IsNull() {
+		model.KeyStoreType = types.StringValue("")
+	}
+	if model.KeyStorePin.IsUnknown() || model.KeyStorePin.IsNull() {
+		model.KeyStorePin = types.StringValue("")
+	}
+	if model.PrivateKeyPinFile.IsUnknown() || model.PrivateKeyPinFile.IsNull() {
+		model.PrivateKeyPinFile = types.StringValue("")
 	}
 	if model.PrivateKeyPinPassphraseProvider.IsUnknown() || model.PrivateKeyPinPassphraseProvider.IsNull() {
 		model.PrivateKeyPinPassphraseProvider = types.StringValue("")
@@ -505,8 +516,11 @@ func (model *keyManagerProviderResourceModel) populateAllComputedStringAttribute
 	if model.Pkcs11ProviderConfigurationFile.IsUnknown() || model.Pkcs11ProviderConfigurationFile.IsNull() {
 		model.Pkcs11ProviderConfigurationFile = types.StringValue("")
 	}
-	if model.KeyStorePinPassphraseProvider.IsUnknown() || model.KeyStorePinPassphraseProvider.IsNull() {
-		model.KeyStorePinPassphraseProvider = types.StringValue("")
+	if model.PrivateKeyPin.IsUnknown() || model.PrivateKeyPin.IsNull() {
+		model.PrivateKeyPin = types.StringValue("")
+	}
+	if model.Pkcs11MaxCacheDuration.IsUnknown() || model.Pkcs11MaxCacheDuration.IsNull() {
+		model.Pkcs11MaxCacheDuration = types.StringValue("")
 	}
 	if model.KeyStoreFile.IsUnknown() || model.KeyStoreFile.IsNull() {
 		model.KeyStoreFile = types.StringValue("")

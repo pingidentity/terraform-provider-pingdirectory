@@ -250,7 +250,22 @@ func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.Mo
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *identityMapperResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "groovy-scripted" {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "aggregate" {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_

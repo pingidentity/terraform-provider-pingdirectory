@@ -238,7 +238,40 @@ func (r *certificateMapperResource) ModifyPlan(ctx context.Context, req resource
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *certificateMapperResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "subject-equals-dn" {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubjectAttribute = types.StringNull()
+		model.FingerprintAttribute = types.StringNull()
+	}
+	if resourceType == "subject-dn-to-user-attribute" {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.FingerprintAttribute = types.StringNull()
+	}
+	if resourceType == "groovy-scripted" {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubjectAttribute = types.StringNull()
+		model.FingerprintAttribute = types.StringNull()
+	}
+	if resourceType == "subject-attribute-to-user-attribute" {
+		model.SubjectAttribute = types.StringNull()
+		model.FingerprintAttribute = types.StringNull()
+	}
+	if resourceType == "fingerprint" {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubjectAttribute = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.SubjectAttributeMapping, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubjectAttribute = types.StringNull()
+		model.FingerprintAttribute = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -417,16 +450,13 @@ func populateCertificateMapperUnknownValues(model *certificateMapperResourceMode
 	if model.UserBaseDN.IsUnknown() || model.UserBaseDN.IsNull() {
 		model.UserBaseDN, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.SubjectAttribute.IsUnknown() || model.SubjectAttribute.IsNull() {
-		model.SubjectAttribute = types.StringValue("")
-	}
-	if model.FingerprintAttribute.IsUnknown() || model.FingerprintAttribute.IsNull() {
-		model.FingerprintAttribute = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *certificateMapperResourceModel) populateAllComputedStringAttributes() {
+	if model.SubjectAttribute.IsUnknown() || model.SubjectAttribute.IsNull() {
+		model.SubjectAttribute = types.StringValue("")
+	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
@@ -435,6 +465,9 @@ func (model *certificateMapperResourceModel) populateAllComputedStringAttributes
 	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
+	}
+	if model.FingerprintAttribute.IsUnknown() || model.FingerprintAttribute.IsNull() {
+		model.FingerprintAttribute = types.StringValue("")
 	}
 	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
 		model.ScriptClass = types.StringValue("")

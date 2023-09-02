@@ -380,6 +380,7 @@ func (r *passThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Contex
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -406,6 +407,52 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "aggregate" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
+	}
+}
+
+func (model *passThroughAuthenticationHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "ping-one" {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UseLocation = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.SubordinatePassThroughAuthenticationHandler, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.InitialConnections = types.Int64Null()
+		model.MaximumAllowedLocalResponseTime = types.StringNull()
+		model.MaximumAllowedNonlocalResponseTime = types.StringNull()
+		model.UsePasswordPolicyControl = types.BoolNull()
+	}
+	if resourceType == "ldap" {
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubordinatePassThroughAuthenticationHandler, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "aggregate" {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UseLocation = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.InitialConnections = types.Int64Null()
+		model.MaximumAllowedLocalResponseTime = types.StringNull()
+		model.MaximumAllowedNonlocalResponseTime = types.StringNull()
+		model.UsePasswordPolicyControl = types.BoolNull()
+	}
+	if resourceType == "third-party" {
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UseLocation = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SubordinatePassThroughAuthenticationHandler, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.InitialConnections = types.Int64Null()
+		model.MaximumAllowedLocalResponseTime = types.StringNull()
+		model.MaximumAllowedNonlocalResponseTime = types.StringNull()
+		model.UsePasswordPolicyControl = types.BoolNull()
 	}
 }
 
@@ -773,24 +820,21 @@ func populatePassThroughAuthenticationHandlerUnknownValues(model *passThroughAut
 	if model.ContinueOnFailureType.IsUnknown() || model.ContinueOnFailureType.IsNull() {
 		model.ContinueOnFailureType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *passThroughAuthenticationHandlerResourceModel) populateAllComputedStringAttributes() {
 	if model.MaximumAllowedNonlocalResponseTime.IsUnknown() || model.MaximumAllowedNonlocalResponseTime.IsNull() {
 		model.MaximumAllowedNonlocalResponseTime = types.StringValue("")
+	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
 	}
 	if model.MaximumAllowedLocalResponseTime.IsUnknown() || model.MaximumAllowedLocalResponseTime.IsNull() {
 		model.MaximumAllowedLocalResponseTime = types.StringValue("")
 	}
 	if model.ServerAccessMode.IsUnknown() || model.ServerAccessMode.IsNull() {
 		model.ServerAccessMode = types.StringValue("")
-	}
-	if model.OAuthClientSecret.IsUnknown() {
-		model.OAuthClientSecret = types.StringNull()
-	}
-}
-
-// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
-func (model *passThroughAuthenticationHandlerResourceModel) populateAllComputedStringAttributes() {
-	if model.Description.IsUnknown() || model.Description.IsNull() {
-		model.Description = types.StringValue("")
 	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
@@ -809,6 +853,9 @@ func (model *passThroughAuthenticationHandlerResourceModel) populateAllComputedS
 	}
 	if model.SearchFilterPattern.IsUnknown() || model.SearchFilterPattern.IsNull() {
 		model.SearchFilterPattern = types.StringValue("")
+	}
+	if model.OAuthClientSecret.IsUnknown() || model.OAuthClientSecret.IsNull() {
+		model.OAuthClientSecret = types.StringValue("")
 	}
 	if model.OAuthClientSecretPassphraseProvider.IsUnknown() || model.OAuthClientSecretPassphraseProvider.IsNull() {
 		model.OAuthClientSecretPassphraseProvider = types.StringValue("")

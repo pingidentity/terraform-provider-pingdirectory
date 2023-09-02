@@ -225,7 +225,16 @@ func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *trustManagerProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "jvm-default" {
+		model.IncludeJVMDefaultIssuers = types.BoolNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -345,9 +354,6 @@ func populateTrustManagerProviderUnknownValues(model *trustManagerProviderResour
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TrustStorePin.IsUnknown() {
-		model.TrustStorePin = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -366,6 +372,9 @@ func (model *trustManagerProviderResourceModel) populateAllComputedStringAttribu
 	}
 	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
 		model.TrustStoreType = types.StringValue("")
+	}
+	if model.TrustStorePin.IsUnknown() || model.TrustStorePin.IsNull() {
+		model.TrustStorePin = types.StringValue("")
 	}
 }
 

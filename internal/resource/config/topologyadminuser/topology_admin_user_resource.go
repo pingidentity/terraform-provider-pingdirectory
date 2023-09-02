@@ -530,13 +530,6 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	return nil
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateTopologyAdminUserUnknownValues(model *topologyAdminUserResourceModel) {
-	if model.Password.IsUnknown() {
-		model.Password = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *topologyAdminUserResourceModel) populateAllComputedStringAttributes() {
 	if model.Description.IsUnknown() || model.Description.IsNull() {
@@ -556,6 +549,9 @@ func (model *topologyAdminUserResourceModel) populateAllComputedStringAttributes
 	}
 	if model.PasswordPolicy.IsUnknown() || model.PasswordPolicy.IsNull() {
 		model.PasswordPolicy = types.StringValue("")
+	}
+	if model.Password.IsUnknown() || model.Password.IsNull() {
+		model.Password = types.StringValue("")
 	}
 }
 
@@ -599,7 +595,6 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.MayProxyAsGroup = internaltypes.GetStringSet(r.MayProxyAsGroup)
 	state.MayProxyAsURL = internaltypes.GetStringSet(r.MayProxyAsURL)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTopologyAdminUserUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

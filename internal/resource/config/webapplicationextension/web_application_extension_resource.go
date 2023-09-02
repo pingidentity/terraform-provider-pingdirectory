@@ -397,49 +397,6 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 	return nil
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateWebApplicationExtensionUnknownValuesDefault(model *defaultWebApplicationExtensionResourceModel) {
-	if model.OidcClientSecretPassphraseProvider.IsUnknown() || model.OidcClientSecretPassphraseProvider.IsNull() {
-		model.OidcClientSecretPassphraseProvider = types.StringValue("")
-	}
-	if model.OidcTrustStoreFile.IsUnknown() || model.OidcTrustStoreFile.IsNull() {
-		model.OidcTrustStoreFile = types.StringValue("")
-	}
-	if model.OidcClientSecret.IsUnknown() || model.OidcClientSecret.IsNull() {
-		model.OidcClientSecret = types.StringValue("")
-	}
-	if model.Complexity.IsUnknown() || model.Complexity.IsNull() {
-		model.Complexity = types.StringValue("")
-	}
-	if model.LogFile.IsUnknown() || model.LogFile.IsNull() {
-		model.LogFile = types.StringValue("")
-	}
-	if model.LdapServer.IsUnknown() || model.LdapServer.IsNull() {
-		model.LdapServer = types.StringValue("")
-	}
-	if model.OidcIssuerURL.IsUnknown() || model.OidcIssuerURL.IsNull() {
-		model.OidcIssuerURL = types.StringValue("")
-	}
-	if model.OidcTrustStoreType.IsUnknown() || model.OidcTrustStoreType.IsNull() {
-		model.OidcTrustStoreType = types.StringValue("")
-	}
-	if model.OidcClientID.IsUnknown() || model.OidcClientID.IsNull() {
-		model.OidcClientID = types.StringValue("")
-	}
-	if model.TrustStorePinPassphraseProvider.IsUnknown() || model.TrustStorePinPassphraseProvider.IsNull() {
-		model.TrustStorePinPassphraseProvider = types.StringValue("")
-	}
-	if model.OidcTrustStorePinPassphraseProvider.IsUnknown() || model.OidcTrustStorePinPassphraseProvider.IsNull() {
-		model.OidcTrustStorePinPassphraseProvider = types.StringValue("")
-	}
-	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
-		model.TrustStoreFile = types.StringValue("")
-	}
-	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
-		model.TrustStoreType = types.StringValue("")
-	}
-}
-
 // Read a ConsoleWebApplicationExtensionResponse object into the model struct
 func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *client.ConsoleWebApplicationExtensionResponse, state *defaultWebApplicationExtensionResourceModel, expectedValues *defaultWebApplicationExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console")
@@ -469,7 +426,6 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Read a GenericWebApplicationExtensionResponse object into the model struct
@@ -500,7 +456,6 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, true)
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValuesDefault(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

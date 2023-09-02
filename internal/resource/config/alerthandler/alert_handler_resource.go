@@ -487,6 +487,7 @@ func (r *alertHandlerResource) ModifyPlan(ctx context.Context, req resource.Modi
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -508,6 +509,93 @@ func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest,
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "smtp" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "jmx" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "groovy-scripted" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "snmp" {
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "twilio" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+	}
+	if resourceType == "error-log" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "snmp-sub-agent" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "exec" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.CommunityName = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.LongMessageBehavior = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageBody = types.StringNull()
+		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MessageSubject = types.StringNull()
+		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 
@@ -1217,21 +1305,6 @@ func populateAlertHandlerUnknownValues(model *alertHandlerResourceModel) {
 	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
-		model.MessageSubject = types.StringValue("")
-	}
-	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
-		model.LongMessageBehavior = types.StringValue("")
-	}
-	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
-		model.CommunityName = types.StringValue("")
-	}
-	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
-		model.MessageBody = types.StringValue("")
-	}
-	if model.TwilioAuthToken.IsUnknown() {
-		model.TwilioAuthToken = types.StringNull()
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -1250,54 +1323,6 @@ func populateAlertHandlerUnknownValuesDefault(model *defaultAlertHandlerResource
 	}
 	if model.RecipientPhoneNumber.IsUnknown() || model.RecipientPhoneNumber.IsNull() {
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.TwilioAccountSID.IsUnknown() || model.TwilioAccountSID.IsNull() {
-		model.TwilioAccountSID = types.StringValue("")
-	}
-	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
-		model.SenderAddress = types.StringValue("")
-	}
-	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
-		model.MessageSubject = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.OutputFormat.IsUnknown() || model.OutputFormat.IsNull() {
-		model.OutputFormat = types.StringValue("")
-	}
-	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
-		model.HttpProxyExternalServer = types.StringValue("")
-	}
-	if model.OutputLocation.IsUnknown() || model.OutputLocation.IsNull() {
-		model.OutputLocation = types.StringValue("")
-	}
-	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
-		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
-	}
-	if model.TwilioAuthToken.IsUnknown() || model.TwilioAuthToken.IsNull() {
-		model.TwilioAuthToken = types.StringValue("")
-	}
-	if model.LongMessageBehavior.IsUnknown() || model.LongMessageBehavior.IsNull() {
-		model.LongMessageBehavior = types.StringValue("")
-	}
-	if model.Command.IsUnknown() || model.Command.IsNull() {
-		model.Command = types.StringValue("")
-	}
-	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
-		model.ServerHostName = types.StringValue("")
-	}
-	if model.CommunityName.IsUnknown() || model.CommunityName.IsNull() {
-		model.CommunityName = types.StringValue("")
-	}
-	if model.IncludeMonitorDataFilter.IsUnknown() || model.IncludeMonitorDataFilter.IsNull() {
-		model.IncludeMonitorDataFilter = types.StringValue("")
-	}
-	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
-		model.ScriptClass = types.StringValue("")
-	}
-	if model.MessageBody.IsUnknown() || model.MessageBody.IsNull() {
-		model.MessageBody = types.StringValue("")
 	}
 }
 

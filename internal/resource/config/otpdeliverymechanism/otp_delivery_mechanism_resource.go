@@ -283,6 +283,7 @@ func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -304,6 +305,25 @@ func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlan
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *otpDeliveryMechanismResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "twilio" {
+		model.EmailAddressAttributeType = types.StringNull()
+		model.MessageSubject = types.StringNull()
+	}
+	if resourceType == "email" {
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PhoneNumberAttributeType = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.EmailAddressAttributeType = types.StringNull()
+		model.MessageSubject = types.StringNull()
+		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PhoneNumberAttributeType = types.StringNull()
 	}
 }
 
@@ -524,18 +544,6 @@ func populateOtpDeliveryMechanismUnknownValues(model *otpDeliveryMechanismResour
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
-		model.MessageSubject = types.StringValue("")
-	}
-	if model.PhoneNumberAttributeType.IsUnknown() || model.PhoneNumberAttributeType.IsNull() {
-		model.PhoneNumberAttributeType = types.StringValue("")
-	}
-	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
-		model.EmailAddressAttributeType = types.StringValue("")
-	}
-	if model.TwilioAuthToken.IsUnknown() {
-		model.TwilioAuthToken = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -549,6 +557,9 @@ func (model *otpDeliveryMechanismResourceModel) populateAllComputedStringAttribu
 	if model.SenderAddress.IsUnknown() || model.SenderAddress.IsNull() {
 		model.SenderAddress = types.StringValue("")
 	}
+	if model.MessageSubject.IsUnknown() || model.MessageSubject.IsNull() {
+		model.MessageSubject = types.StringValue("")
+	}
 	if model.MessageTextAfterOTP.IsUnknown() || model.MessageTextAfterOTP.IsNull() {
 		model.MessageTextAfterOTP = types.StringValue("")
 	}
@@ -561,17 +572,26 @@ func (model *otpDeliveryMechanismResourceModel) populateAllComputedStringAttribu
 	if model.MessageTextBeforeOTP.IsUnknown() || model.MessageTextBeforeOTP.IsNull() {
 		model.MessageTextBeforeOTP = types.StringValue("")
 	}
+	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
+		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
+	}
+	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
+		model.EmailAddressJSONField = types.StringValue("")
+	}
+	if model.TwilioAuthToken.IsUnknown() || model.TwilioAuthToken.IsNull() {
+		model.TwilioAuthToken = types.StringValue("")
+	}
+	if model.PhoneNumberAttributeType.IsUnknown() || model.PhoneNumberAttributeType.IsNull() {
+		model.PhoneNumberAttributeType = types.StringValue("")
+	}
 	if model.PhoneNumberJSONField.IsUnknown() || model.PhoneNumberJSONField.IsNull() {
 		model.PhoneNumberJSONField = types.StringValue("")
 	}
 	if model.PhoneNumberJSONObjectFilter.IsUnknown() || model.PhoneNumberJSONObjectFilter.IsNull() {
 		model.PhoneNumberJSONObjectFilter = types.StringValue("")
 	}
-	if model.TwilioAuthTokenPassphraseProvider.IsUnknown() || model.TwilioAuthTokenPassphraseProvider.IsNull() {
-		model.TwilioAuthTokenPassphraseProvider = types.StringValue("")
-	}
-	if model.EmailAddressJSONField.IsUnknown() || model.EmailAddressJSONField.IsNull() {
-		model.EmailAddressJSONField = types.StringValue("")
+	if model.EmailAddressAttributeType.IsUnknown() || model.EmailAddressAttributeType.IsNull() {
+		model.EmailAddressAttributeType = types.StringValue("")
 	}
 	if model.EmailAddressJSONObjectFilter.IsUnknown() || model.EmailAddressJSONObjectFilter.IsNull() {
 		model.EmailAddressJSONObjectFilter = types.StringValue("")

@@ -194,7 +194,19 @@ func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req re
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *logFileRotationListenerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "summarize" {
+		model.CompressOnCopy = types.BoolNull()
+	}
+	if resourceType == "third-party" {
+		model.CompressOnCopy = types.BoolNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_

@@ -157,6 +157,28 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *logRotationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var planModel logRotationPolicyResourceModel
+	req.Plan.Get(ctx, &planModel)
+	planModel.setNotApplicableAttrsNull()
+	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *logRotationPolicyResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "time-limit" {
+		model.TimeOfDay, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "never-rotate" {
+		model.TimeOfDay, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "size-limit" {
+		model.TimeOfDay, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
 	return []resource.ConfigValidator{

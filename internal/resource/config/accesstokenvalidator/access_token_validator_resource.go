@@ -369,7 +369,43 @@ func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *accessTokenValidatorResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "ping-federate" {
+		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ScopeClaimName = types.StringNull()
+		model.ClockSkewGracePeriod = types.StringNull()
+		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ClientIDClaimName = types.StringNull()
+	}
+	if resourceType == "jwt" {
+		model.EndpointCacheRefresh = types.StringNull()
+		model.IncludeAudParameter = types.BoolNull()
+	}
+	if resourceType == "mock" {
+		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.EndpointCacheRefresh = types.StringNull()
+		model.IncludeAudParameter = types.BoolNull()
+		model.ClockSkewGracePeriod = types.StringNull()
+		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowedSigningAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ScopeClaimName = types.StringNull()
+		model.EndpointCacheRefresh = types.StringNull()
+		model.IncludeAudParameter = types.BoolNull()
+		model.ClockSkewGracePeriod = types.StringNull()
+		model.AllowedKeyEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ClientIDClaimName = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -694,42 +730,15 @@ func populateAccessTokenValidatorUnknownValues(model *accessTokenValidatorResour
 	if model.AllowedContentEncryptionAlgorithm.IsUnknown() || model.AllowedContentEncryptionAlgorithm.IsNull() {
 		model.AllowedContentEncryptionAlgorithm, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
-		model.ClockSkewGracePeriod = types.StringValue("")
-	}
-	if model.EndpointCacheRefresh.IsUnknown() || model.EndpointCacheRefresh.IsNull() {
-		model.EndpointCacheRefresh = types.StringValue("")
-	}
-	if model.ClientIDClaimName.IsUnknown() || model.ClientIDClaimName.IsNull() {
-		model.ClientIDClaimName = types.StringValue("")
-	}
-	if model.ScopeClaimName.IsUnknown() || model.ScopeClaimName.IsNull() {
-		model.ScopeClaimName = types.StringValue("")
-	}
-	if model.ClientSecret.IsUnknown() {
-		model.ClientSecret = types.StringNull()
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *accessTokenValidatorResourceModel) populateAllComputedStringAttributes() {
-	if model.ClientSecretPassphraseProvider.IsUnknown() || model.ClientSecretPassphraseProvider.IsNull() {
-		model.ClientSecretPassphraseProvider = types.StringValue("")
-	}
-	if model.AuthorizationServer.IsUnknown() || model.AuthorizationServer.IsNull() {
-		model.AuthorizationServer = types.StringValue("")
-	}
 	if model.JwksEndpointPath.IsUnknown() || model.JwksEndpointPath.IsNull() {
 		model.JwksEndpointPath = types.StringValue("")
 	}
-	if model.EncryptionKeyPair.IsUnknown() || model.EncryptionKeyPair.IsNull() {
-		model.EncryptionKeyPair = types.StringValue("")
-	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
-	}
-	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
-		model.IdentityMapper = types.StringValue("")
 	}
 	if model.SubjectClaimName.IsUnknown() || model.SubjectClaimName.IsNull() {
 		model.SubjectClaimName = types.StringValue("")
@@ -737,11 +746,38 @@ func (model *accessTokenValidatorResourceModel) populateAllComputedStringAttribu
 	if model.AccessTokenManagerID.IsUnknown() || model.AccessTokenManagerID.IsNull() {
 		model.AccessTokenManagerID = types.StringValue("")
 	}
+	if model.ClockSkewGracePeriod.IsUnknown() || model.ClockSkewGracePeriod.IsNull() {
+		model.ClockSkewGracePeriod = types.StringValue("")
+	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
 	}
+	if model.EndpointCacheRefresh.IsUnknown() || model.EndpointCacheRefresh.IsNull() {
+		model.EndpointCacheRefresh = types.StringValue("")
+	}
+	if model.ScopeClaimName.IsUnknown() || model.ScopeClaimName.IsNull() {
+		model.ScopeClaimName = types.StringValue("")
+	}
+	if model.ClientSecretPassphraseProvider.IsUnknown() || model.ClientSecretPassphraseProvider.IsNull() {
+		model.ClientSecretPassphraseProvider = types.StringValue("")
+	}
+	if model.AuthorizationServer.IsUnknown() || model.AuthorizationServer.IsNull() {
+		model.AuthorizationServer = types.StringValue("")
+	}
+	if model.EncryptionKeyPair.IsUnknown() || model.EncryptionKeyPair.IsNull() {
+		model.EncryptionKeyPair = types.StringValue("")
+	}
+	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
+		model.IdentityMapper = types.StringValue("")
+	}
+	if model.ClientSecret.IsUnknown() || model.ClientSecret.IsNull() {
+		model.ClientSecret = types.StringValue("")
+	}
 	if model.ClientID.IsUnknown() || model.ClientID.IsNull() {
 		model.ClientID = types.StringValue("")
+	}
+	if model.ClientIDClaimName.IsUnknown() || model.ClientIDClaimName.IsNull() {
+		model.ClientIDClaimName = types.StringValue("")
 	}
 }
 

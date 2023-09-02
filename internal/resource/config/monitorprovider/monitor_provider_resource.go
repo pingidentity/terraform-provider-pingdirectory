@@ -265,6 +265,7 @@ func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.M
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -287,6 +288,16 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
+	}
+}
+
+func (model *monitorProviderResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "third-party" {
+		model.ProlongedOutageDuration = types.StringNull()
+		model.ProlongedOutageBehavior = types.StringNull()
+		model.CheckFrequency = types.StringNull()
 	}
 }
 
@@ -437,15 +448,6 @@ func populateMonitorProviderUnknownValues(model *monitorProviderResourceModel) {
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.CheckFrequency.IsUnknown() || model.CheckFrequency.IsNull() {
-		model.CheckFrequency = types.StringValue("")
-	}
-	if model.ProlongedOutageBehavior.IsUnknown() || model.ProlongedOutageBehavior.IsNull() {
-		model.ProlongedOutageBehavior = types.StringValue("")
-	}
-	if model.ProlongedOutageDuration.IsUnknown() || model.ProlongedOutageDuration.IsNull() {
-		model.ProlongedOutageDuration = types.StringValue("")
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -458,33 +460,6 @@ func populateMonitorProviderUnknownValuesDefault(model *defaultMonitorProviderRe
 	}
 	if model.NetworkDevices.IsUnknown() || model.NetworkDevices.IsNull() {
 		model.NetworkDevices, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.CheckFrequency.IsUnknown() || model.CheckFrequency.IsNull() {
-		model.CheckFrequency = types.StringValue("")
-	}
-	if model.AlertFrequency.IsUnknown() || model.AlertFrequency.IsNull() {
-		model.AlertFrequency = types.StringValue("")
-	}
-	if model.ProlongedOutageBehavior.IsUnknown() || model.ProlongedOutageBehavior.IsNull() {
-		model.ProlongedOutageBehavior = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.ProlongedOutageDuration.IsUnknown() || model.ProlongedOutageDuration.IsNull() {
-		model.ProlongedOutageDuration = types.StringValue("")
-	}
-	if model.LowSpaceWarningSizeThreshold.IsUnknown() || model.LowSpaceWarningSizeThreshold.IsNull() {
-		model.LowSpaceWarningSizeThreshold = types.StringValue("")
-	}
-	if model.LowSpaceErrorSizeThreshold.IsUnknown() || model.LowSpaceErrorSizeThreshold.IsNull() {
-		model.LowSpaceErrorSizeThreshold = types.StringValue("")
-	}
-	if model.SystemUtilizationMonitorLogDirectory.IsUnknown() || model.SystemUtilizationMonitorLogDirectory.IsNull() {
-		model.SystemUtilizationMonitorLogDirectory = types.StringValue("")
-	}
-	if model.OutOfSpaceErrorSizeThreshold.IsUnknown() || model.OutOfSpaceErrorSizeThreshold.IsNull() {
-		model.OutOfSpaceErrorSizeThreshold = types.StringValue("")
 	}
 }
 

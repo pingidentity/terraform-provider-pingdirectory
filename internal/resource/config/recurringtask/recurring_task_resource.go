@@ -747,6 +747,7 @@ func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.Mod
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -772,6 +773,241 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 	}
 }
 
+func (model *recurringTaskResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "generate-server-profile" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "leave-lockdown-mode" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "backup" {
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "delay" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "statically-defined" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "collect-support-data" {
+		model.Sign = types.BoolNull()
+		model.BaseOutputDirectory = types.StringNull()
+		model.Compress = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "ldif-export" {
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "enter-lockdown-mode" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "audit-data-security" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "exec" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "file-retention" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.Sign = types.BoolNull()
+		model.ReportCount = types.Int64Null()
+		model.BaseOutputDirectory = types.StringNull()
+		model.SecurityLevel = types.StringNull()
+		model.JstackCount = types.Int64Null()
+		model.Compress = types.BoolNull()
+		model.IncludeExpensiveData = types.BoolNull()
+		model.LogCommandOutput = types.BoolNull()
+		model.IncludeExtensionSource = types.BoolNull()
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringNull()
+		model.ReportIntervalSeconds = types.Int64Null()
+		model.IncludeBinaryFiles = types.BoolNull()
+		model.TaskCompletionStateForNonzeroExitCode = types.StringNull()
+		model.Encrypt = types.BoolNull()
+		model.BackupDirectory = types.StringNull()
+		model.UseSequentialMode = types.BoolNull()
+		model.IncludeReplicationStateDump = types.BoolNull()
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.LdifDirectory = types.StringNull()
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
@@ -794,10 +1030,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -810,11 +1047,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1938,24 +2174,6 @@ func populateRecurringTaskUnknownValues(model *recurringTaskResourceModel) {
 	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
 		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.BaseOutputDirectory.IsUnknown() || model.BaseOutputDirectory.IsNull() {
-		model.BaseOutputDirectory = types.StringValue("")
-	}
-	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
-		model.BackupDirectory = types.StringValue("")
-	}
-	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
-		model.LdifDirectory = types.StringValue("")
-	}
-	if model.SecurityLevel.IsUnknown() || model.SecurityLevel.IsNull() {
-		model.SecurityLevel = types.StringValue("")
-	}
-	if model.TaskCompletionStateForNonzeroExitCode.IsUnknown() || model.TaskCompletionStateForNonzeroExitCode.IsNull() {
-		model.TaskCompletionStateForNonzeroExitCode = types.StringValue("")
-	}
-	if model.TaskReturnStateIfTimeoutIsEncountered.IsUnknown() || model.TaskReturnStateIfTimeoutIsEncountered.IsNull() {
-		model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -1993,6 +2211,15 @@ func (model *recurringTaskResourceModel) populateAllComputedStringAttributes() {
 	if model.TargetDirectory.IsUnknown() || model.TargetDirectory.IsNull() {
 		model.TargetDirectory = types.StringValue("")
 	}
+	if model.BackupDirectory.IsUnknown() || model.BackupDirectory.IsNull() {
+		model.BackupDirectory = types.StringValue("")
+	}
+	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
+		model.LdifDirectory = types.StringValue("")
+	}
+	if model.SecurityLevel.IsUnknown() || model.SecurityLevel.IsNull() {
+		model.SecurityLevel = types.StringValue("")
+	}
 	if model.RetainPreviousReportAge.IsUnknown() || model.RetainPreviousReportAge.IsNull() {
 		model.RetainPreviousReportAge = types.StringValue("")
 	}
@@ -2020,11 +2247,17 @@ func (model *recurringTaskResourceModel) populateAllComputedStringAttributes() {
 	if model.SearchInterval.IsUnknown() || model.SearchInterval.IsNull() {
 		model.SearchInterval = types.StringValue("")
 	}
+	if model.BaseOutputDirectory.IsUnknown() || model.BaseOutputDirectory.IsNull() {
+		model.BaseOutputDirectory = types.StringValue("")
+	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
 	}
 	if model.ProfileDirectory.IsUnknown() || model.ProfileDirectory.IsNull() {
 		model.ProfileDirectory = types.StringValue("")
+	}
+	if model.TaskCompletionStateForNonzeroExitCode.IsUnknown() || model.TaskCompletionStateForNonzeroExitCode.IsNull() {
+		model.TaskCompletionStateForNonzeroExitCode = types.StringValue("")
 	}
 	if model.RetainFileAge.IsUnknown() || model.RetainFileAge.IsNull() {
 		model.RetainFileAge = types.StringValue("")
@@ -2049,6 +2282,9 @@ func (model *recurringTaskResourceModel) populateAllComputedStringAttributes() {
 	}
 	if model.LogDuration.IsUnknown() || model.LogDuration.IsNull() {
 		model.LogDuration = types.StringValue("")
+	}
+	if model.TaskReturnStateIfTimeoutIsEncountered.IsUnknown() || model.TaskReturnStateIfTimeoutIsEncountered.IsNull() {
+		model.TaskReturnStateIfTimeoutIsEncountered = types.StringValue("")
 	}
 	if model.RetainPreviousLDIFExportAge.IsUnknown() || model.RetainPreviousLDIFExportAge.IsNull() {
 		model.RetainPreviousLDIFExportAge = types.StringValue("")

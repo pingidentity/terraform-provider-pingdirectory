@@ -191,7 +191,16 @@ func (r *vaultAuthenticationMethodResource) ModifyPlan(ctx context.Context, req 
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *vaultAuthenticationMethodResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "static-token" {
+		model.LoginMechanismName = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -287,32 +296,28 @@ func addOptionalUserPassVaultAuthenticationMethodFields(ctx context.Context, add
 	}
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateVaultAuthenticationMethodUnknownValues(model *vaultAuthenticationMethodResourceModel) {
-	if model.LoginMechanismName.IsUnknown() || model.LoginMechanismName.IsNull() {
-		model.LoginMechanismName = types.StringValue("")
-	}
-	if model.VaultAccessToken.IsUnknown() {
-		model.VaultAccessToken = types.StringNull()
-	}
-	if model.VaultSecretID.IsUnknown() {
-		model.VaultSecretID = types.StringNull()
-	}
-	if model.Password.IsUnknown() {
-		model.Password = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *vaultAuthenticationMethodResourceModel) populateAllComputedStringAttributes() {
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
+	if model.LoginMechanismName.IsUnknown() || model.LoginMechanismName.IsNull() {
+		model.LoginMechanismName = types.StringValue("")
+	}
 	if model.Username.IsUnknown() || model.Username.IsNull() {
 		model.Username = types.StringValue("")
 	}
+	if model.VaultAccessToken.IsUnknown() || model.VaultAccessToken.IsNull() {
+		model.VaultAccessToken = types.StringValue("")
+	}
+	if model.VaultSecretID.IsUnknown() || model.VaultSecretID.IsNull() {
+		model.VaultSecretID = types.StringValue("")
+	}
 	if model.VaultRoleID.IsUnknown() || model.VaultRoleID.IsNull() {
 		model.VaultRoleID = types.StringValue("")
+	}
+	if model.Password.IsUnknown() || model.Password.IsNull() {
+		model.Password = types.StringValue("")
 	}
 }
 
@@ -323,7 +328,6 @@ func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *cl
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Read a AppRoleVaultAuthenticationMethodResponse object into the model struct
@@ -335,7 +339,6 @@ func readAppRoleVaultAuthenticationMethodResponse(ctx context.Context, r *client
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Read a UserPassVaultAuthenticationMethodResponse object into the model struct
@@ -347,7 +350,6 @@ func readUserPassVaultAuthenticationMethodResponse(ctx context.Context, r *clien
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateVaultAuthenticationMethodUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

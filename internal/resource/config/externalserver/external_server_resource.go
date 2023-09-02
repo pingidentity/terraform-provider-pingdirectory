@@ -1087,6 +1087,7 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -1115,23 +1116,321 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	}
 }
 
+func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "smtp" {
+		model.MaxConnections = types.Int64Null()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "nokia-ds" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "ping-identity-ds" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "active-directory" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "jdbc" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "syslog" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "ping-identity-proxy-server" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "http-proxy" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "nokia-proxy-server" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "opendj" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "ldap" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "ping-one-http" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "http" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "oracle-unified-directory" {
+		model.SmtpSecurity = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "conjur" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.ResponseTimeout = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "amazon-aws" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.ResponseTimeout = types.StringNull()
+		model.TrustStoreType = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.VaultServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+	if resourceType == "vault" {
+		model.MaxConnections = types.Int64Null()
+		model.SmtpSecurity = types.StringNull()
+		model.VerifyCredentialsMethod = types.StringNull()
+		model.AbandonOnTimeout = types.BoolNull()
+		model.TrustManagerProvider = types.StringNull()
+		model.MaxConnectionAge = types.StringNull()
+		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HostnameVerificationMethod = types.StringNull()
+		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AuthenticationMethod = types.StringNull()
+		model.UseAdministrativeOperationControl = types.BoolNull()
+		model.SmtpTimeout = types.StringNull()
+		model.ValidationQueryTimeout = types.StringNull()
+		model.ServerPort = types.Int64Null()
+		model.ResponseTimeout = types.StringNull()
+		model.TransactionIsolationLevel = types.StringNull()
+		model.MinExpiredConnectionDisconnectInterval = types.StringNull()
+		model.InitialConnections = types.Int64Null()
+		model.ConnectTimeout = types.StringNull()
+		model.MaxResponseSize = types.StringNull()
+		model.ConnectionSecurity = types.StringNull()
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("password"),
-				path.MatchRoot("passphrase_provider"),
-			),
-		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
 			[]string{"amazon-aws"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -2603,9 +2902,10 @@ func populateExternalServerUnknownValues(model *externalServerResourceModel) {
 	if model.JdbcConnectionProperties.IsUnknown() || model.JdbcConnectionProperties.IsNull() {
 		model.JdbcConnectionProperties, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ConnectTimeout.IsUnknown() || model.ConnectTimeout.IsNull() {
-		model.ConnectTimeout = types.StringValue("")
-	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *externalServerResourceModel) populateAllComputedStringAttributes() {
 	if model.MaxResponseSize.IsUnknown() || model.MaxResponseSize.IsNull() {
 		model.MaxResponseSize = types.StringValue("")
 	}
@@ -2615,8 +2915,20 @@ func populateExternalServerUnknownValues(model *externalServerResourceModel) {
 	if model.HostnameVerificationMethod.IsUnknown() || model.HostnameVerificationMethod.IsNull() {
 		model.HostnameVerificationMethod = types.StringValue("")
 	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
+	if model.BasicAuthenticationPassphraseProvider.IsUnknown() || model.BasicAuthenticationPassphraseProvider.IsNull() {
+		model.BasicAuthenticationPassphraseProvider = types.StringValue("")
+	}
 	if model.ValidationQueryTimeout.IsUnknown() || model.ValidationQueryTimeout.IsNull() {
 		model.ValidationQueryTimeout = types.StringValue("")
+	}
+	if model.JdbcDriverType.IsUnknown() || model.JdbcDriverType.IsNull() {
+		model.JdbcDriverType = types.StringValue("")
+	}
+	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
+		model.HttpProxyExternalServer = types.StringValue("")
 	}
 	if model.SmtpSecurity.IsUnknown() || model.SmtpSecurity.IsNull() {
 		model.SmtpSecurity = types.StringValue("")
@@ -2630,45 +2942,41 @@ func populateExternalServerUnknownValues(model *externalServerResourceModel) {
 	if model.TransactionIsolationLevel.IsUnknown() || model.TransactionIsolationLevel.IsNull() {
 		model.TransactionIsolationLevel = types.StringValue("")
 	}
-	if model.ConnectionSecurity.IsUnknown() || model.ConnectionSecurity.IsNull() {
-		model.ConnectionSecurity = types.StringValue("")
-	}
 	if model.ResponseTimeout.IsUnknown() || model.ResponseTimeout.IsNull() {
 		model.ResponseTimeout = types.StringValue("")
 	}
 	if model.SmtpTimeout.IsUnknown() || model.SmtpTimeout.IsNull() {
 		model.SmtpTimeout = types.StringValue("")
 	}
+	if model.BasicAuthenticationUsername.IsUnknown() || model.BasicAuthenticationUsername.IsNull() {
+		model.BasicAuthenticationUsername = types.StringValue("")
+	}
+	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
+		model.ServerHostName = types.StringValue("")
+	}
 	if model.MinExpiredConnectionDisconnectInterval.IsUnknown() || model.MinExpiredConnectionDisconnectInterval.IsNull() {
 		model.MinExpiredConnectionDisconnectInterval = types.StringValue("")
+	}
+	if model.BaseURL.IsUnknown() || model.BaseURL.IsNull() {
+		model.BaseURL = types.StringValue("")
 	}
 	if model.MaxConnectionAge.IsUnknown() || model.MaxConnectionAge.IsNull() {
 		model.MaxConnectionAge = types.StringValue("")
 	}
-	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
-		model.TrustStoreType = types.StringValue("")
+	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
+		model.AwsAccessKeyID = types.StringValue("")
 	}
-	if model.Password.IsUnknown() {
-		model.Password = types.StringNull()
+	if model.Password.IsUnknown() || model.Password.IsNull() {
+		model.Password = types.StringValue("")
 	}
-	if model.TrustStorePin.IsUnknown() {
-		model.TrustStorePin = types.StringNull()
+	if model.TrustStorePin.IsUnknown() || model.TrustStorePin.IsNull() {
+		model.TrustStorePin = types.StringValue("")
 	}
-	if model.AwsSecretAccessKey.IsUnknown() {
-		model.AwsSecretAccessKey = types.StringNull()
+	if model.ConnectTimeout.IsUnknown() || model.ConnectTimeout.IsNull() {
+		model.ConnectTimeout = types.StringValue("")
 	}
-}
-
-// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
-func (model *externalServerResourceModel) populateAllComputedStringAttributes() {
 	if model.UserName.IsUnknown() || model.UserName.IsNull() {
 		model.UserName = types.StringValue("")
-	}
-	if model.Description.IsUnknown() || model.Description.IsNull() {
-		model.Description = types.StringValue("")
-	}
-	if model.BasicAuthenticationPassphraseProvider.IsUnknown() || model.BasicAuthenticationPassphraseProvider.IsNull() {
-		model.BasicAuthenticationPassphraseProvider = types.StringValue("")
 	}
 	if model.AwsRegionName.IsUnknown() || model.AwsRegionName.IsNull() {
 		model.AwsRegionName = types.StringValue("")
@@ -2679,20 +2987,17 @@ func (model *externalServerResourceModel) populateAllComputedStringAttributes() 
 	if model.ConjurAccountName.IsUnknown() || model.ConjurAccountName.IsNull() {
 		model.ConjurAccountName = types.StringValue("")
 	}
-	if model.JdbcDriverType.IsUnknown() || model.JdbcDriverType.IsNull() {
-		model.JdbcDriverType = types.StringValue("")
-	}
 	if model.HealthCheckConnectTimeout.IsUnknown() || model.HealthCheckConnectTimeout.IsNull() {
 		model.HealthCheckConnectTimeout = types.StringValue("")
 	}
 	if model.DatabaseName.IsUnknown() || model.DatabaseName.IsNull() {
 		model.DatabaseName = types.StringValue("")
 	}
-	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
-		model.HttpProxyExternalServer = types.StringValue("")
-	}
 	if model.ConjurAuthenticationMethod.IsUnknown() || model.ConjurAuthenticationMethod.IsNull() {
 		model.ConjurAuthenticationMethod = types.StringValue("")
+	}
+	if model.ConnectionSecurity.IsUnknown() || model.ConnectionSecurity.IsNull() {
+		model.ConnectionSecurity = types.StringValue("")
 	}
 	if model.ValidationQuery.IsUnknown() || model.ValidationQuery.IsNull() {
 		model.ValidationQuery = types.StringValue("")
@@ -2709,26 +3014,20 @@ func (model *externalServerResourceModel) populateAllComputedStringAttributes() 
 	if model.JdbcDriverURL.IsUnknown() || model.JdbcDriverURL.IsNull() {
 		model.JdbcDriverURL = types.StringValue("")
 	}
-	if model.BasicAuthenticationUsername.IsUnknown() || model.BasicAuthenticationUsername.IsNull() {
-		model.BasicAuthenticationUsername = types.StringValue("")
-	}
-	if model.ServerHostName.IsUnknown() || model.ServerHostName.IsNull() {
-		model.ServerHostName = types.StringValue("")
-	}
 	if model.PassphraseProvider.IsUnknown() || model.PassphraseProvider.IsNull() {
 		model.PassphraseProvider = types.StringValue("")
 	}
-	if model.BaseURL.IsUnknown() || model.BaseURL.IsNull() {
-		model.BaseURL = types.StringValue("")
-	}
-	if model.AwsAccessKeyID.IsUnknown() || model.AwsAccessKeyID.IsNull() {
-		model.AwsAccessKeyID = types.StringValue("")
+	if model.AwsSecretAccessKey.IsUnknown() || model.AwsSecretAccessKey.IsNull() {
+		model.AwsSecretAccessKey = types.StringValue("")
 	}
 	if model.BindDN.IsUnknown() || model.BindDN.IsNull() {
 		model.BindDN = types.StringValue("")
 	}
 	if model.TrustStoreFile.IsUnknown() || model.TrustStoreFile.IsNull() {
 		model.TrustStoreFile = types.StringValue("")
+	}
+	if model.TrustStoreType.IsUnknown() || model.TrustStoreType.IsNull() {
+		model.TrustStoreType = types.StringValue("")
 	}
 	if model.Location.IsUnknown() || model.Location.IsNull() {
 		model.Location = types.StringValue("")

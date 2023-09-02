@@ -221,7 +221,28 @@ func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req 
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *uncachedAttributeCriteriaResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "default" {
+		model.MinValueCount = types.Int64Null()
+		model.MinTotalValueSize = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "groovy-scripted" {
+		model.MinValueCount = types.Int64Null()
+		model.MinTotalValueSize = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.MinValueCount = types.Int64Null()
+		model.MinTotalValueSize = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -350,9 +371,6 @@ func populateUncachedAttributeCriteriaUnknownValues(model *uncachedAttributeCrit
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.MinTotalValueSize.IsUnknown() || model.MinTotalValueSize.IsNull() {
-		model.MinTotalValueSize = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -362,6 +380,9 @@ func (model *uncachedAttributeCriteriaResourceModel) populateAllComputedStringAt
 	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
+	}
+	if model.MinTotalValueSize.IsUnknown() || model.MinTotalValueSize.IsNull() {
+		model.MinTotalValueSize = types.StringValue("")
 	}
 	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
 		model.ScriptClass = types.StringValue("")

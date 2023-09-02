@@ -386,6 +386,7 @@ func (r *saslMechanismHandlerResource) ModifyPlan(ctx context.Context, req resou
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -407,6 +408,28 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *saslMechanismHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "unboundid-ms-chap-v2" {
+		model.RequireBothAccessTokenAndIDToken = types.BoolNull()
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringNull()
+		model.OtpValidityDuration = types.StringNull()
+	}
+	if resourceType == "unboundid-delivered-otp" {
+		model.RequireBothAccessTokenAndIDToken = types.BoolNull()
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringNull()
+	}
+	if resourceType == "oauth-bearer" {
+		model.OtpValidityDuration = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.RequireBothAccessTokenAndIDToken = types.BoolNull()
+		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringNull()
+		model.OtpValidityDuration = types.StringNull()
 	}
 }
 
@@ -741,12 +764,6 @@ func populateSaslMechanismHandlerUnknownValues(model *saslMechanismHandlerResour
 	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
 		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
-		model.OtpValidityDuration = types.StringValue("")
-	}
-	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
-		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -771,75 +788,6 @@ func populateSaslMechanismHandlerUnknownValuesDefault(model *defaultSaslMechanis
 	}
 	if model.IdTokenValidator.IsUnknown() || model.IdTokenValidator.IsNull() {
 		model.IdTokenValidator, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
-		model.TimeIntervalDuration = types.StringValue("")
-	}
-	if model.YubikeyAPIKey.IsUnknown() || model.YubikeyAPIKey.IsNull() {
-		model.YubikeyAPIKey = types.StringValue("")
-	}
-	if model.TrustManagerProvider.IsUnknown() || model.TrustManagerProvider.IsNull() {
-		model.TrustManagerProvider = types.StringValue("")
-	}
-	if model.AlternateAuthorizationIdentityMapper.IsUnknown() || model.AlternateAuthorizationIdentityMapper.IsNull() {
-		model.AlternateAuthorizationIdentityMapper = types.StringValue("")
-	}
-	if model.GssapiRole.IsUnknown() || model.GssapiRole.IsNull() {
-		model.GssapiRole = types.StringValue("")
-	}
-	if model.CertificateValidationPolicy.IsUnknown() || model.CertificateValidationPolicy.IsNull() {
-		model.CertificateValidationPolicy = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.HttpProxyExternalServer.IsUnknown() || model.HttpProxyExternalServer.IsNull() {
-		model.HttpProxyExternalServer = types.StringValue("")
-	}
-	if model.ServerFqdn.IsUnknown() || model.ServerFqdn.IsNull() {
-		model.ServerFqdn = types.StringValue("")
-	}
-	if model.KdcAddress.IsUnknown() || model.KdcAddress.IsNull() {
-		model.KdcAddress = types.StringValue("")
-	}
-	if model.JaasConfigFile.IsUnknown() || model.JaasConfigFile.IsNull() {
-		model.JaasConfigFile = types.StringValue("")
-	}
-	if model.CertificateAttribute.IsUnknown() || model.CertificateAttribute.IsNull() {
-		model.CertificateAttribute = types.StringValue("")
-	}
-	if model.YubikeyClientID.IsUnknown() || model.YubikeyClientID.IsNull() {
-		model.YubikeyClientID = types.StringValue("")
-	}
-	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
-		model.KeyManagerProvider = types.StringValue("")
-	}
-	if model.OtpValidityDuration.IsUnknown() || model.OtpValidityDuration.IsNull() {
-		model.OtpValidityDuration = types.StringValue("")
-	}
-	if model.KerberosServicePrincipal.IsUnknown() || model.KerberosServicePrincipal.IsNull() {
-		model.KerberosServicePrincipal = types.StringValue("")
-	}
-	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
-		model.IdentityMapper = types.StringValue("")
-	}
-	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
-		model.SharedSecretAttributeType = types.StringValue("")
-	}
-	if model.CertificateMapper.IsUnknown() || model.CertificateMapper.IsNull() {
-		model.CertificateMapper = types.StringValue("")
-	}
-	if model.Keytab.IsUnknown() || model.Keytab.IsNull() {
-		model.Keytab = types.StringValue("")
-	}
-	if model.YubikeyAPIKeyPassphraseProvider.IsUnknown() || model.YubikeyAPIKeyPassphraseProvider.IsNull() {
-		model.YubikeyAPIKeyPassphraseProvider = types.StringValue("")
-	}
-	if model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsUnknown() || model.ValidateAccessTokenWhenIDTokenIsAlsoProvided.IsNull() {
-		model.ValidateAccessTokenWhenIDTokenIsAlsoProvided = types.StringValue("")
-	}
-	if model.Realm.IsUnknown() || model.Realm.IsNull() {
-		model.Realm = types.StringValue("")
 	}
 }
 

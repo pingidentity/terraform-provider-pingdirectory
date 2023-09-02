@@ -356,7 +356,98 @@ func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req r
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "validate-totp-password" {
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "replace-certificate" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "collect-support-data" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "export-reversible-passwords" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "single-use-tokens" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "deliver-password-reset-token" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "deliver-otp" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "third-party" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SharedSecretAttributeType = types.StringNull()
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -654,18 +745,6 @@ func populateExtendedOperationHandlerUnknownValues(model *extendedOperationHandl
 	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
 		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
-		model.TimeIntervalDuration = types.StringValue("")
-	}
-	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
-		model.PasswordResetTokenValidityDuration = types.StringValue("")
-	}
-	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
-		model.SharedSecretAttributeType = types.StringValue("")
-	}
-	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
-		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
-	}
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -681,39 +760,6 @@ func populateExtendedOperationHandlerUnknownValuesDefault(model *defaultExtended
 	}
 	if model.DefaultOTPDeliveryMechanism.IsUnknown() || model.DefaultOTPDeliveryMechanism.IsNull() {
 		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.TimeIntervalDuration.IsUnknown() || model.TimeIntervalDuration.IsNull() {
-		model.TimeIntervalDuration = types.StringValue("")
-	}
-	if model.PasswordResetTokenValidityDuration.IsUnknown() || model.PasswordResetTokenValidityDuration.IsNull() {
-		model.PasswordResetTokenValidityDuration = types.StringValue("")
-	}
-	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
-		model.RequestCriteria = types.StringValue("")
-	}
-	if model.SharedSecretAttributeType.IsUnknown() || model.SharedSecretAttributeType.IsNull() {
-		model.SharedSecretAttributeType = types.StringValue("")
-	}
-	if model.IdentityMapper.IsUnknown() || model.IdentityMapper.IsNull() {
-		model.IdentityMapper = types.StringValue("")
-	}
-	if model.DefaultSingleUseTokenValidityDuration.IsUnknown() || model.DefaultSingleUseTokenValidityDuration.IsNull() {
-		model.DefaultSingleUseTokenValidityDuration = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
-	}
-	if model.PasswordGenerator.IsUnknown() || model.PasswordGenerator.IsNull() {
-		model.PasswordGenerator = types.StringValue("")
-	}
-	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
-		model.ConnectionCriteria = types.StringValue("")
-	}
-	if model.DefaultPasswordPolicy.IsUnknown() || model.DefaultPasswordPolicy.IsNull() {
-		model.DefaultPasswordPolicy = types.StringValue("")
-	}
-	if model.DefaultPasswordGenerator.IsUnknown() || model.DefaultPasswordGenerator.IsNull() {
-		model.DefaultPasswordGenerator = types.StringValue("")
 	}
 }
 

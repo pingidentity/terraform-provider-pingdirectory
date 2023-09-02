@@ -448,7 +448,27 @@ func (r *requestCriteriaResource) ModifyPlan(ctx context.Context, req resource.M
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (model *requestCriteriaResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "root-dse" {
+		model.UsingAdministrativeSessionWorkerThread = types.StringNull()
+		model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "aggregate" {
+		model.UsingAdministrativeSessionWorkerThread = types.StringNull()
+		model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "third-party" {
+		model.UsingAdministrativeSessionWorkerThread = types.StringNull()
+		model.IncludedSearchScope, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.OperationType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -993,9 +1013,6 @@ func populateRequestCriteriaUnknownValues(model *requestCriteriaResourceModel) {
 	if model.NoneIncludedRequestControl.IsUnknown() || model.NoneIncludedRequestControl.IsNull() {
 		model.NoneIncludedRequestControl, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.UsingAdministrativeSessionWorkerThread.IsUnknown() || model.UsingAdministrativeSessionWorkerThread.IsNull() {
-		model.UsingAdministrativeSessionWorkerThread = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
@@ -1005,6 +1022,9 @@ func (model *requestCriteriaResourceModel) populateAllComputedStringAttributes()
 	}
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
+	}
+	if model.UsingAdministrativeSessionWorkerThread.IsUnknown() || model.UsingAdministrativeSessionWorkerThread.IsNull() {
+		model.UsingAdministrativeSessionWorkerThread = types.StringValue("")
 	}
 	if model.ConnectionCriteria.IsUnknown() || model.ConnectionCriteria.IsNull() {
 		model.ConnectionCriteria = types.StringValue("")

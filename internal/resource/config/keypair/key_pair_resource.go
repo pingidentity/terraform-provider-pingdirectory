@@ -206,15 +206,11 @@ func addOptionalKeyPairFields(ctx context.Context, addRequest *client.AddKeyPair
 	return nil
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateKeyPairUnknownValues(model *keyPairResourceModel) {
-	if model.PrivateKey.IsUnknown() {
-		model.PrivateKey = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *keyPairResourceModel) populateAllComputedStringAttributes() {
+	if model.PrivateKey.IsUnknown() || model.PrivateKey.IsNull() {
+		model.PrivateKey = types.StringValue("")
+	}
 	if model.SelfSignedCertificateValidity.IsUnknown() || model.SelfSignedCertificateValidity.IsNull() {
 		model.SelfSignedCertificateValidity = types.StringValue("")
 	}
@@ -241,7 +237,6 @@ func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *
 	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, true)
 	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyPairUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

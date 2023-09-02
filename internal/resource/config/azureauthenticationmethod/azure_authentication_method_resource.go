@@ -237,16 +237,6 @@ func addOptionalUsernamePasswordAzureAuthenticationMethodFields(ctx context.Cont
 	}
 }
 
-// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
-func populateAzureAuthenticationMethodUnknownValues(model *azureAuthenticationMethodResourceModel) {
-	if model.ClientSecret.IsUnknown() {
-		model.ClientSecret = types.StringNull()
-	}
-	if model.Password.IsUnknown() {
-		model.Password = types.StringNull()
-	}
-}
-
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *azureAuthenticationMethodResourceModel) populateAllComputedStringAttributes() {
 	if model.TenantID.IsUnknown() || model.TenantID.IsNull() {
@@ -258,8 +248,14 @@ func (model *azureAuthenticationMethodResourceModel) populateAllComputedStringAt
 	if model.Username.IsUnknown() || model.Username.IsNull() {
 		model.Username = types.StringValue("")
 	}
+	if model.ClientSecret.IsUnknown() || model.ClientSecret.IsNull() {
+		model.ClientSecret = types.StringValue("")
+	}
 	if model.ClientID.IsUnknown() || model.ClientID.IsNull() {
 		model.ClientID = types.StringValue("")
+	}
+	if model.Password.IsUnknown() || model.Password.IsNull() {
+		model.Password = types.StringValue("")
 	}
 }
 
@@ -272,7 +268,6 @@ func readDefaultAzureAuthenticationMethodResponse(ctx context.Context, r *client
 	state.ClientID = internaltypes.StringTypeOrNil(r.ClientID, internaltypes.IsEmptyString(expectedValues.ClientID))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAzureAuthenticationMethodUnknownValues(state)
 }
 
 // Read a ClientSecretAzureAuthenticationMethodResponse object into the model struct
@@ -284,7 +279,6 @@ func readClientSecretAzureAuthenticationMethodResponse(ctx context.Context, r *c
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAzureAuthenticationMethodUnknownValues(state)
 }
 
 // Read a UsernamePasswordAzureAuthenticationMethodResponse object into the model struct
@@ -297,7 +291,6 @@ func readUsernamePasswordAzureAuthenticationMethodResponse(ctx context.Context, 
 	state.Username = types.StringValue(r.Username)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAzureAuthenticationMethodUnknownValues(state)
 }
 
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)

@@ -395,6 +395,7 @@ func (r *passwordStorageSchemeResource) ModifyPlan(ctx context.Context, req reso
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -428,6 +429,181 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "argon2d" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "crypt" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.IterationCount = types.Int64Null()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "argon2i" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "argon2id" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "vault" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "third-party" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "argon2" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "third-party-enhanced" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "pbkdf2" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "aes-256" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "bcrypt" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+	}
+	if resourceType == "amazon-secrets-manager" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "azure-key-vault" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "conjur" {
+		model.ScryptBlockSize = types.Int64Null()
+		model.DigestAlgorithm = types.StringNull()
+		model.MaxPasswordLength = types.Int64Null()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.ScryptParallelizationParameter = types.Int64Null()
+		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
+	}
+	if resourceType == "scrypt" {
+		model.DigestAlgorithm = types.StringNull()
+		model.IterationCount = types.Int64Null()
+		model.PasswordEncodingMechanism = types.StringNull()
+		model.DerivedKeyLengthBytes = types.Int64Null()
+		model.NumDigestRounds = types.Int64Null()
+		model.SaltLengthBytes = types.Int64Null()
+		model.BcryptCostFactor = types.Int64Null()
 	}
 }
 
@@ -852,16 +1028,13 @@ func populatePasswordStorageSchemeUnknownValues(model *passwordStorageSchemeReso
 	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
 		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.PasswordEncodingMechanism.IsUnknown() || model.PasswordEncodingMechanism.IsNull() {
-		model.PasswordEncodingMechanism = types.StringValue("")
-	}
-	if model.DigestAlgorithm.IsUnknown() || model.DigestAlgorithm.IsNull() {
-		model.DigestAlgorithm = types.StringValue("")
-	}
 }
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *passwordStorageSchemeResourceModel) populateAllComputedStringAttributes() {
+	if model.PasswordEncodingMechanism.IsUnknown() || model.PasswordEncodingMechanism.IsNull() {
+		model.PasswordEncodingMechanism = types.StringValue("")
+	}
 	if model.ConjurExternalServer.IsUnknown() || model.ConjurExternalServer.IsNull() {
 		model.ConjurExternalServer = types.StringValue("")
 	}
@@ -891,6 +1064,9 @@ func (model *passwordStorageSchemeResourceModel) populateAllComputedStringAttrib
 	}
 	if model.VaultExternalServer.IsUnknown() || model.VaultExternalServer.IsNull() {
 		model.VaultExternalServer = types.StringValue("")
+	}
+	if model.DigestAlgorithm.IsUnknown() || model.DigestAlgorithm.IsNull() {
+		model.DigestAlgorithm = types.StringValue("")
 	}
 }
 

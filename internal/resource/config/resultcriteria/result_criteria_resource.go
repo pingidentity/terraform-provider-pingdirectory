@@ -653,6 +653,7 @@ func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.Mo
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
+	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
 }
 
@@ -675,6 +676,113 @@ func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanReques
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "successful-bind" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"successful_bind\"")
+	}
+}
+
+func (model *resultCriteriaResourceModel) setNotApplicableAttrsNull() {
+	resourceType := model.Type.ValueString()
+	// Set any not applicable computed attributes to null for each type
+	if resourceType == "successful-bind" {
+		model.SearchEntryReturnedCriteria = types.StringNull()
+		model.AssuranceBehaviorAlteredByControl = types.StringNull()
+		model.SearchReferenceReturnedCriteria = types.StringNull()
+		model.ReferralReturned = types.StringNull()
+		model.AssuranceSatisfied = types.StringNull()
+		model.UsedAnyPrivilege = types.StringNull()
+		model.ProcessingTimeValue = types.StringNull()
+		model.QueueTimeCriteria = types.StringNull()
+		model.MissingAnyPrivilege = types.StringNull()
+		model.ResultCodeCriteria = types.StringNull()
+		model.ProcessingTimeCriteria = types.StringNull()
+		model.SearchIndexedCriteria = types.StringNull()
+		model.UsedAlternateAuthzid = types.StringNull()
+		model.AssuranceTimeoutCriteria = types.StringNull()
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResponseDelayedByAssurance = types.StringNull()
+		model.QueueTimeValue = types.StringNull()
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RetiredPasswordUsedForBind = types.StringNull()
+		model.AssuranceTimeoutValue = types.StringNull()
+		model.SearchEntryReturnedCount = types.Int64Null()
+		model.SearchReferenceReturnedCount = types.Int64Null()
+	}
+	if resourceType == "simple" {
+		model.AssuranceBehaviorAlteredByControl = types.StringNull()
+		model.AssuranceSatisfied = types.StringNull()
+		model.IncludeAnonymousBinds = types.BoolNull()
+		model.AssuranceTimeoutCriteria = types.StringNull()
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResponseDelayedByAssurance = types.StringNull()
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AssuranceTimeoutValue = types.StringNull()
+	}
+	if resourceType == "aggregate" {
+		model.SearchEntryReturnedCriteria = types.StringNull()
+		model.AssuranceBehaviorAlteredByControl = types.StringNull()
+		model.SearchReferenceReturnedCriteria = types.StringNull()
+		model.ReferralReturned = types.StringNull()
+		model.AssuranceSatisfied = types.StringNull()
+		model.UsedAnyPrivilege = types.StringNull()
+		model.ProcessingTimeValue = types.StringNull()
+		model.QueueTimeCriteria = types.StringNull()
+		model.MissingAnyPrivilege = types.StringNull()
+		model.IncludeAnonymousBinds = types.BoolNull()
+		model.ResultCodeCriteria = types.StringNull()
+		model.ProcessingTimeCriteria = types.StringNull()
+		model.SearchIndexedCriteria = types.StringNull()
+		model.UsedAlternateAuthzid = types.StringNull()
+		model.AssuranceTimeoutCriteria = types.StringNull()
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResponseDelayedByAssurance = types.StringNull()
+		model.QueueTimeValue = types.StringNull()
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RetiredPasswordUsedForBind = types.StringNull()
+		model.AssuranceTimeoutValue = types.StringNull()
+		model.SearchEntryReturnedCount = types.Int64Null()
+		model.SearchReferenceReturnedCount = types.Int64Null()
+	}
+	if resourceType == "replication-assurance" {
+		model.SearchEntryReturnedCriteria = types.StringNull()
+		model.SearchReferenceReturnedCriteria = types.StringNull()
+		model.ReferralReturned = types.StringNull()
+		model.UsedAnyPrivilege = types.StringNull()
+		model.ProcessingTimeValue = types.StringNull()
+		model.QueueTimeCriteria = types.StringNull()
+		model.MissingAnyPrivilege = types.StringNull()
+		model.IncludeAnonymousBinds = types.BoolNull()
+		model.ResultCodeCriteria = types.StringNull()
+		model.ProcessingTimeCriteria = types.StringNull()
+		model.SearchIndexedCriteria = types.StringNull()
+		model.UsedAlternateAuthzid = types.StringNull()
+		model.QueueTimeValue = types.StringNull()
+		model.RetiredPasswordUsedForBind = types.StringNull()
+		model.SearchEntryReturnedCount = types.Int64Null()
+		model.SearchReferenceReturnedCount = types.Int64Null()
+	}
+	if resourceType == "third-party" {
+		model.SearchEntryReturnedCriteria = types.StringNull()
+		model.AssuranceBehaviorAlteredByControl = types.StringNull()
+		model.SearchReferenceReturnedCriteria = types.StringNull()
+		model.ReferralReturned = types.StringNull()
+		model.AssuranceSatisfied = types.StringNull()
+		model.UsedAnyPrivilege = types.StringNull()
+		model.ProcessingTimeValue = types.StringNull()
+		model.QueueTimeCriteria = types.StringNull()
+		model.MissingAnyPrivilege = types.StringNull()
+		model.IncludeAnonymousBinds = types.BoolNull()
+		model.ResultCodeCriteria = types.StringNull()
+		model.ProcessingTimeCriteria = types.StringNull()
+		model.SearchIndexedCriteria = types.StringNull()
+		model.UsedAlternateAuthzid = types.StringNull()
+		model.AssuranceTimeoutCriteria = types.StringNull()
+		model.LocalAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ResponseDelayedByAssurance = types.StringNull()
+		model.QueueTimeValue = types.StringNull()
+		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RetiredPasswordUsedForBind = types.StringNull()
+		model.AssuranceTimeoutValue = types.StringNull()
+		model.SearchEntryReturnedCount = types.Int64Null()
+		model.SearchReferenceReturnedCount = types.Int64Null()
 	}
 }
 
@@ -1388,6 +1496,10 @@ func populateResultCriteriaUnknownValues(model *resultCriteriaResourceModel) {
 	if model.RemoteAssuranceLevel.IsUnknown() || model.RemoteAssuranceLevel.IsNull() {
 		model.RemoteAssuranceLevel, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+}
+
+// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
+func (model *resultCriteriaResourceModel) populateAllComputedStringAttributes() {
 	if model.ResultCodeCriteria.IsUnknown() || model.ResultCodeCriteria.IsNull() {
 		model.ResultCodeCriteria = types.StringValue("")
 	}
@@ -1397,8 +1509,14 @@ func populateResultCriteriaUnknownValues(model *resultCriteriaResourceModel) {
 	if model.SearchIndexedCriteria.IsUnknown() || model.SearchIndexedCriteria.IsNull() {
 		model.SearchIndexedCriteria = types.StringValue("")
 	}
+	if model.Description.IsUnknown() || model.Description.IsNull() {
+		model.Description = types.StringValue("")
+	}
 	if model.AssuranceTimeoutValue.IsUnknown() || model.AssuranceTimeoutValue.IsNull() {
 		model.AssuranceTimeoutValue = types.StringValue("")
+	}
+	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
+		model.ExtensionClass = types.StringValue("")
 	}
 	if model.QueueTimeCriteria.IsUnknown() || model.QueueTimeCriteria.IsNull() {
 		model.QueueTimeCriteria = types.StringValue("")
@@ -1427,6 +1545,9 @@ func populateResultCriteriaUnknownValues(model *resultCriteriaResourceModel) {
 	if model.SearchReferenceReturnedCriteria.IsUnknown() || model.SearchReferenceReturnedCriteria.IsNull() {
 		model.SearchReferenceReturnedCriteria = types.StringValue("")
 	}
+	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
+		model.RequestCriteria = types.StringValue("")
+	}
 	if model.UsedAnyPrivilege.IsUnknown() || model.UsedAnyPrivilege.IsNull() {
 		model.UsedAnyPrivilege = types.StringValue("")
 	}
@@ -1441,19 +1562,6 @@ func populateResultCriteriaUnknownValues(model *resultCriteriaResourceModel) {
 	}
 	if model.ResponseDelayedByAssurance.IsUnknown() || model.ResponseDelayedByAssurance.IsNull() {
 		model.ResponseDelayedByAssurance = types.StringValue("")
-	}
-}
-
-// Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
-func (model *resultCriteriaResourceModel) populateAllComputedStringAttributes() {
-	if model.RequestCriteria.IsUnknown() || model.RequestCriteria.IsNull() {
-		model.RequestCriteria = types.StringValue("")
-	}
-	if model.Description.IsUnknown() || model.Description.IsNull() {
-		model.Description = types.StringValue("")
-	}
-	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
-		model.ExtensionClass = types.StringValue("")
 	}
 }
 
