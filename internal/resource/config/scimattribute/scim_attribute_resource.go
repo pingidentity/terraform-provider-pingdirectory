@@ -204,6 +204,11 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type", "name", "scim_schema_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		nameAttr := schemaDef.Attributes["name"].(schema.StringAttribute)
+		nameAttr.PlanModifiers = append(nameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["name"] = nameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

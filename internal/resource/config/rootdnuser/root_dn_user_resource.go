@@ -842,6 +842,9 @@ func updateRootDnUser(ctx context.Context, req resource.UpdateRequest, resp *res
 	// Determine what update operations are necessary
 	ops := createRootDnUserOperations(plan, state)
 	if len(ops) > 0 {
+		testUR := *client.NewUpdateRequest(ops)
+		urJson, _ := testUR.MarshalJSON()
+		tflog.Debug(ctx, "Update request detail: "+string(urJson))
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)

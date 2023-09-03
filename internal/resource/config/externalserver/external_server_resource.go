@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -273,9 +274,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"database_name": schema.StringAttribute{
 				Description: "Specifies which database to connect to. This is ignored if jdbc-driver-url is specified.",
@@ -465,6 +463,17 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		serverHostNameAttr := schemaDef.Attributes["server_host_name"].(schema.StringAttribute)
+		serverHostNameAttr.PlanModifiers = append(serverHostNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["server_host_name"] = serverHostNameAttr
+		serverPortAttr := schemaDef.Attributes["server_port"].(schema.Int64Attribute)
+		serverPortAttr.PlanModifiers = append(serverPortAttr.PlanModifiers, int64planmodifier.RequiresReplace())
+		schemaDef.Attributes["server_port"] = serverPortAttr
+		transportMechanismAttr := schemaDef.Attributes["transport_mechanism"].(schema.StringAttribute)
+		transportMechanismAttr.PlanModifiers = append(transportMechanismAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["transport_mechanism"] = transportMechanismAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

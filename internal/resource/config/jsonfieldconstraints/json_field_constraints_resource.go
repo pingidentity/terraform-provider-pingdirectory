@@ -154,9 +154,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"value_type": schema.StringAttribute{
 				Description: "The data type that will be required for values of the target field.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"is_required": schema.BoolAttribute{
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",
@@ -259,6 +256,14 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "json_field", "json_attribute_constraints_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		jsonFieldAttr := schemaDef.Attributes["json_field"].(schema.StringAttribute)
+		jsonFieldAttr.PlanModifiers = append(jsonFieldAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["json_field"] = jsonFieldAttr
+		valueTypeAttr := schemaDef.Attributes["value_type"].(schema.StringAttribute)
+		valueTypeAttr.PlanModifiers = append(valueTypeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["value_type"] = valueTypeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

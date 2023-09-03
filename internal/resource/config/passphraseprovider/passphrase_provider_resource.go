@@ -139,9 +139,6 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Passphrase Provider.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Passphrase Provider. Each configuration property should be given in the form 'name=value'.",
@@ -157,16 +154,10 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"vault_secret_path": schema.StringAttribute{
 				Description: "The path to the desired secret in the Vault service. This will be appended to the value of the base-url property for the associated Vault external server.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"vault_secret_field_name": schema.StringAttribute{
 				Description: "The name of the field in the Vault secret record that contains the passphrase to use to generate the encryption key.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"conjur_external_server": schema.StringAttribute{
 				Description: "An external server definition with information needed to connect and authenticate to the Conjur instance containing the passphrase.",
@@ -175,9 +166,6 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"conjur_secret_relative_path": schema.StringAttribute{
 				Description: "The portion of the path that follows the account name in the URI needed to obtain the desired secret. Any special characters in the path must be URL-encoded.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"password_file": schema.StringAttribute{
 				Description: "The path to the file containing the passphrase.",
@@ -198,9 +186,6 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"secret_name": schema.StringAttribute{
 				Description: "The name of the secret to retrieve.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"obscured_value": schema.StringAttribute{
 				Description: "The value to be stored in an obscured form.",
@@ -214,30 +199,18 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			"secret_id": schema.StringAttribute{
 				Description: "The Amazon Resource Name (ARN) or the user-friendly name of the secret to be retrieved.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"secret_field_name": schema.StringAttribute{
 				Description: "The name of the JSON field whose value is the passphrase that will be retrieved.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"secret_version_id": schema.StringAttribute{
 				Description: "The unique identifier for the version of the secret to be retrieved.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"secret_version_stage": schema.StringAttribute{
 				Description: "The staging label for the version of the secret to be retrieved.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"max_cache_duration": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`amazon-secrets-manager`, `vault`]: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault. When the `type` attribute is set to `azure-key-vault`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Azure Key Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the Azure service. When the `type` attribute is set to `file-based`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from the target file. A value of zero seconds indicates that the provider should always attempt to read the passphrase from the file. When the `type` attribute is set to `conjur`: The maximum length of time that the passphrase provider may cache the passphrase that has been read from Conjur. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Conjur.",
@@ -273,6 +246,35 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		secretIdAttr := schemaDef.Attributes["secret_id"].(schema.StringAttribute)
+		secretIdAttr.PlanModifiers = append(secretIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["secret_id"] = secretIdAttr
+		secretFieldNameAttr := schemaDef.Attributes["secret_field_name"].(schema.StringAttribute)
+		secretFieldNameAttr.PlanModifiers = append(secretFieldNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["secret_field_name"] = secretFieldNameAttr
+		secretVersionIdAttr := schemaDef.Attributes["secret_version_id"].(schema.StringAttribute)
+		secretVersionIdAttr.PlanModifiers = append(secretVersionIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["secret_version_id"] = secretVersionIdAttr
+		secretVersionStageAttr := schemaDef.Attributes["secret_version_stage"].(schema.StringAttribute)
+		secretVersionStageAttr.PlanModifiers = append(secretVersionStageAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["secret_version_stage"] = secretVersionStageAttr
+		secretNameAttr := schemaDef.Attributes["secret_name"].(schema.StringAttribute)
+		secretNameAttr.PlanModifiers = append(secretNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["secret_name"] = secretNameAttr
+		conjurSecretRelativePathAttr := schemaDef.Attributes["conjur_secret_relative_path"].(schema.StringAttribute)
+		conjurSecretRelativePathAttr.PlanModifiers = append(conjurSecretRelativePathAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["conjur_secret_relative_path"] = conjurSecretRelativePathAttr
+		vaultSecretPathAttr := schemaDef.Attributes["vault_secret_path"].(schema.StringAttribute)
+		vaultSecretPathAttr.PlanModifiers = append(vaultSecretPathAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["vault_secret_path"] = vaultSecretPathAttr
+		vaultSecretFieldNameAttr := schemaDef.Attributes["vault_secret_field_name"].(schema.StringAttribute)
+		vaultSecretFieldNameAttr.PlanModifiers = append(vaultSecretFieldNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["vault_secret_field_name"] = vaultSecretFieldNameAttr
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

@@ -433,6 +433,11 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "policy_id"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		policyIdAttr := schemaDef.Attributes["policy_id"].(schema.StringAttribute)
+		policyIdAttr.PlanModifiers = append(policyIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["policy_id"] = policyIdAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

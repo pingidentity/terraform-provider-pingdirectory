@@ -149,6 +149,11 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "unique_id"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		uniqueIdAttr := schemaDef.Attributes["unique_id"].(schema.StringAttribute)
+		uniqueIdAttr.PlanModifiers = append(uniqueIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["unique_id"] = uniqueIdAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

@@ -141,6 +141,11 @@ func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.Sch
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "display_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		displayNameAttr := schemaDef.Attributes["display_name"].(schema.StringAttribute)
+		displayNameAttr.PlanModifiers = append(displayNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["display_name"] = displayNameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

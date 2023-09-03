@@ -141,6 +141,11 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "schema_urn"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		schemaUrnAttr := schemaDef.Attributes["schema_urn"].(schema.StringAttribute)
+		schemaUrnAttr.PlanModifiers = append(schemaUrnAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["schema_urn"] = schemaUrnAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

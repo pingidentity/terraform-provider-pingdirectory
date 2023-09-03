@@ -102,7 +102,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"initialization_vector_length_bits": schema.Int64Attribute{
@@ -111,7 +110,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
-					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"key_id": schema.StringAttribute{
@@ -120,7 +118,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"is_compromised": schema.BoolAttribute{
@@ -138,7 +135,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
-					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"key_length_bits": schema.Int64Attribute{
@@ -147,7 +143,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
-					int64planmodifier.RequiresReplace(),
 				},
 			},
 		},

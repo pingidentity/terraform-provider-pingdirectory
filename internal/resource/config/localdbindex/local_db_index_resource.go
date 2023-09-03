@@ -211,6 +211,11 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute", "backend_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		attributeAttr := schemaDef.Attributes["attribute"].(schema.StringAttribute)
+		attributeAttr.PlanModifiers = append(attributeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["attribute"] = attributeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

@@ -160,6 +160,11 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "locale", "consent_definition_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		localeAttr := schemaDef.Attributes["locale"].(schema.StringAttribute)
+		localeAttr.PlanModifiers = append(localeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["locale"] = localeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

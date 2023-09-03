@@ -188,6 +188,11 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		debugScopeAttr := schemaDef.Attributes["debug_scope"].(schema.StringAttribute)
+		debugScopeAttr.PlanModifiers = append(debugScopeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["debug_scope"] = debugScopeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

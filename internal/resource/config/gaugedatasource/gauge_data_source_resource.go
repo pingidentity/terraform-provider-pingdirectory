@@ -184,7 +184,6 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 		},
@@ -200,6 +199,11 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		minimumUpdateIntervalAttr := schemaDef.Attributes["minimum_update_interval"].(schema.StringAttribute)
+		minimumUpdateIntervalAttr.PlanModifiers = append(minimumUpdateIntervalAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["minimum_update_interval"] = minimumUpdateIntervalAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

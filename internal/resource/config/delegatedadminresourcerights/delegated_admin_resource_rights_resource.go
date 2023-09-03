@@ -181,6 +181,11 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "rest_resource_type", "delegated_admin_rights_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		restResourceTypeAttr := schemaDef.Attributes["rest_resource_type"].(schema.StringAttribute)
+		restResourceTypeAttr.PlanModifiers = append(restResourceTypeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["rest_resource_type"] = restResourceTypeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

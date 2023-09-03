@@ -103,7 +103,6 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
-					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"base_dn": schema.StringAttribute{
@@ -112,7 +111,6 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"window_size": schema.Int64Attribute{

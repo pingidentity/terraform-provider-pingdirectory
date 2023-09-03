@@ -156,9 +156,6 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				Default:     int64default.StaticInt64(4000),
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
 			},
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
@@ -177,6 +174,14 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "name", "backend_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		nameAttr := schemaDef.Attributes["name"].(schema.StringAttribute)
+		nameAttr.PlanModifiers = append(nameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["name"] = nameAttr
+		maxBlockSizeAttr := schemaDef.Attributes["max_block_size"].(schema.Int64Attribute)
+		maxBlockSizeAttr.PlanModifiers = append(maxBlockSizeAttr.PlanModifiers, int64planmodifier.RequiresReplace())
+		schemaDef.Attributes["max_block_size"] = maxBlockSizeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

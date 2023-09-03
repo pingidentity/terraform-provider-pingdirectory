@@ -137,16 +137,10 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 			"monitor_attribute_name": schema.StringAttribute{
 				Description: "The name of the monitor attribute that contains the numeric value to be published.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"monitor_object_class_name": schema.StringAttribute{
 				Description: "The name of the object class for monitor entries that contain the monitor attribute.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"metric_type": schema.StringAttribute{
 				Description: "The metric type that should be used for the value of the specified monitor attribute.",
@@ -180,6 +174,14 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "metric_name", "http_servlet_extension_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		monitorAttributeNameAttr := schemaDef.Attributes["monitor_attribute_name"].(schema.StringAttribute)
+		monitorAttributeNameAttr.PlanModifiers = append(monitorAttributeNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["monitor_attribute_name"] = monitorAttributeNameAttr
+		monitorObjectClassNameAttr := schemaDef.Attributes["monitor_object_class_name"].(schema.StringAttribute)
+		monitorObjectClassNameAttr.PlanModifiers = append(monitorObjectClassNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["monitor_object_class_name"] = monitorObjectClassNameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

@@ -151,6 +151,11 @@ func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequ
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute_type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		attributeTypeAttr := schemaDef.Attributes["attribute_type"].(schema.StringAttribute)
+		attributeTypeAttr.PlanModifiers = append(attributeTypeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["attribute_type"] = attributeTypeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

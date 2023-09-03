@@ -136,16 +136,10 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 			"index_filter_pattern": schema.StringAttribute{
 				Description: "A filter pattern that identifies which entries to include in the index.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"index_base_dn_pattern": schema.StringAttribute{
 				Description: "An optional base DN pattern that identifies portions of the DIT in which entries to index may exist.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that any single index key will be allowed to match before the server stops maintaining the ID set for that index key.",
@@ -184,6 +178,14 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "backend_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		indexFilterPatternAttr := schemaDef.Attributes["index_filter_pattern"].(schema.StringAttribute)
+		indexFilterPatternAttr.PlanModifiers = append(indexFilterPatternAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["index_filter_pattern"] = indexFilterPatternAttr
+		indexBaseDnPatternAttr := schemaDef.Attributes["index_base_dn_pattern"].(schema.StringAttribute)
+		indexBaseDnPatternAttr.PlanModifiers = append(indexBaseDnPatternAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["index_base_dn_pattern"] = indexBaseDnPatternAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
