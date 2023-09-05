@@ -14,6 +14,10 @@ The Configuration API requires credentials for basic auth, which must be passed 
 
 The PingDirectory provider supports versions `9.1` through `9.3` of PingDirectory.
 
+## Documentation
+
+Detailed documentation on PingDirectory configuration can be found in the [online docs](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_landing_page).
+
 ## Example usage and relation to the `dsconfig` tool
 
 The following example configures a `Location` object and updates the PingDirectory `Global Configuration`.

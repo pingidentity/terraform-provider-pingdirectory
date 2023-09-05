@@ -15,5 +15,8 @@ description: |-
 {{ tffile (printf "%s%s%s" "examples/data-sources/" .Name "/data-source.tf") }}
 {{- end }}
 
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_connection_criteria)
+
 {{ .SchemaMarkdown | trimspace }}
 
