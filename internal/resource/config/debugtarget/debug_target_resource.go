@@ -188,6 +188,11 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		debugScopeAttr := schemaDef.Attributes["debug_scope"].(schema.StringAttribute)
+		debugScopeAttr.PlanModifiers = append(debugScopeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["debug_scope"] = debugScopeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -429,7 +434,7 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 	readResponse, httpResp, err := apiClient.DebugTargetApi.GetDebugTarget(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -531,7 +536,7 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	httpResp, err := r.apiClient.DebugTargetApi.DeleteDebugTargetExecute(r.apiClient.DebugTargetApi.DeleteDebugTarget(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Debug Target", err, httpResp)
 		return
 	}

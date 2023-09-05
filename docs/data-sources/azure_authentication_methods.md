@@ -9,6 +9,8 @@ description: |-
 
 Lists Azure Authentication Method objects in the server configuration.
 
+Azure Authentication Methods are used to authenticate to the Microsoft Azure service.
+
 ## Example Usage
 
 ```terraform

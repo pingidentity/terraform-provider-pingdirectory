@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Search Entry Criteria define sets of criteria for grouping and describing search result entries based on a number of properties, including properties of the associated client connection and operation request, the entry location and contents, and included controls.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_search_entry_criteria)
 
 {{ .SchemaMarkdown | trimspace }}
 

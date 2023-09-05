@@ -212,6 +212,11 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "attribute_type", "rest_resource_type_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		attributeTypeAttr := schemaDef.Attributes["attribute_type"].(schema.StringAttribute)
+		attributeTypeAttr.PlanModifiers = append(attributeTypeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["attribute_type"] = attributeTypeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -815,7 +820,7 @@ func readDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, 
 	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -933,7 +938,7 @@ func (r *delegatedAdminAttributeResource) Delete(ctx context.Context, req resour
 
 	httpResp, err := r.apiClient.DelegatedAdminAttributeApi.DeleteDelegatedAdminAttributeExecute(r.apiClient.DelegatedAdminAttributeApi.DeleteDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Attribute", err, httpResp)
 		return
 	}

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Backend.
 
+Backends are responsible for providing access to the underlying data presented by the server.
+
 ## Example Usage
 
 ```terraform

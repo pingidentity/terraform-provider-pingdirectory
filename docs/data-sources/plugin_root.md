@@ -9,6 +9,8 @@ description: |-
 
 Describes a Plugin Root.
 
+The Plugin Root defines the parent entry for all plug-ins defined in the server.
+
 ## Example Usage
 
 ```terraform

@@ -160,6 +160,11 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "locale", "consent_definition_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		localeAttr := schemaDef.Attributes["locale"].(schema.StringAttribute)
+		localeAttr.PlanModifiers = append(localeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["locale"] = localeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -367,7 +372,7 @@ func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadReq
 	readResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -469,7 +474,7 @@ func (r *consentDefinitionLocalizationResource) Delete(ctx context.Context, req 
 
 	httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalizationExecute(r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition Localization", err, httpResp)
 		return
 	}

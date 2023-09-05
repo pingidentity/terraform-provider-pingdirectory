@@ -101,7 +101,6 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"key_id": schema.StringAttribute{
@@ -110,7 +109,6 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"is_compromised": schema.BoolAttribute{
@@ -128,7 +126,6 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
-					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"key_length_bits": schema.Int64Attribute{
@@ -137,7 +134,6 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
-					int64planmodifier.RequiresReplace(),
 				},
 			},
 		},

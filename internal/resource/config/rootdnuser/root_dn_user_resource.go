@@ -788,7 +788,7 @@ func readRootDnUser(ctx context.Context, req resource.ReadRequest, resp *resourc
 	readResponse, httpResp, err := apiClient.RootDnUserApi.GetRootDnUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn User", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -890,7 +890,7 @@ func (r *rootDnUserResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 	httpResp, err := r.apiClient.RootDnUserApi.DeleteRootDnUserExecute(r.apiClient.RootDnUserApi.DeleteRootDnUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Root Dn User", err, httpResp)
 		return
 	}

@@ -9,6 +9,8 @@ description: |-
 
 Lists Synchronization Provider objects in the server configuration.
 
+Synchronization Providers are responsible for handling synchronization of the Directory Server data with other Directory Server instances or other data repositories.
+
 ## Example Usage
 
 ```terraform

@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Request Criteria define sets of criteria for grouping and describing operation requests based on a number of properties, including properties for the associated client connection, the type of operation, target entry, request controls, target attributes, and other operation-specific items.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_request_criteria)
 
 {{ .SchemaMarkdown | trimspace }}
 

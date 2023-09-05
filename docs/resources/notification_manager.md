@@ -9,6 +9,8 @@ description: |-
 
 Manages a Notification Manager.
 
+Notification Managers may be used to deliver notification of changes that match one or more subscriptions.
+
 ## Example Usage
 
 ```terraform

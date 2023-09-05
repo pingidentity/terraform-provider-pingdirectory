@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Result Code Maps provide a way to customize the result codes that should be returned for various error conditions.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

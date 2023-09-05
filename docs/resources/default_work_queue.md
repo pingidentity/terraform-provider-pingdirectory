@@ -9,6 +9,10 @@ description: |-
 
 Manages a Work Queue.
 
+The Work Queue provides the configuration for the server work queue and is responsible for ensuring that requests received from clients are processed in a timely manner.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

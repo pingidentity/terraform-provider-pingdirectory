@@ -9,6 +9,10 @@ description: |-
 
 Manages a Group Implementation.
 
+Group Implementations define named collections of users.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

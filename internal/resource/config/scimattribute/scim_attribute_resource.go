@@ -204,6 +204,11 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"resource_type", "name", "scim_schema_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		nameAttr := schemaDef.Attributes["name"].(schema.StringAttribute)
+		nameAttr.PlanModifiers = append(nameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["name"] = nameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -466,7 +471,7 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 	readResponse, httpResp, err := apiClient.ScimAttributeApi.GetScimAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -568,7 +573,7 @@ func (r *scimAttributeResource) Delete(ctx context.Context, req resource.DeleteR
 
 	httpResp, err := r.apiClient.ScimAttributeApi.DeleteScimAttributeExecute(r.apiClient.ScimAttributeApi.DeleteScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Attribute", err, httpResp)
 		return
 	}

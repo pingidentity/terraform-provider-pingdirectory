@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Connection Handlers are responsible for handling all interaction with the clients, including accepting the connections, reading requests, and sending responses.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/data-sources/" .Name "/data-source.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_config_connection_handlers)
 
 {{ .SchemaMarkdown | trimspace }}
 

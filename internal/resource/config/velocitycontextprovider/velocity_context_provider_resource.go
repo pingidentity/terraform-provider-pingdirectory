@@ -138,9 +138,6 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Velocity Context Provider.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Velocity Context Provider. Each configuration property should be given in the form 'name=value'.",
@@ -222,6 +219,11 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "http_servlet_extension_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -714,7 +716,7 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 	readResponse, httpResp, err := apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -832,7 +834,7 @@ func (r *velocityContextProviderResource) Delete(ctx context.Context, req resour
 
 	httpResp, err := r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProviderExecute(r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Context Provider", err, httpResp)
 		return
 	}

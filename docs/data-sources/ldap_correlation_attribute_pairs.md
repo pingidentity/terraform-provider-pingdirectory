@@ -9,6 +9,8 @@ description: |-
 
 Lists Ldap Correlation Attribute Pair objects in the server configuration.
 
+Optional correlation attributes additional to the pair specified by the primary-correlation-attribute and secondary-correlation-attribute properties. If specified, these attribute pairs must also have matching values between the parent SCIM Resource Type and the Correlated LDAP Data View.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Describes a Consent Service.
 
+The Consent Service contains the properties that affect the overall operation of the Directory Server Consent API.
+
 ## Example Usage
 
 ```terraform

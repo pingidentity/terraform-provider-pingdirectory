@@ -573,7 +573,6 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
-					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"writability_mode": schema.StringAttribute{
@@ -621,15 +620,9 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that will be used to store queued samples.",
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
 		}
 		schemaDef.Attributes["metrics_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that contains metric definitions.",
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
 		}
 		schemaDef.Attributes["sample_flush_interval"] = schema.StringAttribute{
 			Description: "Period when samples are flushed to disk.",
@@ -813,6 +806,11 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			Description: "Specifies the permissions that should be applied to files and directories created by a backup of the backend.",
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "backend_id"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		backendIdAttr := schemaDef.Attributes["backend_id"].(schema.StringAttribute)
+		backendIdAttr.PlanModifiers = append(backendIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["backend_id"] = backendIdAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -2924,7 +2922,7 @@ func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, re
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 {
+		if httpResp != nil && httpResp.StatusCode == 404 {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -3173,7 +3171,7 @@ func (r *backendResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	httpResp, err := r.apiClient.BackendApi.DeleteBackendExecute(r.apiClient.BackendApi.DeleteBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Backend", err, httpResp)
 		return
 	}

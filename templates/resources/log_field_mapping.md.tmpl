@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+The Log Field Mapping provides a mapping to column names in a table used to store log elements.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_config_log_field_map_tables)
 
 {{ .SchemaMarkdown | trimspace }}
 

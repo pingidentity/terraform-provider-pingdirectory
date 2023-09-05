@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Change Subscription Handlers may be used to provide notification of changes that match one or more change subscriptions.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

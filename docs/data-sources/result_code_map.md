@@ -9,6 +9,8 @@ description: |-
 
 Describes a Result Code Map.
 
+Result Code Maps provide a way to customize the result codes that should be returned for various error conditions.
+
 ## Example Usage
 
 ```terraform

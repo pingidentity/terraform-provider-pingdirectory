@@ -393,7 +393,7 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -495,7 +495,7 @@ func (r *scimAttributeMappingResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.ScimAttributeMappingApi.DeleteScimAttributeMappingExecute(r.apiClient.ScimAttributeMappingApi.DeleteScimAttributeMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Attribute Mapping", err, httpResp)
 		return
 	}

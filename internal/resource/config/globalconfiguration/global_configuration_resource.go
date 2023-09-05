@@ -176,7 +176,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"location": schema.StringAttribute{

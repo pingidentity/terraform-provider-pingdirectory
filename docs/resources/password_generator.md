@@ -9,6 +9,8 @@ description: |-
 
 Manages a Password Generator.
 
+Password Generators are used by the password modify extended operation to construct a new password for the user.
+
 ## Example Usage
 
 ```terraform

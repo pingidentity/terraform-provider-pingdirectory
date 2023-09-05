@@ -9,6 +9,8 @@ description: |-
 
 Describes a Replication Server.
 
+Replication Servers publish updates to Directory Server instances within a Replication Domain.
+
 ## Example Usage
 
 ```terraform

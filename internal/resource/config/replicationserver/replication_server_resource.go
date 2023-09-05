@@ -150,7 +150,6 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
-					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"listen_on_all_addresses": schema.BoolAttribute{

@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Backends are responsible for providing access to the underlying data presented by the server.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

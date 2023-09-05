@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Access Token Validators are used to validate an access token that may be used to access protected resources of the Directory Server. An Access Token Validator is responsible for decoding the token and returning token metadata such as described in RFC 7662.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_access_token_validators)
 
 {{ .SchemaMarkdown | trimspace }}
 

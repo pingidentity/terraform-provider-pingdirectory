@@ -788,7 +788,7 @@ func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -890,7 +890,7 @@ func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUserExecute(r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Topology Admin User", err, httpResp)
 		return
 	}

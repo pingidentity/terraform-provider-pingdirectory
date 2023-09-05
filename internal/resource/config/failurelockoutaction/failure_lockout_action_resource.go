@@ -567,7 +567,7 @@ func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -684,7 +684,7 @@ func (r *failureLockoutActionResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutActionExecute(r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Failure Lockout Action", err, httpResp)
 		return
 	}

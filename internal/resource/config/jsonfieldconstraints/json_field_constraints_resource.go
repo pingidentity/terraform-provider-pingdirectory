@@ -154,9 +154,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"value_type": schema.StringAttribute{
 				Description: "The data type that will be required for values of the target field.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"is_required": schema.BoolAttribute{
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",
@@ -259,6 +256,14 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "json_field", "json_attribute_constraints_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		jsonFieldAttr := schemaDef.Attributes["json_field"].(schema.StringAttribute)
+		jsonFieldAttr.PlanModifiers = append(jsonFieldAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["json_field"] = jsonFieldAttr
+		valueTypeAttr := schemaDef.Attributes["value_type"].(schema.StringAttribute)
+		valueTypeAttr.PlanModifiers = append(valueTypeAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["value_type"] = valueTypeAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -578,7 +583,7 @@ func readJsonFieldConstraints(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.JsonFieldConstraintsApi.GetJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Json Field Constraints", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -680,7 +685,7 @@ func (r *jsonFieldConstraintsResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraintsExecute(r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Json Field Constraints", err, httpResp)
 		return
 	}

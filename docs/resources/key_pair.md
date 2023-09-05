@@ -9,6 +9,8 @@ description: |-
 
 Manages a Key Pair.
 
+The Key Pair represents a public-private key pair that may be used to provide credentials for digital signatures and public-key encryption. An administrator may either import an existing key-pair or have the system generate a new one.
+
 ## Example Usage
 
 ```terraform

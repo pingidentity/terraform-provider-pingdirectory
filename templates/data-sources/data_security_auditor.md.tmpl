@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Data Security Auditors are used to identify potential risks in the data stored in the Directory Server.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/data-sources/" .Name "/data-source.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_audit_data_content)
 
 {{ .SchemaMarkdown | trimspace }}
 

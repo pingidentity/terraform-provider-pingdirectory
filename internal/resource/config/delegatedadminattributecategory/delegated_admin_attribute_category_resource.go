@@ -141,6 +141,11 @@ func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.Sch
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "display_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		displayNameAttr := schemaDef.Attributes["display_name"].(schema.StringAttribute)
+		displayNameAttr.PlanModifiers = append(displayNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["display_name"] = displayNameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -321,7 +326,7 @@ func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadR
 	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.DisplayName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute Category", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -422,7 +427,7 @@ func (r *delegatedAdminAttributeCategoryResource) Delete(ctx context.Context, re
 
 	httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.DeleteDelegatedAdminAttributeCategoryExecute(r.apiClient.DelegatedAdminAttributeCategoryApi.DeleteDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DisplayName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Attribute Category", err, httpResp)
 		return
 	}

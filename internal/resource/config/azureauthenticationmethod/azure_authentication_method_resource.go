@@ -563,7 +563,7 @@ func readAzureAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 	readResponse, httpResp, err := apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -681,7 +681,7 @@ func (r *azureAuthenticationMethodResource) Delete(ctx context.Context, req reso
 
 	httpResp, err := r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethodExecute(r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Azure Authentication Method", err, httpResp)
 		return
 	}

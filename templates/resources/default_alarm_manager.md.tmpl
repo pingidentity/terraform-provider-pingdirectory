@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+The Alarm Manager provides an interface between components that raise alarms and persistence of those alarms into the alarms backend.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

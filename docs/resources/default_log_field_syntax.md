@@ -9,6 +9,10 @@ description: |-
 
 Manages a Log Field Syntax.
 
+Log Field Syntaxes are used to define the behavior for logging values with a given syntax.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

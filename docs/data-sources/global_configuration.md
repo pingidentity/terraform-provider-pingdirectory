@@ -9,6 +9,8 @@ description: |-
 
 Describes a Global Configuration.
 
+The Global Configuration contains properties that affect the overall operation of the Directory Server.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Monitor Provider objects in the server configuration.
 
+Monitor Providers can be used to provide information about the state of the server or one of its components.
+
 ## Example Usage
 
 ```terraform

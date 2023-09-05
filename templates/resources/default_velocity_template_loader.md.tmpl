@@ -9,11 +9,18 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Velocity Template Loaders load templates from the filesystem.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_met_support_mult_content_types)
 
 {{ .SchemaMarkdown | trimspace }}
 

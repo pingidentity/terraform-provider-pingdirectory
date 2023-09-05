@@ -9,6 +9,8 @@ description: |-
 
 Describes a Http Servlet Cross Origin Policy.
 
+This object describes a configuration for handling Cross-Origin HTTP requests using the Cross Origin Resource Sharing (CORS) protocol, as defined at http://www.w3.org/TR/cors. An instance of HTTP Servlet Cross Origin Policy can be associated with zero or more HTTP Servlet Extensions to set the Cross-Origin policy for those servlets.
+
 ## Example Usage
 
 ```terraform

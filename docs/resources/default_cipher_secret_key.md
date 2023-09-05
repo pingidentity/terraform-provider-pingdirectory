@@ -9,6 +9,10 @@ description: |-
 
 Manages a Cipher Secret Key.
 
+The Cipher Secret Key represents a cryptographic key used by the server for both encryption of plain text and decryption of cipher text. For example, the Cipher Secret Keys are used for backups, LDIF exports and reversibly-encrypted passwords.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

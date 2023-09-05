@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Synchronization Providers are responsible for handling synchronization of the Directory Server data with other Directory Server instances or other data repositories.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

@@ -9,6 +9,8 @@ description: |-
 
 Lists Http Servlet Extension objects in the server configuration.
 
+HTTP Servlet Extensions may be used to define classes and initialization parameters that should be used for a servlet invoked by an HTTP connection handler.
+
 ## Example Usage
 
 ```terraform

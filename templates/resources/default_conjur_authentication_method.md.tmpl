@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Conjur Authentication Methods are used to authenticate to a CyberArk Conjur instance in order to obtain an access token.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

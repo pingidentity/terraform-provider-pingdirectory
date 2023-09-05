@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+A Client Connection Policy is used to classify a client connection based on the client address, protocol, identity, and whether it is using a secure communication mechanism. It may be used to control which types of operations that client may perform and the types of data that it may access.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_client_connection_policy_config)
 
 {{ .SchemaMarkdown | trimspace }}
 

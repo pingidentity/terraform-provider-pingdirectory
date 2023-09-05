@@ -198,9 +198,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Recurring Task.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Recurring Task. Each configuration property should be given in the form 'name=value'.",
@@ -607,6 +604,11 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -1030,11 +1032,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1047,10 +1048,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -3397,7 +3399,7 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -3568,7 +3570,7 @@ func (r *recurringTaskResource) Delete(ctx context.Context, req resource.DeleteR
 
 	httpResp, err := r.apiClient.RecurringTaskApi.DeleteRecurringTaskExecute(r.apiClient.RecurringTaskApi.DeleteRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task", err, httpResp)
 		return
 	}

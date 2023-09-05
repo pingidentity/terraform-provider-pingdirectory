@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Log Retention Policies are used to specify when log files should be cleaned.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_config_log_retention)
 
 {{ .SchemaMarkdown | trimspace }}
 

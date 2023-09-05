@@ -9,11 +9,18 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Access Control Handlers manage the application-wide access control. The Directory Server access control handler is defined through an extensible interface, so that alternate implementations can be created. Only one access control handler may be active in the server at any given time.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_define_global_acis)
 
 {{ .SchemaMarkdown | trimspace }}
 

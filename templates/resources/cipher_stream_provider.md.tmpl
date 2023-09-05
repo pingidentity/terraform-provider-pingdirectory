@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Cipher Stream Providers are used to obtain cipher input and output streams which may be used to read and write encrypted data.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_sec_config_cipher_stream_provs)
 
 {{ .SchemaMarkdown | trimspace }}
 

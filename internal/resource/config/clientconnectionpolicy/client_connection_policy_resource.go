@@ -433,6 +433,11 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "policy_id"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		policyIdAttr := schemaDef.Attributes["policy_id"].(schema.StringAttribute)
+		policyIdAttr.PlanModifiers = append(policyIdAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["policy_id"] = policyIdAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -931,7 +936,7 @@ func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, r
 	readResponse, httpResp, err := apiClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.PolicyID.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -1032,7 +1037,7 @@ func (r *clientConnectionPolicyResource) Delete(ctx context.Context, req resourc
 
 	httpResp, err := r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicyExecute(r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PolicyID.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Client Connection Policy", err, httpResp)
 		return
 	}

@@ -9,6 +9,10 @@ description: |-
 
 Manages a Replication Server.
 
+Replication Servers publish updates to Directory Server instances within a Replication Domain.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

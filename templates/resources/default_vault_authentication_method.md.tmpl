@@ -9,6 +9,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Vault Authentication Methods are used to authenticate to an instance of a HashiCorp Vault server in order to obtain an access token.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

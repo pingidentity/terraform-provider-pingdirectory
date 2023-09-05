@@ -9,11 +9,18 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Root DN Users are administrative users whose accounts exist in the server configuration. Root DN Users may automatically inherit a set of privileges defined in the root DN configuration, which can be used to give them special capabilities that are not automatically granted to non-root users.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_manage_root_user_accts)
 
 {{ .SchemaMarkdown | trimspace }}
 

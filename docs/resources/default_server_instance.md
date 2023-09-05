@@ -9,6 +9,10 @@ description: |-
 
 Manages a Server Instance.
 
+The Server Instance represents a single server within the system that has one of the UnboundID products installed on it.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

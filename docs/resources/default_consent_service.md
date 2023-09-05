@@ -9,6 +9,10 @@ description: |-
 
 Manages a Consent Service.
 
+The Consent Service contains the properties that affect the overall operation of the Directory Server Consent API.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

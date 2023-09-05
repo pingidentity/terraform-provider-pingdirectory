@@ -130,9 +130,6 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Identity Mapper.",
 				Optional:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Identity Mapper. Each configuration property should be given in the form 'name=value'.",
@@ -214,6 +211,11 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -921,7 +923,7 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -1050,7 +1052,7 @@ func (r *identityMapperResource) Delete(ctx context.Context, req resource.Delete
 
 	httpResp, err := r.apiClient.IdentityMapperApi.DeleteIdentityMapperExecute(r.apiClient.IdentityMapperApi.DeleteIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Identity Mapper", err, httpResp)
 		return
 	}

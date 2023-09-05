@@ -621,7 +621,7 @@ func readLogRotationPolicy(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Rotation Policy", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -744,7 +744,7 @@ func (r *logRotationPolicyResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicyExecute(r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Rotation Policy", err, httpResp)
 		return
 	}

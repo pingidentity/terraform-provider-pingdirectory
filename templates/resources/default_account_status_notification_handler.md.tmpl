@@ -9,11 +9,18 @@ description: |-
 
 {{ .Description | trimspace }}
 
+Account Status Notification Handlers are invoked to provide notification to users in some form (for example, by an email message) when the status of a user's account has changed in some way. The Account Status Notification Handler can be used to notify the user and/or administrators of the change.
+
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/resources/" .Name "/resource.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_account_status_notifs)
 
 {{ .SchemaMarkdown | trimspace }}
 

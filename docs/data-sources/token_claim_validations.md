@@ -9,6 +9,8 @@ description: |-
 
 Lists Token Claim Validation objects in the server configuration.
 
+A Token Claim Validation defines a condition about a token claim that must be satisfied for the token to be considered valid.
+
 ## Example Usage
 
 ```terraform

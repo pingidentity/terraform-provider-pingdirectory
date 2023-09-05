@@ -121,9 +121,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"self_signed_certificate_validity": schema.StringAttribute{
 				Description: "The validity period for a self-signed certificate. If not specified, the self-signed certificate will be valid for approximately 20 years. This is not used when importing an existing key-pair. The system will not automatically rotate expired certificates. It is up to the administrator to do that when that happens.",
@@ -131,7 +128,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"subject_dn": schema.StringAttribute{
@@ -139,9 +135,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("cn=Directory Server,O=Ping Identity Key Pair"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"certificate_chain": schema.StringAttribute{
 				Description: "The PEM-encoded X.509 certificate chain.",
@@ -155,9 +148,6 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "The base64-encoded private key that is encrypted using the preferred encryption settings definition.",
 				Optional:    true,
 				Sensitive:   true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 		},
 	}
@@ -172,6 +162,20 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		keyAlgorithmAttr := schemaDef.Attributes["key_algorithm"].(schema.StringAttribute)
+		keyAlgorithmAttr.PlanModifiers = append(keyAlgorithmAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["key_algorithm"] = keyAlgorithmAttr
+		selfSignedCertificateValidityAttr := schemaDef.Attributes["self_signed_certificate_validity"].(schema.StringAttribute)
+		selfSignedCertificateValidityAttr.PlanModifiers = append(selfSignedCertificateValidityAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["self_signed_certificate_validity"] = selfSignedCertificateValidityAttr
+		subjectDnAttr := schemaDef.Attributes["subject_dn"].(schema.StringAttribute)
+		subjectDnAttr.PlanModifiers = append(subjectDnAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["subject_dn"] = subjectDnAttr
+		privateKeyAttr := schemaDef.Attributes["private_key"].(schema.StringAttribute)
+		privateKeyAttr.PlanModifiers = append(privateKeyAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["private_key"] = privateKeyAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -402,7 +406,7 @@ func readKeyPair(ctx context.Context, req resource.ReadRequest, resp *resource.R
 	readResponse, httpResp, err := apiClient.KeyPairApi.GetKeyPair(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -504,7 +508,7 @@ func (r *keyPairResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	httpResp, err := r.apiClient.KeyPairApi.DeleteKeyPairExecute(r.apiClient.KeyPairApi.DeleteKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Pair", err, httpResp)
 		return
 	}

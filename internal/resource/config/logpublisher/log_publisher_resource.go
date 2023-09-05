@@ -292,9 +292,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"script_argument": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `groovy-scripted-file-based-access`: The set of arguments used to customize the behavior for the Scripted File Based Access Log Publisher. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `groovy-scripted-file-based-error`: The set of arguments used to customize the behavior for the Scripted File Based Error Log Publisher. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `groovy-scripted-access`: The set of arguments used to customize the behavior for the Scripted Access Log Publisher. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `groovy-scripted-error`: The set of arguments used to customize the behavior for the Scripted Error Log Publisher. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `groovy-scripted-http-operation`: The set of arguments used to customize the behavior for the Scripted HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.",
@@ -318,9 +315,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Indicates whether log files should be encrypted so that their content is not available to unauthorized users.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.RequiresReplace(),
-				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
 				Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
@@ -340,9 +334,6 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description:         "When the `type` attribute is set to `third-party-file-based-access`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Access Log Publisher. When the `type` attribute is set to `third-party-http-operation`: The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher. When the `type` attribute is set to `third-party-error`: The fully-qualified name of the Java class providing the logic for the Third Party Error Log Publisher. When the `type` attribute is set to `third-party-access`: The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher. When the `type` attribute is set to `third-party-file-based-error`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Error Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party-file-based-access`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Access Log Publisher.\n  - `third-party-http-operation`: The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher.\n  - `third-party-error`: The fully-qualified name of the Java class providing the logic for the Third Party Error Log Publisher.\n  - `third-party-access`: The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher.\n  - `third-party-file-based-error`: The fully-qualified name of the Java class providing the logic for the Third Party File Based Error Log Publisher.",
 				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"debug_aci_enabled": schema.BoolAttribute{
 				Description: "Indicates whether to include debugging information about ACIs being used by the operations being logged.",
@@ -873,6 +864,17 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		compressionMechanismAttr := schemaDef.Attributes["compression_mechanism"].(schema.StringAttribute)
+		compressionMechanismAttr.PlanModifiers = append(compressionMechanismAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["compression_mechanism"] = compressionMechanismAttr
+		encryptLogAttr := schemaDef.Attributes["encrypt_log"].(schema.BoolAttribute)
+		encryptLogAttr.PlanModifiers = append(encryptLogAttr.PlanModifiers, boolplanmodifier.RequiresReplace())
+		schemaDef.Attributes["encrypt_log"] = encryptLogAttr
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -16257,7 +16259,7 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -16584,7 +16586,7 @@ func (r *logPublisherResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	httpResp, err := r.apiClient.LogPublisherApi.DeleteLogPublisherExecute(r.apiClient.LogPublisherApi.DeleteLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Publisher", err, httpResp)
 		return
 	}

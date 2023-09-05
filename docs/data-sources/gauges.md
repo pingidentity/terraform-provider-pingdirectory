@@ -9,6 +9,8 @@ description: |-
 
 Lists Gauge objects in the server configuration.
 
+Gauges convey real-time, key performance indicators in the monitor backend, and can be configured to raise alarms when the measured value exceeds defined thresholds or matches specific string patterns.
+
 ## Example Usage
 
 ```terraform

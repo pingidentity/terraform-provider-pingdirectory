@@ -192,9 +192,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.\n  - `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
 				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"extension_argument": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'. When the `type` attribute is set to `third-party-enhanced`: The set of arguments used to customize the behavior for the Third Party Enhanced Password Storage Scheme. Each configuration property should be given in the form 'name=value'.",
@@ -275,6 +272,11 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		extensionClassAttr := schemaDef.Attributes["extension_class"].(schema.StringAttribute)
+		extensionClassAttr.PlanModifiers = append(extensionClassAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["extension_class"] = extensionClassAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -2419,7 +2421,7 @@ func readPasswordStorageScheme(ctx context.Context, req resource.ReadRequest, re
 	readResponse, httpResp, err := apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -2686,7 +2688,7 @@ func (r *passwordStorageSchemeResource) Delete(ctx context.Context, req resource
 
 	httpResp, err := r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageSchemeExecute(r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Storage Scheme", err, httpResp)
 		return
 	}

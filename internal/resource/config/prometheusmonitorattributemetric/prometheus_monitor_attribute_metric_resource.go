@@ -137,16 +137,10 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 			"monitor_attribute_name": schema.StringAttribute{
 				Description: "The name of the monitor attribute that contains the numeric value to be published.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"monitor_object_class_name": schema.StringAttribute{
 				Description: "The name of the object class for monitor entries that contain the monitor attribute.",
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"metric_type": schema.StringAttribute{
 				Description: "The metric type that should be used for the value of the specified monitor attribute.",
@@ -180,6 +174,14 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "metric_name", "http_servlet_extension_name"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		monitorAttributeNameAttr := schemaDef.Attributes["monitor_attribute_name"].(schema.StringAttribute)
+		monitorAttributeNameAttr.PlanModifiers = append(monitorAttributeNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["monitor_attribute_name"] = monitorAttributeNameAttr
+		monitorObjectClassNameAttr := schemaDef.Attributes["monitor_object_class_name"].(schema.StringAttribute)
+		monitorObjectClassNameAttr.PlanModifiers = append(monitorObjectClassNameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["monitor_object_class_name"] = monitorObjectClassNameAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -421,7 +423,7 @@ func readPrometheusMonitorAttributeMetric(ctx context.Context, req resource.Read
 	readResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Prometheus Monitor Attribute Metric", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -523,7 +525,7 @@ func (r *prometheusMonitorAttributeMetricResource) Delete(ctx context.Context, r
 
 	httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetricExecute(r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Prometheus Monitor Attribute Metric", err, httpResp)
 		return
 	}

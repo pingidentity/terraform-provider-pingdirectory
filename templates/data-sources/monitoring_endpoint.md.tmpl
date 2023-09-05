@@ -9,11 +9,16 @@ description: |-
 
 {{ .Description | trimspace }}
 
+A Monitoring Endpoint defines a destination where server metric data should be sent for monitoring, such as a Splunk indexer or a StatsD daemon.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{ tffile (printf "%s%s%s" "examples/data-sources/" .Name "/data-source.tf") }}
 {{- end }}
+
+## Documentation
+See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-93/pd_ds_config_statsd_monitor_endpoint)
 
 {{ .SchemaMarkdown | trimspace }}
 

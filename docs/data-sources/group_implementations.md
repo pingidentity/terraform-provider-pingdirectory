@@ -9,6 +9,8 @@ description: |-
 
 Lists Group Implementation objects in the server configuration.
 
+Group Implementations define named collections of users.
+
 ## Example Usage
 
 ```terraform
