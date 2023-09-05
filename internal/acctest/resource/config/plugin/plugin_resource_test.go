@@ -41,7 +41,7 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 	updatedResourceModel := internalSearchRatePluginTestModel{
 		id:           testIdInternalSearchRatePlugin,
 		description:  "Test simple internal search rate plugin modified",
-		pluginType:   []string{"postconnect", "shutdown", "startup"},
+		pluginType:   []string{"startup"},
 		numThreads:   9,
 		baseDn:       "dc=example2,dc=com",
 		filterPrefix: "myprefix2",
