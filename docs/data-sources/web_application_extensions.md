@@ -9,6 +9,8 @@ description: |-
 
 Lists Web Application Extension objects in the server configuration.
 
+Web Application Extensions may be used to define web applications to be hosted by the server.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Obscured Value.
 
+Obscured Values can be used to store arbitrary values in the configuration that will be stored in obscured form, in which the plaintext representation is not obvious from its obscured representation. This may be particularly useful when developing Server SDK extensions that may need to store credentials used to access external systems or other sensitive information.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Failure Lockout Action objects in the server configuration.
 
+Failure Lockout Actions may be used to specify the behavior that the server should exhibit for accounts that have too many failed authentication attempts.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Sasl Mechanism Handler.
 
+The SASL mechanism handler configuration entry is the parent for all SASL mechanism handlers defined in the Directory Server.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Velocity Template Loader objects in the server configuration.
 
+Velocity Template Loaders load templates from the filesystem.
+
 ## Example Usage
 
 ```terraform

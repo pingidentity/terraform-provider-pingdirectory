@@ -9,6 +9,8 @@ description: |-
 
 Manages a Inter Server Authentication Info.
 
+An Inter Server Authentication Info is used to define all the information necessary for one server instance to authenticate requests to another.
+
 ## Example Usage
 
 ```terraform

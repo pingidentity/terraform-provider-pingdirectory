@@ -9,6 +9,8 @@ description: |-
 
 Lists Data Security Auditor objects in the server configuration.
 
+Data Security Auditors are used to identify potential risks in the data stored in the Directory Server.
+
 ## Example Usage
 
 ```terraform

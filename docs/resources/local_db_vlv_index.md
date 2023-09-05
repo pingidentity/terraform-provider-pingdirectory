@@ -9,6 +9,8 @@ description: |-
 
 Manages a Local Db Vlv Index.
 
+Local DB VLV Indexes are used to store information about a specific search request that makes it possible to efficiently process them using the VLV control.
+
 ## Example Usage
 
 ```terraform

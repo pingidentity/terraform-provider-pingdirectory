@@ -9,6 +9,8 @@ description: |-
 
 Lists Trust Manager Provider objects in the server configuration.
 
+Trust Manager Providers determine whether to trust presented certificates.
+
 ## Example Usage
 
 ```terraform

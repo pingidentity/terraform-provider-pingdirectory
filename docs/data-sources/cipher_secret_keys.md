@@ -9,6 +9,8 @@ description: |-
 
 Lists Cipher Secret Key objects in the server configuration.
 
+The Cipher Secret Key represents a cryptographic key used by the server for both encryption of plain text and decryption of cipher text. For example, the Cipher Secret Keys are used for backups, LDIF exports and reversibly-encrypted passwords.
+
 ## Example Usage
 
 ```terraform

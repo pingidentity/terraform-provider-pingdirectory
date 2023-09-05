@@ -9,6 +9,8 @@ description: |-
 
 Manages a Azure Authentication Method.
 
+Azure Authentication Methods are used to authenticate to the Microsoft Azure service.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Virtual Attribute.
 
+Virtual Attributes are responsible for dynamically generating attribute values that appear in entries but are not persistently stored in the backend.
+
 
 
 ## Documentation

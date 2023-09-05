@@ -9,6 +9,8 @@ description: |-
 
 Lists Velocity Context Provider objects in the server configuration.
 
+Specifies a provider for Velocity context content for template pages hosted by the Directory Server.
+
 ## Example Usage
 
 ```terraform

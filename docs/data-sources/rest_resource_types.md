@@ -9,6 +9,8 @@ description: |-
 
 Lists Rest Resource Type objects in the server configuration.
 
+A REST Resource Type defines a specific type of resource exposed by the Delegated Admin HTTP servlet extension, and accessible through the Delegated Admin application.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Describes a Certificate Mapper.
 
+Certificate Mappers are responsible for establishing a mapping between a client certificate and the entry for the user that corresponds to that certificate.
+
 ## Example Usage
 
 ```terraform

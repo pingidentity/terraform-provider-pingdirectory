@@ -9,6 +9,8 @@ description: |-
 
 Lists Gauge Data Source objects in the server configuration.
 
+A Gauge Data Source defines the source of gauge data obtained from the monitor backend.
+
 ## Example Usage
 
 ```terraform

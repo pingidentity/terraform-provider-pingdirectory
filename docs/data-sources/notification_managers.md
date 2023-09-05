@@ -9,6 +9,8 @@ description: |-
 
 Lists Notification Manager objects in the server configuration.
 
+Notification Managers may be used to deliver notification of changes that match one or more subscriptions.
+
 ## Example Usage
 
 ```terraform

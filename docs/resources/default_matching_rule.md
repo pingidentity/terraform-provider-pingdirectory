@@ -9,6 +9,8 @@ description: |-
 
 Manages a Matching Rule.
 
+Matching Rules define a set of rules for performing matching operations against assertion values.
+
 ## Example Usage
 
 ```terraform

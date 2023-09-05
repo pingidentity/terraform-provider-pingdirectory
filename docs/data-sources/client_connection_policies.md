@@ -9,6 +9,8 @@ description: |-
 
 Lists Client Connection Policy objects in the server configuration.
 
+A Client Connection Policy is used to classify a client connection based on the client address, protocol, identity, and whether it is using a secure communication mechanism. It may be used to control which types of operations that client may perform and the types of data that it may access.
+
 ## Example Usage
 
 ```terraform

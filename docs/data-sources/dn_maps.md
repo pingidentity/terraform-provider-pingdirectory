@@ -9,6 +9,8 @@ description: |-
 
 Lists Dn Map objects in the server configuration.
 
+A DN Map constructs DN values from attributes and the DN of a source entry, and fixed text. It is used to construct the DN for an entry as well as values for attributes that store DNs such as isMemberOf.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Scim Subattribute objects in the server configuration.
 
+A sub-attribute of a complex attribute. A complex attribute requires at least one sub-attribute.
+
 ## Example Usage
 
 ```terraform

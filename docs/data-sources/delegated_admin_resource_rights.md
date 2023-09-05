@@ -9,6 +9,8 @@ description: |-
 
 Describes a Delegated Admin Resource Rights.
 
+Delegated Admin Resource Rights give a user, or group of users, authority to manage a specific resource type through the Delegated Admin API.
+
 ## Example Usage
 
 ```terraform

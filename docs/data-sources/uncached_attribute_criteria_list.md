@@ -9,6 +9,8 @@ description: |-
 
 Lists Uncached Attribute Criteria objects in the server configuration.
 
+Uncached Attribute Criteria objects are used to indicate which attributes should be stored in the uncached-id2entry database (rather than the id2entry database) in order to reduce the amount of memory required to cache them.
+
 ## Example Usage
 
 ```terraform

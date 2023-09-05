@@ -9,6 +9,8 @@ description: |-
 
 Describes a Recurring Task Chain.
 
+Recurring Task Chains are sets of one or more recurring tasks that will automatically be invoked on a regular basis according to a defined schedule.
+
 ## Example Usage
 
 ```terraform

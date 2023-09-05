@@ -9,6 +9,8 @@ description: |-
 
 Manages a Cipher Stream Provider.
 
+Cipher Stream Providers are used to obtain cipher input and output streams which may be used to read and write encrypted data.
+
 
 
 ## Documentation

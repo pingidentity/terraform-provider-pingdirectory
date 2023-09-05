@@ -9,6 +9,8 @@ description: |-
 
 Lists Entry Cache objects in the server configuration.
 
+Entry Caches are responsible for caching entries which are likely to be accessed by client applications in order to improve Directory Server performance.
+
 ## Example Usage
 
 ```terraform

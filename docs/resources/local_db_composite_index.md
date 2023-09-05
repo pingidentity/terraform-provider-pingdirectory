@@ -9,6 +9,8 @@ description: |-
 
 Manages a Local Db Composite Index.
 
+Local DB Composite Indexes may be used to define an index based on a filter pattern and an optional base DN pattern.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Root Dse Backend.
 
+The Root DSE Backend contains the Directory Server root DSE.
+
 ## Example Usage
 
 ```terraform

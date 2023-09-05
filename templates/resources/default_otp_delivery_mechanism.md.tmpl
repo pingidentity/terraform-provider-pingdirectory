@@ -9,6 +9,8 @@ description: |-
 
 {{ .Description | trimspace }}
 
+OTP Delivery Mechanism are used to deliver one-time passwords to users for use with the UNBOUNDID-DELIVERED-OTP SASL mechanism. Delivery mechanisms should send a one-time password value to the user via some out-of-band mechanism (e.g., e-mail, SMS, voice call, etc.) rather than over LDAP.
+
 {{ if .HasExample -}}
 ## Example Usage
 

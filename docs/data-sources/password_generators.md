@@ -9,6 +9,8 @@ description: |-
 
 Lists Password Generator objects in the server configuration.
 
+Password Generators are used by the password modify extended operation to construct a new password for the user.
+
 ## Example Usage
 
 ```terraform

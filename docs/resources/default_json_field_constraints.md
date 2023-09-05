@@ -9,6 +9,8 @@ description: |-
 
 Manages a Json Field Constraints.
 
+JSON Field Constraints may be used to define a number of constraints that the server will impose for an indicated field in a JSON object that may be stored in a specified LDAP attribute. It also defines additional properties that the server may use when interacting with values of the target field, including indicating whether backends should index and/or tokenize extra values for that field.
+
 
 
 ## Documentation

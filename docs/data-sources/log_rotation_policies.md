@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Rotation Policy objects in the server configuration.
 
+Log Rotation Policies are used to specify when log files should be rotated.
+
 ## Example Usage
 
 ```terraform

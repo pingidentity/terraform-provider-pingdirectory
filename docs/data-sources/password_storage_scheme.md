@@ -9,6 +9,8 @@ description: |-
 
 Describes a Password Storage Scheme.
 
+Password Storage Schemes encode new passwords provided by users so that they are stored in an encoded manner. This makes it difficult or impossible for someone to determine the clear-text passwords from the encoded values.
+
 ## Example Usage
 
 ```terraform

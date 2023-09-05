@@ -9,6 +9,8 @@ description: |-
 
 Describes a Password Validator.
 
+Password Validators are responsible for determining whether a proposed password is acceptable for use and could include checks like ensuring it meets minimum length requirements, that it has an appropriate range of characters, or that it is not in the history.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Connection Handler.
 
+Connection Handlers are responsible for handling all interaction with the clients, including accepting the connections, reading requests, and sending responses.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Group Implementation.
 
+Group Implementations define named collections of users.
+
 ## Example Usage
 
 ```terraform

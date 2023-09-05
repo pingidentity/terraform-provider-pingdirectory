@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Field Behavior objects in the server configuration.
 
+Log Field Behaviors are used to define the behaviors to use for various log fields.
+
 ## Example Usage
 
 ```terraform

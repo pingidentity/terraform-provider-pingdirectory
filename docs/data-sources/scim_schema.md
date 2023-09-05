@@ -9,6 +9,8 @@ description: |-
 
 Describes a Scim Schema.
 
+SCIM Schemas defines a SCIM schema comprising a set of attributes.
+
 ## Example Usage
 
 ```terraform

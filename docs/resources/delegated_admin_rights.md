@@ -9,6 +9,8 @@ description: |-
 
 Manages a Delegated Admin Rights.
 
+A Delegated Admin Rights defines a user, or group of users, who can manage resources through the Delegated Admin API.
+
 ## Example Usage
 
 ```terraform

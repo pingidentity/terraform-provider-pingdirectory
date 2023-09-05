@@ -9,6 +9,8 @@ description: |-
 
 Manages a Replication Domain.
 
+A Replication Domain comprises of several Directory Server instances sharing the same synchronized set of data.
+
 ## Example Usage
 
 ```terraform

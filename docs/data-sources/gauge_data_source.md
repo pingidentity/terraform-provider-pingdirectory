@@ -9,6 +9,8 @@ description: |-
 
 Describes a Gauge Data Source.
 
+A Gauge Data Source defines the source of gauge data obtained from the monitor backend.
+
 ## Example Usage
 
 ```terraform

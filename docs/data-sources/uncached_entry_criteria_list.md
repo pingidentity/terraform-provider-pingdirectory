@@ -9,6 +9,8 @@ description: |-
 
 Lists Uncached Entry Criteria objects in the server configuration.
 
+Uncached Entry Criteria objects are used to indicate which entries should be stored in the uncached-id2entry database (rather than the id2entry database) in order to reduce the amount of memory required to cache them.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Virtual Attribute objects in the server configuration.
 
+Virtual Attributes are responsible for dynamically generating attribute values that appear in entries but are not persistently stored in the backend.
+
 ## Example Usage
 
 ```terraform

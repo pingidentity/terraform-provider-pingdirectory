@@ -9,6 +9,8 @@ description: |-
 
 Lists Change Subscription Handler objects in the server configuration.
 
+Change Subscription Handlers may be used to provide notification of changes that match one or more change subscriptions.
+
 ## Example Usage
 
 ```terraform

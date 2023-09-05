@@ -9,6 +9,8 @@ description: |-
 
 Manages a Http Configuration.
 
+The HTTP Configuration provides the configuration for the Directory Server HTTP service.
+
 ## Example Usage
 
 ```terraform

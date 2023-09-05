@@ -9,6 +9,8 @@ description: |-
 
 Manages a Root Dn.
 
+The Root DN configuration contains all the Root DN Users defined in the Directory Server. In addition, it also defines the default set of privileges that Root DN Users automatically inherit.
+
 ## Example Usage
 
 ```terraform

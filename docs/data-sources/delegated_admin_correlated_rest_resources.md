@@ -9,6 +9,8 @@ description: |-
 
 Lists Delegated Admin Correlated Rest Resource objects in the server configuration.
 
+Delegated Admin Correlated REST Resources link REST resources based on common attribute values.
+
 ## Example Usage
 
 ```terraform

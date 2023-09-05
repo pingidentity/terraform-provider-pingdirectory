@@ -9,6 +9,8 @@ description: |-
 
 Lists Server Instance objects in the server configuration.
 
+The Server Instance represents a single server within the system that has one of the UnboundID products installed on it.
+
 ## Example Usage
 
 ```terraform

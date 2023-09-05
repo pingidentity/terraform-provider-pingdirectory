@@ -9,6 +9,8 @@ description: |-
 
 Lists Consent Definition objects in the server configuration.
 
+A Consent Definition represents a type of consent to share data.
+
 ## Example Usage
 
 ```terraform

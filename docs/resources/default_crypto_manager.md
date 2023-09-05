@@ -9,6 +9,8 @@ description: |-
 
 Manages a Crypto Manager.
 
+The Crypto Manager provides a common interface for performing compression, decompression, hashing, encryption and other kinds of cryptographic operations.
+
 ## Example Usage
 
 ```terraform

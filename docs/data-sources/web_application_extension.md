@@ -9,6 +9,8 @@ description: |-
 
 Describes a Web Application Extension.
 
+Web Application Extensions may be used to define web applications to be hosted by the server.
+
 ## Example Usage
 
 ```terraform

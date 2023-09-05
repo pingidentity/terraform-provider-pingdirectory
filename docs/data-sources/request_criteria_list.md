@@ -9,6 +9,8 @@ description: |-
 
 Lists Request Criteria objects in the server configuration.
 
+Request Criteria define sets of criteria for grouping and describing operation requests based on a number of properties, including properties for the associated client connection, the type of operation, target entry, request controls, target attributes, and other operation-specific items.
+
 ## Example Usage
 
 ```terraform

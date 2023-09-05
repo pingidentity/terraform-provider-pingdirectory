@@ -9,6 +9,8 @@ description: |-
 
 Lists Identity Mapper objects in the server configuration.
 
+Identity Mappers are responsible for establishing a mapping between an identifier string provided by a client, and the entry for the user that corresponds to that identifier. Identity Mappers are used to process several SASL mechanisms to map an authorization ID (e.g., a Kerberos principal when using GSSAPI) to a directory user. They are also used when processing requests with the proxied authorization control.
+
 ## Example Usage
 
 ```terraform

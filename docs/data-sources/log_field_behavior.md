@@ -9,6 +9,8 @@ description: |-
 
 Describes a Log Field Behavior.
 
+Log Field Behaviors are used to define the behaviors to use for various log fields.
+
 ## Example Usage
 
 ```terraform

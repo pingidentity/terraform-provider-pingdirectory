@@ -9,6 +9,8 @@ description: |-
 
 Manages a Sensitive Attribute.
 
+Sensitive Attributes provide a means of declaring one or more attributes to contain sensitive data so that the server can enforce additional protection for operations attempting to interact with them.
+
 ## Example Usage
 
 ```terraform

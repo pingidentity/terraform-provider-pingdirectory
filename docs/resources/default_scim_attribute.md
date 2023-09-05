@@ -9,6 +9,8 @@ description: |-
 
 Manages a Scim Attribute.
 
+A SCIM Attribute defines a SCIM attribute.
+
 
 
 ## Documentation

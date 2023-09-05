@@ -9,6 +9,8 @@ description: |-
 
 Manages a Access Token Validator.
 
+Access Token Validators are used to validate an access token that may be used to access protected resources of the Directory Server. An Access Token Validator is responsible for decoding the token and returning token metadata such as described in RFC 7662.
+
 
 
 ## Documentation

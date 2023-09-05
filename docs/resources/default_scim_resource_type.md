@@ -9,6 +9,8 @@ description: |-
 
 Manages a Scim Resource Type.
 
+SCIM Resource Types provide a view of a class of Directory entries over a SCIM2 interface. The SCIM Resource Type determines the attributes that can be accessed by a client application.
+
 
 
 ## Documentation

@@ -9,6 +9,8 @@ description: |-
 
 Describes a Debug Target.
 
+Debug Targets define the types of messages logged by the debug logPublisher.
+
 ## Example Usage
 
 ```terraform

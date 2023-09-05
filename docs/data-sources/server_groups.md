@@ -9,6 +9,8 @@ description: |-
 
 Lists Server Group objects in the server configuration.
 
+The Server Group represents a server group within the system. For example, servers may be grouped by location.
+
 ## Example Usage
 
 ```terraform

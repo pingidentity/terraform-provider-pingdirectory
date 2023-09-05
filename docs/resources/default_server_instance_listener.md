@@ -9,6 +9,8 @@ description: |-
 
 Manages a Server Instance Listener.
 
+Server Instance Listeners are used to identify listeners of changes related to server instances defined within the system.
+
 ## Example Usage
 
 ```terraform

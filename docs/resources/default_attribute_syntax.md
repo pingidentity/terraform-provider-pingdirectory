@@ -9,6 +9,8 @@ description: |-
 
 Manages a Attribute Syntax.
 
+Attribute Syntaxes define the type of data that may be stored in an attribute with that syntax. A syntax is generally associated with a set of matching rules that indicate how to perform matching operations against values of that syntax.
+
 ## Example Usage
 
 ```terraform

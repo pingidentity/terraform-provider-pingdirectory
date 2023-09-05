@@ -9,6 +9,8 @@ description: |-
 
 Lists Local Db Index objects in the server configuration.
 
+Local DB Indexes are used to store information that makes it possible to locate entries very quickly when processing search operations.
+
 ## Example Usage
 
 ```terraform

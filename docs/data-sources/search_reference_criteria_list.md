@@ -9,6 +9,8 @@ description: |-
 
 Lists Search Reference Criteria objects in the server configuration.
 
+Search Reference Criteria define sets of criteria for grouping and describing search result references based on a number of properties, including properties of the associated client connection and operation request, the reference contents, and included controls.
+
 ## Example Usage
 
 ```terraform

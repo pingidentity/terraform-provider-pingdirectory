@@ -9,6 +9,8 @@ description: |-
 
 Describes a Token Claim Validation.
 
+A Token Claim Validation defines a condition about a token claim that must be satisfied for the token to be considered valid.
+
 ## Example Usage
 
 ```terraform

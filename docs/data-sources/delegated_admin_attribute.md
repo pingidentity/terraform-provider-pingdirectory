@@ -9,6 +9,8 @@ description: |-
 
 Describes a Delegated Admin Attribute.
 
+A Delegated Admin Attribute defines an LDAP attribute which can be accessed by a client of the Delegated Admin API.
+
 ## Example Usage
 
 ```terraform

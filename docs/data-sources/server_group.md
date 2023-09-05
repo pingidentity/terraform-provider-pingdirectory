@@ -9,6 +9,8 @@ description: |-
 
 Describes a Server Group.
 
+The Server Group represents a server group within the system. For example, servers may be grouped by location.
+
 ## Example Usage
 
 ```terraform

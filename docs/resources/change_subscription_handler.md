@@ -9,6 +9,8 @@ description: |-
 
 Manages a Change Subscription Handler.
 
+Change Subscription Handlers may be used to provide notification of changes that match one or more change subscriptions.
+
 ## Example Usage
 
 ```terraform

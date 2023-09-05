@@ -9,6 +9,8 @@ description: |-
 
 Lists Topology Admin User objects in the server configuration.
 
+The Topology Admin User represents an administrative user that is stored in the topology registry and hence globally available across all servers in the topology.
+
 ## Example Usage
 
 ```terraform

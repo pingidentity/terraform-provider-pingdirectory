@@ -9,6 +9,8 @@ description: |-
 
 Describes a Json Attribute Constraints.
 
+JSON Attribute Constraints may be used to specify a number of properties and constraints for JSON objects to be stored in attributes with a "JSON object" syntax. Each JSON Attribute Constraints definition will be associated with a set of json-field-constraints definitions that can collectively define a complete or partial schema for the JSON objects, and may also provide additional information about the way the server should treat those fields (e.g., whether any of the fields should be indexed for faster searching, or have their values tokenized for more compact storage).
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Debug Target objects in the server configuration.
 
+Debug Targets define the types of messages logged by the debug logPublisher.
+
 ## Example Usage
 
 ```terraform

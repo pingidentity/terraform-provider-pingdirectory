@@ -9,6 +9,8 @@ description: |-
 
 Manages a Location.
 
+Locations are used to define collections of servers which may have similar performance characteristics when accessed from this Directory Server. For example, a separate Location may be defined for each data center.
+
 
 
 ## Documentation

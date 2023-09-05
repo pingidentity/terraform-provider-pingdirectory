@@ -9,6 +9,8 @@ description: |-
 
 Lists Monitoring Endpoint objects in the server configuration.
 
+A Monitoring Endpoint defines a destination where server metric data should be sent for monitoring, such as a Splunk indexer or a StatsD daemon.
+
 ## Example Usage
 
 ```terraform

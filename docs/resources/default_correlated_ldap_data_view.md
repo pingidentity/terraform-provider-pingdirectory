@@ -9,6 +9,8 @@ description: |-
 
 Manages a Correlated Ldap Data View.
 
+Correlated LDAP Data Views persist a subset of LDAP attributes for a SCIM 2.0 Resource Type.
+
 
 
 ## Documentation

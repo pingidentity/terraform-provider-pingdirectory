@@ -9,6 +9,8 @@ description: |-
 
 Manages a Trusted Certificate.
 
+The Trusted Certificate represents a trusted public key that may be used to verify credentials for digital signatures and public-key encryption. The public key is represented as an X.509v3 certificate. For example, when configured on an access token validator, it may be used to validate the signature of an incoming JWT access token before the product REST APIs consume the access token for Bearer token authentication.
+
 
 
 ## Documentation

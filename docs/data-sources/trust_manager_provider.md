@@ -9,6 +9,8 @@ description: |-
 
 Describes a Trust Manager Provider.
 
+Trust Manager Providers determine whether to trust presented certificates.
+
 ## Example Usage
 
 ```terraform

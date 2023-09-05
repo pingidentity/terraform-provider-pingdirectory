@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Field Mapping objects in the server configuration.
 
+The Log Field Mapping provides a mapping to column names in a table used to store log elements.
+
 ## Example Usage
 
 ```terraform

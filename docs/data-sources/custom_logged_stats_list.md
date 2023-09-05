@@ -9,6 +9,8 @@ description: |-
 
 Lists Custom Logged Stats objects in the server configuration.
 
+A custom Custom Logged Stats object enables additional statistics to be included in the output of a Periodic Stats Logger.
+
 ## Example Usage
 
 ```terraform

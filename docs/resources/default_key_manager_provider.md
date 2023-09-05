@@ -9,6 +9,8 @@ description: |-
 
 Manages a Key Manager Provider.
 
+Key Manager Providers are responsible for managing the key material that is used to authenticate a secure connection to its peer.
+
 
 
 ## Documentation

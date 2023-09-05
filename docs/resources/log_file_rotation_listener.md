@@ -9,6 +9,8 @@ description: |-
 
 Manages a Log File Rotation Listener.
 
+Log File Rotation Listeners allow the server to take some action whenever a log file is rotated out of service so that the server will start writing to a new file. Log File Rotation Listeners must not delete, move, rename, or otherwise alter rotated log files in any way.
+
 ## Example Usage
 
 ```terraform

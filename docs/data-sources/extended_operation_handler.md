@@ -9,6 +9,8 @@ description: |-
 
 Describes a Extended Operation Handler.
 
+Extended Operation Handlers processes the different types of extended operations in the server.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Replication Domain objects in the server configuration.
 
+A Replication Domain comprises of several Directory Server instances sharing the same synchronized set of data.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Describes a Conjur Authentication Method.
 
+Conjur Authentication Methods are used to authenticate to a CyberArk Conjur instance in order to obtain an access token.
+
 ## Example Usage
 
 ```terraform

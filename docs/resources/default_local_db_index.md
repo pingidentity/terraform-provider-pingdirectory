@@ -9,6 +9,8 @@ description: |-
 
 Manages a Local Db Index.
 
+Local DB Indexes are used to store information that makes it possible to locate entries very quickly when processing search operations.
+
 
 
 ## Documentation

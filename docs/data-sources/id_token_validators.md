@@ -9,6 +9,8 @@ description: |-
 
 Lists Id Token Validator objects in the server configuration.
 
+ID Token Validators validate ID tokens issued by an OpenID Connect provider used for single sign-on (SSO).
+
 ## Example Usage
 
 ```terraform

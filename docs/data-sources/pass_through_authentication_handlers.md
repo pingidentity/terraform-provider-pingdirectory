@@ -9,6 +9,8 @@ description: |-
 
 Lists Pass Through Authentication Handler objects in the server configuration.
 
+Pass Through Authentication Handlers are used in conjunction with the pluggable pass-through authentication plugin to handle all interaction with the external authentication service.
+
 ## Example Usage
 
 ```terraform

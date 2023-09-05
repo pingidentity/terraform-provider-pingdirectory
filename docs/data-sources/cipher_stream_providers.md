@@ -9,6 +9,8 @@ description: |-
 
 Lists Cipher Stream Provider objects in the server configuration.
 
+Cipher Stream Providers are used to obtain cipher input and output streams which may be used to read and write encrypted data.
+
 ## Example Usage
 
 ```terraform

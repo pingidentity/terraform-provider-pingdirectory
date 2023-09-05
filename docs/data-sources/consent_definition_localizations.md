@@ -9,6 +9,8 @@ description: |-
 
 Lists Consent Definition Localization objects in the server configuration.
 
+Versioned localizations of this Consent Definition.
+
 ## Example Usage
 
 ```terraform

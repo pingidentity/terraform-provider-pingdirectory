@@ -9,6 +9,8 @@ description: |-
 
 Describes a Recurring Task.
 
+Recurring Tasks encapsulate the information to be included in administrative tasks that are to be invoked on a recurring basis within the server. Recurring Tasks must be included in a recurring task chain to actually be scheduled for processing.
+
 ## Example Usage
 
 ```terraform

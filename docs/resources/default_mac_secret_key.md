@@ -9,6 +9,8 @@ description: |-
 
 Manages a Mac Secret Key.
 
+The Mac Secret Key represents a message authentication code (MAC) used to verify data integrity and authentication of messages. For example, the Mac Secret Keys are used for backups, LDIF exports and signed log files.
+
 ## Example Usage
 
 ```terraform

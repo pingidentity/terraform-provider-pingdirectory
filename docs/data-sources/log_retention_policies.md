@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Retention Policy objects in the server configuration.
 
+Log Retention Policies are used to specify when log files should be cleaned.
+
 ## Example Usage
 
 ```terraform

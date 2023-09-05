@@ -9,6 +9,8 @@ description: |-
 
 Lists Key Manager Provider objects in the server configuration.
 
+Key Manager Providers are responsible for managing the key material that is used to authenticate a secure connection to its peer.
+
 ## Example Usage
 
 ```terraform

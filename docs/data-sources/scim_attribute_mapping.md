@@ -9,6 +9,8 @@ description: |-
 
 Describes a Scim Attribute Mapping.
 
+SCIM Attribute Mappings define a mapping between SCIM Resource Type attributes and LDAP attributes.
+
 ## Example Usage
 
 ```terraform

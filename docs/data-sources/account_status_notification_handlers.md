@@ -9,6 +9,8 @@ description: |-
 
 Lists Account Status Notification Handler objects in the server configuration.
 
+Account Status Notification Handlers are invoked to provide notification to users in some form (for example, by an email message) when the status of a user's account has changed in some way. The Account Status Notification Handler can be used to notify the user and/or administrators of the change.
+
 ## Example Usage
 
 ```terraform

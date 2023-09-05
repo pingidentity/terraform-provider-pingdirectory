@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Publisher objects in the server configuration.
 
+Log Publishers are responsible for distributing log messages from different loggers to a destination.
+
 ## Example Usage
 
 ```terraform

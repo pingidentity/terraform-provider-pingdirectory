@@ -9,6 +9,8 @@ description: |-
 
 Manages a Replication Assurance Policy.
 
+A Replication Assurance Policy is used to specify the local and remote replication assurance levels and a timeout to use for update operations. Optionally, request and connection criteria can be configured in the policy to allow matching a policy to requests that satisfy such criteria.
+
 
 
 ## Documentation

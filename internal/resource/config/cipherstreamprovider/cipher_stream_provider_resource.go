@@ -641,18 +641,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("secret_version_id"),
-				path.MatchRoot("secret_version_stage"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("secret_version_id"),
+				path.MatchRoot("secret_version_stage"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

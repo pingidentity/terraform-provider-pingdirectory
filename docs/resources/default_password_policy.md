@@ -9,6 +9,8 @@ description: |-
 
 Manages a Password Policy.
 
+Password Policies define a number of password management rules, as well as requirements for authentication processing.
+
 
 
 ## Documentation

@@ -9,6 +9,8 @@ description: |-
 
 Lists Server Instance Listener objects in the server configuration.
 
+Server Instance Listeners are used to identify listeners of changes related to server instances defined within the system.
+
 ## Example Usage
 
 ```terraform

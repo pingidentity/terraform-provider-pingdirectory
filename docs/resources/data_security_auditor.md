@@ -9,6 +9,8 @@ description: |-
 
 Manages a Data Security Auditor.
 
+Data Security Auditors are used to identify potential risks in the data stored in the Directory Server.
+
 ## Example Usage
 
 ```terraform

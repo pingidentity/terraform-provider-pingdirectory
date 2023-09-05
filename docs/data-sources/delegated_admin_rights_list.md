@@ -9,6 +9,8 @@ description: |-
 
 Lists Delegated Admin Rights objects in the server configuration.
 
+A Delegated Admin Rights defines a user, or group of users, who can manage resources through the Delegated Admin API.
+
 ## Example Usage
 
 ```terraform

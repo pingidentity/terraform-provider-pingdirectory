@@ -9,6 +9,8 @@ description: |-
 
 Lists Constructed Attribute objects in the server configuration.
 
+A constructed attribute constructs values for an attribute by using a combination of fixed text and values of other attributes from the entry. Note that just creating one of these objects will not have any effect. The object must be referenced from another configuration object such as a Delegated Admin Resource Type.
+
 ## Example Usage
 
 ```terraform

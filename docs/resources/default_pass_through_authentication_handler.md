@@ -9,6 +9,8 @@ description: |-
 
 Manages a Pass Through Authentication Handler.
 
+Pass Through Authentication Handlers are used in conjunction with the pluggable pass-through authentication plugin to handle all interaction with the external authentication service.
+
 
 
 ## Documentation

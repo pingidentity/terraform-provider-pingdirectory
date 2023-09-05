@@ -9,6 +9,8 @@ description: |-
 
 Lists Connection Criteria objects in the server configuration.
 
+Connection Criteria define sets of criteria for grouping and describing client connections based on a number of properties, including the protocol, client address, connection security, and authentication state for the connection.
+
 ## Example Usage
 
 ```terraform

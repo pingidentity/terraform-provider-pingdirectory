@@ -9,6 +9,8 @@ description: |-
 
 Lists Soft Delete Policy objects in the server configuration.
 
+General policy settings for soft delete operations.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Lists Local Db Composite Index objects in the server configuration.
 
+Local DB Composite Indexes may be used to define an index based on a filter pattern and an optional base DN pattern.
+
 ## Example Usage
 
 ```terraform

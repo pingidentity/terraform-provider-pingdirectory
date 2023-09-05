@@ -9,6 +9,8 @@ description: |-
 
 Describes a Consent Definition.
 
+A Consent Definition represents a type of consent to share data.
+
 ## Example Usage
 
 ```terraform

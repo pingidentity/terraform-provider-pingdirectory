@@ -9,6 +9,8 @@ description: |-
 
 Manages a Failure Lockout Action.
 
+Failure Lockout Actions may be used to specify the behavior that the server should exhibit for accounts that have too many failed authentication attempts.
+
 
 
 ## Documentation

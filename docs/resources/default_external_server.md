@@ -9,6 +9,8 @@ description: |-
 
 Manages a External Server.
 
+External Servers are used to identify external servers and to provide a mechanism to connect to them.
+
 
 
 ## Documentation

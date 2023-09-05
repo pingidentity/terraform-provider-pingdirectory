@@ -9,6 +9,8 @@ description: |-
 
 Describes a Log Field Syntax.
 
+Log Field Syntaxes are used to define the behavior for logging values with a given syntax.
+
 ## Example Usage
 
 ```terraform

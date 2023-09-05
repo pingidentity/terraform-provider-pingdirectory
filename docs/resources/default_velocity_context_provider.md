@@ -9,6 +9,8 @@ description: |-
 
 Manages a Velocity Context Provider.
 
+Specifies a provider for Velocity context content for template pages hosted by the Directory Server.
+
 
 
 ## Documentation

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Passphrase Provider.
 
+Passphrase Provider provide a means of accessing clear-text passphrases, API keys, and other secrets through an extensible API.
+
 ## Example Usage
 
 ```terraform

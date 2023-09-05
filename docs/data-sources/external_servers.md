@@ -9,6 +9,8 @@ description: |-
 
 Lists External Server objects in the server configuration.
 
+External Servers are used to identify external servers and to provide a mechanism to connect to them.
+
 ## Example Usage
 
 ```terraform

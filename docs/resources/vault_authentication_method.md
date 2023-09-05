@@ -9,6 +9,8 @@ description: |-
 
 Manages a Vault Authentication Method.
 
+Vault Authentication Methods are used to authenticate to an instance of a HashiCorp Vault server in order to obtain an access token.
+
 ## Example Usage
 
 ```terraform

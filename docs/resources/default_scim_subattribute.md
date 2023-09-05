@@ -9,6 +9,8 @@ description: |-
 
 Manages a Scim Subattribute.
 
+A sub-attribute of a complex attribute. A complex attribute requires at least one sub-attribute.
+
 
 
 ## Documentation

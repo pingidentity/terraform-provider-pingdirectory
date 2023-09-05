@@ -9,6 +9,8 @@ description: |-
 
 Describes a Scim Attribute.
 
+A SCIM Attribute defines a SCIM attribute.
+
 ## Example Usage
 
 ```terraform

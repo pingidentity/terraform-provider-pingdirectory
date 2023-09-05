@@ -9,6 +9,8 @@ description: |-
 
 Manages a Plugin.
 
+Plugins provide a mechanism for executing custom code at specified points in operation processing and in the course of other events like connection establishment and termination, server startup and shutdown, and LDIF import and export.
+
 ## Example Usage
 
 ```terraform

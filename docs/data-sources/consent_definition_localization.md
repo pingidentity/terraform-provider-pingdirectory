@@ -9,6 +9,8 @@ description: |-
 
 Describes a Consent Definition Localization.
 
+Versioned localizations of this Consent Definition.
+
 ## Example Usage
 
 ```terraform

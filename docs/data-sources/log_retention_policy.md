@@ -9,6 +9,8 @@ description: |-
 
 Describes a Log Retention Policy.
 
+Log Retention Policies are used to specify when log files should be cleaned.
+
 ## Example Usage
 
 ```terraform

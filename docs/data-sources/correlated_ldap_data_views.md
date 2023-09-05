@@ -9,6 +9,8 @@ description: |-
 
 Lists Correlated Ldap Data View objects in the server configuration.
 
+Correlated LDAP Data Views persist a subset of LDAP attributes for a SCIM 2.0 Resource Type.
+
 ## Example Usage
 
 ```terraform

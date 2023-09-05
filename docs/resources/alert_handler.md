@@ -9,6 +9,8 @@ description: |-
 
 Manages a Alert Handler.
 
+Alert Handlers are used to notify administrators of significant problems or notable events that occur in the Directory Server.
+
 ## Example Usage
 
 ```terraform

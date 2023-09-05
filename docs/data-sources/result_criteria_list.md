@@ -9,6 +9,8 @@ description: |-
 
 Lists Result Criteria objects in the server configuration.
 
+Result Criteria define sets of criteria for grouping and describing operation results based on a number of properties, including properties of the associated client connection and operation request, the result code, response controls, privileges missing or used, and other operation-specific items.
+
 ## Example Usage
 
 ```terraform

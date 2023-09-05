@@ -9,6 +9,8 @@ description: |-
 
 Lists Scim Schema objects in the server configuration.
 
+SCIM Schemas defines a SCIM schema comprising a set of attributes.
+
 ## Example Usage
 
 ```terraform

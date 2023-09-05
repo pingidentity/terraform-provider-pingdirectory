@@ -9,6 +9,8 @@ description: |-
 
 Lists Log Field Syntax objects in the server configuration.
 
+Log Field Syntaxes are used to define the behavior for logging values with a given syntax.
+
 ## Example Usage
 
 ```terraform

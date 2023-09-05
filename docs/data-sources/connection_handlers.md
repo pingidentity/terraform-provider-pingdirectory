@@ -9,6 +9,8 @@ description: |-
 
 Lists Connection Handler objects in the server configuration.
 
+Connection Handlers are responsible for handling all interaction with the clients, including accepting the connections, reading requests, and sending responses.
+
 ## Example Usage
 
 ```terraform

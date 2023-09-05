@@ -9,6 +9,8 @@ description: |-
 
 Manages a Rest Resource Type.
 
+A REST Resource Type defines a specific type of resource exposed by the Delegated Admin HTTP servlet extension, and accessible through the Delegated Admin application.
+
 
 
 ## Documentation

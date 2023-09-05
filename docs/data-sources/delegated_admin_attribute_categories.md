@@ -9,6 +9,8 @@ description: |-
 
 Lists Delegated Admin Attribute Category objects in the server configuration.
 
+A Delegated Admin Attribute Category defines a collection of attributes which belong together. Attributes in the same Delegated Admin Attribute Category are grouped together when displayed to the end user.
+
 ## Example Usage
 
 ```terraform

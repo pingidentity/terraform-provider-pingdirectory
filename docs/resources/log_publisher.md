@@ -9,6 +9,8 @@ description: |-
 
 Manages a Log Publisher.
 
+Log Publishers are responsible for distributing log messages from different loggers to a destination.
+
 ## Example Usage
 
 ```terraform

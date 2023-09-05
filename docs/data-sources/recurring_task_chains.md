@@ -9,6 +9,8 @@ description: |-
 
 Lists Recurring Task Chain objects in the server configuration.
 
+Recurring Task Chains are sets of one or more recurring tasks that will automatically be invoked on a regular basis according to a defined schedule.
+
 ## Example Usage
 
 ```terraform

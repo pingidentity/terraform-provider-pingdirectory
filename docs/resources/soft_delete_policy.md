@@ -9,6 +9,8 @@ description: |-
 
 Manages a Soft Delete Policy.
 
+General policy settings for soft delete operations.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Consent Definition Localization.
 
+Versioned localizations of this Consent Definition.
+
 
 
 ## Documentation

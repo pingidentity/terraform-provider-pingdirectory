@@ -9,6 +9,8 @@ description: |-
 
 Lists Scim Attribute objects in the server configuration.
 
+A SCIM Attribute defines a SCIM attribute.
+
 ## Example Usage
 
 ```terraform

@@ -9,6 +9,8 @@ description: |-
 
 Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.
 
+Prometheus Monitor Attribute Metrics provide a way of publishing the value of a monitor attribute as a Prometheus metric.
+
 ## Example Usage
 
 ```terraform
