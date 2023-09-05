@@ -614,7 +614,7 @@ func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, 
 	readResponse, httpResp, err := apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -731,7 +731,7 @@ func (r *logFileRotationListenerResource) Delete(ctx context.Context, req resour
 
 	httpResp, err := r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListenerExecute(r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log File Rotation Listener", err, httpResp)
 		return
 	}

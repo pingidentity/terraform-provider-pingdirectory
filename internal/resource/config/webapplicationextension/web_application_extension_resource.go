@@ -653,7 +653,7 @@ func (r *webApplicationExtensionResource) Read(ctx context.Context, req resource
 	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 {
+		if httpResp != nil && httpResp.StatusCode == 404 {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -830,7 +830,7 @@ func (r *webApplicationExtensionResource) Delete(ctx context.Context, req resour
 
 	httpResp, err := r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtensionExecute(r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Web Application Extension", err, httpResp)
 		return
 	}

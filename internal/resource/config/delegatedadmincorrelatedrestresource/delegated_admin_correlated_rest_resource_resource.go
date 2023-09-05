@@ -365,7 +365,7 @@ func readDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.
 	readResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -467,7 +467,7 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Delete(ctx context.Contex
 
 	httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResourceExecute(r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return
 	}

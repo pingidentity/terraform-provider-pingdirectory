@@ -624,7 +624,7 @@ func readVaultAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 	readResponse, httpResp, err := apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -742,7 +742,7 @@ func (r *vaultAuthenticationMethodResource) Delete(ctx context.Context, req reso
 
 	httpResp, err := r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethodExecute(r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Vault Authentication Method", err, httpResp)
 		return
 	}

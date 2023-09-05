@@ -341,7 +341,7 @@ func readLdapCorrelationAttributePair(ctx context.Context, req resource.ReadRequ
 	readResponse, httpResp, err := apiClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Correlation Attribute Pair", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -443,7 +443,7 @@ func (r *ldapCorrelationAttributePairResource) Delete(ctx context.Context, req r
 
 	httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.DeleteLdapCorrelationAttributePairExecute(r.apiClient.LdapCorrelationAttributePairApi.DeleteLdapCorrelationAttributePair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Ldap Correlation Attribute Pair", err, httpResp)
 		return
 	}

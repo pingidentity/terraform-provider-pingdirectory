@@ -2421,7 +2421,7 @@ func readPasswordStorageScheme(ctx context.Context, req resource.ReadRequest, re
 	readResponse, httpResp, err := apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -2688,7 +2688,7 @@ func (r *passwordStorageSchemeResource) Delete(ctx context.Context, req resource
 
 	httpResp, err := r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageSchemeExecute(r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Storage Scheme", err, httpResp)
 		return
 	}

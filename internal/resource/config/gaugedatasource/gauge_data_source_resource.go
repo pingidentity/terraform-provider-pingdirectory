@@ -681,7 +681,7 @@ func readGaugeDataSource(ctx context.Context, req resource.ReadRequest, resp *re
 	readResponse, httpResp, err := apiClient.GaugeDataSourceApi.GetGaugeDataSource(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge Data Source", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -792,7 +792,7 @@ func (r *gaugeDataSourceResource) Delete(ctx context.Context, req resource.Delet
 
 	httpResp, err := r.apiClient.GaugeDataSourceApi.DeleteGaugeDataSourceExecute(r.apiClient.GaugeDataSourceApi.DeleteGaugeDataSource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Gauge Data Source", err, httpResp)
 		return
 	}

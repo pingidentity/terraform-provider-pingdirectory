@@ -716,7 +716,7 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 	readResponse, httpResp, err := apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -834,7 +834,7 @@ func (r *velocityContextProviderResource) Delete(ctx context.Context, req resour
 
 	httpResp, err := r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProviderExecute(r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Context Provider", err, httpResp)
 		return
 	}

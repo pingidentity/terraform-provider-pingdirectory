@@ -1421,7 +1421,7 @@ func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *re
 	readResponse, httpResp, err := apiClient.LogFieldMappingApi.GetLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -1532,7 +1532,7 @@ func (r *logFieldMappingResource) Delete(ctx context.Context, req resource.Delet
 
 	httpResp, err := r.apiClient.LogFieldMappingApi.DeleteLogFieldMappingExecute(r.apiClient.LogFieldMappingApi.DeleteLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Mapping", err, httpResp)
 		return
 	}

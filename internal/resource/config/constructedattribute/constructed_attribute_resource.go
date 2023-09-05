@@ -324,7 +324,7 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.ConstructedAttributeApi.GetConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -425,7 +425,7 @@ func (r *constructedAttributeResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.ConstructedAttributeApi.DeleteConstructedAttributeExecute(r.apiClient.ConstructedAttributeApi.DeleteConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Constructed Attribute", err, httpResp)
 		return
 	}

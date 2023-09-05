@@ -391,7 +391,7 @@ func readNotificationManager(ctx context.Context, req resource.ReadRequest, resp
 	readResponse, httpResp, err := apiClient.NotificationManagerApi.GetNotificationManager(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -492,7 +492,7 @@ func (r *notificationManagerResource) Delete(ctx context.Context, req resource.D
 
 	httpResp, err := r.apiClient.NotificationManagerApi.DeleteNotificationManagerExecute(r.apiClient.NotificationManagerApi.DeleteNotificationManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Notification Manager", err, httpResp)
 		return
 	}

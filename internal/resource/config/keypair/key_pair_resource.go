@@ -406,7 +406,7 @@ func readKeyPair(ctx context.Context, req resource.ReadRequest, resp *resource.R
 	readResponse, httpResp, err := apiClient.KeyPairApi.GetKeyPair(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -508,7 +508,7 @@ func (r *keyPairResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	httpResp, err := r.apiClient.KeyPairApi.DeleteKeyPairExecute(r.apiClient.KeyPairApi.DeleteKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Pair", err, httpResp)
 		return
 	}

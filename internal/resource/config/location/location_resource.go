@@ -302,7 +302,7 @@ func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.
 	readResponse, httpResp, err := apiClient.LocationApi.GetLocation(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -403,7 +403,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
 	}

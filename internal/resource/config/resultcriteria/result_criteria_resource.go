@@ -2097,7 +2097,7 @@ func readResultCriteria(ctx context.Context, req resource.ReadRequest, resp *res
 	readResponse, httpResp, err := apiClient.ResultCriteriaApi.GetResultCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -2226,7 +2226,7 @@ func (r *resultCriteriaResource) Delete(ctx context.Context, req resource.Delete
 
 	httpResp, err := r.apiClient.ResultCriteriaApi.DeleteResultCriteriaExecute(r.apiClient.ResultCriteriaApi.DeleteResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Criteria", err, httpResp)
 		return
 	}

@@ -419,7 +419,7 @@ func readLocalDbCompositeIndex(ctx context.Context, req resource.ReadRequest, re
 	readResponse, httpResp, err := apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Composite Index", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -521,7 +521,7 @@ func (r *localDbCompositeIndexResource) Delete(ctx context.Context, req resource
 
 	httpResp, err := r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndexExecute(r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Composite Index", err, httpResp)
 		return
 	}

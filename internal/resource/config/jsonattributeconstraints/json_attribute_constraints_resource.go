@@ -343,7 +343,7 @@ func readJsonAttributeConstraints(ctx context.Context, req resource.ReadRequest,
 	readResponse, httpResp, err := apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -444,7 +444,7 @@ func (r *jsonAttributeConstraintsResource) Delete(ctx context.Context, req resou
 
 	httpResp, err := r.apiClient.JsonAttributeConstraintsApi.DeleteJsonAttributeConstraintsExecute(r.apiClient.JsonAttributeConstraintsApi.DeleteJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Json Attribute Constraints", err, httpResp)
 		return
 	}

@@ -586,7 +586,7 @@ func readTokenClaimValidation(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.TokenClaimValidationApi.GetTokenClaimValidation(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Token Claim Validation", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -704,7 +704,7 @@ func (r *tokenClaimValidationResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.TokenClaimValidationApi.DeleteTokenClaimValidationExecute(r.apiClient.TokenClaimValidationApi.DeleteTokenClaimValidation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.IdTokenValidatorName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Token Claim Validation", err, httpResp)
 		return
 	}

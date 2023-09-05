@@ -351,7 +351,7 @@ func readResultCodeMap(ctx context.Context, req resource.ReadRequest, resp *reso
 	readResponse, httpResp, err := apiClient.ResultCodeMapApi.GetResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Result Code Map", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -452,7 +452,7 @@ func (r *resultCodeMapResource) Delete(ctx context.Context, req resource.DeleteR
 
 	httpResp, err := r.apiClient.ResultCodeMapApi.DeleteResultCodeMapExecute(r.apiClient.ResultCodeMapApi.DeleteResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Code Map", err, httpResp)
 		return
 	}

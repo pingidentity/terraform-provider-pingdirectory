@@ -583,7 +583,7 @@ func readJsonFieldConstraints(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.JsonFieldConstraintsApi.GetJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Json Field Constraints", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -685,7 +685,7 @@ func (r *jsonFieldConstraintsResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraintsExecute(r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Json Field Constraints", err, httpResp)
 		return
 	}

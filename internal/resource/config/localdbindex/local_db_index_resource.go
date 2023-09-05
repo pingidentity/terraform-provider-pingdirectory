@@ -463,7 +463,7 @@ func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resou
 	readResponse, httpResp, err := apiClient.LocalDbIndexApi.GetLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -565,7 +565,7 @@ func (r *localDbIndexResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	httpResp, err := r.apiClient.LocalDbIndexApi.DeleteLocalDbIndexExecute(r.apiClient.LocalDbIndexApi.DeleteLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Index", err, httpResp)
 		return
 	}

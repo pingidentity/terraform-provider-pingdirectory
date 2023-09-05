@@ -933,7 +933,7 @@ func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, res
 	readResponse, httpResp, err := apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -1051,7 +1051,7 @@ func (r *otpDeliveryMechanismResource) Delete(ctx context.Context, req resource.
 
 	httpResp, err := r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanismExecute(r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Otp Delivery Mechanism", err, httpResp)
 		return
 	}

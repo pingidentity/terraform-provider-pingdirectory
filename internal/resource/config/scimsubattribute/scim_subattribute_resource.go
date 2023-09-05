@@ -465,7 +465,7 @@ func readScimSubattribute(ctx context.Context, req resource.ReadRequest, resp *r
 	readResponse, httpResp, err := apiClient.ScimSubattributeApi.GetScimSubattribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Subattribute", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -567,7 +567,7 @@ func (r *scimSubattributeResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.ScimSubattributeApi.DeleteScimSubattributeExecute(r.apiClient.ScimSubattributeApi.DeleteScimSubattribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Subattribute", err, httpResp)
 		return
 	}

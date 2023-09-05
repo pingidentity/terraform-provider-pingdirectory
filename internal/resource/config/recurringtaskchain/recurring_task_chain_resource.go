@@ -490,7 +490,7 @@ func readRecurringTaskChain(ctx context.Context, req resource.ReadRequest, resp 
 	readResponse, httpResp, err := apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -591,7 +591,7 @@ func (r *recurringTaskChainResource) Delete(ctx context.Context, req resource.De
 
 	httpResp, err := r.apiClient.RecurringTaskChainApi.DeleteRecurringTaskChainExecute(r.apiClient.RecurringTaskChainApi.DeleteRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task Chain", err, httpResp)
 		return
 	}

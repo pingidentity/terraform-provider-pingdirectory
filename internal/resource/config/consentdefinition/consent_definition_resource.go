@@ -348,7 +348,7 @@ func readConsentDefinition(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.ConsentDefinitionApi.GetConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.UniqueID.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -449,7 +449,7 @@ func (r *consentDefinitionResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.ConsentDefinitionApi.DeleteConsentDefinitionExecute(r.apiClient.ConsentDefinitionApi.DeleteConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition", err, httpResp)
 		return
 	}

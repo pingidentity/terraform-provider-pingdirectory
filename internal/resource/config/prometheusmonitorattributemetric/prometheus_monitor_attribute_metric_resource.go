@@ -423,7 +423,7 @@ func readPrometheusMonitorAttributeMetric(ctx context.Context, req resource.Read
 	readResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Prometheus Monitor Attribute Metric", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -525,7 +525,7 @@ func (r *prometheusMonitorAttributeMetricResource) Delete(ctx context.Context, r
 
 	httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetricExecute(r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Prometheus Monitor Attribute Metric", err, httpResp)
 		return
 	}

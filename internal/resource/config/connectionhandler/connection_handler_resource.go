@@ -1823,7 +1823,7 @@ func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -1946,7 +1946,7 @@ func (r *connectionHandlerResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.ConnectionHandlerApi.DeleteConnectionHandlerExecute(r.apiClient.ConnectionHandlerApi.DeleteConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Connection Handler", err, httpResp)
 		return
 	}

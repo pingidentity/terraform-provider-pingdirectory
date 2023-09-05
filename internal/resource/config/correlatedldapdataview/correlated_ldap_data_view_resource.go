@@ -411,7 +411,7 @@ func readCorrelatedLdapDataView(ctx context.Context, req resource.ReadRequest, r
 	readResponse, httpResp, err := apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Correlated Ldap Data View", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -513,7 +513,7 @@ func (r *correlatedLdapDataViewResource) Delete(ctx context.Context, req resourc
 
 	httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataViewExecute(r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Correlated Ldap Data View", err, httpResp)
 		return
 	}

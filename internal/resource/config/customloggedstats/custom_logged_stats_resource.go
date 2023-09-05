@@ -532,7 +532,7 @@ func readCustomLoggedStats(ctx context.Context, req resource.ReadRequest, resp *
 	readResponse, httpResp, err := apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.PluginName.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -634,7 +634,7 @@ func (r *customLoggedStatsResource) Delete(ctx context.Context, req resource.Del
 
 	httpResp, err := r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStatsExecute(r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.PluginName.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Custom Logged Stats", err, httpResp)
 		return
 	}

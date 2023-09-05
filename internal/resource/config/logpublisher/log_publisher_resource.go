@@ -16259,7 +16259,7 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 && !isDefault {
+		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -16586,7 +16586,7 @@ func (r *logPublisherResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	httpResp, err := r.apiClient.LogPublisherApi.DeleteLogPublisherExecute(r.apiClient.LogPublisherApi.DeleteLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Publisher", err, httpResp)
 		return
 	}

@@ -4098,7 +4098,7 @@ func (r *virtualAttributeResource) Read(ctx context.Context, req resource.ReadRe
 	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		if httpResp.StatusCode == 404 {
+		if httpResp != nil && httpResp.StatusCode == 404 {
 			config.ReportHttpErrorAsWarning(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
 			resp.State.RemoveResource(ctx)
 		} else {
@@ -4437,7 +4437,7 @@ func (r *virtualAttributeResource) Delete(ctx context.Context, req resource.Dele
 
 	httpResp, err := r.apiClient.VirtualAttributeApi.DeleteVirtualAttributeExecute(r.apiClient.VirtualAttributeApi.DeleteVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
-	if err != nil && httpResp.StatusCode != 404 {
+	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Virtual Attribute", err, httpResp)
 		return
 	}
