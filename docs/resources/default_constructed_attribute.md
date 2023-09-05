@@ -11,6 +11,8 @@ Manages a Constructed Attribute.
 
 A constructed attribute constructs values for an attribute by using a combination of fixed text and values of other attributes from the entry. Note that just creating one of these objects will not have any effect. The object must be referenced from another configuration object such as a Delegated Admin Resource Type.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

@@ -11,6 +11,8 @@ Manages a Key Manager Provider.
 
 Key Manager Providers are responsible for managing the key material that is used to authenticate a secure connection to its peer.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

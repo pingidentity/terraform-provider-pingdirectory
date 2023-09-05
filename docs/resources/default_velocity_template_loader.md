@@ -11,6 +11,8 @@ Manages a Velocity Template Loader.
 
 Velocity Template Loaders load templates from the filesystem.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

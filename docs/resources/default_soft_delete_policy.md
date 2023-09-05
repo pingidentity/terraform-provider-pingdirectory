@@ -11,6 +11,8 @@ Manages a Soft Delete Policy.
 
 General policy settings for soft delete operations.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

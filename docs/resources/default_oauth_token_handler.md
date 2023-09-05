@@ -13,6 +13,8 @@ The OAuth Token Handler is used to support OAuth 2.0 bearer tokens in the SCIM H
 
 Since RFC 6750 does not specify the format for the contents of a bearer token, the OAuthTokenHandler API allows us to handle different implementations of the token from different types of Authorization Servers.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

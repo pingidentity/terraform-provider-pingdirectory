@@ -11,6 +11,8 @@ Manages a Delegated Admin Correlated Rest Resource.
 
 Delegated Admin Correlated REST Resources link REST resources based on common attribute values.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

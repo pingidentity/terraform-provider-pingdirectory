@@ -11,6 +11,8 @@ description: |-
 
 Change Subscriptions define sets of criteria for changes of interest for which further processing should be performed. Whenever a change is processed that matches the associated criteria, the change subscription handlers configured in the server will be allowed to perform their associated processing for that operation.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

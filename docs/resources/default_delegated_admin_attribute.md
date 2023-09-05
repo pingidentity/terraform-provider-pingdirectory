@@ -11,6 +11,8 @@ Manages a Delegated Admin Attribute.
 
 A Delegated Admin Attribute defines an LDAP attribute which can be accessed by a client of the Delegated Admin API.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

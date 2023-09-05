@@ -11,6 +11,8 @@ Manages a Local Db Vlv Index.
 
 Local DB VLV Indexes are used to store information about a specific search request that makes it possible to efficiently process them using the VLV control.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

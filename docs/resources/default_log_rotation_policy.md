@@ -11,6 +11,8 @@ Manages a Log Rotation Policy.
 
 Log Rotation Policies are used to specify when log files should be rotated.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

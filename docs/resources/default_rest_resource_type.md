@@ -11,6 +11,8 @@ Manages a Rest Resource Type.
 
 A REST Resource Type defines a specific type of resource exposed by the Delegated Admin HTTP servlet extension, and accessible through the Delegated Admin application.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

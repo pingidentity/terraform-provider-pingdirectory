@@ -11,6 +11,8 @@ Manages a License.
 
 A license key is required for Directory Server use and can be imported from a license file. License keys can be requested via the Ping Identity licensing website https://www.pingidentity.com/en/account/request-license-key.html or by contacting sales@pingidentity.com.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

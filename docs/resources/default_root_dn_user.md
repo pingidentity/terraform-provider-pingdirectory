@@ -11,6 +11,8 @@ Manages a Root Dn User.
 
 Root DN Users are administrative users whose accounts exist in the server configuration. Root DN Users may automatically inherit a set of privileges defined in the root DN configuration, which can be used to give them special capabilities that are not automatically granted to non-root users.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

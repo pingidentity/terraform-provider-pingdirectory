@@ -11,6 +11,8 @@ Manages a Debug Target.
 
 Debug Targets define the types of messages logged by the debug logPublisher.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

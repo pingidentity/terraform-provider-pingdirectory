@@ -11,6 +11,8 @@ Manages a Local Db Composite Index.
 
 Local DB Composite Indexes may be used to define an index based on a filter pattern and an optional base DN pattern.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

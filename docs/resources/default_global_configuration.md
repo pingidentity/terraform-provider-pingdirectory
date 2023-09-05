@@ -11,6 +11,8 @@ Manages a Global Configuration.
 
 The Global Configuration contains properties that affect the overall operation of the Directory Server.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

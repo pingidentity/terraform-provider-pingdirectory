@@ -11,6 +11,8 @@ Manages a Result Criteria.
 
 Result Criteria define sets of criteria for grouping and describing operation results based on a number of properties, including properties of the associated client connection and operation request, the result code, response controls, privileges missing or used, and other operation-specific items.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

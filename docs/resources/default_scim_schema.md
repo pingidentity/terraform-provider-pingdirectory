@@ -11,6 +11,8 @@ Manages a Scim Schema.
 
 SCIM Schemas defines a SCIM schema comprising a set of attributes.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

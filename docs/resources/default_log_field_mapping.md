@@ -11,6 +11,8 @@ Manages a Log Field Mapping.
 
 The Log Field Mapping provides a mapping to column names in a table used to store log elements.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

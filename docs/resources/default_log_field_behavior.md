@@ -11,6 +11,8 @@ Manages a Log Field Behavior.
 
 Log Field Behaviors are used to define the behaviors to use for various log fields.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

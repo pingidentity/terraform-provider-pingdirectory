@@ -11,6 +11,8 @@ Manages a Certificate Mapper.
 
 Certificate Mappers are responsible for establishing a mapping between a client certificate and the entry for the user that corresponds to that certificate.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

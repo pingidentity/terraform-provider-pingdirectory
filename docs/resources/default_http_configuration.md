@@ -11,6 +11,8 @@ Manages a Http Configuration.
 
 The HTTP Configuration provides the configuration for the Directory Server HTTP service.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

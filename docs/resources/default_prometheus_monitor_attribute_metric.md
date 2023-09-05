@@ -11,6 +11,8 @@ Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory produc
 
 Prometheus Monitor Attribute Metrics provide a way of publishing the value of a monitor attribute as a Prometheus metric.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

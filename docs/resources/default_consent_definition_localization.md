@@ -11,6 +11,8 @@ Manages a Consent Definition Localization.
 
 Versioned localizations of this Consent Definition.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

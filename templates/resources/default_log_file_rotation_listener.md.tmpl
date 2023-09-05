@@ -11,6 +11,8 @@ description: |-
 
 Log File Rotation Listeners allow the server to take some action whenever a log file is rotated out of service so that the server will start writing to a new file. Log File Rotation Listeners must not delete, move, rename, or otherwise alter rotated log files in any way.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 {{ if .HasExample -}}
 ## Example Usage
 

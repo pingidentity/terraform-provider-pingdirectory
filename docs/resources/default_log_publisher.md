@@ -11,6 +11,8 @@ Manages a Log Publisher.
 
 Log Publishers are responsible for distributing log messages from different loggers to a destination.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

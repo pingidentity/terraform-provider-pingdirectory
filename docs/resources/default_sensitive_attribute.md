@@ -11,6 +11,8 @@ Manages a Sensitive Attribute.
 
 Sensitive Attributes provide a means of declaring one or more attributes to contain sensitive data so that the server can enforce additional protection for operations attempting to interact with them.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

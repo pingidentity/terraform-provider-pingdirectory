@@ -11,6 +11,8 @@ Manages a Access Control Handler.
 
 Access Control Handlers manage the application-wide access control. The Directory Server access control handler is defined through an extensible interface, so that alternate implementations can be created. Only one access control handler may be active in the server at any given time.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

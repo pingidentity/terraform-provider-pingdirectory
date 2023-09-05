@@ -11,6 +11,8 @@ Manages a Plugin Root.
 
 The Plugin Root defines the parent entry for all plug-ins defined in the server.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

@@ -11,6 +11,8 @@ Manages a Custom Logged Stats.
 
 A custom Custom Logged Stats object enables additional statistics to be included in the output of a Periodic Stats Logger.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

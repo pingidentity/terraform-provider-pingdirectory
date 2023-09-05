@@ -11,6 +11,8 @@ Manages a Trust Manager Provider.
 
 Trust Manager Providers determine whether to trust presented certificates.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

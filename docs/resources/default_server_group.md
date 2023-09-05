@@ -11,6 +11,8 @@ Manages a Server Group.
 
 The Server Group represents a server group within the system. For example, servers may be grouped by location.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

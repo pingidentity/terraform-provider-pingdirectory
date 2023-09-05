@@ -11,6 +11,8 @@ Manages a External Server.
 
 External Servers are used to identify external servers and to provide a mechanism to connect to them.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

@@ -11,6 +11,8 @@ Manages a Alert Handler.
 
 Alert Handlers are used to notify administrators of significant problems or notable events that occur in the Directory Server.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

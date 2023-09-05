@@ -11,6 +11,8 @@ Manages a Virtual Attribute.
 
 Virtual Attributes are responsible for dynamically generating attribute values that appear in entries but are not persistently stored in the backend.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

@@ -11,6 +11,8 @@ Manages a Replication Domain.
 
 A Replication Domain comprises of several Directory Server instances sharing the same synchronized set of data.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 ## Example Usage
 
 ```terraform

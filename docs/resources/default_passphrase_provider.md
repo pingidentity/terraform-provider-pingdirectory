@@ -11,6 +11,8 @@ Manages a Passphrase Provider.
 
 Passphrase Provider provide a means of accessing clear-text passphrases, API keys, and other secrets through an extensible API.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

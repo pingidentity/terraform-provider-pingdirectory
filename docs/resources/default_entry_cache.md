@@ -11,6 +11,8 @@ Manages a Entry Cache.
 
 Entry Caches are responsible for caching entries which are likely to be accessed by client applications in order to improve Directory Server performance.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

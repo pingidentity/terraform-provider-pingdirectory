@@ -11,6 +11,8 @@ Manages a Recurring Task Chain.
 
 Recurring Task Chains are sets of one or more recurring tasks that will automatically be invoked on a regular basis according to a defined schedule.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

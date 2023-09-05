@@ -11,6 +11,8 @@ Manages a Consent Definition.
 
 A Consent Definition represents a type of consent to share data.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

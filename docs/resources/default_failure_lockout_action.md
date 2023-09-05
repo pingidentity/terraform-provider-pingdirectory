@@ -11,6 +11,8 @@ Manages a Failure Lockout Action.
 
 Failure Lockout Actions may be used to specify the behavior that the server should exhibit for accounts that have too many failed authentication attempts.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

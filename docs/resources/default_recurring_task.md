@@ -11,6 +11,8 @@ Manages a Recurring Task.
 
 Recurring Tasks encapsulate the information to be included in administrative tasks that are to be invoked on a recurring basis within the server. Recurring Tasks must be included in a recurring task chain to actually be scheduled for processing.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

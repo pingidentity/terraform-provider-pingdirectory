@@ -11,6 +11,8 @@ Manages a Dn Map.
 
 A DN Map constructs DN values from attributes and the DN of a source entry, and fixed text. It is used to construct the DN for an entry as well as values for attributes that store DNs such as isMemberOf.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

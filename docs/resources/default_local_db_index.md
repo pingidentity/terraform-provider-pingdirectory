@@ -11,6 +11,8 @@ Manages a Local Db Index.
 
 Local DB Indexes are used to store information that makes it possible to locate entries very quickly when processing search operations.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation

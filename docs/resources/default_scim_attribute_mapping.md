@@ -11,6 +11,8 @@ Manages a Scim Attribute Mapping.
 
 SCIM Attribute Mappings define a mapping between SCIM Resource Type attributes and LDAP attributes.
 
+Since this is a 'default' resource, the managed object must already exist in the PingDirectory configuration.
+
 
 
 ## Documentation
