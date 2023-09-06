@@ -2,10 +2,6 @@
 
 The PingDirectory Terraform provider is a plugin for [Terraform](https://www.terraform.io/) that supports the management of PingDirectory configuration. This provider is maintained internally by the Ping Identity team.
 
-# Disclaimer - Provider in Development
-
-The PingDirectory Terraform provider is still in development, and breaking changes are likely.
-
 ## Requirements
 * Terraform 1.1+
 * Go 1.20+
