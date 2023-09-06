@@ -1,3 +1,26 @@
+# v1.0.0 September 6, 2023
+
+### ENHANCEMENTS
+* Mark attributes as required for specific values of the `type` attribute (#289)
+* Add default values based on the `type` attribute value, and add default values to schema for empty sets (#291)
+* Set computed attributes that don't apply for a given `type` value to null
+
+### BUG FIXES
+* Fix mismatched state issues with certain string attributes (#290)
+* Reset values that are null in the configuration to default values (#292)
+* Fix attributes that required replacement for default resources (#293)
+
+### DOCUMENTATION UPDATES
+* Various documentation improvements (#298)
+  * Add links to PingDirectory online docs
+  * Add config object synopsis to doc pages
+  * Add note to doc pages for default resources
+
+### DEPENDENCIES
+* Bump `github.com/hashicorp/terraform-plugin-framework-validators` from `0.11.0` to `0.12.0` (#294)
+* Bump `github.com/hashicorp/terraform-plugin-testing` from `1.4.0` to `1.5.1` (#295)
+* Bump `github.com/terraform-linters/tflint` from `0.47.0` to `0.48.0` (#296)
+
 # v0.11.0 August 25, 2023
 
 ### ENHANCEMENTS
