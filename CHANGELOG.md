@@ -1,3 +1,9 @@
+# v1.0.1 October 26, 2023
+
+### DEPENDENCIES
+* Bump `golang.org/x/net` from `0.14.0` to `0.17.0` (#307)
+* Bump `google.golang.org/grpc` from `1.57.0` to `1.57.1` (#310)
+
 # v1.0.0 September 6, 2023
 
 ### ENHANCEMENTS
