@@ -7,7 +7,7 @@ on:
      
 jobs:       
   ping_directory_nine_one:
-    name: Ping Directory 9.1.0.0
+    name: Ping Directory 9.1.0.2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "9.1.0.0"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "9.1.0.2"
   ping_directory_nine_two:
     name: Ping Directory 9.2.0.0
     runs-on: ubuntu-latest
