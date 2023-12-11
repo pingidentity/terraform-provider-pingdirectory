@@ -57,6 +57,10 @@ func TestAccHighThroughputWorkQueue(t *testing.T) {
 				ResourceName:      "pingdirectory_default_work_queue." + resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Required actions only get returned on the specific request where an attriute is changed
+				ImportStateVerifyIgnore: []string{
+					"required_actions",
+				},
 			},
 		},
 	})

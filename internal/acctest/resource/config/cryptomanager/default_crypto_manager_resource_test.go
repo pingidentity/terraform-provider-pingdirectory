@@ -63,6 +63,10 @@ func TestAccCryptoManager(t *testing.T) {
 				ImportStateId:     resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Required actions only get returned on the specific request where an attriute is changed
+				ImportStateVerifyIgnore: []string{
+					"required_actions",
+				},
 			},
 		},
 	})
