@@ -62,6 +62,10 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Required actions only get returned on the specific request where an attriute is changed
+				ImportStateVerifyIgnore: []string{
+					"required_actions",
+				},
 			},
 		},
 	})
