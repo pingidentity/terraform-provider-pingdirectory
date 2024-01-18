@@ -1,3 +1,11 @@
+# v1.0.2 January 18, 2024
+
+### DEPENDENCIES
+* Bump `golang.org/x/crypto` from `0.16.0` to `0.17.0` (#324)
+* Bump `github.com/cloudflare/circl` from `1.3.3` to `1.3.7` (#325)
+* Bump `github.com/hashicorp/terraform-plugin-framework` from `1.3.5` to `1.5.0` (#327)
+* Bump `github.com/hashicorp/terraform-plugin-go` from `0.18.0` to `0.20.0` (#327)
+ 
 # v1.0.1 October 26, 2023
 
 ### DEPENDENCIES
