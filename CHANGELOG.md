@@ -1,4 +1,4 @@
-# v1.0.2 January 17, 2024
+# v1.0.2 January 18, 2024
 
 ### DEPENDENCIES
 * Bump `golang.org/x/crypto` from `0.16.0` to `0.17.0` (#324)
