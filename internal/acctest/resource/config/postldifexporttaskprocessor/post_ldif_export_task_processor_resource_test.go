@@ -90,22 +90,22 @@ func TestAccPostLdifExportTaskProcessor(t *testing.T) {
 func testAccPostLdifExportTaskProcessorResource(resourceName string, resourceModel postLdifExportTaskProcessorTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_external_server" "myAwsExternalServer" {
-	type = "amazon-aws"
-	name = "myaws"
-	aws_region_name = "us-east-2"
+  type            = "amazon-aws"
+  name            = "myaws"
+  aws_region_name = "us-east-2"
 }
 
 resource "pingdirectory_post_ldif_export_task_processor" "%[1]s" {
-  type = "upload-to-s3"
-  name = "%[5]s"
-	 aws_external_server = pingdirectory_external_server.myAwsExternalServer.name
-	 s3_bucket_name = "%[2]s"
-	 enabled = %[3]t
-	 maximum_file_count_to_retain = %[4]d
+  type                         = "upload-to-s3"
+  name                         = "%[5]s"
+  aws_external_server          = pingdirectory_external_server.myAwsExternalServer.name
+  s3_bucket_name               = "%[2]s"
+  enabled                      = %[3]t
+  maximum_file_count_to_retain = %[4]d
 }
 
 data "pingdirectory_post_ldif_export_task_processor" "%[1]s" {
-	name = "%[5]s"
+  name = "%[5]s"
   depends_on = [
     pingdirectory_post_ldif_export_task_processor.%[1]s
   ]

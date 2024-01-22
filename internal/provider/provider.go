@@ -777,6 +777,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		plugin.NewDefaultPluginResource,
 		plugin.NewPluginResource,
 		pluginroot.NewPluginRootResource,
+		postldifexporttaskprocessor.NewDefaultPostLdifExportTaskProcessorResource,
 		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorResource,
 		prometheusmonitorattributemetric.NewDefaultPrometheusMonitorAttributeMetricResource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricResource,
