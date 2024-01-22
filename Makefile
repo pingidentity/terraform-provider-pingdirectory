@@ -56,7 +56,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
 	PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS=true \
 	PINGDIRECTORY_PROVIDER_PRODUCT_VERSION=$${PINGDIRECTORY_PROVIDER_PRODUCT_VERSION:-10.0.0.0} \
-	TF_ACC=1 go test -timeout 20m -v ./... -p 4 -run TestAccPingFederateAccessTokenValidator
+	TF_ACC=1 go test -timeout 20m -v ./internal/acctest/resource/config/... -p 4
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 

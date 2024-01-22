@@ -97,6 +97,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/pluginroot"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/postldifexporttaskprocessor"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/prometheusmonitorattributemetric"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtaskchain"
@@ -549,6 +550,8 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 		plugin.NewPluginDataSource,
 		plugin.NewPluginsDataSource,
 		pluginroot.NewPluginRootDataSource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorDataSource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorsDataSource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricDataSource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricsDataSource,
 		recurringtask.NewRecurringTaskDataSource,
@@ -774,6 +777,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		plugin.NewDefaultPluginResource,
 		plugin.NewPluginResource,
 		pluginroot.NewPluginRootResource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorResource,
 		prometheusmonitorattributemetric.NewDefaultPrometheusMonitorAttributeMetricResource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricResource,
 		recurringtask.NewDefaultRecurringTaskResource,

@@ -1,0 +1,21 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.RenderedProviderName}}"
+subcategory: "Post Ldif Export Task Processor"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+Post LDIF Export Task Processors may be used to cause the server to invoke custom processing after completing the core processing for an LDIF export administrative task (including those invoked as part of a recurring task). They will not be invoked for standalone LDIF exports that are not started as an administrative task. The Post LDIF Export Task Processor must not delete, move, rename, or otherwise alter the resulting LDIF file in any way.
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{ tffile (printf "%s%s%s" "examples/data-sources/" .Name "/data-source.tf") }}
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}
+
