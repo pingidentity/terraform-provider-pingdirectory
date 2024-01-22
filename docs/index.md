@@ -12,7 +12,7 @@ The Configuration API requires credentials for basic auth, which must be passed 
 
 ## PingDirectory Version Support
 
-The PingDirectory provider supports versions `9.1` through `9.3` of PingDirectory.
+The PingDirectory provider supports versions `9.1` through `10.0` of PingDirectory.
 
 ## Documentation
 

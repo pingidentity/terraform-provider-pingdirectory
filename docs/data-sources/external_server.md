@@ -60,7 +60,9 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `hostname_verification_method` (String) When the `type` attribute is set to:
   - `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.
   - `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.
+- `http_connect_timeout` (String) Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.
 - `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.
+- `http_response_timeout` (String) Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.
 - `id` (String) The ID of this resource.
 - `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.

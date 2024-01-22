@@ -32,7 +32,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 
 - `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `name` (String) Name of this config object.
-- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']
+- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'dn', 'regular-expression', 'aggregate', 'third-party']
 
 ### Optional
 

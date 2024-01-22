@@ -75,6 +75,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `password_retirement_behavior` (Set of String) Specifies the conditions under which the server may retire a user's current password in the course of setting a new password for that user (whether via a modify operation or a password modify extended operation).
 - `password_validator` (Set of String) Specifies the names of the password validators that are used with the associated password storage scheme.
 - `previous_last_login_time_format` (Set of String) Specifies the format string(s) that might have been used with the last login time at any point in the past for users associated with the password policy.
+- `re_encode_passwords_on_scheme_config_change` (Boolean) Supported in PingDirectory product version 10.0.0.0+. Indicates whether to re-encode passwords on authentication if the configuration for the underlying password storage scheme has changed.
 - `recent_login_history_similar_attempt_behavior` (String) The behavior that the server will exhibit when multiple similar authentication attempts (with the same values for the successful, authentication-method, client-ip-address, and failure-reason fields) are processed for an account.
 - `require_change_by_time` (String) Specifies the time by which all users with the associated password policy must change their passwords.
 - `require_secure_authentication` (Boolean) Indicates whether users with the associated password policy are required to authenticate in a secure manner.

@@ -84,6 +84,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `backup`: The maximum rate, in megabytes per second, at which backups should be written.
   - `ldif-export`: The maximum rate, in megabytes per second, at which LDIF exports should be written.
 - `output_directory` (String) The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.
+- `post_ldif_export_task_processor` (Set of String) Supported in PingDirectory product version 10.0.0.0+. An optional set of post-LDIF-export task processors that should be invoked for the resulting LDIF export files.
 - `profile_directory` (String) The directory in which the generated server profiles will be placed. The files will be named with the pattern "server-profile-{timestamp}.zip", where "{timestamp}" represents the time that the profile was generated.
 - `reason` (String) When the `type` attribute is set to:
   - `leave-lockdown-mode`: The reason that the server is being taken out of in lockdown mode.

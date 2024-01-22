@@ -33,7 +33,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `enabled` (Boolean) Indicates whether the SCIM Resource Type is enabled.
 - `endpoint` (String) The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.
 - `name` (String) Name of this config object.
-- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
+- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'mapping', 'ldap-mapping']
 
 ### Optional
 

@@ -46,5 +46,5 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `required_schema_extension` (Set of String) Required additive schemas that are enforced on extension attributes in a SCIM resource representation for this Mapping SCIM Resource Type.
 - `schema_checking_option` (Set of String) Options to alter the way schema checking is performed during create or modify requests.
 - `structural_ldap_objectclass` (String) Specifies the LDAP structural object class that should be exposed by this SCIM Resource Type.
-- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
+- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'mapping', 'ldap-mapping']
 

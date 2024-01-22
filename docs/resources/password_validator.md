@@ -57,7 +57,9 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `disallowed_trailing_characters` (String) A set of characters that will not be allowed as the last character of the password.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Validator.
+- `http_connect_timeout` (String) Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.
 - `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.
+- `http_response_timeout` (String) Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.
 - `ignore_leading_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the beginning of a proposed password.
 - `ignore_trailing_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the end of a proposed password.
 - `invoke_for_add` (Boolean) Indicates whether this password validator should be used to validate clear-text passwords provided in LDAP add requests.
