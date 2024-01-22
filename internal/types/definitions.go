@@ -1,7 +1,7 @@
 package types
 
 import (
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 )
 
 // Configuration used by the provider and resources
