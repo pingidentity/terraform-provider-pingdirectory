@@ -331,7 +331,7 @@ func (r *passphraseProviderDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PassphraseProviderApi.GetPassphraseProvider(
+	readResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.GetPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)

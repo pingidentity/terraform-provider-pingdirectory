@@ -188,7 +188,7 @@ func (r *uncachedAttributeCriteriaDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
+	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.GetUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Attribute Criteria", err, httpResp)

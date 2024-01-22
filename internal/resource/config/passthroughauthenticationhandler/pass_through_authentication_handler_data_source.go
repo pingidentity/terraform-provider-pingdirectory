@@ -368,7 +368,7 @@ func (r *passThroughAuthenticationHandlerDataSource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(
+	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.GetPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pass Through Authentication Handler", err, httpResp)

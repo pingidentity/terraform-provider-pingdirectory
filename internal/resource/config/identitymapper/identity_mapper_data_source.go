@@ -71,7 +71,7 @@ func (r *identityMapperDataSource) Schema(ctx context.Context, req datasource.Sc
 		Description: "Describes a Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']",
+				Description: "The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'dn', 'regular-expression', 'aggregate', 'third-party']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -191,6 +191,15 @@ func readGroovyScriptedIdentityMapperResponseDataSource(ctx context.Context, r *
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a DnIdentityMapperResponse object into the model struct
+func readDnIdentityMapperResponseDataSource(ctx context.Context, r *client.DnIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("dn")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a RegularExpressionIdentityMapperResponse object into the model struct
 func readRegularExpressionIdentityMapperResponseDataSource(ctx context.Context, r *client.RegularExpressionIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
@@ -237,7 +246,7 @@ func (r *identityMapperDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+	readResponse, httpResp, err := r.apiClient.IdentityMapperAPI.GetIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
@@ -256,6 +265,9 @@ func (r *identityMapperDataSource) Read(ctx context.Context, req datasource.Read
 	}
 	if readResponse.GroovyScriptedIdentityMapperResponse != nil {
 		readGroovyScriptedIdentityMapperResponseDataSource(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DnIdentityMapperResponse != nil {
+		readDnIdentityMapperResponseDataSource(ctx, readResponse.DnIdentityMapperResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.RegularExpressionIdentityMapperResponse != nil {
 		readRegularExpressionIdentityMapperResponseDataSource(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &resp.Diagnostics)

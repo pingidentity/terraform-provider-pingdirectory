@@ -297,7 +297,7 @@ func (r *searchEntryCriteriaDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
+	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaAPI.GetSearchEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)

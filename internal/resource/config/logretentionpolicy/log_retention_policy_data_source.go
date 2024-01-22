@@ -158,7 +158,7 @@ func (r *logRetentionPolicyDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
+	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.GetLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)

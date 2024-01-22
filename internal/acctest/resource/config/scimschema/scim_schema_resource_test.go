@@ -66,7 +66,7 @@ func TestAccScimSchema(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ScimSchemaApi.DeleteScimSchema(ctx, updatedResourceModel.schemaUrn).Execute()
+					_, err := testClient.ScimSchemaAPI.DeleteScimSchema(ctx, updatedResourceModel.schemaUrn).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedScimSchemaAttributes(config scimSchemaTestModel) resour
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ScimSchemaApi.GetScimSchema(ctx, config.schemaUrn).Execute()
+		response, _, err := testClient.ScimSchemaAPI.GetScimSchema(ctx, config.schemaUrn).Execute()
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,7 @@ func testAccCheckExpectedScimSchemaAttributes(config scimSchemaTestModel) resour
 func testAccCheckScimSchemaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ScimSchemaApi.GetScimSchema(ctx, testIdScimSchema).Execute()
+	_, _, err := testClient.ScimSchemaAPI.GetScimSchema(ctx, testIdScimSchema).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Scim Schema", testIdScimSchema)
 	}

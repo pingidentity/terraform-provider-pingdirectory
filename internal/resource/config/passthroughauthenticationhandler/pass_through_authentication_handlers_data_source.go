@@ -84,12 +84,12 @@ func (r *passThroughAuthenticationHandlersDataSource) Read(ctx context.Context, 
 		return
 	}
 
-	listRequest := r.apiClient.PassThroughAuthenticationHandlerApi.ListPassThroughAuthenticationHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.ListPassThroughAuthenticationHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.ListPassThroughAuthenticationHandlersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.ListPassThroughAuthenticationHandlersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Pass Through Authentication Handler objects", err, httpResp)
 		return

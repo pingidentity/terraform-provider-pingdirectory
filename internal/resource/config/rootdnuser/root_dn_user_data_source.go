@@ -370,7 +370,7 @@ func (r *rootDnUserDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnUserApi.GetRootDnUser(
+	readResponse, httpResp, err := r.apiClient.RootDnUserAPI.GetRootDnUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn User", err, httpResp)

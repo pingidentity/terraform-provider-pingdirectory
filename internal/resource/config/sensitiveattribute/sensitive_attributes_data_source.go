@@ -84,12 +84,12 @@ func (r *sensitiveAttributesDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.SensitiveAttributeApi.ListSensitiveAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.SensitiveAttributeAPI.ListSensitiveAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.SensitiveAttributeApi.ListSensitiveAttributesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.SensitiveAttributeAPI.ListSensitiveAttributesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Sensitive Attribute objects", err, httpResp)
 		return

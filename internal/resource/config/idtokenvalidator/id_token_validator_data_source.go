@@ -211,7 +211,7 @@ func (r *idTokenValidatorDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
+	readResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.GetIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)

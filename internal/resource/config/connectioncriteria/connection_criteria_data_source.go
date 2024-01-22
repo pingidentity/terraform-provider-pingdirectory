@@ -393,7 +393,7 @@ func (r *connectionCriteriaDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
+	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.GetConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Criteria", err, httpResp)

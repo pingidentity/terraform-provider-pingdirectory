@@ -84,12 +84,12 @@ func (r *conjurAuthenticationMethodsDataSource) Read(ctx context.Context, req da
 		return
 	}
 
-	listRequest := r.apiClient.ConjurAuthenticationMethodApi.ListConjurAuthenticationMethods(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ConjurAuthenticationMethodAPI.ListConjurAuthenticationMethods(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.ListConjurAuthenticationMethodsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.ListConjurAuthenticationMethodsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Conjur Authentication Method objects", err, httpResp)
 		return

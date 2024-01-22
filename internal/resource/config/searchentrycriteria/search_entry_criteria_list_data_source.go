@@ -84,12 +84,12 @@ func (r *searchEntryCriteriaListDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	listRequest := r.apiClient.SearchEntryCriteriaApi.ListSearchEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.SearchEntryCriteriaAPI.ListSearchEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.ListSearchEntryCriteriaExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaAPI.ListSearchEntryCriteriaExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Search Entry Criteria objects", err, httpResp)
 		return

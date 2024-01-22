@@ -84,12 +84,12 @@ func (r *extendedOperationHandlersDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	listRequest := r.apiClient.ExtendedOperationHandlerApi.ListExtendedOperationHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ExtendedOperationHandlerAPI.ListExtendedOperationHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.ListExtendedOperationHandlersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.ListExtendedOperationHandlersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Extended Operation Handler objects", err, httpResp)
 		return

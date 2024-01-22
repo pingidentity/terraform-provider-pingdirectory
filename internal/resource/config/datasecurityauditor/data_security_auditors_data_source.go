@@ -84,12 +84,12 @@ func (r *dataSecurityAuditorsDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	listRequest := r.apiClient.DataSecurityAuditorApi.ListDataSecurityAuditors(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.DataSecurityAuditorAPI.ListDataSecurityAuditors(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.ListDataSecurityAuditorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.ListDataSecurityAuditorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Data Security Auditor objects", err, httpResp)
 		return

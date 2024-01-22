@@ -51,7 +51,7 @@ func TestAccDefaultAzureAuthenticationMethod(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethod(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.AzureAuthenticationMethodAPI.DeleteAzureAuthenticationMethod(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -89,7 +89,7 @@ data "pingdirectory_azure_authentication_methods" "list" {
 func testAccCheckDefaultAzureAuthenticationMethodDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, testIdDefaultAzureAuthenticationMethod).Execute()
+	_, _, err := testClient.AzureAuthenticationMethodAPI.GetAzureAuthenticationMethod(ctx, testIdDefaultAzureAuthenticationMethod).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Default Azure Authentication Method", testIdDefaultAzureAuthenticationMethod)
 	}

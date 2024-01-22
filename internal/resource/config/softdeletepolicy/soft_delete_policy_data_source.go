@@ -126,7 +126,7 @@ func (r *softDeletePolicyDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
+	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyAPI.GetSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)

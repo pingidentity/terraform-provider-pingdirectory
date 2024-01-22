@@ -158,7 +158,7 @@ func (r *correlatedLdapDataViewDataSource) Read(ctx context.Context, req datasou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
+	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.GetCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Correlated Ldap Data View", err, httpResp)

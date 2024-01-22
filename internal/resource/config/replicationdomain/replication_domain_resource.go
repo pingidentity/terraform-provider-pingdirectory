@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -71,6 +72,7 @@ type replicationDomainResourceModel struct {
 	Restricted                                types.Bool   `tfsdk:"restricted"`
 	OnReplayFailureWaitForDependentOpsTimeout types.String `tfsdk:"on_replay_failure_wait_for_dependent_ops_timeout"`
 	DependentOpsReplayFailureWaitTime         types.String `tfsdk:"dependent_ops_replay_failure_wait_time"`
+	MissingChangesPolicy                      types.String `tfsdk:"missing_changes_policy"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -161,10 +163,36 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"missing_changes_policy": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Determines how the server responds when replication detects that some changes might have been missed. Each missing changes policy is a set of missing changes actions to take for a set of missing changes types. The value configured here only applies to this particular replication domain.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *replicationDomainResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model replicationDomainResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.MissingChangesPolicy) {
+		resp.Diagnostics.AddError("Attribute 'missing_changes_policy' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
 }
 
 // Read a ReplicationDomainResponse object into the model struct
@@ -188,6 +216,8 @@ func readReplicationDomainResponse(ctx context.Context, r *client.ReplicationDom
 	state.DependentOpsReplayFailureWaitTime = internaltypes.StringTypeOrNil(r.DependentOpsReplayFailureWaitTime, true)
 	config.CheckMismatchedPDFormattedAttributes("dependent_ops_replay_failure_wait_time",
 		expectedValues.DependentOpsReplayFailureWaitTime, state.DependentOpsReplayFailureWaitTime, diagnostics)
+	state.MissingChangesPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumreplicationDomainMissingChangesPolicyProp(r.MissingChangesPolicy), true)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -210,6 +240,7 @@ func createReplicationDomainOperations(plan replicationDomainResourceModel, stat
 	operations.AddBoolOperationIfNecessary(&ops, plan.Restricted, state.Restricted, "restricted")
 	operations.AddStringOperationIfNecessary(&ops, plan.OnReplayFailureWaitForDependentOpsTimeout, state.OnReplayFailureWaitForDependentOpsTimeout, "on-replay-failure-wait-for-dependent-ops-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.DependentOpsReplayFailureWaitTime, state.DependentOpsReplayFailureWaitTime, "dependent-ops-replay-failure-wait-time")
+	operations.AddStringOperationIfNecessary(&ops, plan.MissingChangesPolicy, state.MissingChangesPolicy, "missing-changes-policy")
 	return ops
 }
 
@@ -226,7 +257,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
+	readResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.GetReplicationDomain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)
@@ -244,14 +275,14 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 	readReplicationDomainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString())
+	updateRequest := r.apiClient.ReplicationDomainAPI.UpdateReplicationDomain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString())
 	ops := createReplicationDomainOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ReplicationDomainApi.UpdateReplicationDomainExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.UpdateReplicationDomainExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Domain", err, httpResp)
 			return
@@ -285,7 +316,7 @@ func (r *replicationDomainResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
+	readResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.GetReplicationDomain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)
@@ -319,7 +350,7 @@ func (r *replicationDomainResource) Update(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state replicationDomainResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(
+	updateRequest := r.apiClient.ReplicationDomainAPI.UpdateReplicationDomain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString())
 
 	// Determine what update operations are necessary
@@ -329,7 +360,7 @@ func (r *replicationDomainResource) Update(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ReplicationDomainApi.UpdateReplicationDomainExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.UpdateReplicationDomainExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Domain", err, httpResp)
 			return

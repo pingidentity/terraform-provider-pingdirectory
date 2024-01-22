@@ -89,12 +89,12 @@ func (r *localDbVlvIndexesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.LocalDbVlvIndexApi.ListLocalDbVlvIndexes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendName.ValueString())
+	listRequest := r.apiClient.LocalDbVlvIndexAPI.ListLocalDbVlvIndexes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.ListLocalDbVlvIndexesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexAPI.ListLocalDbVlvIndexesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Local Db Vlv Index objects", err, httpResp)
 		return

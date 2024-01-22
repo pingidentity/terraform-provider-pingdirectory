@@ -148,7 +148,7 @@ func (r *interServerAuthenticationInfoDataSource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
+	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.GetInterServerAuthenticationInfo(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)

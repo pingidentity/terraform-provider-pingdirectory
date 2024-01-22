@@ -89,12 +89,12 @@ func (r *correlatedLdapDataViewsDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	listRequest := r.apiClient.CorrelatedLdapDataViewApi.ListCorrelatedLdapDataViews(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimResourceTypeName.ValueString())
+	listRequest := r.apiClient.CorrelatedLdapDataViewAPI.ListCorrelatedLdapDataViews(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimResourceTypeName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.ListCorrelatedLdapDataViewsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.ListCorrelatedLdapDataViewsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Correlated Ldap Data View objects", err, httpResp)
 		return

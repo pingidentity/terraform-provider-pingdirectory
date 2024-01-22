@@ -89,12 +89,12 @@ func (r *jsonFieldConstraintsListDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.JsonFieldConstraintsApi.ListJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonAttributeConstraintsName.ValueString())
+	listRequest := r.apiClient.JsonFieldConstraintsAPI.ListJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonAttributeConstraintsName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.ListJsonFieldConstraintsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.ListJsonFieldConstraintsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Json Field Constraints objects", err, httpResp)
 		return

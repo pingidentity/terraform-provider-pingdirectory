@@ -94,7 +94,7 @@ func (r *trustedCertificateDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
+	readResponse, httpResp, err := r.apiClient.TrustedCertificateAPI.GetTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)

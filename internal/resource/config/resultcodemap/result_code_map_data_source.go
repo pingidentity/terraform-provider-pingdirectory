@@ -126,7 +126,7 @@ func (r *resultCodeMapDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ResultCodeMapApi.GetResultCodeMap(
+	readResponse, httpResp, err := r.apiClient.ResultCodeMapAPI.GetResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Code Map", err, httpResp)

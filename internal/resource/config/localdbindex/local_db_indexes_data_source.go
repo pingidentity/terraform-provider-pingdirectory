@@ -89,12 +89,12 @@ func (r *localDbIndexesDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	listRequest := r.apiClient.LocalDbIndexApi.ListLocalDbIndexes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendName.ValueString())
+	listRequest := r.apiClient.LocalDbIndexAPI.ListLocalDbIndexes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.ListLocalDbIndexesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LocalDbIndexAPI.ListLocalDbIndexesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Local Db Index objects", err, httpResp)
 		return

@@ -71,7 +71,7 @@ func TestAccUnboundidMsChapV2SaslMechanismHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.SaslMechanismHandlerApi.DeleteSaslMechanismHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.SaslMechanismHandlerAPI.DeleteSaslMechanismHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedUnboundidMsChapV2SaslMechanismHandlerAttributes(config 
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(ctx, config.id).Execute()
+		response, _, err := testClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func testAccCheckExpectedUnboundidMsChapV2SaslMechanismHandlerAttributes(config 
 func testAccCheckUnboundidMsChapV2SaslMechanismHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(ctx, testIdUnboundidMsChapV2SaslMechanismHandler).Execute()
+	_, _, err := testClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(ctx, testIdUnboundidMsChapV2SaslMechanismHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Unboundid Ms Chap V2 Sasl Mechanism Handler", testIdUnboundidMsChapV2SaslMechanismHandler)
 	}

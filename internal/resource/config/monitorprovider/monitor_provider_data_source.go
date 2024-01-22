@@ -335,7 +335,7 @@ func (r *monitorProviderDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
+	readResponse, httpResp, err := r.apiClient.MonitorProviderAPI.GetMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)

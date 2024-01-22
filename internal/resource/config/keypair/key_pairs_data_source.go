@@ -84,12 +84,12 @@ func (r *keyPairsDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	listRequest := r.apiClient.KeyPairApi.ListKeyPairs(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.KeyPairAPI.ListKeyPairs(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyPairApi.ListKeyPairsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.KeyPairAPI.ListKeyPairsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Key Pair objects", err, httpResp)
 		return

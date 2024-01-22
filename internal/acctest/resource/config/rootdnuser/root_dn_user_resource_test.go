@@ -94,7 +94,7 @@ func TestAccRootDnUser(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RootDnUserApi.DeleteRootDnUser(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RootDnUserAPI.DeleteRootDnUser(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -149,7 +149,7 @@ func testAccCheckExpectedRootDnUserAttributes(config rootDnUserTestModel) resour
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RootDnUserApi.GetRootDnUser(ctx, config.id).Execute()
+		response, _, err := testClient.RootDnUserAPI.GetRootDnUser(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -208,7 +208,7 @@ func testAccCheckExpectedRootDnUserAttributes(config rootDnUserTestModel) resour
 func testAccCheckRootDnUserDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RootDnUserApi.GetRootDnUser(ctx, testIdRootDnUser).Execute()
+	_, _, err := testClient.RootDnUserAPI.GetRootDnUser(ctx, testIdRootDnUser).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Root Dn User", testIdRootDnUser)
 	}

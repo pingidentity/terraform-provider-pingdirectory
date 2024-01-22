@@ -114,7 +114,7 @@ func (r *jsonAttributeConstraintsDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
+	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsAPI.GetJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)

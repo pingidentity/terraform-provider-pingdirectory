@@ -159,7 +159,7 @@ func (r *consentServiceDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentServiceApi.GetConsentService(
+	readResponse, httpResp, err := r.apiClient.ConsentServiceAPI.GetConsentService(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Service", err, httpResp)

@@ -122,6 +122,8 @@ type globalConfigurationResourceModel struct {
 	DuplicateAlertLimit                                            types.Int64  `tfsdk:"duplicate_alert_limit"`
 	DuplicateAlertTimeLimit                                        types.String `tfsdk:"duplicate_alert_time_limit"`
 	WritabilityMode                                                types.String `tfsdk:"writability_mode"`
+	UseSharedDatabaseCacheAcrossAllLocalDBBackends                 types.Bool   `tfsdk:"use_shared_database_cache_across_all_local_db_backends"`
+	SharedLocalDBBackendDatabaseCachePercent                       types.Int64  `tfsdk:"shared_local_db_backend_database_cache_percent"`
 	UnrecoverableDatabaseErrorMode                                 types.String `tfsdk:"unrecoverable_database_error_mode"`
 	DatabaseOnVirtualizedOrNetworkStorage                          types.Bool   `tfsdk:"database_on_virtualized_or_network_storage"`
 	AutoNameWithEntryUUIDConnectionCriteria                        types.String `tfsdk:"auto_name_with_entry_uuid_connection_criteria"`
@@ -655,6 +657,22 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"use_shared_database_cache_across_all_local_db_backends": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether the server should use a common database cache that is shared across all local DB backends instead of maintaining a separate cache for each backend.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"shared_local_db_backend_database_cache_percent": schema.Int64Attribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Specifies the percentage of the JVM memory to allocate to the database cache that is shared across all local DB backends.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 			"unrecoverable_database_error_mode": schema.StringAttribute{
 				Description: "Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.",
 				Optional:    true,
@@ -898,7 +916,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -909,6 +927,21 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.UseSharedDatabaseCacheAcrossAllLocalDBBackends) {
+		resp.Diagnostics.AddError("Attribute 'use_shared_database_cache_across_all_local_db_backends' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.SharedLocalDBBackendDatabaseCachePercent) {
+		resp.Diagnostics.AddError("Attribute 'shared_local_db_backend_database_cache_percent' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
@@ -1009,6 +1042,8 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 		expectedValues.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, diagnostics)
 	state.WritabilityMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationWritabilityModeProp(r.WritabilityMode), true)
+	state.UseSharedDatabaseCacheAcrossAllLocalDBBackends = internaltypes.BoolTypeOrNil(r.UseSharedDatabaseCacheAcrossAllLocalDBBackends)
+	state.SharedLocalDBBackendDatabaseCachePercent = internaltypes.Int64TypeOrNil(r.SharedLocalDBBackendDatabaseCachePercent)
 	state.UnrecoverableDatabaseErrorMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationUnrecoverableDatabaseErrorModeProp(r.UnrecoverableDatabaseErrorMode), true)
 	state.DatabaseOnVirtualizedOrNetworkStorage = internaltypes.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
@@ -1122,6 +1157,8 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddInt64OperationIfNecessary(&ops, plan.DuplicateAlertLimit, state.DuplicateAlertLimit, "duplicate-alert-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, "duplicate-alert-time-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.WritabilityMode, state.WritabilityMode, "writability-mode")
+	operations.AddBoolOperationIfNecessary(&ops, plan.UseSharedDatabaseCacheAcrossAllLocalDBBackends, state.UseSharedDatabaseCacheAcrossAllLocalDBBackends, "use-shared-database-cache-across-all-local-db-backends")
+	operations.AddInt64OperationIfNecessary(&ops, plan.SharedLocalDBBackendDatabaseCachePercent, state.SharedLocalDBBackendDatabaseCachePercent, "shared-local-db-backend-database-cache-percent")
 	operations.AddStringOperationIfNecessary(&ops, plan.UnrecoverableDatabaseErrorMode, state.UnrecoverableDatabaseErrorMode, "unrecoverable-database-error-mode")
 	operations.AddBoolOperationIfNecessary(&ops, plan.DatabaseOnVirtualizedOrNetworkStorage, state.DatabaseOnVirtualizedOrNetworkStorage, "database-on-virtualized-or-network-storage")
 	operations.AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDConnectionCriteria, state.AutoNameWithEntryUUIDConnectionCriteria, "auto-name-with-entry-uuid-connection-criteria")
@@ -1167,7 +1204,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(
+	readResponse, httpResp, err := r.apiClient.GlobalConfigurationAPI.GetGlobalConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Global Configuration", err, httpResp)
@@ -1185,14 +1222,14 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 	readGlobalConfigurationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.GlobalConfigurationAPI.UpdateGlobalConfiguration(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createGlobalConfigurationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationAPI.UpdateGlobalConfigurationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Global Configuration", err, httpResp)
 			return
@@ -1225,7 +1262,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(
+	readResponse, httpResp, err := r.apiClient.GlobalConfigurationAPI.GetGlobalConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Global Configuration", err, httpResp)
@@ -1259,7 +1296,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 	// Get the current state to see how any attributes are changing
 	var state globalConfigurationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(
+	updateRequest := r.apiClient.GlobalConfigurationAPI.UpdateGlobalConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -1269,7 +1306,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationAPI.UpdateGlobalConfigurationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Global Configuration", err, httpResp)
 			return

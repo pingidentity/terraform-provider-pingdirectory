@@ -84,12 +84,12 @@ func (r *logFileRotationListenersDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.LogFileRotationListenerApi.ListLogFileRotationListeners(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogFileRotationListenerAPI.ListLogFileRotationListeners(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.ListLogFileRotationListenersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.ListLogFileRotationListenersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log File Rotation Listener objects", err, httpResp)
 		return
@@ -105,6 +105,10 @@ func (r *logFileRotationListenersDataSource) Read(ctx context.Context, req datas
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.UploadToS3LogFileRotationListenerResponse != nil {
+			attributes["id"] = types.StringValue(response.UploadToS3LogFileRotationListenerResponse.Id)
+			attributes["type"] = types.StringValue("upload-to-s3")
+		}
 		if response.SummarizeLogFileRotationListenerResponse != nil {
 			attributes["id"] = types.StringValue(response.SummarizeLogFileRotationListenerResponse.Id)
 			attributes["type"] = types.StringValue("summarize")

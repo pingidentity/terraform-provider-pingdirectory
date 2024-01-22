@@ -510,9 +510,9 @@ func createWebApplicationExtensionOperationsDefault(plan defaultWebApplicationEx
 
 // Create a generic web-application-extension
 func (r *webApplicationExtensionResource) CreateGenericWebApplicationExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan webApplicationExtensionResourceModel) (*webApplicationExtensionResourceModel, error) {
-	addRequest := client.NewAddGenericWebApplicationExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumgenericWebApplicationExtensionSchemaUrn{client.ENUMGENERICWEBAPPLICATIONEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0WEB_APPLICATION_EXTENSIONGENERIC},
-		plan.BaseContextPath.ValueString())
+	addRequest := client.NewAddGenericWebApplicationExtensionRequest([]client.EnumgenericWebApplicationExtensionSchemaUrn{client.ENUMGENERICWEBAPPLICATIONEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0WEB_APPLICATION_EXTENSIONGENERIC},
+		plan.BaseContextPath.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalGenericWebApplicationExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Web Application Extension", err.Error())
@@ -523,11 +523,11 @@ func (r *webApplicationExtensionResource) CreateGenericWebApplicationExtension(c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.WebApplicationExtensionApi.AddWebApplicationExtension(
+	apiAddRequest := r.apiClient.WebApplicationExtensionAPI.AddWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddGenericWebApplicationExtensionRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.AddWebApplicationExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.AddWebApplicationExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Web Application Extension", err, httpResp)
 		return nil, err
@@ -581,7 +581,7 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
+	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.GetWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
@@ -604,14 +604,14 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createWebApplicationExtensionOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Web Application Extension", err, httpResp)
 			return
@@ -650,7 +650,7 @@ func (r *webApplicationExtensionResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
+	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.GetWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -687,7 +687,7 @@ func (r *defaultWebApplicationExtensionResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
+	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.GetWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
@@ -723,7 +723,7 @@ func (r *webApplicationExtensionResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state webApplicationExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(
+	updateRequest := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -733,7 +733,7 @@ func (r *webApplicationExtensionResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Web Application Extension", err, httpResp)
 			return
@@ -772,7 +772,7 @@ func (r *defaultWebApplicationExtensionResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state defaultWebApplicationExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(
+	updateRequest := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -782,7 +782,7 @@ func (r *defaultWebApplicationExtensionResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.UpdateWebApplicationExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Web Application Extension", err, httpResp)
 			return
@@ -828,7 +828,7 @@ func (r *webApplicationExtensionResource) Delete(ctx context.Context, req resour
 		return
 	}
 
-	httpResp, err := r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtensionExecute(r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtension(
+	httpResp, err := r.apiClient.WebApplicationExtensionAPI.DeleteWebApplicationExtensionExecute(r.apiClient.WebApplicationExtensionAPI.DeleteWebApplicationExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Web Application Extension", err, httpResp)

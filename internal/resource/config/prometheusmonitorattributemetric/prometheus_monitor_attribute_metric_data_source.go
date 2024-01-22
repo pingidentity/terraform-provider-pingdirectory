@@ -153,7 +153,7 @@ func (r *prometheusMonitorAttributeMetricDataSource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
+	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Prometheus Monitor Attribute Metric", err, httpResp)

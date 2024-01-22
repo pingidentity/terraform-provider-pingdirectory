@@ -84,7 +84,7 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogPublisherApi.DeleteLogPublisher(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogPublisherAPI.DeleteLogPublisher(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -134,7 +134,7 @@ func testAccCheckExpectedFileBasedAccessLogPublisherAttributes(config fileBasedA
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, config.id).Execute()
+		response, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -178,7 +178,7 @@ func testAccCheckExpectedFileBasedAccessLogPublisherAttributes(config fileBasedA
 func testAccCheckFileBasedAccessLogPublisherDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, testIdFileBasedAccessLogPublisher).Execute()
+	_, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, testIdFileBasedAccessLogPublisher).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("File Based Access Log Publisher", testIdFileBasedAccessLogPublisher)
 	}

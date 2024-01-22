@@ -85,7 +85,7 @@ func TestAccLocalDbBackend(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.BackendApi.DeleteBackend(ctx, updatedResourceModel.backendId).Execute()
+					_, err := testClient.BackendAPI.DeleteBackend(ctx, updatedResourceModel.backendId).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -134,7 +134,7 @@ func testAccCheckExpectedLocalDbBackendAttributes(config localDbBackendTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.BackendApi.GetBackend(ctx, config.backendId).Execute()
+		response, _, err := testClient.BackendAPI.GetBackend(ctx, config.backendId).Execute()
 		if err != nil {
 			return err
 		}
@@ -178,7 +178,7 @@ func testAccCheckExpectedLocalDbBackendAttributes(config localDbBackendTestModel
 func testAccCheckLocalDbBackendDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, testIdLocalDbBackend).Execute()
+	_, _, err := testClient.RequestCriteriaAPI.GetRequestCriteria(ctx, testIdLocalDbBackend).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Local Database Backend", testIdLocalDbBackend)
 	}

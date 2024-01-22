@@ -106,7 +106,7 @@ func (r *delegatedAdminAttributeCategoryDataSource) Read(ctx context.Context, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.GetDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DisplayName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute Category", err, httpResp)

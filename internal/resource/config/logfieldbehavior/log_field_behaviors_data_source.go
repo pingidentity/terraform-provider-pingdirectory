@@ -84,12 +84,12 @@ func (r *logFieldBehaviorsDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.LogFieldBehaviorApi.ListLogFieldBehaviors(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogFieldBehaviorAPI.ListLogFieldBehaviors(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.ListLogFieldBehaviorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorAPI.ListLogFieldBehaviorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log Field Behavior objects", err, httpResp)
 		return

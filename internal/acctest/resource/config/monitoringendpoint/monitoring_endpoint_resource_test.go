@@ -71,7 +71,7 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.MonitoringEndpointApi.DeleteMonitoringEndpoint(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.MonitoringEndpointAPI.DeleteMonitoringEndpoint(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -113,7 +113,7 @@ func testAccCheckExpectedStatsdMonitoringEndpointAttributes(config statsdMonitor
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.MonitoringEndpointApi.GetMonitoringEndpoint(ctx, config.id).Execute()
+		response, _, err := testClient.MonitoringEndpointAPI.GetMonitoringEndpoint(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func testAccCheckExpectedStatsdMonitoringEndpointAttributes(config statsdMonitor
 func testAccCheckStatsdMonitoringEndpointDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.MonitoringEndpointApi.GetMonitoringEndpoint(ctx, testIdStatsdMonitoringEndpoint).Execute()
+	_, _, err := testClient.MonitoringEndpointAPI.GetMonitoringEndpoint(ctx, testIdStatsdMonitoringEndpoint).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Statsd Monitoring Endpoint", testIdStatsdMonitoringEndpoint)
 	}

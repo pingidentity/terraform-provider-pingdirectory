@@ -252,7 +252,7 @@ func (r *workQueueResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WorkQueueApi.GetWorkQueue(
+	readResponse, httpResp, err := r.apiClient.WorkQueueAPI.GetWorkQueue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Work Queue", err, httpResp)
@@ -270,14 +270,14 @@ func (r *workQueueResource) Create(ctx context.Context, req resource.CreateReque
 	readHighThroughputWorkQueueResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.WorkQueueApi.UpdateWorkQueue(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.WorkQueueAPI.UpdateWorkQueue(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createWorkQueueOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.WorkQueueApi.UpdateWorkQueueExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.WorkQueueAPI.UpdateWorkQueueExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Work Queue", err, httpResp)
 			return
@@ -310,7 +310,7 @@ func (r *workQueueResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WorkQueueApi.GetWorkQueue(
+	readResponse, httpResp, err := r.apiClient.WorkQueueAPI.GetWorkQueue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Work Queue", err, httpResp)
@@ -344,7 +344,7 @@ func (r *workQueueResource) Update(ctx context.Context, req resource.UpdateReque
 	// Get the current state to see how any attributes are changing
 	var state workQueueResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.WorkQueueApi.UpdateWorkQueue(
+	updateRequest := r.apiClient.WorkQueueAPI.UpdateWorkQueue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -354,7 +354,7 @@ func (r *workQueueResource) Update(ctx context.Context, req resource.UpdateReque
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.WorkQueueApi.UpdateWorkQueueExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.WorkQueueAPI.UpdateWorkQueueExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Work Queue", err, httpResp)
 			return

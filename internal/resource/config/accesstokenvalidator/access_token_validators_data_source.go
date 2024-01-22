@@ -84,12 +84,12 @@ func (r *accessTokenValidatorsDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.AccessTokenValidatorApi.ListAccessTokenValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.AccessTokenValidatorAPI.ListAccessTokenValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.ListAccessTokenValidatorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorAPI.ListAccessTokenValidatorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Access Token Validator objects", err, httpResp)
 		return
@@ -112,6 +112,10 @@ func (r *accessTokenValidatorsDataSource) Read(ctx context.Context, req datasour
 		if response.MockAccessTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.MockAccessTokenValidatorResponse.Id)
 			attributes["type"] = types.StringValue("mock")
+		}
+		if response.BindAccessTokenValidatorResponse != nil {
+			attributes["id"] = types.StringValue(response.BindAccessTokenValidatorResponse.Id)
+			attributes["type"] = types.StringValue("bind")
 		}
 		if response.PingFederateAccessTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.PingFederateAccessTokenValidatorResponse.Id)

@@ -83,7 +83,7 @@ func TestAccRecurringTaskChain(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RecurringTaskChainApi.DeleteRecurringTaskChain(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RecurringTaskChainAPI.DeleteRecurringTaskChain(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -127,7 +127,7 @@ func testAccCheckExpectedRecurringTaskChainAttributes(config recurringTaskChainT
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RecurringTaskChainApi.GetRecurringTaskChain(ctx, config.id).Execute()
+		response, _, err := testClient.RecurringTaskChainAPI.GetRecurringTaskChain(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func testAccCheckExpectedRecurringTaskChainAttributes(config recurringTaskChainT
 func testAccCheckRecurringTaskChainDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RecurringTaskChainApi.GetRecurringTaskChain(ctx, testIdRecurringTaskChain).Execute()
+	_, _, err := testClient.RecurringTaskChainAPI.GetRecurringTaskChain(ctx, testIdRecurringTaskChain).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Recurring Task Chain", testIdRecurringTaskChain)
 	}

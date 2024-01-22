@@ -115,7 +115,7 @@ func (r *consentDefinitionDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.GetConsentDefinition(
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionAPI.GetConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)

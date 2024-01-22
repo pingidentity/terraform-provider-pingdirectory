@@ -143,7 +143,7 @@ func (r *notificationManagerDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.NotificationManagerApi.GetNotificationManager(
+	readResponse, httpResp, err := r.apiClient.NotificationManagerAPI.GetNotificationManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)

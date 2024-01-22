@@ -84,12 +84,12 @@ func (r *rootDnUsersDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	listRequest := r.apiClient.RootDnUserApi.ListRootDnUsers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.RootDnUserAPI.ListRootDnUsers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnUserApi.ListRootDnUsersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.RootDnUserAPI.ListRootDnUsersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Root Dn User objects", err, httpResp)
 		return

@@ -119,7 +119,7 @@ func (r *rootDseBackendDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDseBackendApi.GetRootDseBackend(
+	readResponse, httpResp, err := r.apiClient.RootDseBackendAPI.GetRootDseBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dse Backend", err, httpResp)

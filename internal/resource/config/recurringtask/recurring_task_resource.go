@@ -125,6 +125,7 @@ type recurringTaskResourceModel struct {
 	RetainPreviousLDIFExportCount           types.Int64  `tfsdk:"retain_previous_ldif_export_count"`
 	RetainPreviousLDIFExportAge             types.String `tfsdk:"retain_previous_ldif_export_age"`
 	IncludeBinaryFiles                      types.Bool   `tfsdk:"include_binary_files"`
+	PostLDIFExportTaskProcessor             types.Set    `tfsdk:"post_ldif_export_task_processor"`
 	IncludeExtensionSource                  types.Bool   `tfsdk:"include_extension_source"`
 	UseSequentialMode                       types.Bool   `tfsdk:"use_sequential_mode"`
 	SecurityLevel                           types.String `tfsdk:"security_level"`
@@ -347,6 +348,13 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.",
 				Optional:    true,
 				Computed:    true,
+			},
+			"post_ldif_export_task_processor": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. An optional set of post-LDIF-export task processors that should be invoked for the resulting LDIF export files.",
+				Optional:    true,
+				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
+				ElementType: types.StringType,
 			},
 			"include_extension_source": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include the source code (if available) for any third-party extensions that may be installed in the server.",
@@ -758,7 +766,7 @@ func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resou
 }
 
 func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -769,6 +777,18 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 	}
 	var model recurringTaskResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.PostLDIFExportTaskProcessor) {
+		resp.Diagnostics.AddError("Attribute 'post_ldif_export_task_processor' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
@@ -1015,10 +1035,27 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup"},
+			[]string{"ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("included_backend_id"),
-				path.MatchRoot("excluded_backend_id"),
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1032,27 +1069,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1287,6 +1307,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("retain_previous_ldif_export_age"),
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("post_ldif_export_task_processor"),
 			path.MatchRoot("type"),
 			[]string{"ldif-export"},
 		),
@@ -1848,6 +1873,11 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 	if internaltypes.IsDefined(plan.MaxMegabytesPerSecond) {
 		addRequest.MaxMegabytesPerSecond = plan.MaxMegabytesPerSecond.ValueInt64Pointer()
 	}
+	if internaltypes.IsDefined(plan.PostLDIFExportTaskProcessor) {
+		var slice []string
+		plan.PostLDIFExportTaskProcessor.ElementsAs(ctx, &slice, false)
+		addRequest.PostLDIFExportTaskProcessor = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -2143,14 +2173,26 @@ func populateRecurringTaskUnknownValues(model *recurringTaskResourceModel) {
 	if model.IncludedBackendID.IsUnknown() || model.IncludedBackendID.IsNull() {
 		model.IncludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.Backend.IsUnknown() || model.Backend.IsNull() {
-		model.Backend, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.IncludePath.IsUnknown() || model.IncludePath.IsNull() {
 		model.IncludePath, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.LdapURLForSearchExpectedToReturnEntries.IsUnknown() || model.LdapURLForSearchExpectedToReturnEntries.IsNull() {
 		model.LdapURLForSearchExpectedToReturnEntries, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DataSecurityAuditor.IsUnknown() || model.DataSecurityAuditor.IsNull() {
+		model.DataSecurityAuditor, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.TaskObjectClass.IsUnknown() || model.TaskObjectClass.IsNull() {
+		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.PostLDIFExportTaskProcessor.IsUnknown() || model.PostLDIFExportTaskProcessor.IsNull() {
+		model.PostLDIFExportTaskProcessor, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.Backend.IsUnknown() || model.Backend.IsNull() {
+		model.Backend, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.TaskAttributeValue.IsUnknown() || model.TaskAttributeValue.IsNull() {
 		model.TaskAttributeValue, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2158,20 +2200,11 @@ func populateRecurringTaskUnknownValues(model *recurringTaskResourceModel) {
 	if model.BackendID.IsUnknown() || model.BackendID.IsNull() {
 		model.BackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.DataSecurityAuditor.IsUnknown() || model.DataSecurityAuditor.IsNull() {
-		model.DataSecurityAuditor, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.ExcludeBackendID.IsUnknown() || model.ExcludeBackendID.IsNull() {
 		model.ExcludeBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
-		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.ExcludedBackendID.IsUnknown() || model.ExcludedBackendID.IsNull() {
 		model.ExcludedBackendID, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.TaskObjectClass.IsUnknown() || model.TaskObjectClass.IsNull() {
-		model.TaskObjectClass, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
 		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2481,6 +2514,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	config.CheckMismatchedPDFormattedAttributes("retain_previous_ldif_export_age",
 		expectedValues.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
+	state.PostLDIFExportTaskProcessor = internaltypes.GetStringSet(r.PostLDIFExportTaskProcessor)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
@@ -2645,6 +2679,7 @@ func createRecurringTaskOperations(plan recurringTaskResourceModel, state recurr
 	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousLDIFExportCount, state.RetainPreviousLDIFExportCount, "retain-previous-ldif-export-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, "retain-previous-ldif-export-age")
 	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeBinaryFiles, state.IncludeBinaryFiles, "include-binary-files")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.PostLDIFExportTaskProcessor, state.PostLDIFExportTaskProcessor, "post-ldif-export-task-processor")
 	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeExtensionSource, state.IncludeExtensionSource, "include-extension-source")
 	operations.AddBoolOperationIfNecessary(&ops, plan.UseSequentialMode, state.UseSequentialMode, "use-sequential-mode")
 	operations.AddStringOperationIfNecessary(&ops, plan.SecurityLevel, state.SecurityLevel, "security-level")
@@ -2695,9 +2730,9 @@ func createRecurringTaskOperations(plan recurringTaskResourceModel, state recurr
 
 // Create a generate-server-profile recurring-task
 func (r *recurringTaskResource) CreateGenerateServerProfileRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddGenerateServerProfileRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumgenerateServerProfileRecurringTaskSchemaUrn{client.ENUMGENERATESERVERPROFILERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKGENERATE_SERVER_PROFILE},
-		plan.ProfileDirectory.ValueString())
+	addRequest := client.NewAddGenerateServerProfileRecurringTaskRequest([]client.EnumgenerateServerProfileRecurringTaskSchemaUrn{client.ENUMGENERATESERVERPROFILERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKGENERATE_SERVER_PROFILE},
+		plan.ProfileDirectory.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalGenerateServerProfileRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2708,12 +2743,12 @@ func (r *recurringTaskResource) CreateGenerateServerProfileRecurringTask(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddGenerateServerProfileRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2733,8 +2768,8 @@ func (r *recurringTaskResource) CreateGenerateServerProfileRecurringTask(ctx con
 
 // Create a leave-lockdown-mode recurring-task
 func (r *recurringTaskResource) CreateLeaveLockdownModeRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddLeaveLockdownModeRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumleaveLockdownModeRecurringTaskSchemaUrn{client.ENUMLEAVELOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLEAVE_LOCKDOWN_MODE})
+	addRequest := client.NewAddLeaveLockdownModeRecurringTaskRequest([]client.EnumleaveLockdownModeRecurringTaskSchemaUrn{client.ENUMLEAVELOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLEAVE_LOCKDOWN_MODE},
+		plan.Name.ValueString())
 	err := addOptionalLeaveLockdownModeRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2745,12 +2780,12 @@ func (r *recurringTaskResource) CreateLeaveLockdownModeRecurringTask(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddLeaveLockdownModeRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2770,8 +2805,8 @@ func (r *recurringTaskResource) CreateLeaveLockdownModeRecurringTask(ctx context
 
 // Create a backup recurring-task
 func (r *recurringTaskResource) CreateBackupRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddBackupRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumbackupRecurringTaskSchemaUrn{client.ENUMBACKUPRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKBACKUP})
+	addRequest := client.NewAddBackupRecurringTaskRequest([]client.EnumbackupRecurringTaskSchemaUrn{client.ENUMBACKUPRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKBACKUP},
+		plan.Name.ValueString())
 	err := addOptionalBackupRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2782,12 +2817,12 @@ func (r *recurringTaskResource) CreateBackupRecurringTask(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddBackupRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2807,8 +2842,8 @@ func (r *recurringTaskResource) CreateBackupRecurringTask(ctx context.Context, r
 
 // Create a delay recurring-task
 func (r *recurringTaskResource) CreateDelayRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddDelayRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumdelayRecurringTaskSchemaUrn{client.ENUMDELAYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKDELAY})
+	addRequest := client.NewAddDelayRecurringTaskRequest([]client.EnumdelayRecurringTaskSchemaUrn{client.ENUMDELAYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKDELAY},
+		plan.Name.ValueString())
 	err := addOptionalDelayRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2819,12 +2854,12 @@ func (r *recurringTaskResource) CreateDelayRecurringTask(ctx context.Context, re
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddDelayRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2846,10 +2881,10 @@ func (r *recurringTaskResource) CreateDelayRecurringTask(ctx context.Context, re
 func (r *recurringTaskResource) CreateStaticallyDefinedRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
 	var TaskObjectClassSlice []string
 	plan.TaskObjectClass.ElementsAs(ctx, &TaskObjectClassSlice, false)
-	addRequest := client.NewAddStaticallyDefinedRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumstaticallyDefinedRecurringTaskSchemaUrn{client.ENUMSTATICALLYDEFINEDRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKSTATICALLY_DEFINED},
+	addRequest := client.NewAddStaticallyDefinedRecurringTaskRequest([]client.EnumstaticallyDefinedRecurringTaskSchemaUrn{client.ENUMSTATICALLYDEFINEDRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKSTATICALLY_DEFINED},
 		plan.TaskJavaClass.ValueString(),
-		TaskObjectClassSlice)
+		TaskObjectClassSlice,
+		plan.Name.ValueString())
 	err := addOptionalStaticallyDefinedRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2860,12 +2895,12 @@ func (r *recurringTaskResource) CreateStaticallyDefinedRecurringTask(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddStaticallyDefinedRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2885,9 +2920,9 @@ func (r *recurringTaskResource) CreateStaticallyDefinedRecurringTask(ctx context
 
 // Create a collect-support-data recurring-task
 func (r *recurringTaskResource) CreateCollectSupportDataRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddCollectSupportDataRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumcollectSupportDataRecurringTaskSchemaUrn{client.ENUMCOLLECTSUPPORTDATARECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKCOLLECT_SUPPORT_DATA},
-		plan.OutputDirectory.ValueString())
+	addRequest := client.NewAddCollectSupportDataRecurringTaskRequest([]client.EnumcollectSupportDataRecurringTaskSchemaUrn{client.ENUMCOLLECTSUPPORTDATARECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKCOLLECT_SUPPORT_DATA},
+		plan.OutputDirectory.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalCollectSupportDataRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2898,12 +2933,12 @@ func (r *recurringTaskResource) CreateCollectSupportDataRecurringTask(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddCollectSupportDataRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2923,8 +2958,8 @@ func (r *recurringTaskResource) CreateCollectSupportDataRecurringTask(ctx contex
 
 // Create a ldif-export recurring-task
 func (r *recurringTaskResource) CreateLdifExportRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddLdifExportRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumldifExportRecurringTaskSchemaUrn{client.ENUMLDIFEXPORTRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLDIF_EXPORT})
+	addRequest := client.NewAddLdifExportRecurringTaskRequest([]client.EnumldifExportRecurringTaskSchemaUrn{client.ENUMLDIFEXPORTRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLDIF_EXPORT},
+		plan.Name.ValueString())
 	err := addOptionalLdifExportRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2935,12 +2970,12 @@ func (r *recurringTaskResource) CreateLdifExportRecurringTask(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddLdifExportRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2960,8 +2995,8 @@ func (r *recurringTaskResource) CreateLdifExportRecurringTask(ctx context.Contex
 
 // Create a enter-lockdown-mode recurring-task
 func (r *recurringTaskResource) CreateEnterLockdownModeRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddEnterLockdownModeRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumenterLockdownModeRecurringTaskSchemaUrn{client.ENUMENTERLOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKENTER_LOCKDOWN_MODE})
+	addRequest := client.NewAddEnterLockdownModeRecurringTaskRequest([]client.EnumenterLockdownModeRecurringTaskSchemaUrn{client.ENUMENTERLOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKENTER_LOCKDOWN_MODE},
+		plan.Name.ValueString())
 	err := addOptionalEnterLockdownModeRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -2972,12 +3007,12 @@ func (r *recurringTaskResource) CreateEnterLockdownModeRecurringTask(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddEnterLockdownModeRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -2997,8 +3032,8 @@ func (r *recurringTaskResource) CreateEnterLockdownModeRecurringTask(ctx context
 
 // Create a audit-data-security recurring-task
 func (r *recurringTaskResource) CreateAuditDataSecurityRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddAuditDataSecurityRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumauditDataSecurityRecurringTaskSchemaUrn{client.ENUMAUDITDATASECURITYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKAUDIT_DATA_SECURITY})
+	addRequest := client.NewAddAuditDataSecurityRecurringTaskRequest([]client.EnumauditDataSecurityRecurringTaskSchemaUrn{client.ENUMAUDITDATASECURITYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKAUDIT_DATA_SECURITY},
+		plan.Name.ValueString())
 	err := addOptionalAuditDataSecurityRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -3009,12 +3044,12 @@ func (r *recurringTaskResource) CreateAuditDataSecurityRecurringTask(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddAuditDataSecurityRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -3034,9 +3069,9 @@ func (r *recurringTaskResource) CreateAuditDataSecurityRecurringTask(ctx context
 
 // Create a exec recurring-task
 func (r *recurringTaskResource) CreateExecRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddExecRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumexecRecurringTaskSchemaUrn{client.ENUMEXECRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKEXEC},
-		plan.CommandPath.ValueString())
+	addRequest := client.NewAddExecRecurringTaskRequest([]client.EnumexecRecurringTaskSchemaUrn{client.ENUMEXECRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKEXEC},
+		plan.CommandPath.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalExecRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -3047,12 +3082,12 @@ func (r *recurringTaskResource) CreateExecRecurringTask(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddExecRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -3077,11 +3112,11 @@ func (r *recurringTaskResource) CreateFileRetentionRecurringTask(ctx context.Con
 		resp.Diagnostics.AddError("Failed to parse enum value for TimestampFormat", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddFileRetentionRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumfileRetentionRecurringTaskSchemaUrn{client.ENUMFILERETENTIONRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKFILE_RETENTION},
+	addRequest := client.NewAddFileRetentionRecurringTaskRequest([]client.EnumfileRetentionRecurringTaskSchemaUrn{client.ENUMFILERETENTIONRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKFILE_RETENTION},
 		plan.TargetDirectory.ValueString(),
 		plan.FilenamePattern.ValueString(),
-		*timestampFormat)
+		*timestampFormat,
+		plan.Name.ValueString())
 	err = addOptionalFileRetentionRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -3092,12 +3127,12 @@ func (r *recurringTaskResource) CreateFileRetentionRecurringTask(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddFileRetentionRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -3117,9 +3152,9 @@ func (r *recurringTaskResource) CreateFileRetentionRecurringTask(ctx context.Con
 
 // Create a third-party recurring-task
 func (r *recurringTaskResource) CreateThirdPartyRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddThirdPartyRecurringTaskRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyRecurringTaskSchemaUrn{client.ENUMTHIRDPARTYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKTHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyRecurringTaskRequest([]client.EnumthirdPartyRecurringTaskSchemaUrn{client.ENUMTHIRDPARTYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task", err.Error())
@@ -3130,12 +3165,12 @@ func (r *recurringTaskResource) CreateThirdPartyRecurringTask(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskApi.AddRecurringTask(
+	apiAddRequest := r.apiClient.RecurringTaskAPI.AddRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskRequest(
 		client.AddThirdPartyRecurringTaskRequestAsAddRecurringTaskRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskApi.AddRecurringTaskExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskAPI.AddRecurringTaskExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task", err, httpResp)
 		return nil, err
@@ -3259,7 +3294,7 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+	readResponse, httpResp, err := r.apiClient.RecurringTaskAPI.GetRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
@@ -3312,14 +3347,14 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.RecurringTaskAPI.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRecurringTaskOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskAPI.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task", err, httpResp)
 			return
@@ -3396,7 +3431,7 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+	readResponse, httpResp, err := apiClient.RecurringTaskAPI.GetRecurringTask(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -3482,7 +3517,7 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 	// Get the current state to see how any attributes are changing
 	var state recurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+	updateRequest := apiClient.RecurringTaskAPI.UpdateRecurringTask(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -3492,7 +3527,7 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskAPI.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task", err, httpResp)
 			return
@@ -3568,7 +3603,7 @@ func (r *recurringTaskResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	httpResp, err := r.apiClient.RecurringTaskApi.DeleteRecurringTaskExecute(r.apiClient.RecurringTaskApi.DeleteRecurringTask(
+	httpResp, err := r.apiClient.RecurringTaskAPI.DeleteRecurringTaskExecute(r.apiClient.RecurringTaskAPI.DeleteRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task", err, httpResp)

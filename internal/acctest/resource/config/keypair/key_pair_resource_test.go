@@ -60,7 +60,7 @@ func TestAccKeyPair(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.KeyPairApi.DeleteKeyPair(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.KeyPairAPI.DeleteKeyPair(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -101,7 +101,7 @@ func testAccCheckExpectedKeyPairAttributes(config keyPairTestModel) resource.Tes
 		resourceType := "Key Pair"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.KeyPairApi.GetKeyPair(ctx, config.id).Execute()
+		response, _, err := testClient.KeyPairAPI.GetKeyPair(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -117,7 +117,7 @@ func testAccCheckExpectedKeyPairAttributes(config keyPairTestModel) resource.Tes
 func testAccCheckKeyPairDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.KeyPairApi.GetKeyPair(ctx, testIdKeyPair).Execute()
+	_, _, err := testClient.KeyPairAPI.GetKeyPair(ctx, testIdKeyPair).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Key Pair", testIdKeyPair)
 	}

@@ -72,7 +72,7 @@ func TestAccObscuredValue(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ObscuredValueApi.DeleteObscuredValue(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ObscuredValueAPI.DeleteObscuredValue(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedObscuredValueAttributes(config obscuredValueTestModel) 
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ObscuredValueApi.GetObscuredValue(ctx, config.id).Execute()
+		response, _, err := testClient.ObscuredValueAPI.GetObscuredValue(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func testAccCheckExpectedObscuredValueAttributes(config obscuredValueTestModel) 
 func testAccCheckObscuredValueDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ObscuredValueApi.GetObscuredValue(ctx, testIdObscuredValue).Execute()
+	_, _, err := testClient.ObscuredValueAPI.GetObscuredValue(ctx, testIdObscuredValue).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Obscured Value", testIdObscuredValue)
 	}

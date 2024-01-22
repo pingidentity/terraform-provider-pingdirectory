@@ -132,7 +132,7 @@ func (r *macSecretKeyDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.GetMacSecretKey(
+	readResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.GetMacSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mac Secret Key", err, httpResp)

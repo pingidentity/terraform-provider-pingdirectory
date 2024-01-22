@@ -69,7 +69,7 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RecurringTaskApi.DeleteRecurringTask(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RecurringTaskAPI.DeleteRecurringTask(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -110,7 +110,7 @@ func testAccCheckExpectedGenerateServerProfileRecurringTaskAttributes(config gen
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RecurringTaskApi.GetRecurringTask(ctx, config.id).Execute()
+		response, _, err := testClient.RecurringTaskAPI.GetRecurringTask(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -129,7 +129,7 @@ func testAccCheckExpectedGenerateServerProfileRecurringTaskAttributes(config gen
 func testAccCheckGenerateServerProfileRecurringTaskDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RecurringTaskApi.GetRecurringTask(ctx, testIdGenerateServerProfileRecurringTask).Execute()
+	_, _, err := testClient.RecurringTaskAPI.GetRecurringTask(ctx, testIdGenerateServerProfileRecurringTask).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Generate Server Profile Recurring Task", testIdGenerateServerProfileRecurringTask)
 	}

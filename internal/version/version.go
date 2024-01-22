@@ -9,12 +9,13 @@ import (
 
 // Supported PingDirectory versions
 const (
-	PingDirectory9100 = "9.1.0.0"
-	PingDirectory9101 = "9.1.0.1"
-	PingDirectory9102 = "9.1.0.2"
-	PingDirectory9200 = "9.2.0.0"
-	PingDirectory9201 = "9.2.0.1"
-	PingDirectory9300 = "9.3.0.0"
+	PingDirectory9100  = "9.1.0.0"
+	PingDirectory9101  = "9.1.0.1"
+	PingDirectory9102  = "9.1.0.2"
+	PingDirectory9200  = "9.2.0.0"
+	PingDirectory9201  = "9.2.0.1"
+	PingDirectory9300  = "9.3.0.0"
+	PingDirectory10000 = "10.0.0.0"
 )
 
 func IsValid(versionString string) bool {
@@ -38,6 +39,7 @@ func getSortedVersions() []string {
 		PingDirectory9200,
 		PingDirectory9201,
 		PingDirectory9300,
+		PingDirectory10000,
 	}
 }
 

@@ -96,7 +96,7 @@ func testAccCheckExpectedCryptoManagerAttributes(config cryptoManagerTestModel) 
 		resourceType := "Crypto Manager"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.CryptoManagerApi.GetCryptoManager(ctx).Execute()
+		response, _, err := testClient.CryptoManagerAPI.GetCryptoManager(ctx).Execute()
 		if err != nil {
 			return err
 		}

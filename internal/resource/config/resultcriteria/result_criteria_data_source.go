@@ -566,7 +566,7 @@ func (r *resultCriteriaDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ResultCriteriaApi.GetResultCriteria(
+	readResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.GetResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)

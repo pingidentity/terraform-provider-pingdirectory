@@ -144,7 +144,7 @@ func (r *localDbVlvIndexDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexAPI.GetLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)

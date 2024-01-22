@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -98,6 +99,7 @@ type passwordPolicyResourceModel struct {
 	PasswordAttribute                                         types.String `tfsdk:"password_attribute"`
 	DefaultPasswordStorageScheme                              types.Set    `tfsdk:"default_password_storage_scheme"`
 	DeprecatedPasswordStorageScheme                           types.Set    `tfsdk:"deprecated_password_storage_scheme"`
+	ReEncodePasswordsOnSchemeConfigChange                     types.Bool   `tfsdk:"re_encode_passwords_on_scheme_config_change"`
 	AllowMultiplePasswordValues                               types.Bool   `tfsdk:"allow_multiple_password_values"`
 	AllowPreEncodedPasswords                                  types.String `tfsdk:"allow_pre_encoded_passwords"`
 	PasswordValidator                                         types.Set    `tfsdk:"password_validator"`
@@ -213,6 +215,12 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
+			},
+			"re_encode_passwords_on_scheme_config_change": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether to re-encode passwords on authentication if the configuration for the underlying password storage scheme has changed.",
+				Optional:    true,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",
@@ -485,6 +493,32 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *passwordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPasswordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanPasswordPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model passwordPolicyResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.ReEncodePasswordsOnSchemeConfigChange) {
+		resp.Diagnostics.AddError("Attribute 're_encode_passwords_on_scheme_config_change' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
 // Add optional fields to create request for password-policy password-policy
 func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.AddPasswordPolicyRequest, plan passwordPolicyResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -517,6 +551,9 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 		var slice []string
 		plan.DeprecatedPasswordStorageScheme.ElementsAs(ctx, &slice, false)
 		addRequest.DeprecatedPasswordStorageScheme = slice
+	}
+	if internaltypes.IsDefined(plan.ReEncodePasswordsOnSchemeConfigChange) {
+		addRequest.ReEncodePasswordsOnSchemeConfigChange = plan.ReEncodePasswordsOnSchemeConfigChange.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowMultiplePasswordValues) {
 		addRequest.AllowMultiplePasswordValues = plan.AllowMultiplePasswordValues.ValueBoolPointer()
@@ -802,6 +839,7 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.PasswordAttribute = types.StringValue(r.PasswordAttribute)
 	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
 	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
+	state.ReEncodePasswordsOnSchemeConfigChange = internaltypes.BoolTypeOrNil(r.ReEncodePasswordsOnSchemeConfigChange)
 	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
 	state.AllowPreEncodedPasswords = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), true)
@@ -888,6 +926,7 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordAttribute, state.PasswordAttribute, "password-attribute")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultPasswordStorageScheme, state.DefaultPasswordStorageScheme, "default-password-storage-scheme")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DeprecatedPasswordStorageScheme, state.DeprecatedPasswordStorageScheme, "deprecated-password-storage-scheme")
+	operations.AddBoolOperationIfNecessary(&ops, plan.ReEncodePasswordsOnSchemeConfigChange, state.ReEncodePasswordsOnSchemeConfigChange, "re-encode-passwords-on-scheme-config-change")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowMultiplePasswordValues, state.AllowMultiplePasswordValues, "allow-multiple-password-values")
 	operations.AddStringOperationIfNecessary(&ops, plan.AllowPreEncodedPasswords, state.AllowPreEncodedPasswords, "allow-pre-encoded-passwords")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.PasswordValidator, state.PasswordValidator, "password-validator")
@@ -936,9 +975,9 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 func (r *passwordPolicyResource) CreatePasswordPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordPolicyResourceModel) (*passwordPolicyResourceModel, error) {
 	var DefaultPasswordStorageSchemeSlice []string
 	plan.DefaultPasswordStorageScheme.ElementsAs(ctx, &DefaultPasswordStorageSchemeSlice, false)
-	addRequest := client.NewAddPasswordPolicyRequest(plan.Name.ValueString(),
-		plan.PasswordAttribute.ValueString(),
-		DefaultPasswordStorageSchemeSlice)
+	addRequest := client.NewAddPasswordPolicyRequest(plan.PasswordAttribute.ValueString(),
+		DefaultPasswordStorageSchemeSlice,
+		plan.Name.ValueString())
 	err := addOptionalPasswordPolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Policy", err.Error())
@@ -949,11 +988,11 @@ func (r *passwordPolicyResource) CreatePasswordPolicy(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordPolicyApi.AddPasswordPolicy(
+	apiAddRequest := r.apiClient.PasswordPolicyAPI.AddPasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordPolicyRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.PasswordPolicyApi.AddPasswordPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordPolicyAPI.AddPasswordPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Policy", err, httpResp)
 		return nil, err
@@ -1007,7 +1046,7 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.GetPasswordPolicy(
+	readResponse, httpResp, err := r.apiClient.PasswordPolicyAPI.GetPasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy", err, httpResp)
@@ -1025,14 +1064,14 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 	readPasswordPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PasswordPolicyAPI.UpdatePasswordPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PasswordPolicyAPI.UpdatePasswordPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy", err, httpResp)
 			return
@@ -1074,7 +1113,7 @@ func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PasswordPolicyApi.GetPasswordPolicy(
+	readResponse, httpResp, err := apiClient.PasswordPolicyAPI.GetPasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1125,7 +1164,7 @@ func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp 
 	// Get the current state to see how any attributes are changing
 	var state passwordPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PasswordPolicyApi.UpdatePasswordPolicy(
+	updateRequest := apiClient.PasswordPolicyAPI.UpdatePasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1135,7 +1174,7 @@ func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PasswordPolicyApi.UpdatePasswordPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PasswordPolicyAPI.UpdatePasswordPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy", err, httpResp)
 			return
@@ -1176,7 +1215,7 @@ func (r *passwordPolicyResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	httpResp, err := r.apiClient.PasswordPolicyApi.DeletePasswordPolicyExecute(r.apiClient.PasswordPolicyApi.DeletePasswordPolicy(
+	httpResp, err := r.apiClient.PasswordPolicyAPI.DeletePasswordPolicyExecute(r.apiClient.PasswordPolicyAPI.DeletePasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Policy", err, httpResp)

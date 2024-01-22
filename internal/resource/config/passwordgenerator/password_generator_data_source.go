@@ -212,7 +212,7 @@ func (r *passwordGeneratorDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.GetPasswordGenerator(
+	readResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.GetPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Generator", err, httpResp)

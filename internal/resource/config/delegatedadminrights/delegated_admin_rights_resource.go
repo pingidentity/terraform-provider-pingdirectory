@@ -223,19 +223,19 @@ func createDelegatedAdminRightsOperations(plan delegatedAdminRightsResourceModel
 
 // Create a delegated-admin-rights delegated-admin-rights
 func (r *delegatedAdminRightsResource) CreateDelegatedAdminRights(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminRightsResourceModel) (*delegatedAdminRightsResourceModel, error) {
-	addRequest := client.NewAddDelegatedAdminRightsRequest(plan.Name.ValueString(),
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddDelegatedAdminRightsRequest(plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalDelegatedAdminRightsFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminRightsApi.AddDelegatedAdminRights(
+	apiAddRequest := r.apiClient.DelegatedAdminRightsAPI.AddDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDelegatedAdminRightsRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.AddDelegatedAdminRightsExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminRightsAPI.AddDelegatedAdminRightsExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Rights", err, httpResp)
 		return nil, err
@@ -289,7 +289,7 @@ func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsAPI.GetDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
@@ -307,14 +307,14 @@ func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req re
 	readDelegatedAdminRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminRightsAPI.UpdateDelegatedAdminRights(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createDelegatedAdminRightsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRightsExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminRightsAPI.UpdateDelegatedAdminRightsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Rights", err, httpResp)
 			return
@@ -356,7 +356,7 @@ func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
+	readResponse, httpResp, err := apiClient.DelegatedAdminRightsAPI.GetDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -407,7 +407,7 @@ func updateDelegatedAdminRights(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state delegatedAdminRightsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(
+	updateRequest := apiClient.DelegatedAdminRightsAPI.UpdateDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -417,7 +417,7 @@ func updateDelegatedAdminRights(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRightsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminRightsAPI.UpdateDelegatedAdminRightsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Rights", err, httpResp)
 			return
@@ -458,7 +458,7 @@ func (r *delegatedAdminRightsResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.DelegatedAdminRightsApi.DeleteDelegatedAdminRightsExecute(r.apiClient.DelegatedAdminRightsApi.DeleteDelegatedAdminRights(
+	httpResp, err := r.apiClient.DelegatedAdminRightsAPI.DeleteDelegatedAdminRightsExecute(r.apiClient.DelegatedAdminRightsAPI.DeleteDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Rights", err, httpResp)

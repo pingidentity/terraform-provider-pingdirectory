@@ -84,12 +84,12 @@ func (r *httpServletCrossOriginPoliciesDataSource) Read(ctx context.Context, req
 		return
 	}
 
-	listRequest := r.apiClient.HttpServletCrossOriginPolicyApi.ListHttpServletCrossOriginPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.HttpServletCrossOriginPolicyAPI.ListHttpServletCrossOriginPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.ListHttpServletCrossOriginPoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.ListHttpServletCrossOriginPoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Http Servlet Cross Origin Policy objects", err, httpResp)
 		return

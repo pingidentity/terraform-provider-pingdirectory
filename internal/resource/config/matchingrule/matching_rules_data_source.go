@@ -84,12 +84,12 @@ func (r *matchingRulesDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	listRequest := r.apiClient.MatchingRuleApi.ListMatchingRules(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.MatchingRuleAPI.ListMatchingRules(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.ListMatchingRulesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.MatchingRuleAPI.ListMatchingRulesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Matching Rule objects", err, httpResp)
 		return

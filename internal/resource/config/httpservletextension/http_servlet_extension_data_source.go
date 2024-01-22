@@ -873,7 +873,7 @@ func (r *httpServletExtensionDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.GetHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)

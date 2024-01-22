@@ -269,7 +269,7 @@ func (r *ldapSdkDebugLoggerDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerApi.GetLdapSdkDebugLogger(
+	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerAPI.GetLdapSdkDebugLogger(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Sdk Debug Logger", err, httpResp)

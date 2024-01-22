@@ -220,11 +220,11 @@ func (r *consentDefinitionResource) CreateConsentDefinition(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConsentDefinitionApi.AddConsentDefinition(
+	apiAddRequest := r.apiClient.ConsentDefinitionAPI.AddConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConsentDefinitionRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.AddConsentDefinitionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConsentDefinitionAPI.AddConsentDefinitionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Consent Definition", err, httpResp)
 		return nil, err
@@ -278,7 +278,7 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.GetConsentDefinition(
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionAPI.GetConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)
@@ -296,14 +296,14 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 	readConsentDefinitionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
+	updateRequest := r.apiClient.ConsentDefinitionAPI.UpdateConsentDefinition(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
 	ops := createConsentDefinitionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinitionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionAPI.UpdateConsentDefinitionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition", err, httpResp)
 			return
@@ -345,7 +345,7 @@ func readConsentDefinition(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConsentDefinitionApi.GetConsentDefinition(
+	readResponse, httpResp, err := apiClient.ConsentDefinitionAPI.GetConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.UniqueID.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -396,7 +396,7 @@ func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state consentDefinitionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConsentDefinitionApi.UpdateConsentDefinition(
+	updateRequest := apiClient.ConsentDefinitionAPI.UpdateConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.UniqueID.ValueString())
 
 	// Determine what update operations are necessary
@@ -406,7 +406,7 @@ func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConsentDefinitionApi.UpdateConsentDefinitionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConsentDefinitionAPI.UpdateConsentDefinitionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition", err, httpResp)
 			return
@@ -447,7 +447,7 @@ func (r *consentDefinitionResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.ConsentDefinitionApi.DeleteConsentDefinitionExecute(r.apiClient.ConsentDefinitionApi.DeleteConsentDefinition(
+	httpResp, err := r.apiClient.ConsentDefinitionAPI.DeleteConsentDefinitionExecute(r.apiClient.ConsentDefinitionAPI.DeleteConsentDefinition(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition", err, httpResp)

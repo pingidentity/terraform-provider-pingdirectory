@@ -544,7 +544,7 @@ func (r *logFieldMappingDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
+	readResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.GetLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)

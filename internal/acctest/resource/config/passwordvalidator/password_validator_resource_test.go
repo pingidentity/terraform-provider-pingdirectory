@@ -75,7 +75,7 @@ func TestAccPasswordValidator(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PasswordValidatorApi.DeletePasswordValidator(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PasswordValidatorAPI.DeletePasswordValidator(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedPasswordValidatorAttributes(config passwordValidatorTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PasswordValidatorApi.GetPasswordValidator(ctx, config.id).Execute()
+		response, _, err := testClient.PasswordValidatorAPI.GetPasswordValidator(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,7 @@ func testAccCheckExpectedPasswordValidatorAttributes(config passwordValidatorTes
 func testAccCheckPasswordValidatorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PasswordValidatorApi.GetPasswordValidator(ctx, testIdPasswordValidator).Execute()
+	_, _, err := testClient.PasswordValidatorAPI.GetPasswordValidator(ctx, testIdPasswordValidator).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Password Validator", testIdPasswordValidator)
 	}

@@ -233,10 +233,10 @@ func createMonitoringEndpointOperations(plan monitoringEndpointResourceModel, st
 
 // Create a statsd monitoring-endpoint
 func (r *monitoringEndpointResource) CreateStatsdMonitoringEndpoint(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitoringEndpointResourceModel) (*monitoringEndpointResourceModel, error) {
-	addRequest := client.NewAddStatsdMonitoringEndpointRequest(plan.Name.ValueString(),
-		[]client.EnumstatsdMonitoringEndpointSchemaUrn{client.ENUMSTATSDMONITORINGENDPOINTSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITORING_ENDPOINTSTATSD},
+	addRequest := client.NewAddStatsdMonitoringEndpointRequest([]client.EnumstatsdMonitoringEndpointSchemaUrn{client.ENUMSTATSDMONITORINGENDPOINTSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITORING_ENDPOINTSTATSD},
 		plan.Hostname.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalStatsdMonitoringEndpointFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitoring Endpoint", err.Error())
@@ -247,11 +247,11 @@ func (r *monitoringEndpointResource) CreateStatsdMonitoringEndpoint(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.MonitoringEndpointApi.AddMonitoringEndpoint(
+	apiAddRequest := r.apiClient.MonitoringEndpointAPI.AddMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddStatsdMonitoringEndpointRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.AddMonitoringEndpointExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.MonitoringEndpointAPI.AddMonitoringEndpointExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Monitoring Endpoint", err, httpResp)
 		return nil, err
@@ -305,7 +305,7 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
+	readResponse, httpResp, err := r.apiClient.MonitoringEndpointAPI.GetMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
@@ -323,14 +323,14 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.MonitoringEndpointAPI.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MonitoringEndpointAPI.UpdateMonitoringEndpointExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
 			return
@@ -372,7 +372,7 @@ func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
+	readResponse, httpResp, err := apiClient.MonitoringEndpointAPI.GetMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -423,7 +423,7 @@ func updateMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state monitoringEndpointResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
+	updateRequest := apiClient.MonitoringEndpointAPI.UpdateMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -433,7 +433,7 @@ func updateMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.MonitoringEndpointAPI.UpdateMonitoringEndpointExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
 			return
@@ -474,7 +474,7 @@ func (r *monitoringEndpointResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpointExecute(r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpoint(
+	httpResp, err := r.apiClient.MonitoringEndpointAPI.DeleteMonitoringEndpointExecute(r.apiClient.MonitoringEndpointAPI.DeleteMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitoring Endpoint", err, httpResp)

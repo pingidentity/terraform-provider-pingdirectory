@@ -431,7 +431,7 @@ func (r *clientConnectionPolicyDataSource) Read(ctx context.Context, req datasou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(
+	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyAPI.GetClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PolicyID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)

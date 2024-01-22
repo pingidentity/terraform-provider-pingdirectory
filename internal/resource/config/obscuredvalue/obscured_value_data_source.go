@@ -102,7 +102,7 @@ func (r *obscuredValueDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ObscuredValueApi.GetObscuredValue(
+	readResponse, httpResp, err := r.apiClient.ObscuredValueAPI.GetObscuredValue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Obscured Value", err, httpResp)

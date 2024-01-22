@@ -54,7 +54,7 @@ func TestAccExpiredPasswordDataSecurityAuditor(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DataSecurityAuditorApi.DeleteDataSecurityAuditor(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.DataSecurityAuditorAPI.DeleteDataSecurityAuditor(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -92,7 +92,7 @@ data "pingdirectory_data_security_auditors" "list" {
 func testAccCheckExpiredPasswordDataSecurityAuditorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DataSecurityAuditorApi.GetDataSecurityAuditor(ctx, testIdExpiredPasswordDataSecurityAuditor).Execute()
+	_, _, err := testClient.DataSecurityAuditorAPI.GetDataSecurityAuditor(ctx, testIdExpiredPasswordDataSecurityAuditor).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Expired Password Data Security Auditor", testIdExpiredPasswordDataSecurityAuditor)
 	}

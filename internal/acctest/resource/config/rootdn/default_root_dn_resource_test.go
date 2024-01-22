@@ -116,7 +116,7 @@ func testAccCheckExpectedRootDnPermissions(resourceName string, expected []strin
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		rootDnResponse, _, err := testClient.RootDnApi.GetRootDn(ctx).Execute()
+		rootDnResponse, _, err := testClient.RootDnAPI.GetRootDn(ctx).Execute()
 		if err != nil {
 			return err
 		}

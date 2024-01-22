@@ -273,11 +273,11 @@ func (r *httpServletCrossOriginPolicyResource) CreateHttpServletCrossOriginPolic
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletCrossOriginPolicyApi.AddHttpServletCrossOriginPolicy(
+	apiAddRequest := r.apiClient.HttpServletCrossOriginPolicyAPI.AddHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletCrossOriginPolicyRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.AddHttpServletCrossOriginPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.AddHttpServletCrossOriginPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Cross Origin Policy", err, httpResp)
 		return nil, err
@@ -331,7 +331,7 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.GetHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
@@ -349,14 +349,14 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context
 	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.HttpServletCrossOriginPolicyAPI.UpdateHttpServletCrossOriginPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createHttpServletCrossOriginPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
 			return
@@ -398,7 +398,7 @@ func readHttpServletCrossOriginPolicy(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+	readResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyAPI.GetHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -449,7 +449,7 @@ func updateHttpServletCrossOriginPolicy(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state httpServletCrossOriginPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
+	updateRequest := apiClient.HttpServletCrossOriginPolicyAPI.UpdateHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -459,7 +459,7 @@ func updateHttpServletCrossOriginPolicy(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyAPI.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
 			return
@@ -500,7 +500,7 @@ func (r *httpServletCrossOriginPolicyResource) Delete(ctx context.Context, req r
 		return
 	}
 
-	httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.DeleteHttpServletCrossOriginPolicyExecute(r.apiClient.HttpServletCrossOriginPolicyApi.DeleteHttpServletCrossOriginPolicy(
+	httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.DeleteHttpServletCrossOriginPolicyExecute(r.apiClient.HttpServletCrossOriginPolicyAPI.DeleteHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Http Servlet Cross Origin Policy", err, httpResp)

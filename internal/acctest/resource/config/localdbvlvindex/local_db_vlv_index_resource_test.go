@@ -87,7 +87,7 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LocalDbVlvIndexApi.DeleteLocalDbVlvIndex(ctx, updatedResourceModel.name, updatedResourceModel.backendName).Execute()
+					_, err := testClient.LocalDbVlvIndexAPI.DeleteLocalDbVlvIndex(ctx, updatedResourceModel.name, updatedResourceModel.backendName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -147,7 +147,7 @@ func testAccCheckExpectedLocalDbVlvIndexAttributes(config localDbVlvIndexTestMod
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(ctx, config.name, config.backendName).Execute()
+		response, _, err := testClient.LocalDbVlvIndexAPI.GetLocalDbVlvIndex(ctx, config.name, config.backendName).Execute()
 		if err != nil {
 			return err
 		}
@@ -186,7 +186,7 @@ func testAccCheckExpectedLocalDbVlvIndexAttributes(config localDbVlvIndexTestMod
 func testAccCheckLocalDbVlvIndexDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(ctx, testIdLocalDbVlvIndex, testBackendNametest).Execute()
+	_, _, err := testClient.LocalDbVlvIndexAPI.GetLocalDbVlvIndex(ctx, testIdLocalDbVlvIndex, testBackendNametest).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Local Db Vlv Index", testIdLocalDbVlvIndex)
 	}

@@ -84,12 +84,12 @@ func (r *delegatedAdminRightsListDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.DelegatedAdminRightsApi.ListDelegatedAdminRights(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.DelegatedAdminRightsAPI.ListDelegatedAdminRights(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.ListDelegatedAdminRightsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsAPI.ListDelegatedAdminRightsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Delegated Admin Rights objects", err, httpResp)
 		return

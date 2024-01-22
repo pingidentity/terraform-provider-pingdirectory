@@ -101,7 +101,7 @@ func (r *httpConfigurationDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpConfigurationApi.GetHttpConfiguration(
+	readResponse, httpResp, err := r.apiClient.HttpConfigurationAPI.GetHttpConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Configuration", err, httpResp)

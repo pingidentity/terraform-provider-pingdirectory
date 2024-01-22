@@ -251,7 +251,7 @@ func (r *jsonFieldConstraintsDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.GetJsonFieldConstraints(
+	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.GetJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Field Constraints", err, httpResp)

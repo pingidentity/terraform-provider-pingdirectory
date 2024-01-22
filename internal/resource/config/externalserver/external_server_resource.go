@@ -101,6 +101,8 @@ type externalServerResourceModel struct {
 	AwsRegionName                          types.String `tfsdk:"aws_region_name"`
 	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	ConjurAccountName                      types.String `tfsdk:"conjur_account_name"`
+	HttpConnectTimeout                     types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                    types.String `tfsdk:"http_response_timeout"`
 	TrustStoreFile                         types.String `tfsdk:"trust_store_file"`
 	TrustStorePin                          types.String `tfsdk:"trust_store_pin"`
 	TrustStoreType                         types.String `tfsdk:"trust_store_type"`
@@ -215,6 +217,22 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"conjur_account_name": schema.StringAttribute{
 				Description: "The name of the account with which the desired secrets are associated.",
 				Optional:    true,
+			},
+			"http_connect_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"http_response_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"trust_store_file": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `conjur`: The path to a file containing the information needed to trust the certificate presented by the Conjur servers. When the `type` attribute is set to `vault`: The path to a file containing the information needed to trust the certificate presented by the Vault servers.",
@@ -1105,7 +1123,7 @@ func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -1116,6 +1134,21 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	}
 	var model externalServerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpConnectTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_connect_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
@@ -1135,8 +1168,10 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1153,7 +1188,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "nokia-ds" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
 		model.ResponseTimeout = types.StringNull()
@@ -1164,7 +1201,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "ping-identity-ds" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
 		model.ResponseTimeout = types.StringNull()
@@ -1175,7 +1214,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "active-directory" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1192,8 +1233,10 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
@@ -1212,8 +1255,10 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.VerifyCredentialsMethod = types.StringNull()
 		model.AbandonOnTimeout = types.BoolNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
@@ -1230,7 +1275,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "ping-identity-proxy-server" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
 		model.ResponseTimeout = types.StringNull()
@@ -1246,8 +1293,10 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
@@ -1265,7 +1314,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "nokia-proxy-server" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
 		model.ResponseTimeout = types.StringNull()
@@ -1276,7 +1327,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "opendj" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1288,7 +1341,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "ldap" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1304,7 +1359,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.AbandonOnTimeout = types.BoolNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
@@ -1325,7 +1382,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.AbandonOnTimeout = types.BoolNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
@@ -1342,7 +1401,9 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "oracle-unified-directory" {
 		model.SmtpSecurity = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1382,8 +1443,10 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpResponseTimeout = types.StringNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.HttpConnectTimeout = types.StringNull()
 		model.UseAdministrativeOperationControl = types.BoolNull()
 		model.SmtpTimeout = types.StringNull()
 		model.ValidationQueryTimeout = types.StringNull()
@@ -1651,6 +1714,16 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			path.MatchRoot("conjur_account_name"),
 			path.MatchRoot("type"),
 			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_response_timeout"),
+			path.MatchRoot("type"),
+			[]string{"conjur", "vault"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_store_file"),
@@ -2826,6 +2899,14 @@ func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, 
 // Add optional fields to create request for conjur external-server
 func addOptionalConjurExternalServerFields(ctx context.Context, addRequest *client.AddConjurExternalServerRequest, plan externalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpConnectTimeout) {
+		addRequest.HttpConnectTimeout = plan.HttpConnectTimeout.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpResponseTimeout) {
+		addRequest.HttpResponseTimeout = plan.HttpResponseTimeout.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreFile) {
 		addRequest.TrustStoreFile = plan.TrustStoreFile.ValueStringPointer()
 	}
@@ -2875,6 +2956,14 @@ func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *c
 
 // Add optional fields to create request for vault external-server
 func addOptionalVaultExternalServerFields(ctx context.Context, addRequest *client.AddVaultExternalServerRequest, plan externalServerResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpConnectTimeout) {
+		addRequest.HttpConnectTimeout = plan.HttpConnectTimeout.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpResponseTimeout) {
+		addRequest.HttpResponseTimeout = plan.HttpResponseTimeout.ValueStringPointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreFile) {
 		addRequest.TrustStoreFile = plan.TrustStoreFile.ValueStringPointer()
@@ -3020,11 +3109,17 @@ func (model *externalServerResourceModel) populateAllComputedStringAttributes() 
 	if model.SslCertNickname.IsUnknown() || model.SslCertNickname.IsNull() {
 		model.SslCertNickname = types.StringValue("")
 	}
+	if model.HttpConnectTimeout.IsUnknown() || model.HttpConnectTimeout.IsNull() {
+		model.HttpConnectTimeout = types.StringValue("")
+	}
 	if model.JdbcDriverURL.IsUnknown() || model.JdbcDriverURL.IsNull() {
 		model.JdbcDriverURL = types.StringValue("")
 	}
 	if model.PassphraseProvider.IsUnknown() || model.PassphraseProvider.IsNull() {
 		model.PassphraseProvider = types.StringValue("")
+	}
+	if model.HttpResponseTimeout.IsUnknown() || model.HttpResponseTimeout.IsNull() {
+		model.HttpResponseTimeout = types.StringValue("")
 	}
 	if model.AwsSecretAccessKey.IsUnknown() || model.AwsSecretAccessKey.IsNull() {
 		model.AwsSecretAccessKey = types.StringValue("")
@@ -3494,6 +3589,12 @@ func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExter
 	state.ConjurServerBaseURI = internaltypes.GetStringSet(r.ConjurServerBaseURI)
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_connect_timeout",
+		expectedValues.HttpConnectTimeout, state.HttpConnectTimeout, diagnostics)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_response_timeout",
+		expectedValues.HttpResponseTimeout, state.HttpResponseTimeout, diagnostics)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3523,6 +3624,12 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 	state.Name = types.StringValue(r.Id)
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_connect_timeout",
+		expectedValues.HttpConnectTimeout, state.HttpConnectTimeout, diagnostics)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_response_timeout",
+		expectedValues.HttpResponseTimeout, state.HttpResponseTimeout, diagnostics)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3556,6 +3663,8 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsRegionName, state.AwsRegionName, "aws-region-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConjurAuthenticationMethod, state.ConjurAuthenticationMethod, "conjur-authentication-method")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConjurAccountName, state.ConjurAccountName, "conjur-account-name")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpConnectTimeout, state.HttpConnectTimeout, "http-connect-timeout")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpResponseTimeout, state.HttpResponseTimeout, "http-response-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreFile, state.TrustStoreFile, "trust-store-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePin, state.TrustStorePin, "trust-store-pin")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreType, state.TrustStoreType, "trust-store-type")
@@ -3604,9 +3713,9 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 
 // Create a smtp external-server
 func (r *externalServerResource) CreateSmtpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddSmtpExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumsmtpExternalServerSchemaUrn{client.ENUMSMTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSMTP},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddSmtpExternalServerRequest([]client.EnumsmtpExternalServerSchemaUrn{client.ENUMSMTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSMTP},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalSmtpExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3617,12 +3726,12 @@ func (r *externalServerResource) CreateSmtpExternalServer(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddSmtpExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3642,9 +3751,9 @@ func (r *externalServerResource) CreateSmtpExternalServer(ctx context.Context, r
 
 // Create a nokia-ds external-server
 func (r *externalServerResource) CreateNokiaDsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddNokiaDsExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumnokiaDsExternalServerSchemaUrn{client.ENUMNOKIADSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_DS},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddNokiaDsExternalServerRequest([]client.EnumnokiaDsExternalServerSchemaUrn{client.ENUMNOKIADSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_DS},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalNokiaDsExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3655,12 +3764,12 @@ func (r *externalServerResource) CreateNokiaDsExternalServer(ctx context.Context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddNokiaDsExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3680,9 +3789,9 @@ func (r *externalServerResource) CreateNokiaDsExternalServer(ctx context.Context
 
 // Create a ping-identity-ds external-server
 func (r *externalServerResource) CreatePingIdentityDsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingIdentityDsExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumpingIdentityDsExternalServerSchemaUrn{client.ENUMPINGIDENTITYDSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_DS},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddPingIdentityDsExternalServerRequest([]client.EnumpingIdentityDsExternalServerSchemaUrn{client.ENUMPINGIDENTITYDSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_DS},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalPingIdentityDsExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3693,12 +3802,12 @@ func (r *externalServerResource) CreatePingIdentityDsExternalServer(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddPingIdentityDsExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3718,9 +3827,9 @@ func (r *externalServerResource) CreatePingIdentityDsExternalServer(ctx context.
 
 // Create a active-directory external-server
 func (r *externalServerResource) CreateActiveDirectoryExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddActiveDirectoryExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumactiveDirectoryExternalServerSchemaUrn{client.ENUMACTIVEDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERACTIVE_DIRECTORY},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddActiveDirectoryExternalServerRequest([]client.EnumactiveDirectoryExternalServerSchemaUrn{client.ENUMACTIVEDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERACTIVE_DIRECTORY},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalActiveDirectoryExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3731,12 +3840,12 @@ func (r *externalServerResource) CreateActiveDirectoryExternalServer(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddActiveDirectoryExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3761,9 +3870,9 @@ func (r *externalServerResource) CreateJdbcExternalServer(ctx context.Context, r
 		resp.Diagnostics.AddError("Failed to parse enum value for JdbcDriverType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddJdbcExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumjdbcExternalServerSchemaUrn{client.ENUMJDBCEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERJDBC},
-		*jdbcDriverType)
+	addRequest := client.NewAddJdbcExternalServerRequest([]client.EnumjdbcExternalServerSchemaUrn{client.ENUMJDBCEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERJDBC},
+		*jdbcDriverType,
+		plan.Name.ValueString())
 	err = addOptionalJdbcExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3774,12 +3883,12 @@ func (r *externalServerResource) CreateJdbcExternalServer(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddJdbcExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3804,10 +3913,10 @@ func (r *externalServerResource) CreateSyslogExternalServer(ctx context.Context,
 		resp.Diagnostics.AddError("Failed to parse enum value for TransportMechanism", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddSyslogExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogExternalServerSchemaUrn{client.ENUMSYSLOGEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSYSLOG},
+	addRequest := client.NewAddSyslogExternalServerRequest([]client.EnumsyslogExternalServerSchemaUrn{client.ENUMSYSLOGEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSYSLOG},
 		plan.ServerHostName.ValueString(),
-		*transportMechanism)
+		*transportMechanism,
+		plan.Name.ValueString())
 	err = addOptionalSyslogExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3818,12 +3927,12 @@ func (r *externalServerResource) CreateSyslogExternalServer(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddSyslogExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3843,9 +3952,9 @@ func (r *externalServerResource) CreateSyslogExternalServer(ctx context.Context,
 
 // Create a ping-identity-proxy-server external-server
 func (r *externalServerResource) CreatePingIdentityProxyServerExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingIdentityProxyServerExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumpingIdentityProxyServerExternalServerSchemaUrn{client.ENUMPINGIDENTITYPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_PROXY_SERVER},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddPingIdentityProxyServerExternalServerRequest([]client.EnumpingIdentityProxyServerExternalServerSchemaUrn{client.ENUMPINGIDENTITYPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_PROXY_SERVER},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalPingIdentityProxyServerExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3856,12 +3965,12 @@ func (r *externalServerResource) CreatePingIdentityProxyServerExternalServer(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddPingIdentityProxyServerExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3881,10 +3990,10 @@ func (r *externalServerResource) CreatePingIdentityProxyServerExternalServer(ctx
 
 // Create a http-proxy external-server
 func (r *externalServerResource) CreateHttpProxyExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddHttpProxyExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumhttpProxyExternalServerSchemaUrn{client.ENUMHTTPPROXYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP_PROXY},
+	addRequest := client.NewAddHttpProxyExternalServerRequest([]client.EnumhttpProxyExternalServerSchemaUrn{client.ENUMHTTPPROXYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP_PROXY},
 		plan.ServerHostName.ValueString(),
-		plan.ServerPort.ValueInt64())
+		plan.ServerPort.ValueInt64(),
+		plan.Name.ValueString())
 	err := addOptionalHttpProxyExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3895,12 +4004,12 @@ func (r *externalServerResource) CreateHttpProxyExternalServer(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddHttpProxyExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3920,9 +4029,9 @@ func (r *externalServerResource) CreateHttpProxyExternalServer(ctx context.Conte
 
 // Create a nokia-proxy-server external-server
 func (r *externalServerResource) CreateNokiaProxyServerExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddNokiaProxyServerExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumnokiaProxyServerExternalServerSchemaUrn{client.ENUMNOKIAPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_PROXY_SERVER},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddNokiaProxyServerExternalServerRequest([]client.EnumnokiaProxyServerExternalServerSchemaUrn{client.ENUMNOKIAPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_PROXY_SERVER},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalNokiaProxyServerExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3933,12 +4042,12 @@ func (r *externalServerResource) CreateNokiaProxyServerExternalServer(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddNokiaProxyServerExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3958,9 +4067,9 @@ func (r *externalServerResource) CreateNokiaProxyServerExternalServer(ctx contex
 
 // Create a opendj external-server
 func (r *externalServerResource) CreateOpendjExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddOpendjExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumopendjExternalServerSchemaUrn{client.ENUMOPENDJEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVEROPENDJ},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddOpendjExternalServerRequest([]client.EnumopendjExternalServerSchemaUrn{client.ENUMOPENDJEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVEROPENDJ},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalOpendjExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -3971,12 +4080,12 @@ func (r *externalServerResource) CreateOpendjExternalServer(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddOpendjExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -3996,9 +4105,9 @@ func (r *externalServerResource) CreateOpendjExternalServer(ctx context.Context,
 
 // Create a ldap external-server
 func (r *externalServerResource) CreateLdapExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddLdapExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumldapExternalServerSchemaUrn{client.ENUMLDAPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERLDAP},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddLdapExternalServerRequest([]client.EnumldapExternalServerSchemaUrn{client.ENUMLDAPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERLDAP},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalLdapExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4009,12 +4118,12 @@ func (r *externalServerResource) CreateLdapExternalServer(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddLdapExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4034,8 +4143,8 @@ func (r *externalServerResource) CreateLdapExternalServer(ctx context.Context, r
 
 // Create a ping-one-http external-server
 func (r *externalServerResource) CreatePingOneHttpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingOneHttpExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumpingOneHttpExternalServerSchemaUrn{client.ENUMPINGONEHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_ONE_HTTP})
+	addRequest := client.NewAddPingOneHttpExternalServerRequest([]client.EnumpingOneHttpExternalServerSchemaUrn{client.ENUMPINGONEHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_ONE_HTTP},
+		plan.Name.ValueString())
 	err := addOptionalPingOneHttpExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4046,12 +4155,12 @@ func (r *externalServerResource) CreatePingOneHttpExternalServer(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddPingOneHttpExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4071,9 +4180,9 @@ func (r *externalServerResource) CreatePingOneHttpExternalServer(ctx context.Con
 
 // Create a http external-server
 func (r *externalServerResource) CreateHttpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddHttpExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumhttpExternalServerSchemaUrn{client.ENUMHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP},
-		plan.BaseURL.ValueString())
+	addRequest := client.NewAddHttpExternalServerRequest([]client.EnumhttpExternalServerSchemaUrn{client.ENUMHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP},
+		plan.BaseURL.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalHttpExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4084,12 +4193,12 @@ func (r *externalServerResource) CreateHttpExternalServer(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddHttpExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4109,9 +4218,9 @@ func (r *externalServerResource) CreateHttpExternalServer(ctx context.Context, r
 
 // Create a oracle-unified-directory external-server
 func (r *externalServerResource) CreateOracleUnifiedDirectoryExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddOracleUnifiedDirectoryExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumoracleUnifiedDirectoryExternalServerSchemaUrn{client.ENUMORACLEUNIFIEDDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERORACLE_UNIFIED_DIRECTORY},
-		plan.ServerHostName.ValueString())
+	addRequest := client.NewAddOracleUnifiedDirectoryExternalServerRequest([]client.EnumoracleUnifiedDirectoryExternalServerSchemaUrn{client.ENUMORACLEUNIFIEDDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERORACLE_UNIFIED_DIRECTORY},
+		plan.ServerHostName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalOracleUnifiedDirectoryExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4122,12 +4231,12 @@ func (r *externalServerResource) CreateOracleUnifiedDirectoryExternalServer(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddOracleUnifiedDirectoryExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4149,11 +4258,11 @@ func (r *externalServerResource) CreateOracleUnifiedDirectoryExternalServer(ctx 
 func (r *externalServerResource) CreateConjurExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
 	var ConjurServerBaseURISlice []string
 	plan.ConjurServerBaseURI.ElementsAs(ctx, &ConjurServerBaseURISlice, false)
-	addRequest := client.NewAddConjurExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumconjurExternalServerSchemaUrn{client.ENUMCONJUREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERCONJUR},
+	addRequest := client.NewAddConjurExternalServerRequest([]client.EnumconjurExternalServerSchemaUrn{client.ENUMCONJUREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERCONJUR},
 		ConjurServerBaseURISlice,
 		plan.ConjurAuthenticationMethod.ValueString(),
-		plan.ConjurAccountName.ValueString())
+		plan.ConjurAccountName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalConjurExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4164,12 +4273,12 @@ func (r *externalServerResource) CreateConjurExternalServer(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddConjurExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4189,9 +4298,9 @@ func (r *externalServerResource) CreateConjurExternalServer(ctx context.Context,
 
 // Create a amazon-aws external-server
 func (r *externalServerResource) CreateAmazonAwsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddAmazonAwsExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumamazonAwsExternalServerSchemaUrn{client.ENUMAMAZONAWSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERAMAZON_AWS},
-		plan.AwsRegionName.ValueString())
+	addRequest := client.NewAddAmazonAwsExternalServerRequest([]client.EnumamazonAwsExternalServerSchemaUrn{client.ENUMAMAZONAWSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERAMAZON_AWS},
+		plan.AwsRegionName.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalAmazonAwsExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4202,12 +4311,12 @@ func (r *externalServerResource) CreateAmazonAwsExternalServer(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddAmazonAwsExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4229,10 +4338,10 @@ func (r *externalServerResource) CreateAmazonAwsExternalServer(ctx context.Conte
 func (r *externalServerResource) CreateVaultExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
 	var VaultServerBaseURISlice []string
 	plan.VaultServerBaseURI.ElementsAs(ctx, &VaultServerBaseURISlice, false)
-	addRequest := client.NewAddVaultExternalServerRequest(plan.Name.ValueString(),
-		[]client.EnumvaultExternalServerSchemaUrn{client.ENUMVAULTEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERVAULT},
+	addRequest := client.NewAddVaultExternalServerRequest([]client.EnumvaultExternalServerSchemaUrn{client.ENUMVAULTEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERVAULT},
 		VaultServerBaseURISlice,
-		plan.VaultAuthenticationMethod.ValueString())
+		plan.VaultAuthenticationMethod.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalVaultExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for External Server", err.Error())
@@ -4243,12 +4352,12 @@ func (r *externalServerResource) CreateVaultExternalServer(ctx context.Context, 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExternalServerApi.AddExternalServer(
+	apiAddRequest := r.apiClient.ExternalServerAPI.AddExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExternalServerRequest(
 		client.AddVaultExternalServerRequestAsAddExternalServerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExternalServerApi.AddExternalServerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExternalServerAPI.AddExternalServerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the External Server", err, httpResp)
 		return nil, err
@@ -4404,7 +4513,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+	readResponse, httpResp, err := r.apiClient.ExternalServerAPI.GetExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
@@ -4472,14 +4581,14 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ExternalServerAPI.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createExternalServerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ExternalServerAPI.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the External Server", err, httpResp)
 			return
@@ -4572,7 +4681,7 @@ func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+	readResponse, httpResp, err := apiClient.ExternalServerAPI.GetExternalServer(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -4673,7 +4782,7 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 	// Get the current state to see how any attributes are changing
 	var state externalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+	updateRequest := apiClient.ExternalServerAPI.UpdateExternalServer(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -4683,7 +4792,7 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerAPI.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the External Server", err, httpResp)
 			return
@@ -4775,7 +4884,7 @@ func (r *externalServerResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	httpResp, err := r.apiClient.ExternalServerApi.DeleteExternalServerExecute(r.apiClient.ExternalServerApi.DeleteExternalServer(
+	httpResp, err := r.apiClient.ExternalServerAPI.DeleteExternalServerExecute(r.apiClient.ExternalServerAPI.DeleteExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the External Server", err, httpResp)

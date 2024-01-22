@@ -158,7 +158,7 @@ func (r *rootDseBackendResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDseBackendApi.GetRootDseBackend(
+	readResponse, httpResp, err := r.apiClient.RootDseBackendAPI.GetRootDseBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dse Backend", err, httpResp)
@@ -176,14 +176,14 @@ func (r *rootDseBackendResource) Create(ctx context.Context, req resource.Create
 	readRootDseBackendResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RootDseBackendApi.UpdateRootDseBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.RootDseBackendAPI.UpdateRootDseBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createRootDseBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RootDseBackendApi.UpdateRootDseBackendExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RootDseBackendAPI.UpdateRootDseBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dse Backend", err, httpResp)
 			return
@@ -216,7 +216,7 @@ func (r *rootDseBackendResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDseBackendApi.GetRootDseBackend(
+	readResponse, httpResp, err := r.apiClient.RootDseBackendAPI.GetRootDseBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dse Backend", err, httpResp)
@@ -250,7 +250,7 @@ func (r *rootDseBackendResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state rootDseBackendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RootDseBackendApi.UpdateRootDseBackend(
+	updateRequest := r.apiClient.RootDseBackendAPI.UpdateRootDseBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -260,7 +260,7 @@ func (r *rootDseBackendResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RootDseBackendApi.UpdateRootDseBackendExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RootDseBackendAPI.UpdateRootDseBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dse Backend", err, httpResp)
 			return

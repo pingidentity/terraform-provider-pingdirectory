@@ -66,7 +66,7 @@ func TestAccSimpleSearchEntryCriteria(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.SearchEntryCriteriaApi.DeleteSearchEntryCriteria(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.SearchEntryCriteriaAPI.DeleteSearchEntryCriteria(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedSimpleSearchEntryCriteriaAttributes(config simpleSearch
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.SearchEntryCriteriaAPI.GetSearchEntryCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedSimpleSearchEntryCriteriaAttributes(config simpleSearch
 func testAccCheckSimpleSearchEntryCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(ctx, testIdSimpleSearchEntryCriteria).Execute()
+	_, _, err := testClient.SearchEntryCriteriaAPI.GetSearchEntryCriteria(ctx, testIdSimpleSearchEntryCriteria).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Simple Search Entry Criteria", testIdSimpleSearchEntryCriteria)
 	}

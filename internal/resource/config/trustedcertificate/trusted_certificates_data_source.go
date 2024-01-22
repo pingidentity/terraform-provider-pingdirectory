@@ -84,12 +84,12 @@ func (r *trustedCertificatesDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.TrustedCertificateApi.ListTrustedCertificates(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.TrustedCertificateAPI.ListTrustedCertificates(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.ListTrustedCertificatesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.TrustedCertificateAPI.ListTrustedCertificatesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Trusted Certificate objects", err, httpResp)
 		return

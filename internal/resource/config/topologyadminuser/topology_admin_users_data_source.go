@@ -84,12 +84,12 @@ func (r *topologyAdminUsersDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.TopologyAdminUserApi.ListTopologyAdminUsers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.TopologyAdminUserAPI.ListTopologyAdminUsers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.ListTopologyAdminUsersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.TopologyAdminUserAPI.ListTopologyAdminUsersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Topology Admin User objects", err, httpResp)
 		return

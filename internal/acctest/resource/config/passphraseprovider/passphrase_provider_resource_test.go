@@ -71,7 +71,7 @@ func TestAccPassphraseProvider(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PassphraseProviderApi.DeletePassphraseProvider(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PassphraseProviderAPI.DeletePassphraseProvider(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedPassphraseProviderAttributes(config passphraseProviderT
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PassphraseProviderApi.GetPassphraseProvider(ctx, config.id).Execute()
+		response, _, err := testClient.PassphraseProviderAPI.GetPassphraseProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func testAccCheckExpectedPassphraseProviderAttributes(config passphraseProviderT
 func testAccCheckPassphraseProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PassphraseProviderApi.GetPassphraseProvider(ctx, testIdPassphraseProvider).Execute()
+	_, _, err := testClient.PassphraseProviderAPI.GetPassphraseProvider(ctx, testIdPassphraseProvider).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Passphrase Provider", testIdPassphraseProvider)
 	}

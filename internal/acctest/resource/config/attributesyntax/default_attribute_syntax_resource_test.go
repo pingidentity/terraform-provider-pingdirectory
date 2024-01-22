@@ -102,7 +102,7 @@ func testAccCheckExpectedNameAndOptionalUidAttributeSyntaxAttributes(config name
 		resourceType := "Name and Optional UID"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AttributeSyntaxApi.GetAttributeSyntax(ctx, config.id).Execute()
+		response, _, err := testClient.AttributeSyntaxAPI.GetAttributeSyntax(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

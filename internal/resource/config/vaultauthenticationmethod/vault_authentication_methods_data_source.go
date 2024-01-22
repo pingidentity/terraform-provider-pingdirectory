@@ -84,12 +84,12 @@ func (r *vaultAuthenticationMethodsDataSource) Read(ctx context.Context, req dat
 		return
 	}
 
-	listRequest := r.apiClient.VaultAuthenticationMethodApi.ListVaultAuthenticationMethods(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.VaultAuthenticationMethodAPI.ListVaultAuthenticationMethods(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.ListVaultAuthenticationMethodsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.ListVaultAuthenticationMethodsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Vault Authentication Method objects", err, httpResp)
 		return

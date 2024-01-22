@@ -74,7 +74,7 @@ func TestAccReplicationAssurancePolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ReplicationAssurancePolicyApi.DeleteReplicationAssurancePolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ReplicationAssurancePolicyAPI.DeleteReplicationAssurancePolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -118,7 +118,7 @@ func testAccCheckExpectedReplicationAssurancePolicyAttributes(config replication
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(ctx, config.id).Execute()
+		response, _, err := testClient.ReplicationAssurancePolicyAPI.GetReplicationAssurancePolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -147,7 +147,7 @@ func testAccCheckExpectedReplicationAssurancePolicyAttributes(config replication
 func testAccCheckReplicationAssurancePolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(ctx, testIdReplicationAssurancePolicy).Execute()
+	_, _, err := testClient.ReplicationAssurancePolicyAPI.GetReplicationAssurancePolicy(ctx, testIdReplicationAssurancePolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Replication Assurance Policy", testIdReplicationAssurancePolicy)
 	}

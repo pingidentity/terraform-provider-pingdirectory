@@ -429,7 +429,7 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
+	readResponse, httpResp, err := r.apiClient.AttributeSyntaxAPI.GetAttributeSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)
@@ -491,14 +491,14 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.AttributeSyntaxAPI.UpdateAttributeSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAttributeSyntaxOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntaxExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AttributeSyntaxAPI.UpdateAttributeSyntaxExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Attribute Syntax", err, httpResp)
 			return
@@ -575,7 +575,7 @@ func (r *attributeSyntaxResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
+	readResponse, httpResp, err := r.apiClient.AttributeSyntaxAPI.GetAttributeSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)
@@ -653,7 +653,7 @@ func (r *attributeSyntaxResource) Update(ctx context.Context, req resource.Updat
 	// Get the current state to see how any attributes are changing
 	var state attributeSyntaxResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(
+	updateRequest := r.apiClient.AttributeSyntaxAPI.UpdateAttributeSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -663,7 +663,7 @@ func (r *attributeSyntaxResource) Update(ctx context.Context, req resource.Updat
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntaxExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AttributeSyntaxAPI.UpdateAttributeSyntaxExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Attribute Syntax", err, httpResp)
 			return

@@ -76,7 +76,7 @@ func TestAccLocalDbIndex(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LocalDbIndexApi.DeleteLocalDbIndex(ctx, updatedResourceModel.attribute, updatedResourceModel.backendName).Execute()
+					_, err := testClient.LocalDbIndexAPI.DeleteLocalDbIndex(ctx, updatedResourceModel.attribute, updatedResourceModel.backendName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedLocalDbIndexAttributes(config localDbIndexTestModel) re
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LocalDbIndexApi.GetLocalDbIndex(ctx, config.attribute, config.backendName).Execute()
+		response, _, err := testClient.LocalDbIndexAPI.GetLocalDbIndex(ctx, config.attribute, config.backendName).Execute()
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func testAccCheckExpectedLocalDbIndexAttributes(config localDbIndexTestModel) re
 func testAccCheckLocalDbIndexDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LocalDbIndexApi.GetLocalDbIndex(ctx, testIdLocalDbIndex, testBackendName).Execute()
+	_, _, err := testClient.LocalDbIndexAPI.GetLocalDbIndex(ctx, testIdLocalDbIndex, testBackendName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Local Db Index", testIdLocalDbIndex)
 	}

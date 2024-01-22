@@ -173,7 +173,7 @@ func (r *changeSubscriptionHandlerDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
+	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.GetChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription Handler", err, httpResp)

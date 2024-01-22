@@ -89,12 +89,12 @@ func (r *velocityTemplateLoadersDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	listRequest := r.apiClient.VelocityTemplateLoaderApi.ListVelocityTemplateLoaders(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
+	listRequest := r.apiClient.VelocityTemplateLoaderAPI.ListVelocityTemplateLoaders(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.ListVelocityTemplateLoadersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.ListVelocityTemplateLoadersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Velocity Template Loader objects", err, httpResp)
 		return

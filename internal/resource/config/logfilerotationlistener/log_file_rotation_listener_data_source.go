@@ -47,16 +47,23 @@ func (r *logFileRotationListenerDataSource) Configure(_ context.Context, req dat
 }
 
 type logFileRotationListenerDataSourceModel struct {
-	Id                types.String `tfsdk:"id"`
-	Name              types.String `tfsdk:"name"`
-	Type              types.String `tfsdk:"type"`
-	ExtensionClass    types.String `tfsdk:"extension_class"`
-	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
-	CopyToDirectory   types.String `tfsdk:"copy_to_directory"`
-	CompressOnCopy    types.Bool   `tfsdk:"compress_on_copy"`
-	OutputDirectory   types.String `tfsdk:"output_directory"`
-	Description       types.String `tfsdk:"description"`
-	Enabled           types.Bool   `tfsdk:"enabled"`
+	Id                                   types.String `tfsdk:"id"`
+	Name                                 types.String `tfsdk:"name"`
+	Type                                 types.String `tfsdk:"type"`
+	ExtensionClass                       types.String `tfsdk:"extension_class"`
+	ExtensionArgument                    types.Set    `tfsdk:"extension_argument"`
+	CopyToDirectory                      types.String `tfsdk:"copy_to_directory"`
+	CompressOnCopy                       types.Bool   `tfsdk:"compress_on_copy"`
+	OutputDirectory                      types.String `tfsdk:"output_directory"`
+	AwsExternalServer                    types.String `tfsdk:"aws_external_server"`
+	S3BucketName                         types.String `tfsdk:"s3_bucket_name"`
+	TargetThroughputInMegabitsPerSecond  types.Int64  `tfsdk:"target_throughput_in_megabits_per_second"`
+	MaximumConcurrentTransferConnections types.Int64  `tfsdk:"maximum_concurrent_transfer_connections"`
+	MaximumFileCountToRetain             types.Int64  `tfsdk:"maximum_file_count_to_retain"`
+	MaximumFileAgeToRetain               types.String `tfsdk:"maximum_file_age_to_retain"`
+	FileRetentionPattern                 types.String `tfsdk:"file_retention_pattern"`
+	Description                          types.String `tfsdk:"description"`
+	Enabled                              types.Bool   `tfsdk:"enabled"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -65,7 +72,7 @@ func (r *logFileRotationListenerDataSource) Schema(ctx context.Context, req data
 		Description: "Describes a Log File Rotation Listener.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']",
+				Description: "The type of Log File Rotation Listener resource. Options are ['upload-to-s3', 'summarize', 'copy', 'third-party']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -101,6 +108,48 @@ func (r *logFileRotationListenerDataSource) Schema(ctx context.Context, req data
 				Optional:    false,
 				Computed:    true,
 			},
+			"aws_external_server": schema.StringAttribute{
+				Description: "The external server with information to use when interacting with the AWS S3 service.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"s3_bucket_name": schema.StringAttribute{
+				Description: "The name of the S3 bucket into which rotated log files should be copied.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"target_throughput_in_megabits_per_second": schema.Int64Attribute{
+				Description: "The target throughput to attempt to achieve for data transfers to or from S3, in megabits per second.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_concurrent_transfer_connections": schema.Int64Attribute{
+				Description: "The maximum number of concurrent connections that may be used when transferring data to or from S3.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_file_count_to_retain": schema.Int64Attribute{
+				Description: "The maximum number of existing files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_file_age_to_retain": schema.StringAttribute{
+				Description: "The maximum length of time to retain files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"file_retention_pattern": schema.StringAttribute{
+				Description: "A regular expression pattern that will be used to identify which files are candidates for automatic removal based on the maximum-file-count-to-retain and maximum-file-age-to-retain properties. By default, all files in the bucket will be eligible for removal by retention processing.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Log File Rotation Listener",
 				Required:    false,
@@ -117,6 +166,22 @@ func (r *logFileRotationListenerDataSource) Schema(ctx context.Context, req data
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Read a UploadToS3LogFileRotationListenerResponse object into the model struct
+func readUploadToS3LogFileRotationListenerResponseDataSource(ctx context.Context, r *client.UploadToS3LogFileRotationListenerResponse, state *logFileRotationListenerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("upload-to-s3")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
+	state.S3BucketName = types.StringValue(r.S3BucketName)
+	state.TargetThroughputInMegabitsPerSecond = internaltypes.Int64TypeOrNil(r.TargetThroughputInMegabitsPerSecond)
+	state.MaximumConcurrentTransferConnections = internaltypes.Int64TypeOrNil(r.MaximumConcurrentTransferConnections)
+	state.MaximumFileCountToRetain = internaltypes.Int64TypeOrNil(r.MaximumFileCountToRetain)
+	state.MaximumFileAgeToRetain = internaltypes.StringTypeOrNil(r.MaximumFileAgeToRetain, false)
+	state.FileRetentionPattern = internaltypes.StringTypeOrNil(r.FileRetentionPattern, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
 }
 
 // Read a SummarizeLogFileRotationListenerResponse object into the model struct
@@ -161,7 +226,7 @@ func (r *logFileRotationListenerDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
+	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.GetLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
@@ -175,6 +240,9 @@ func (r *logFileRotationListenerDataSource) Read(ctx context.Context, req dataso
 	}
 
 	// Read the response into the state
+	if readResponse.UploadToS3LogFileRotationListenerResponse != nil {
+		readUploadToS3LogFileRotationListenerResponseDataSource(ctx, readResponse.UploadToS3LogFileRotationListenerResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
 		readSummarizeLogFileRotationListenerResponseDataSource(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &resp.Diagnostics)
 	}

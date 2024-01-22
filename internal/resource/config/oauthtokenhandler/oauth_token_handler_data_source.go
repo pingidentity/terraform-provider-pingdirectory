@@ -136,7 +136,7 @@ func (r *oauthTokenHandlerDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
+	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.GetOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)

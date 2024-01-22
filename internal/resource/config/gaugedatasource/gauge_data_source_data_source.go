@@ -206,7 +206,7 @@ func (r *gaugeDataSourceDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GaugeDataSourceApi.GetGaugeDataSource(
+	readResponse, httpResp, err := r.apiClient.GaugeDataSourceAPI.GetGaugeDataSource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge Data Source", err, httpResp)

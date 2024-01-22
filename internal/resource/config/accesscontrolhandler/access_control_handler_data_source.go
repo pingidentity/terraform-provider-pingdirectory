@@ -121,7 +121,7 @@ func (r *accessControlHandlerDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.GetAccessControlHandler(
+	readResponse, httpResp, err := r.apiClient.AccessControlHandlerAPI.GetAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Control Handler", err, httpResp)

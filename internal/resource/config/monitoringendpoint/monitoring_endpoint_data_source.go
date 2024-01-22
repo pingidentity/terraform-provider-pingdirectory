@@ -135,7 +135,7 @@ func (r *monitoringEndpointDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
+	readResponse, httpResp, err := r.apiClient.MonitoringEndpointAPI.GetMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)

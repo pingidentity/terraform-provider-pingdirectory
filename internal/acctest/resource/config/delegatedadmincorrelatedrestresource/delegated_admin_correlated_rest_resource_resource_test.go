@@ -82,7 +82,7 @@ func TestAccDelegatedAdminCorrelatedRestResource(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResource(ctx, updatedResourceModel.id, updatedResourceModel.restResourceTypeName).Execute()
+					_, err := testClient.DelegatedAdminCorrelatedRestResourceAPI.DeleteDelegatedAdminCorrelatedRestResource(ctx, updatedResourceModel.id, updatedResourceModel.restResourceTypeName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -141,7 +141,7 @@ func testAccCheckExpectedDelegatedAdminCorrelatedRestResourceAttributes(config d
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(ctx, config.id, config.restResourceTypeName).Execute()
+		response, _, err := testClient.DelegatedAdminCorrelatedRestResourceAPI.GetDelegatedAdminCorrelatedRestResource(ctx, config.id, config.restResourceTypeName).Execute()
 		if err != nil {
 			return err
 		}
@@ -175,7 +175,7 @@ func testAccCheckExpectedDelegatedAdminCorrelatedRestResourceAttributes(config d
 func testAccCheckDelegatedAdminCorrelatedRestResourceDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(ctx, testIdDelegatedAdminCorrelatedRestResource, testRestResourceTypeName).Execute()
+	_, _, err := testClient.DelegatedAdminCorrelatedRestResourceAPI.GetDelegatedAdminCorrelatedRestResource(ctx, testIdDelegatedAdminCorrelatedRestResource, testRestResourceTypeName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Delegated Admin Correlated Rest Resource", testIdDelegatedAdminCorrelatedRestResource)
 	}

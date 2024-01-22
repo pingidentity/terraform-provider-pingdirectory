@@ -17,11 +17,12 @@ const testIdPingFederateAccessTokenValidator = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type pingFederateAccessTokenValidatorTestModel struct {
-	id                  string
-	clientId            string
-	clientSecret        string
-	authorizationServer string
-	enabled             bool
+	id                   string
+	clientId             string
+	clientSecret         string
+	authorizationServer  string
+	enabled              bool
+	evaluationOrderIndex int64
 }
 
 func TestAccPingFederateAccessTokenValidator(t *testing.T) {
@@ -32,15 +33,17 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 		clientSecret: "myclientsecret",
 		// In reality you wouldn't use this authorization server, just using it because it's available by default
 		// and an authorization server is required to create this access token validator.
-		authorizationServer: "PingOne Auth Service",
-		enabled:             true,
+		authorizationServer:  "PingOne Auth Service",
+		enabled:              true,
+		evaluationOrderIndex: 1,
 	}
 	updatedResourceModel := pingFederateAccessTokenValidatorTestModel{
-		id:                  testIdPingFederateAccessTokenValidator,
-		clientId:            "my-client-id-updated",
-		clientSecret:        "myclientsecretupdated",
-		authorizationServer: "PingOne Auth Service",
-		enabled:             false,
+		id:                   testIdPingFederateAccessTokenValidator,
+		clientId:             "my-client-id-updated",
+		clientSecret:         "myclientsecretupdated",
+		authorizationServer:  "PingOne Auth Service",
+		enabled:              false,
+		evaluationOrderIndex: 2,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -83,7 +86,7 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.AccessTokenValidatorApi.DeleteAccessTokenValidator(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.AccessTokenValidatorAPI.DeleteAccessTokenValidator(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -104,6 +107,7 @@ resource "pingdirectory_access_token_validator" "%[1]s" {
   client_secret        = "%[4]s"
   authorization_server = "%[5]s"
   enabled              = %[6]t
+  evaluation_order_index = %[7]d
 }
 
 data "pingdirectory_access_token_validator" "%[1]s" {
@@ -122,7 +126,8 @@ data "pingdirectory_access_token_validators" "list" {
 		resourceModel.clientId,
 		resourceModel.clientSecret,
 		resourceModel.authorizationServer,
-		resourceModel.enabled)
+		resourceModel.enabled,
+		resourceModel.evaluationOrderIndex)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
@@ -130,7 +135,7 @@ func testAccCheckExpectedPingFederateAccessTokenValidatorAttributes(config pingF
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AccessTokenValidatorApi.GetAccessTokenValidator(ctx, config.id).Execute()
+		response, _, err := testClient.AccessTokenValidatorAPI.GetAccessTokenValidator(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -152,6 +157,11 @@ func testAccCheckExpectedPingFederateAccessTokenValidatorAttributes(config pingF
 		if err != nil {
 			return err
 		}
+		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "evaluation-order-index",
+			config.evaluationOrderIndex, response.PingFederateAccessTokenValidatorResponse.EvaluationOrderIndex)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 }
@@ -160,7 +170,7 @@ func testAccCheckExpectedPingFederateAccessTokenValidatorAttributes(config pingF
 func testAccCheckPingFederateAccessTokenValidatorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AccessTokenValidatorApi.GetAccessTokenValidator(ctx, testIdPingFederateAccessTokenValidator).Execute()
+	_, _, err := testClient.AccessTokenValidatorAPI.GetAccessTokenValidator(ctx, testIdPingFederateAccessTokenValidator).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Ping Federate Access Token Validator", testIdPingFederateAccessTokenValidator)
 	}

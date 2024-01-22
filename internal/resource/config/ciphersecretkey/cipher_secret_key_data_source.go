@@ -140,7 +140,7 @@ func (r *cipherSecretKeyDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
+	readResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.GetCipherSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)

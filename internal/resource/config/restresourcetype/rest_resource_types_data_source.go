@@ -84,12 +84,12 @@ func (r *restResourceTypesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.RestResourceTypeApi.ListRestResourceTypes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.RestResourceTypeAPI.ListRestResourceTypes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.ListRestResourceTypesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.ListRestResourceTypesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Rest Resource Type objects", err, httpResp)
 		return

@@ -51,7 +51,7 @@ func TestAccChangeSubscription(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ChangeSubscriptionApi.DeleteChangeSubscription(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.ChangeSubscriptionAPI.DeleteChangeSubscription(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -88,7 +88,7 @@ data "pingdirectory_change_subscriptions" "list" {
 func testAccCheckChangeSubscriptionDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ChangeSubscriptionApi.GetChangeSubscription(ctx, testIdChangeSubscription).Execute()
+	_, _, err := testClient.ChangeSubscriptionAPI.GetChangeSubscription(ctx, testIdChangeSubscription).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Change Subscription", testIdChangeSubscription)
 	}

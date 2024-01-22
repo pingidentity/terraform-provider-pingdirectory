@@ -84,12 +84,12 @@ func (r *keyManagerProvidersDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.KeyManagerProviderApi.ListKeyManagerProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.KeyManagerProviderAPI.ListKeyManagerProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.ListKeyManagerProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.ListKeyManagerProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Key Manager Provider objects", err, httpResp)
 		return

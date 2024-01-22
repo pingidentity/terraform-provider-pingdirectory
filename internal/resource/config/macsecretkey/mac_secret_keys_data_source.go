@@ -89,12 +89,12 @@ func (r *macSecretKeysDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	listRequest := r.apiClient.MacSecretKeyApi.ListMacSecretKeys(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
+	listRequest := r.apiClient.MacSecretKeyAPI.ListMacSecretKeys(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.ListMacSecretKeysExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.ListMacSecretKeysExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Mac Secret Key objects", err, httpResp)
 		return

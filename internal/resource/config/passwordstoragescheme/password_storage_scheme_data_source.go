@@ -566,7 +566,7 @@ func (r *passwordStorageSchemeDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
+	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.GetPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)

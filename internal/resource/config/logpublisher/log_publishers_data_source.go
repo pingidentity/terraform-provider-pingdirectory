@@ -84,12 +84,12 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	listRequest := r.apiClient.LogPublisherApi.ListLogPublishers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogPublisherAPI.ListLogPublishers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.ListLogPublishersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogPublisherAPI.ListLogPublishersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log Publisher objects", err, httpResp)
 		return
@@ -156,6 +156,10 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 		if response.SyslogBasedAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.SyslogBasedAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("syslog-based-access")
+		}
+		if response.FileBasedPolicyQueryLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedPolicyQueryLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("file-based-policy-query")
 		}
 		if response.FileBasedJsonAuditLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.FileBasedJsonAuditLogPublisherResponse.Id)

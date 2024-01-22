@@ -70,7 +70,7 @@ func TestAccVelocityTemplateLoader(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoader(ctx, updatedResourceModel.id, updatedResourceModel.httpServletExtensionName).Execute()
+					_, err := testClient.VelocityTemplateLoaderAPI.DeleteVelocityTemplateLoader(ctx, updatedResourceModel.id, updatedResourceModel.httpServletExtensionName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedVelocityTemplateLoaderAttributes(config velocityTemplat
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(ctx, config.id, config.httpServletExtensionName).Execute()
+		response, _, err := testClient.VelocityTemplateLoaderAPI.GetVelocityTemplateLoader(ctx, config.id, config.httpServletExtensionName).Execute()
 		if err != nil {
 			return err
 		}
@@ -133,7 +133,7 @@ func testAccCheckExpectedVelocityTemplateLoaderAttributes(config velocityTemplat
 func testAccCheckVelocityTemplateLoaderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(ctx, testIdVelocityTemplateLoader, testHttpServletExtensionName).Execute()
+	_, _, err := testClient.VelocityTemplateLoaderAPI.GetVelocityTemplateLoader(ctx, testIdVelocityTemplateLoader, testHttpServletExtensionName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Velocity Template Loader", testIdVelocityTemplateLoader)
 	}

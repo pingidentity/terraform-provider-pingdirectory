@@ -93,7 +93,7 @@ func testAccCheckExpectedCustomSynchronizationProviderAttributes(config customSy
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SynchronizationProviderApi.GetSynchronizationProvider(ctx, config.id).Execute()
+		response, _, err := testClient.SynchronizationProviderAPI.GetSynchronizationProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

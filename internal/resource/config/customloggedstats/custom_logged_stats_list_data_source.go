@@ -89,12 +89,12 @@ func (r *customLoggedStatsListDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.CustomLoggedStatsApi.ListCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PluginName.ValueString())
+	listRequest := r.apiClient.CustomLoggedStatsAPI.ListCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PluginName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.ListCustomLoggedStatsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsAPI.ListCustomLoggedStatsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Custom Logged Stats objects", err, httpResp)
 		return

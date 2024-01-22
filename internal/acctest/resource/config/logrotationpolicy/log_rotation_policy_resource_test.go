@@ -66,7 +66,7 @@ func TestAccTimeLimitLogRotationPolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogRotationPolicyApi.DeleteLogRotationPolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogRotationPolicyAPI.DeleteLogRotationPolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedTimeLimitLogRotationPolicyAttributes(config timeLimitLo
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogRotationPolicyApi.GetLogRotationPolicy(ctx, config.id).Execute()
+		response, _, err := testClient.LogRotationPolicyAPI.GetLogRotationPolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func testAccCheckExpectedTimeLimitLogRotationPolicyAttributes(config timeLimitLo
 func testAccCheckTimeLimitLogRotationPolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogRotationPolicyApi.GetLogRotationPolicy(ctx, testIdTimeLimitLogRotationPolicy).Execute()
+	_, _, err := testClient.LogRotationPolicyAPI.GetLogRotationPolicy(ctx, testIdTimeLimitLogRotationPolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Time Limit Log Rotation Policy", testIdTimeLimitLogRotationPolicy)
 	}

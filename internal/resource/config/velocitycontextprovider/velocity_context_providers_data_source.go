@@ -89,12 +89,12 @@ func (r *velocityContextProvidersDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.VelocityContextProviderApi.ListVelocityContextProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
+	listRequest := r.apiClient.VelocityContextProviderAPI.ListVelocityContextProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.ListVelocityContextProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.ListVelocityContextProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Velocity Context Provider objects", err, httpResp)
 		return

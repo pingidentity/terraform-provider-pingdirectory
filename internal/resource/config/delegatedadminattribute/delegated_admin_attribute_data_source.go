@@ -222,7 +222,7 @@ func (r *delegatedAdminAttributeDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)

@@ -73,7 +73,7 @@ func TestAccPasswordPolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PasswordPolicyApi.DeletePasswordPolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PasswordPolicyAPI.DeletePasswordPolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -117,7 +117,7 @@ func testAccCheckExpectedPasswordPolicyAttributes(config passwordPolicyTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PasswordPolicyApi.GetPasswordPolicy(ctx, config.id).Execute()
+		response, _, err := testClient.PasswordPolicyAPI.GetPasswordPolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -146,7 +146,7 @@ func testAccCheckExpectedPasswordPolicyAttributes(config passwordPolicyTestModel
 func testAccCheckPasswordPolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PasswordPolicyApi.GetPasswordPolicy(ctx, testIdPasswordPolicy).Execute()
+	_, _, err := testClient.PasswordPolicyAPI.GetPasswordPolicy(ctx, testIdPasswordPolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Password Policy", testIdPasswordPolicy)
 	}

@@ -84,12 +84,12 @@ func (r *passwordGeneratorsDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.PasswordGeneratorApi.ListPasswordGenerators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.PasswordGeneratorAPI.ListPasswordGenerators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.ListPasswordGeneratorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.ListPasswordGeneratorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Password Generator objects", err, httpResp)
 		return

@@ -82,7 +82,7 @@ func TestAccCorrelatedLdapDataView(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataView(ctx, updatedResourceModel.id, updatedResourceModel.scimResourceTypeName).Execute()
+					_, err := testClient.CorrelatedLdapDataViewAPI.DeleteCorrelatedLdapDataView(ctx, updatedResourceModel.id, updatedResourceModel.scimResourceTypeName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -144,7 +144,7 @@ func testAccCheckExpectedCorrelatedLdapDataViewAttributes(config correlatedLdapD
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(ctx, config.id, config.scimResourceTypeName).Execute()
+		response, _, err := testClient.CorrelatedLdapDataViewAPI.GetCorrelatedLdapDataView(ctx, config.id, config.scimResourceTypeName).Execute()
 		if err != nil {
 			return err
 		}
@@ -178,7 +178,7 @@ func testAccCheckExpectedCorrelatedLdapDataViewAttributes(config correlatedLdapD
 func testAccCheckCorrelatedLdapDataViewDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(ctx, testIdCorrelatedLdapDataView, testScimResourceTypeNameCorrelated).Execute()
+	_, _, err := testClient.CorrelatedLdapDataViewAPI.GetCorrelatedLdapDataView(ctx, testIdCorrelatedLdapDataView, testScimResourceTypeNameCorrelated).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Correlated Ldap Data View", testIdCorrelatedLdapDataView)
 	}

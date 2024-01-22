@@ -84,12 +84,12 @@ func (r *recurringTasksDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	listRequest := r.apiClient.RecurringTaskApi.ListRecurringTasks(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.RecurringTaskAPI.ListRecurringTasks(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.ListRecurringTasksExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.RecurringTaskAPI.ListRecurringTasksExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Recurring Task objects", err, httpResp)
 		return

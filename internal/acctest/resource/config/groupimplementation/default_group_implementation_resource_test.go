@@ -93,7 +93,7 @@ func testAccCheckExpectedStaticGroupImplementationAttributes(config staticGroupI
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GroupImplementationApi.GetGroupImplementation(ctx, config.id).Execute()
+		response, _, err := testClient.GroupImplementationAPI.GetGroupImplementation(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

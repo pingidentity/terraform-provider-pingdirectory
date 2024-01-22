@@ -84,12 +84,12 @@ func (r *changeSubscriptionsDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.ChangeSubscriptionApi.ListChangeSubscriptions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ChangeSubscriptionAPI.ListChangeSubscriptions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.ListChangeSubscriptionsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionAPI.ListChangeSubscriptionsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Change Subscription objects", err, httpResp)
 		return

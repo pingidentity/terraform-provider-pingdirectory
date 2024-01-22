@@ -78,7 +78,7 @@ func TestAccLdapCorrelationAttributePair(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LdapCorrelationAttributePairApi.DeleteLdapCorrelationAttributePair(ctx, updatedResourceModel.id, updatedResourceModel.correlatedLdapDataViewName, updatedResourceModel.scimResourceTypeName).Execute()
+					_, err := testClient.LdapCorrelationAttributePairAPI.DeleteLdapCorrelationAttributePair(ctx, updatedResourceModel.id, updatedResourceModel.correlatedLdapDataViewName, updatedResourceModel.scimResourceTypeName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -149,7 +149,7 @@ func testAccCheckExpectedLdapCorrelationAttributePairAttributes(config ldapCorre
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(ctx, config.id, config.correlatedLdapDataViewName, config.scimResourceTypeName).Execute()
+		response, _, err := testClient.LdapCorrelationAttributePairAPI.GetLdapCorrelationAttributePair(ctx, config.id, config.correlatedLdapDataViewName, config.scimResourceTypeName).Execute()
 		if err != nil {
 			return err
 		}
@@ -173,7 +173,7 @@ func testAccCheckExpectedLdapCorrelationAttributePairAttributes(config ldapCorre
 func testAccCheckLdapCorrelationAttributePairDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(ctx, testIdLdapCorrelationAttributePair, testCorrelatedLdapDataViewName, testScimResourceTypeNameTest).Execute()
+	_, _, err := testClient.LdapCorrelationAttributePairAPI.GetLdapCorrelationAttributePair(ctx, testIdLdapCorrelationAttributePair, testCorrelatedLdapDataViewName, testScimResourceTypeNameTest).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Ldap Correlation Attribute Pair", testIdLdapCorrelationAttributePair)
 	}

@@ -185,19 +185,19 @@ func createObscuredValueOperations(plan obscuredValueResourceModel, state obscur
 
 // Create a obscured-value obscured-value
 func (r *obscuredValueResource) CreateObscuredValue(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan obscuredValueResourceModel) (*obscuredValueResourceModel, error) {
-	addRequest := client.NewAddObscuredValueRequest(plan.Name.ValueString(),
-		plan.ObscuredValue.ValueString())
+	addRequest := client.NewAddObscuredValueRequest(plan.ObscuredValue.ValueString(),
+		plan.Name.ValueString())
 	addOptionalObscuredValueFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ObscuredValueApi.AddObscuredValue(
+	apiAddRequest := r.apiClient.ObscuredValueAPI.AddObscuredValue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddObscuredValueRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ObscuredValueApi.AddObscuredValueExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ObscuredValueAPI.AddObscuredValueExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Obscured Value", err, httpResp)
 		return nil, err
@@ -253,7 +253,7 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ObscuredValueApi.GetObscuredValue(
+	readResponse, httpResp, err := r.apiClient.ObscuredValueAPI.GetObscuredValue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Obscured Value", err, httpResp)
@@ -271,14 +271,14 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 	readObscuredValueResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ObscuredValueApi.UpdateObscuredValue(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ObscuredValueAPI.UpdateObscuredValue(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createObscuredValueOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ObscuredValueApi.UpdateObscuredValueExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ObscuredValueAPI.UpdateObscuredValueExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Obscured Value", err, httpResp)
 			return
@@ -321,7 +321,7 @@ func readObscuredValue(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ObscuredValueApi.GetObscuredValue(
+	readResponse, httpResp, err := apiClient.ObscuredValueAPI.GetObscuredValue(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -372,7 +372,7 @@ func updateObscuredValue(ctx context.Context, req resource.UpdateRequest, resp *
 	// Get the current state to see how any attributes are changing
 	var state obscuredValueResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ObscuredValueApi.UpdateObscuredValue(
+	updateRequest := apiClient.ObscuredValueAPI.UpdateObscuredValue(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -382,7 +382,7 @@ func updateObscuredValue(ctx context.Context, req resource.UpdateRequest, resp *
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ObscuredValueApi.UpdateObscuredValueExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ObscuredValueAPI.UpdateObscuredValueExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Obscured Value", err, httpResp)
 			return
@@ -424,7 +424,7 @@ func (r *obscuredValueResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	httpResp, err := r.apiClient.ObscuredValueApi.DeleteObscuredValueExecute(r.apiClient.ObscuredValueApi.DeleteObscuredValue(
+	httpResp, err := r.apiClient.ObscuredValueAPI.DeleteObscuredValueExecute(r.apiClient.ObscuredValueAPI.DeleteObscuredValue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Obscured Value", err, httpResp)

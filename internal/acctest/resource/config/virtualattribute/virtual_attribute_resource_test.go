@@ -75,7 +75,7 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.VirtualAttributeApi.DeleteVirtualAttribute(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.VirtualAttributeAPI.DeleteVirtualAttribute(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -119,7 +119,7 @@ func testAccCheckExpectedMirrorVirtualAttributeAttributes(config mirrorVirtualAt
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.VirtualAttributeApi.GetVirtualAttribute(ctx, config.id).Execute()
+		response, _, err := testClient.VirtualAttributeAPI.GetVirtualAttribute(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -148,7 +148,7 @@ func testAccCheckExpectedMirrorVirtualAttributeAttributes(config mirrorVirtualAt
 func testAccCheckMirrorVirtualAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.VirtualAttributeApi.GetVirtualAttribute(ctx, testIdMirrorVirtualAttribute).Execute()
+	_, _, err := testClient.VirtualAttributeAPI.GetVirtualAttribute(ctx, testIdMirrorVirtualAttribute).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Mirror Virtual Attribute", testIdMirrorVirtualAttribute)
 	}

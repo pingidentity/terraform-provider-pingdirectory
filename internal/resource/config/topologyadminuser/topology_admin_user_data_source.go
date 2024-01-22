@@ -370,7 +370,7 @@ func (r *topologyAdminUserDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
+	readResponse, httpResp, err := r.apiClient.TopologyAdminUserAPI.GetTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)

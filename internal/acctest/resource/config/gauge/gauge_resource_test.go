@@ -69,7 +69,7 @@ func TestAccGauge(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.GaugeApi.DeleteGauge(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.GaugeAPI.DeleteGauge(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedGaugeAttributes(config gaugeTestModel) resource.TestChe
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GaugeApi.GetGauge(ctx, config.id).Execute()
+		response, _, err := testClient.GaugeAPI.GetGauge(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedGaugeAttributes(config gaugeTestModel) resource.TestChe
 func testAccCheckGaugeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.GaugeApi.GetGauge(ctx, testIdGauge).Execute()
+	_, _, err := testClient.GaugeAPI.GetGauge(ctx, testIdGauge).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Gauge", testIdGauge)
 	}

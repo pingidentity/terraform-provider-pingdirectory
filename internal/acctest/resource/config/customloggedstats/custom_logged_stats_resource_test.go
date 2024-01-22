@@ -79,7 +79,7 @@ func TestAccCustomLoggedStats(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.CustomLoggedStatsApi.DeleteCustomLoggedStats(ctx, updatedResourceModel.id, updatedResourceModel.pluginName).Execute()
+					_, err := testClient.CustomLoggedStatsAPI.DeleteCustomLoggedStats(ctx, updatedResourceModel.id, updatedResourceModel.pluginName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -127,7 +127,7 @@ func testAccCheckExpectedCustomLoggedStatsAttributes(config customLoggedStatsTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.CustomLoggedStatsApi.GetCustomLoggedStats(ctx, config.id, config.pluginName).Execute()
+		response, _, err := testClient.CustomLoggedStatsAPI.GetCustomLoggedStats(ctx, config.id, config.pluginName).Execute()
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func testAccCheckExpectedCustomLoggedStatsAttributes(config customLoggedStatsTes
 func testAccCheckCustomLoggedStatsDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.CustomLoggedStatsApi.GetCustomLoggedStats(ctx, testIdCustomLoggedStats, testPluginName).Execute()
+	_, _, err := testClient.CustomLoggedStatsAPI.GetCustomLoggedStats(ctx, testIdCustomLoggedStats, testPluginName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Custom Logged Stats", testIdCustomLoggedStats)
 	}

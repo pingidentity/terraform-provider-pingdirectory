@@ -148,7 +148,7 @@ func (r *alarmManagerResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlarmManagerApi.GetAlarmManager(
+	readResponse, httpResp, err := r.apiClient.AlarmManagerAPI.GetAlarmManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alarm Manager", err, httpResp)
@@ -166,14 +166,14 @@ func (r *alarmManagerResource) Create(ctx context.Context, req resource.CreateRe
 	readAlarmManagerResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AlarmManagerApi.UpdateAlarmManager(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.AlarmManagerAPI.UpdateAlarmManager(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createAlarmManagerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AlarmManagerApi.UpdateAlarmManagerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AlarmManagerAPI.UpdateAlarmManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Alarm Manager", err, httpResp)
 			return
@@ -206,7 +206,7 @@ func (r *alarmManagerResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlarmManagerApi.GetAlarmManager(
+	readResponse, httpResp, err := r.apiClient.AlarmManagerAPI.GetAlarmManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alarm Manager", err, httpResp)
@@ -240,7 +240,7 @@ func (r *alarmManagerResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state alarmManagerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AlarmManagerApi.UpdateAlarmManager(
+	updateRequest := r.apiClient.AlarmManagerAPI.UpdateAlarmManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -250,7 +250,7 @@ func (r *alarmManagerResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AlarmManagerApi.UpdateAlarmManagerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AlarmManagerAPI.UpdateAlarmManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Alarm Manager", err, httpResp)
 			return

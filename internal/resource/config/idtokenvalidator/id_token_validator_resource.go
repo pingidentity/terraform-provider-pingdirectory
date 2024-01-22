@@ -460,24 +460,24 @@ func createIdTokenValidatorOperations(plan idTokenValidatorResourceModel, state 
 
 // Create a ping-one id-token-validator
 func (r *idTokenValidatorResource) CreatePingOneIdTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan idTokenValidatorResourceModel) (*idTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddPingOneIdTokenValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumpingOneIdTokenValidatorSchemaUrn{client.ENUMPINGONEIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATORPING_ONE},
+	addRequest := client.NewAddPingOneIdTokenValidatorRequest([]client.EnumpingOneIdTokenValidatorSchemaUrn{client.ENUMPINGONEIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATORPING_ONE},
 		plan.IssuerURL.ValueString(),
 		plan.Enabled.ValueBool(),
 		plan.IdentityMapper.ValueString(),
-		plan.EvaluationOrderIndex.ValueInt64())
+		plan.EvaluationOrderIndex.ValueInt64(),
+		plan.Name.ValueString())
 	addOptionalPingOneIdTokenValidatorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdTokenValidatorApi.AddIdTokenValidator(
+	apiAddRequest := r.apiClient.IdTokenValidatorAPI.AddIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdTokenValidatorRequest(
 		client.AddPingOneIdTokenValidatorRequestAsAddIdTokenValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.AddIdTokenValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.AddIdTokenValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Id Token Validator", err, httpResp)
 		return nil, err
@@ -499,25 +499,25 @@ func (r *idTokenValidatorResource) CreatePingOneIdTokenValidator(ctx context.Con
 func (r *idTokenValidatorResource) CreateOpenidConnectIdTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan idTokenValidatorResourceModel) (*idTokenValidatorResourceModel, error) {
 	var AllowedSigningAlgorithmSlice []client.EnumidTokenValidatorAllowedSigningAlgorithmProp
 	plan.AllowedSigningAlgorithm.ElementsAs(ctx, &AllowedSigningAlgorithmSlice, false)
-	addRequest := client.NewAddOpenidConnectIdTokenValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumopenidConnectIdTokenValidatorSchemaUrn{client.ENUMOPENIDCONNECTIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATOROPENID_CONNECT},
+	addRequest := client.NewAddOpenidConnectIdTokenValidatorRequest([]client.EnumopenidConnectIdTokenValidatorSchemaUrn{client.ENUMOPENIDCONNECTIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATOROPENID_CONNECT},
 		AllowedSigningAlgorithmSlice,
 		plan.Enabled.ValueBool(),
 		plan.IdentityMapper.ValueString(),
 		plan.IssuerURL.ValueString(),
-		plan.EvaluationOrderIndex.ValueInt64())
+		plan.EvaluationOrderIndex.ValueInt64(),
+		plan.Name.ValueString())
 	addOptionalOpenidConnectIdTokenValidatorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdTokenValidatorApi.AddIdTokenValidator(
+	apiAddRequest := r.apiClient.IdTokenValidatorAPI.AddIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdTokenValidatorRequest(
 		client.AddOpenidConnectIdTokenValidatorRequestAsAddIdTokenValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.AddIdTokenValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.AddIdTokenValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Id Token Validator", err, httpResp)
 		return nil, err
@@ -581,7 +581,7 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
+	readResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.GetIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
@@ -604,14 +604,14 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.IdTokenValidatorAPI.UpdateIdTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createIdTokenValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.UpdateIdTokenValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Id Token Validator", err, httpResp)
 			return
@@ -658,7 +658,7 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.IdTokenValidatorApi.GetIdTokenValidator(
+	readResponse, httpResp, err := apiClient.IdTokenValidatorAPI.GetIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -714,7 +714,7 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state idTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(
+	updateRequest := apiClient.IdTokenValidatorAPI.UpdateIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -724,7 +724,7 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.IdTokenValidatorApi.UpdateIdTokenValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdTokenValidatorAPI.UpdateIdTokenValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Id Token Validator", err, httpResp)
 			return
@@ -770,7 +770,7 @@ func (r *idTokenValidatorResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.IdTokenValidatorApi.DeleteIdTokenValidatorExecute(r.apiClient.IdTokenValidatorApi.DeleteIdTokenValidator(
+	httpResp, err := r.apiClient.IdTokenValidatorAPI.DeleteIdTokenValidatorExecute(r.apiClient.IdTokenValidatorAPI.DeleteIdTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Id Token Validator", err, httpResp)

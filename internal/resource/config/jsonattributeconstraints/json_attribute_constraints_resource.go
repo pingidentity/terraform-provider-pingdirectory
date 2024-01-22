@@ -215,11 +215,11 @@ func (r *jsonAttributeConstraintsResource) CreateJsonAttributeConstraints(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.JsonAttributeConstraintsApi.AddJsonAttributeConstraints(
+	apiAddRequest := r.apiClient.JsonAttributeConstraintsAPI.AddJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddJsonAttributeConstraintsRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.AddJsonAttributeConstraintsExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsAPI.AddJsonAttributeConstraintsExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Json Attribute Constraints", err, httpResp)
 		return nil, err
@@ -273,7 +273,7 @@ func (r *defaultJsonAttributeConstraintsResource) Create(ctx context.Context, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
+	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsAPI.GetJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)
@@ -291,14 +291,14 @@ func (r *defaultJsonAttributeConstraintsResource) Create(ctx context.Context, re
 	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())
+	updateRequest := r.apiClient.JsonAttributeConstraintsAPI.UpdateJsonAttributeConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())
 	ops := createJsonAttributeConstraintsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraintsExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsAPI.UpdateJsonAttributeConstraintsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Attribute Constraints", err, httpResp)
 			return
@@ -340,7 +340,7 @@ func readJsonAttributeConstraints(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
+	readResponse, httpResp, err := apiClient.JsonAttributeConstraintsAPI.GetJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -391,7 +391,7 @@ func updateJsonAttributeConstraints(ctx context.Context, req resource.UpdateRequ
 	// Get the current state to see how any attributes are changing
 	var state jsonAttributeConstraintsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(
+	updateRequest := apiClient.JsonAttributeConstraintsAPI.UpdateJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.AttributeType.ValueString())
 
 	// Determine what update operations are necessary
@@ -401,7 +401,7 @@ func updateJsonAttributeConstraints(ctx context.Context, req resource.UpdateRequ
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraintsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.JsonAttributeConstraintsAPI.UpdateJsonAttributeConstraintsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Attribute Constraints", err, httpResp)
 			return
@@ -442,7 +442,7 @@ func (r *jsonAttributeConstraintsResource) Delete(ctx context.Context, req resou
 		return
 	}
 
-	httpResp, err := r.apiClient.JsonAttributeConstraintsApi.DeleteJsonAttributeConstraintsExecute(r.apiClient.JsonAttributeConstraintsApi.DeleteJsonAttributeConstraints(
+	httpResp, err := r.apiClient.JsonAttributeConstraintsAPI.DeleteJsonAttributeConstraintsExecute(r.apiClient.JsonAttributeConstraintsAPI.DeleteJsonAttributeConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Json Attribute Constraints", err, httpResp)

@@ -86,7 +86,7 @@ func testAccCheckExpectedAlarmManagerAttributes(config alarmManagerTestModel) re
 		resourceType := "alarm manager"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AlarmManagerApi.GetAlarmManager(ctx).Execute()
+		response, _, err := testClient.AlarmManagerAPI.GetAlarmManager(ctx).Execute()
 		if err != nil {
 			return err
 		}

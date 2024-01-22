@@ -94,12 +94,12 @@ func (r *ldapCorrelationAttributePairsDataSource) Read(ctx context.Context, req 
 		return
 	}
 
-	listRequest := r.apiClient.LdapCorrelationAttributePairApi.ListLdapCorrelationAttributePairs(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString())
+	listRequest := r.apiClient.LdapCorrelationAttributePairAPI.ListLdapCorrelationAttributePairs(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.ListLdapCorrelationAttributePairsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairAPI.ListLdapCorrelationAttributePairsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Ldap Correlation Attribute Pair objects", err, httpResp)
 		return

@@ -127,7 +127,7 @@ func (r *consentDefinitionLocalizationDataSource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.GetConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)

@@ -160,7 +160,7 @@ func (r *vaultAuthenticationMethodDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.GetVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)

@@ -641,7 +641,7 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
+	readResponse, httpResp, err := r.apiClient.ServerInstanceAPI.GetServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
@@ -673,14 +673,14 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ServerInstanceAPI.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createServerInstanceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ServerInstanceApi.UpdateServerInstanceExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ServerInstanceAPI.UpdateServerInstanceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
 			return
@@ -727,7 +727,7 @@ func (r *serverInstanceResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
+	readResponse, httpResp, err := r.apiClient.ServerInstanceAPI.GetServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
@@ -775,7 +775,7 @@ func (r *serverInstanceResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state serverInstanceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(
+	updateRequest := r.apiClient.ServerInstanceAPI.UpdateServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -785,7 +785,7 @@ func (r *serverInstanceResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ServerInstanceApi.UpdateServerInstanceExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ServerInstanceAPI.UpdateServerInstanceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
 			return

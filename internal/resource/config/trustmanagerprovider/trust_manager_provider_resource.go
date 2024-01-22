@@ -454,21 +454,21 @@ func createTrustManagerProviderOperations(plan trustManagerProviderResourceModel
 
 // Create a blind trust-manager-provider
 func (r *trustManagerProviderResource) CreateBlindTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddBlindTrustManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumblindTrustManagerProviderSchemaUrn{client.ENUMBLINDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERBLIND},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddBlindTrustManagerProviderRequest([]client.EnumblindTrustManagerProviderSchemaUrn{client.ENUMBLINDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERBLIND},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalBlindTrustManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(
+	apiAddRequest := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddBlindTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return nil, err
@@ -488,22 +488,22 @@ func (r *trustManagerProviderResource) CreateBlindTrustManagerProvider(ctx conte
 
 // Create a file-based trust-manager-provider
 func (r *trustManagerProviderResource) CreateFileBasedTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedTrustManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedTrustManagerProviderSchemaUrn{client.ENUMFILEBASEDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERFILE_BASED},
+	addRequest := client.NewAddFileBasedTrustManagerProviderRequest([]client.EnumfileBasedTrustManagerProviderSchemaUrn{client.ENUMFILEBASEDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERFILE_BASED},
 		plan.TrustStoreFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFileBasedTrustManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(
+	apiAddRequest := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddFileBasedTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return nil, err
@@ -523,21 +523,21 @@ func (r *trustManagerProviderResource) CreateFileBasedTrustManagerProvider(ctx c
 
 // Create a jvm-default trust-manager-provider
 func (r *trustManagerProviderResource) CreateJvmDefaultTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumjvmDefaultTrustManagerProviderSchemaUrn{client.ENUMJVMDEFAULTTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERJVM_DEFAULT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest([]client.EnumjvmDefaultTrustManagerProviderSchemaUrn{client.ENUMJVMDEFAULTTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERJVM_DEFAULT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalJvmDefaultTrustManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(
+	apiAddRequest := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddJvmDefaultTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return nil, err
@@ -557,22 +557,22 @@ func (r *trustManagerProviderResource) CreateJvmDefaultTrustManagerProvider(ctx 
 
 // Create a third-party trust-manager-provider
 func (r *trustManagerProviderResource) CreateThirdPartyTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyTrustManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyTrustManagerProviderSchemaUrn{client.ENUMTHIRDPARTYTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyTrustManagerProviderRequest([]client.EnumthirdPartyTrustManagerProviderSchemaUrn{client.ENUMTHIRDPARTYTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyTrustManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(
+	apiAddRequest := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddThirdPartyTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return nil, err
@@ -650,7 +650,7 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
+	readResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.GetTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
@@ -679,14 +679,14 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderAPI.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
@@ -740,7 +740,7 @@ func readTrustManagerProvider(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
+	readResponse, httpResp, err := apiClient.TrustManagerProviderAPI.GetTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -802,7 +802,7 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state trustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(
+	updateRequest := apiClient.TrustManagerProviderAPI.UpdateTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -812,7 +812,7 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TrustManagerProviderAPI.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
@@ -865,7 +865,7 @@ func (r *trustManagerProviderResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(
+	httpResp, err := r.apiClient.TrustManagerProviderAPI.DeleteTrustManagerProviderExecute(r.apiClient.TrustManagerProviderAPI.DeleteTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)

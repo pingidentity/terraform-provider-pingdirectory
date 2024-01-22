@@ -187,20 +187,20 @@ func createConstructedAttributeOperations(plan constructedAttributeResourceModel
 func (r *constructedAttributeResource) CreateConstructedAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan constructedAttributeResourceModel) (*constructedAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddConstructedAttributeRequest(plan.Name.ValueString(),
-		plan.AttributeType.ValueString(),
-		ValuePatternSlice)
+	addRequest := client.NewAddConstructedAttributeRequest(plan.AttributeType.ValueString(),
+		ValuePatternSlice,
+		plan.Name.ValueString())
 	addOptionalConstructedAttributeFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConstructedAttributeApi.AddConstructedAttribute(
+	apiAddRequest := r.apiClient.ConstructedAttributeAPI.AddConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConstructedAttributeRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.AddConstructedAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConstructedAttributeAPI.AddConstructedAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Constructed Attribute", err, httpResp)
 		return nil, err
@@ -254,7 +254,7 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
+	readResponse, httpResp, err := r.apiClient.ConstructedAttributeAPI.GetConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
@@ -272,14 +272,14 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 	readConstructedAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ConstructedAttributeAPI.UpdateConstructedAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConstructedAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConstructedAttributeAPI.UpdateConstructedAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Constructed Attribute", err, httpResp)
 			return
@@ -321,7 +321,7 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConstructedAttributeApi.GetConstructedAttribute(
+	readResponse, httpResp, err := apiClient.ConstructedAttributeAPI.GetConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -372,7 +372,7 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state constructedAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(
+	updateRequest := apiClient.ConstructedAttributeAPI.UpdateConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -382,7 +382,7 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConstructedAttributeApi.UpdateConstructedAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConstructedAttributeAPI.UpdateConstructedAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Constructed Attribute", err, httpResp)
 			return
@@ -423,7 +423,7 @@ func (r *constructedAttributeResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.ConstructedAttributeApi.DeleteConstructedAttributeExecute(r.apiClient.ConstructedAttributeApi.DeleteConstructedAttribute(
+	httpResp, err := r.apiClient.ConstructedAttributeAPI.DeleteConstructedAttributeExecute(r.apiClient.ConstructedAttributeAPI.DeleteConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Constructed Attribute", err, httpResp)

@@ -903,7 +903,7 @@ func (r *virtualAttributeDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.GetVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)

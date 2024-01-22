@@ -429,7 +429,7 @@ func (r *requestCriteriaDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.GetRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Request Criteria", err, httpResp)

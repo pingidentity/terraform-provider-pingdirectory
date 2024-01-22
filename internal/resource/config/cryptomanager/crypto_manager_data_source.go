@@ -201,7 +201,7 @@ func (r *cryptoManagerDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CryptoManagerApi.GetCryptoManager(
+	readResponse, httpResp, err := r.apiClient.CryptoManagerAPI.GetCryptoManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Crypto Manager", err, httpResp)

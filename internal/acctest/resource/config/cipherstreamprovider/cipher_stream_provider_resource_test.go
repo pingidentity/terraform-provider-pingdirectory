@@ -71,7 +71,7 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.CipherStreamProviderApi.DeleteCipherStreamProvider(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.CipherStreamProviderAPI.DeleteCipherStreamProvider(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedWaitForPassphraseCipherStreamProviderAttributes(config 
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.CipherStreamProviderApi.GetCipherStreamProvider(ctx, config.id).Execute()
+		response, _, err := testClient.CipherStreamProviderAPI.GetCipherStreamProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func testAccCheckExpectedWaitForPassphraseCipherStreamProviderAttributes(config 
 func testAccCheckWaitForPassphraseCipherStreamProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.CipherStreamProviderApi.GetCipherStreamProvider(ctx, testIdWaitForPassphraseCipherStreamProvider).Execute()
+	_, _, err := testClient.CipherStreamProviderAPI.GetCipherStreamProvider(ctx, testIdWaitForPassphraseCipherStreamProvider).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Wait for Passphrase Cipher Stream Provider", testIdWaitForPassphraseCipherStreamProvider)
 	}

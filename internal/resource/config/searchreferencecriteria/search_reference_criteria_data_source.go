@@ -207,7 +207,7 @@ func (r *searchReferenceCriteriaDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
+	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.GetSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Reference Criteria", err, httpResp)

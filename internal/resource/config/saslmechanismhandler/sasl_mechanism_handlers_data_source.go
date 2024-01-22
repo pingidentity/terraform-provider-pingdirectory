@@ -84,12 +84,12 @@ func (r *saslMechanismHandlersDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.SaslMechanismHandlerApi.ListSaslMechanismHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.SaslMechanismHandlerAPI.ListSaslMechanismHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.ListSaslMechanismHandlersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.ListSaslMechanismHandlersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Sasl Mechanism Handler objects", err, httpResp)
 		return

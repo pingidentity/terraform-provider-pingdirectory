@@ -247,7 +247,7 @@ func (r *keyManagerProviderDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
+	readResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.GetKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)

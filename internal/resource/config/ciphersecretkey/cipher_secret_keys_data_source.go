@@ -89,12 +89,12 @@ func (r *cipherSecretKeysDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	listRequest := r.apiClient.CipherSecretKeyApi.ListCipherSecretKeys(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
+	listRequest := r.apiClient.CipherSecretKeyAPI.ListCipherSecretKeys(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.ListCipherSecretKeysExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.ListCipherSecretKeysExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Cipher Secret Key objects", err, httpResp)
 		return

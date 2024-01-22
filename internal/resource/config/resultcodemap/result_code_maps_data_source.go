@@ -84,12 +84,12 @@ func (r *resultCodeMapsDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	listRequest := r.apiClient.ResultCodeMapApi.ListResultCodeMaps(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ResultCodeMapAPI.ListResultCodeMaps(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ResultCodeMapApi.ListResultCodeMapsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ResultCodeMapAPI.ListResultCodeMapsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Result Code Map objects", err, httpResp)
 		return

@@ -168,7 +168,7 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
+	readResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.GetSynchronizationProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)
@@ -191,14 +191,14 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.SynchronizationProviderAPI.UpdateSynchronizationProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSynchronizationProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.UpdateSynchronizationProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Synchronization Provider", err, httpResp)
 			return
@@ -236,7 +236,7 @@ func (r *synchronizationProviderResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
+	readResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.GetSynchronizationProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)
@@ -275,7 +275,7 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state synchronizationProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(
+	updateRequest := r.apiClient.SynchronizationProviderAPI.UpdateSynchronizationProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -285,7 +285,7 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.UpdateSynchronizationProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Synchronization Provider", err, httpResp)
 			return

@@ -84,12 +84,12 @@ func (r *monitoringEndpointsDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.MonitoringEndpointApi.ListMonitoringEndpoints(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.MonitoringEndpointAPI.ListMonitoringEndpoints(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.ListMonitoringEndpointsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.MonitoringEndpointAPI.ListMonitoringEndpointsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Monitoring Endpoint objects", err, httpResp)
 		return

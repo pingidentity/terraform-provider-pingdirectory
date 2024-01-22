@@ -99,7 +99,7 @@ func testAccCheckExpectedGenericLogFieldSyntaxAttributes(config genericLogFieldS
 		resourceType := testResource
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogFieldSyntaxApi.GetLogFieldSyntax(ctx, config.id).Execute()
+		response, _, err := testClient.LogFieldSyntaxAPI.GetLogFieldSyntax(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

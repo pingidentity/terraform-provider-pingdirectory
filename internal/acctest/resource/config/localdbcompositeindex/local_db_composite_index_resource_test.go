@@ -74,7 +74,7 @@ func TestAccLocalDbCompositeIndex(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndex(ctx, updatedResourceModel.id, updatedResourceModel.backendName).Execute()
+					_, err := testClient.LocalDbCompositeIndexAPI.DeleteLocalDbCompositeIndex(ctx, updatedResourceModel.id, updatedResourceModel.backendName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedLocalDbCompositeIndexAttributes(config localDbComposite
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(ctx, config.id, config.backendName).Execute()
+		response, _, err := testClient.LocalDbCompositeIndexAPI.GetLocalDbCompositeIndex(ctx, config.id, config.backendName).Execute()
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func testAccCheckExpectedLocalDbCompositeIndexAttributes(config localDbComposite
 func testAccCheckLocalDbCompositeIndexDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(ctx, testIdLocalDbCompositeIndex, testBackendNameComposite).Execute()
+	_, _, err := testClient.LocalDbCompositeIndexAPI.GetLocalDbCompositeIndex(ctx, testIdLocalDbCompositeIndex, testBackendNameComposite).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Local Db Composite Index", testIdLocalDbCompositeIndex)
 	}

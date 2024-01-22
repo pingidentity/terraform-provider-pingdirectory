@@ -641,18 +641,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("secret_version_id"),
-				path.MatchRoot("secret_version_stage"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("secret_version_id"),
+				path.MatchRoot("secret_version_stage"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1430,22 +1430,22 @@ func createCipherStreamProviderOperations(plan cipherStreamProviderResourceModel
 
 // Create a amazon-key-management-service cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAmazonKeyManagementServiceCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonKeyManagementServiceCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumamazonKeyManagementServiceCipherStreamProviderSchemaUrn{client.ENUMAMAZONKEYMANAGEMENTSERVICECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_KEY_MANAGEMENT_SERVICE},
+	addRequest := client.NewAddAmazonKeyManagementServiceCipherStreamProviderRequest([]client.EnumamazonKeyManagementServiceCipherStreamProviderSchemaUrn{client.ENUMAMAZONKEYMANAGEMENTSERVICECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_KEY_MANAGEMENT_SERVICE},
 		plan.KmsEncryptionKeyArn.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAmazonKeyManagementServiceCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddAmazonKeyManagementServiceCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1465,24 +1465,24 @@ func (r *cipherStreamProviderResource) CreateAmazonKeyManagementServiceCipherStr
 
 // Create a amazon-secrets-manager cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAmazonSecretsManagerCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumamazonSecretsManagerCipherStreamProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_SECRETS_MANAGER},
+	addRequest := client.NewAddAmazonSecretsManagerCipherStreamProviderRequest([]client.EnumamazonSecretsManagerCipherStreamProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
 		plan.SecretID.ValueString(),
 		plan.SecretFieldName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAmazonSecretsManagerCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddAmazonSecretsManagerCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1502,24 +1502,24 @@ func (r *cipherStreamProviderResource) CreateAmazonSecretsManagerCipherStreamPro
 
 // Create a azure-key-vault cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAzureKeyVaultCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumazureKeyVaultCipherStreamProviderSchemaUrn{client.ENUMAZUREKEYVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAZURE_KEY_VAULT},
+	addRequest := client.NewAddAzureKeyVaultCipherStreamProviderRequest([]client.EnumazureKeyVaultCipherStreamProviderSchemaUrn{client.ENUMAZUREKEYVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
 		plan.SecretName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAzureKeyVaultCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddAzureKeyVaultCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1539,22 +1539,22 @@ func (r *cipherStreamProviderResource) CreateAzureKeyVaultCipherStreamProvider(c
 
 // Create a file-based cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateFileBasedCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedCipherStreamProviderSchemaUrn{client.ENUMFILEBASEDCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERFILE_BASED},
+	addRequest := client.NewAddFileBasedCipherStreamProviderRequest([]client.EnumfileBasedCipherStreamProviderSchemaUrn{client.ENUMFILEBASEDCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERFILE_BASED},
 		plan.PasswordFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFileBasedCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddFileBasedCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1574,21 +1574,21 @@ func (r *cipherStreamProviderResource) CreateFileBasedCipherStreamProvider(ctx c
 
 // Create a wait-for-passphrase cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateWaitForPassphraseCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddWaitForPassphraseCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumwaitForPassphraseCipherStreamProviderSchemaUrn{client.ENUMWAITFORPASSPHRASECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERWAIT_FOR_PASSPHRASE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddWaitForPassphraseCipherStreamProviderRequest([]client.EnumwaitForPassphraseCipherStreamProviderSchemaUrn{client.ENUMWAITFORPASSPHRASECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERWAIT_FOR_PASSPHRASE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalWaitForPassphraseCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddWaitForPassphraseCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1608,23 +1608,23 @@ func (r *cipherStreamProviderResource) CreateWaitForPassphraseCipherStreamProvid
 
 // Create a conjur cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateConjurCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddConjurCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumconjurCipherStreamProviderSchemaUrn{client.ENUMCONJURCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERCONJUR},
+	addRequest := client.NewAddConjurCipherStreamProviderRequest([]client.EnumconjurCipherStreamProviderSchemaUrn{client.ENUMCONJURCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERCONJUR},
 		plan.ConjurExternalServer.ValueString(),
 		plan.ConjurSecretRelativePath.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalConjurCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddConjurCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1644,22 +1644,22 @@ func (r *cipherStreamProviderResource) CreateConjurCipherStreamProvider(ctx cont
 
 // Create a pkcs11 cipher-stream-provider
 func (r *cipherStreamProviderResource) CreatePkcs11CipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddPkcs11CipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.Enumpkcs11CipherStreamProviderSchemaUrn{client.ENUMPKCS11CIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERPKCS11},
+	addRequest := client.NewAddPkcs11CipherStreamProviderRequest([]client.Enumpkcs11CipherStreamProviderSchemaUrn{client.ENUMPKCS11CIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERPKCS11},
 		plan.SslCertNickname.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalPkcs11CipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddPkcs11CipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1679,23 +1679,23 @@ func (r *cipherStreamProviderResource) CreatePkcs11CipherStreamProvider(ctx cont
 
 // Create a vault cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateVaultCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddVaultCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumvaultCipherStreamProviderSchemaUrn{client.ENUMVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERVAULT},
+	addRequest := client.NewAddVaultCipherStreamProviderRequest([]client.EnumvaultCipherStreamProviderSchemaUrn{client.ENUMVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERVAULT},
 		plan.VaultSecretPath.ValueString(),
 		plan.VaultSecretFieldName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalVaultCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddVaultCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1715,22 +1715,22 @@ func (r *cipherStreamProviderResource) CreateVaultCipherStreamProvider(ctx conte
 
 // Create a third-party cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateThirdPartyCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyCipherStreamProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyCipherStreamProviderSchemaUrn{client.ENUMTHIRDPARTYCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyCipherStreamProviderRequest([]client.EnumthirdPartyCipherStreamProviderSchemaUrn{client.ENUMTHIRDPARTYCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyCipherStreamProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CipherStreamProviderApi.AddCipherStreamProvider(
+	apiAddRequest := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCipherStreamProviderRequest(
 		client.AddThirdPartyCipherStreamProviderRequestAsAddCipherStreamProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.AddCipherStreamProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.AddCipherStreamProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Cipher Stream Provider", err, httpResp)
 		return nil, err
@@ -1838,7 +1838,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.GetCipherStreamProvider(
+	readResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.GetCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Stream Provider", err, httpResp)
@@ -1882,14 +1882,14 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CipherStreamProviderApi.UpdateCipherStreamProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.CipherStreamProviderAPI.UpdateCipherStreamProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createCipherStreamProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.UpdateCipherStreamProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.UpdateCipherStreamProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Cipher Stream Provider", err, httpResp)
 			return
@@ -1958,7 +1958,7 @@ func readCipherStreamProvider(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.CipherStreamProviderApi.GetCipherStreamProvider(
+	readResponse, httpResp, err := apiClient.CipherStreamProviderAPI.GetCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -2035,7 +2035,7 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state cipherStreamProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.CipherStreamProviderApi.UpdateCipherStreamProvider(
+	updateRequest := apiClient.CipherStreamProviderAPI.UpdateCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2045,7 +2045,7 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.CipherStreamProviderApi.UpdateCipherStreamProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.CipherStreamProviderAPI.UpdateCipherStreamProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Cipher Stream Provider", err, httpResp)
 			return
@@ -2113,7 +2113,7 @@ func (r *cipherStreamProviderResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.CipherStreamProviderApi.DeleteCipherStreamProviderExecute(r.apiClient.CipherStreamProviderApi.DeleteCipherStreamProvider(
+	httpResp, err := r.apiClient.CipherStreamProviderAPI.DeleteCipherStreamProviderExecute(r.apiClient.CipherStreamProviderAPI.DeleteCipherStreamProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Cipher Stream Provider", err, httpResp)

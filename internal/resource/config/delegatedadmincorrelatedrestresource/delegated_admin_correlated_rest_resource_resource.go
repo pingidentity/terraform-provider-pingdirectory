@@ -223,22 +223,22 @@ func createDelegatedAdminCorrelatedRestResourceOperations(plan delegatedAdminCor
 
 // Create a delegated-admin-correlated-rest-resource delegated-admin-correlated-rest-resource
 func (r *delegatedAdminCorrelatedRestResourceResource) CreateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminCorrelatedRestResourceResourceModel) (*delegatedAdminCorrelatedRestResourceResourceModel, error) {
-	addRequest := client.NewAddDelegatedAdminCorrelatedRestResourceRequest(plan.Name.ValueString(),
-		plan.DisplayName.ValueString(),
+	addRequest := client.NewAddDelegatedAdminCorrelatedRestResourceRequest(plan.DisplayName.ValueString(),
 		plan.CorrelatedRESTResource.ValueString(),
 		plan.PrimaryRESTResourceCorrelationAttribute.ValueString(),
-		plan.SecondaryRESTResourceCorrelationAttribute.ValueString())
+		plan.SecondaryRESTResourceCorrelationAttribute.ValueString(),
+		plan.Name.ValueString())
 	addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.AddDelegatedAdminCorrelatedRestResource(
+	apiAddRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.AddDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.RestResourceTypeName.ValueString())
 	apiAddRequest = apiAddRequest.AddDelegatedAdminCorrelatedRestResourceRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.AddDelegatedAdminCorrelatedRestResourceExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.AddDelegatedAdminCorrelatedRestResourceExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return nil, err
@@ -294,7 +294,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.GetDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)
@@ -312,14 +312,14 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.UpdateDelegatedAdminCorrelatedRestResource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString())
 	ops := createDelegatedAdminCorrelatedRestResourceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResourceExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.UpdateDelegatedAdminCorrelatedRestResourceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Correlated Rest Resource", err, httpResp)
 			return
@@ -362,7 +362,7 @@ func readDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
+	readResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceAPI.GetDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -413,7 +413,7 @@ func updateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state delegatedAdminCorrelatedRestResourceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(
+	updateRequest := apiClient.DelegatedAdminCorrelatedRestResourceAPI.UpdateDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
@@ -423,7 +423,7 @@ func updateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResourceExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceAPI.UpdateDelegatedAdminCorrelatedRestResourceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Correlated Rest Resource", err, httpResp)
 			return
@@ -465,7 +465,7 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Delete(ctx context.Contex
 		return
 	}
 
-	httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResourceExecute(r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResource(
+	httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.DeleteDelegatedAdminCorrelatedRestResourceExecute(r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.DeleteDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Correlated Rest Resource", err, httpResp)

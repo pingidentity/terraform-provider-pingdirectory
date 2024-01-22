@@ -89,12 +89,12 @@ func (r *debugTargetsDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	listRequest := r.apiClient.DebugTargetApi.ListDebugTargets(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.LogPublisherName.ValueString())
+	listRequest := r.apiClient.DebugTargetAPI.ListDebugTargets(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.LogPublisherName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DebugTargetApi.ListDebugTargetsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DebugTargetAPI.ListDebugTargetsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Debug Target objects", err, httpResp)
 		return

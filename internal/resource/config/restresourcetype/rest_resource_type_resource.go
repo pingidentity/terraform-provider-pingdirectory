@@ -722,24 +722,24 @@ func createRestResourceTypeOperations(plan restResourceTypeResourceModel, state 
 
 // Create a user rest-resource-type
 func (r *restResourceTypeResource) CreateUserRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddUserRestResourceTypeRequest(plan.Name.ValueString(),
-		[]client.EnumuserRestResourceTypeSchemaUrn{client.ENUMUSERRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEUSER},
+	addRequest := client.NewAddUserRestResourceTypeRequest([]client.EnumuserRestResourceTypeSchemaUrn{client.ENUMUSERRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEUSER},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
 		plan.StructuralLDAPObjectclass.ValueString(),
-		plan.SearchBaseDN.ValueString())
+		plan.SearchBaseDN.ValueString(),
+		plan.Name.ValueString())
 	addOptionalUserRestResourceTypeFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RestResourceTypeApi.AddRestResourceType(
+	apiAddRequest := r.apiClient.RestResourceTypeAPI.AddRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRestResourceTypeRequest(
 		client.AddUserRestResourceTypeRequestAsAddRestResourceTypeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RestResourceTypeApi.AddRestResourceTypeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.AddRestResourceTypeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Rest Resource Type", err, httpResp)
 		return nil, err
@@ -759,24 +759,24 @@ func (r *restResourceTypeResource) CreateUserRestResourceType(ctx context.Contex
 
 // Create a generic rest-resource-type
 func (r *restResourceTypeResource) CreateGenericRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddGenericRestResourceTypeRequest(plan.Name.ValueString(),
-		[]client.EnumgenericRestResourceTypeSchemaUrn{client.ENUMGENERICRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGENERIC},
+	addRequest := client.NewAddGenericRestResourceTypeRequest([]client.EnumgenericRestResourceTypeSchemaUrn{client.ENUMGENERICRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGENERIC},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
 		plan.StructuralLDAPObjectclass.ValueString(),
-		plan.SearchBaseDN.ValueString())
+		plan.SearchBaseDN.ValueString(),
+		plan.Name.ValueString())
 	addOptionalGenericRestResourceTypeFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RestResourceTypeApi.AddRestResourceType(
+	apiAddRequest := r.apiClient.RestResourceTypeAPI.AddRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRestResourceTypeRequest(
 		client.AddGenericRestResourceTypeRequestAsAddRestResourceTypeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RestResourceTypeApi.AddRestResourceTypeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.AddRestResourceTypeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Rest Resource Type", err, httpResp)
 		return nil, err
@@ -796,24 +796,24 @@ func (r *restResourceTypeResource) CreateGenericRestResourceType(ctx context.Con
 
 // Create a group rest-resource-type
 func (r *restResourceTypeResource) CreateGroupRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddGroupRestResourceTypeRequest(plan.Name.ValueString(),
-		[]client.EnumgroupRestResourceTypeSchemaUrn{client.ENUMGROUPRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGROUP},
+	addRequest := client.NewAddGroupRestResourceTypeRequest([]client.EnumgroupRestResourceTypeSchemaUrn{client.ENUMGROUPRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGROUP},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
 		plan.StructuralLDAPObjectclass.ValueString(),
-		plan.SearchBaseDN.ValueString())
+		plan.SearchBaseDN.ValueString(),
+		plan.Name.ValueString())
 	addOptionalGroupRestResourceTypeFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RestResourceTypeApi.AddRestResourceType(
+	apiAddRequest := r.apiClient.RestResourceTypeAPI.AddRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRestResourceTypeRequest(
 		client.AddGroupRestResourceTypeRequestAsAddRestResourceTypeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RestResourceTypeApi.AddRestResourceTypeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.AddRestResourceTypeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Rest Resource Type", err, httpResp)
 		return nil, err
@@ -883,7 +883,7 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
+	readResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.GetRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
@@ -909,14 +909,14 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.RestResourceTypeAPI.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRestResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.UpdateRestResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Rest Resource Type", err, httpResp)
 			return
@@ -966,7 +966,7 @@ func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.RestResourceTypeApi.GetRestResourceType(
+	readResponse, httpResp, err := apiClient.RestResourceTypeAPI.GetRestResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1025,7 +1025,7 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state restResourceTypeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.RestResourceTypeApi.UpdateRestResourceType(
+	updateRequest := apiClient.RestResourceTypeAPI.UpdateRestResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1035,7 +1035,7 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RestResourceTypeAPI.UpdateRestResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Rest Resource Type", err, httpResp)
 			return
@@ -1084,7 +1084,7 @@ func (r *restResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.RestResourceTypeApi.DeleteRestResourceTypeExecute(r.apiClient.RestResourceTypeApi.DeleteRestResourceType(
+	httpResp, err := r.apiClient.RestResourceTypeAPI.DeleteRestResourceTypeExecute(r.apiClient.RestResourceTypeAPI.DeleteRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Rest Resource Type", err, httpResp)

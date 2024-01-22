@@ -1225,7 +1225,7 @@ func (r *backendDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+	readResponse, httpResp, err := r.apiClient.BackendAPI.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)

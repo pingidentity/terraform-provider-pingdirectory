@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -119,13 +120,13 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		Description: "Manages a Scim Resource Type.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']",
+				Description: "The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'mapping', 'ldap-mapping']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"ldap-pass-through", "ldap-mapping"}...),
+					stringvalidator.OneOf([]string{"ldap-pass-through", "mapping", "ldap-mapping"}...),
 				},
 			},
 			"core_schema": schema.StringAttribute{
@@ -227,23 +228,55 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *scimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_scim_resource_type")
+}
+
+func (r *defaultScimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_scim_resource_type")
+}
+
+func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model scimResourceTypeResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "mapping" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			providerConfig.ProductVersion, resourceName+" with type \"mapping\"")
+	}
+}
+
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsScimResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("core_schema"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapping"},
+			[]string{"mapping", "ldap-mapping"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("required_schema_extension"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapping"},
+			[]string{"mapping", "ldap-mapping"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("optional_schema_extension"),
 			path.MatchRoot("type"),
-			[]string{"ldap-mapping"},
+			[]string{"mapping", "ldap-mapping"},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"mapping",
+			[]path.Expression{path.MatchRoot("core_schema")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
@@ -265,6 +298,68 @@ func (r defaultScimResourceTypeResource) ConfigValidators(ctx context.Context) [
 
 // Add optional fields to create request for ldap-pass-through scim-resource-type
 func addOptionalLdapPassThroughScimResourceTypeFields(ctx context.Context, addRequest *client.AddLdapPassThroughScimResourceTypeRequest, plan scimResourceTypeResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.LookthroughLimit) {
+		addRequest.LookthroughLimit = plan.LookthroughLimit.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.SchemaCheckingOption) {
+		var slice []string
+		plan.SchemaCheckingOption.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumscimResourceTypeSchemaCheckingOptionProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumscimResourceTypeSchemaCheckingOptionPropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.SchemaCheckingOption = enumSlice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.StructuralLDAPObjectclass) {
+		addRequest.StructuralLDAPObjectclass = plan.StructuralLDAPObjectclass.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.AuxiliaryLDAPObjectclass) {
+		var slice []string
+		plan.AuxiliaryLDAPObjectclass.ElementsAs(ctx, &slice, false)
+		addRequest.AuxiliaryLDAPObjectclass = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.IncludeBaseDN) {
+		addRequest.IncludeBaseDN = plan.IncludeBaseDN.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeFilter) {
+		var slice []string
+		plan.IncludeFilter.ElementsAs(ctx, &slice, false)
+		addRequest.IncludeFilter = slice
+	}
+	if internaltypes.IsDefined(plan.IncludeOperationalAttribute) {
+		var slice []string
+		plan.IncludeOperationalAttribute.ElementsAs(ctx, &slice, false)
+		addRequest.IncludeOperationalAttribute = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.CreateDNPattern) {
+		addRequest.CreateDNPattern = plan.CreateDNPattern.ValueStringPointer()
+	}
+	return nil
+}
+
+// Add optional fields to create request for mapping scim-resource-type
+func addOptionalMappingScimResourceTypeFields(ctx context.Context, addRequest *client.AddMappingScimResourceTypeRequest, plan scimResourceTypeResourceModel) error {
+	if internaltypes.IsDefined(plan.RequiredSchemaExtension) {
+		var slice []string
+		plan.RequiredSchemaExtension.ElementsAs(ctx, &slice, false)
+		addRequest.RequiredSchemaExtension = slice
+	}
+	if internaltypes.IsDefined(plan.OptionalSchemaExtension) {
+		var slice []string
+		plan.OptionalSchemaExtension.ElementsAs(ctx, &slice, false)
+		addRequest.OptionalSchemaExtension = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -430,6 +525,30 @@ func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.
 	populateScimResourceTypeUnknownValues(state)
 }
 
+// Read a MappingScimResourceTypeResponse object into the model struct
+func readMappingScimResourceTypeResponse(ctx context.Context, r *client.MappingScimResourceTypeResponse, state *scimResourceTypeResourceModel, expectedValues *scimResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("mapping")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.CoreSchema = types.StringValue(r.CoreSchema)
+	state.RequiredSchemaExtension = internaltypes.GetStringSet(r.RequiredSchemaExtension)
+	state.OptionalSchemaExtension = internaltypes.GetStringSet(r.OptionalSchemaExtension)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Endpoint = types.StringValue(r.Endpoint)
+	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
+	state.SchemaCheckingOption = internaltypes.GetStringSet(
+		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
+	state.StructuralLDAPObjectclass = internaltypes.StringTypeOrNil(r.StructuralLDAPObjectclass, internaltypes.IsEmptyString(expectedValues.StructuralLDAPObjectclass))
+	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
+	state.IncludeBaseDN = internaltypes.StringTypeOrNil(r.IncludeBaseDN, internaltypes.IsEmptyString(expectedValues.IncludeBaseDN))
+	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
+	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
+	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, internaltypes.IsEmptyString(expectedValues.CreateDNPattern))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateScimResourceTypeUnknownValues(state)
+}
+
 // Read a LdapMappingScimResourceTypeResponse object into the model struct
 func readLdapMappingScimResourceTypeResponse(ctx context.Context, r *client.LdapMappingScimResourceTypeResponse, state *scimResourceTypeResourceModel, expectedValues *scimResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapping")
@@ -476,10 +595,10 @@ func createScimResourceTypeOperations(plan scimResourceTypeResourceModel, state 
 
 // Create a ldap-pass-through scim-resource-type
 func (r *scimResourceTypeResource) CreateLdapPassThroughScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
-	addRequest := client.NewAddLdapPassThroughScimResourceTypeRequest(plan.Name.ValueString(),
-		[]client.EnumldapPassThroughScimResourceTypeSchemaUrn{client.ENUMLDAPPASSTHROUGHSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_PASS_THROUGH},
+	addRequest := client.NewAddLdapPassThroughScimResourceTypeRequest([]client.EnumldapPassThroughScimResourceTypeSchemaUrn{client.ENUMLDAPPASSTHROUGHSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_PASS_THROUGH},
 		plan.Enabled.ValueBool(),
-		plan.Endpoint.ValueString())
+		plan.Endpoint.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalLdapPassThroughScimResourceTypeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Resource Type", err.Error())
@@ -490,12 +609,12 @@ func (r *scimResourceTypeResource) CreateLdapPassThroughScimResourceType(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ScimResourceTypeApi.AddScimResourceType(
+	apiAddRequest := r.apiClient.ScimResourceTypeAPI.AddScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddScimResourceTypeRequest(
 		client.AddLdapPassThroughScimResourceTypeRequestAsAddScimResourceTypeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.AddScimResourceTypeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.AddScimResourceTypeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Resource Type", err, httpResp)
 		return nil, err
@@ -513,13 +632,53 @@ func (r *scimResourceTypeResource) CreateLdapPassThroughScimResourceType(ctx con
 	return &state, nil
 }
 
-// Create a ldap-mapping scim-resource-type
-func (r *scimResourceTypeResource) CreateLdapMappingScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
-	addRequest := client.NewAddLdapMappingScimResourceTypeRequest(plan.Name.ValueString(),
-		[]client.EnumldapMappingScimResourceTypeSchemaUrn{client.ENUMLDAPMAPPINGSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_MAPPING},
+// Create a mapping scim-resource-type
+func (r *scimResourceTypeResource) CreateMappingScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
+	addRequest := client.NewAddMappingScimResourceTypeRequest([]client.EnummappingScimResourceTypeSchemaUrn{client.ENUMMAPPINGSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPEMAPPING},
 		plan.CoreSchema.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.Endpoint.ValueString())
+		plan.Endpoint.ValueString(),
+		plan.Name.ValueString())
+	err := addOptionalMappingScimResourceTypeFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Resource Type", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.ScimResourceTypeAPI.AddScimResourceType(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddScimResourceTypeRequest(
+		client.AddMappingScimResourceTypeRequestAsAddScimResourceTypeRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.AddScimResourceTypeExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Resource Type", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state scimResourceTypeResourceModel
+	readMappingScimResourceTypeResponse(ctx, addResponse.MappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a ldap-mapping scim-resource-type
+func (r *scimResourceTypeResource) CreateLdapMappingScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
+	addRequest := client.NewAddLdapMappingScimResourceTypeRequest([]client.EnumldapMappingScimResourceTypeSchemaUrn{client.ENUMLDAPMAPPINGSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_MAPPING},
+		plan.CoreSchema.ValueString(),
+		plan.Enabled.ValueBool(),
+		plan.Endpoint.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalLdapMappingScimResourceTypeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Resource Type", err.Error())
@@ -530,12 +689,12 @@ func (r *scimResourceTypeResource) CreateLdapMappingScimResourceType(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ScimResourceTypeApi.AddScimResourceType(
+	apiAddRequest := r.apiClient.ScimResourceTypeAPI.AddScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddScimResourceTypeRequest(
 		client.AddLdapMappingScimResourceTypeRequestAsAddScimResourceTypeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.AddScimResourceTypeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.AddScimResourceTypeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Resource Type", err, httpResp)
 		return nil, err
@@ -571,6 +730,12 @@ func (r *scimResourceTypeResource) Create(ctx context.Context, req resource.Crea
 			return
 		}
 	}
+	if plan.Type.ValueString() == "mapping" {
+		state, err = r.CreateMappingScimResourceType(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.Type.ValueString() == "ldap-mapping" {
 		state, err = r.CreateLdapMappingScimResourceType(ctx, req, resp, plan)
 		if err != nil {
@@ -599,7 +764,7 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.GetScimResourceType(
+	readResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.GetScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
@@ -617,19 +782,22 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 	if readResponse.LdapPassThroughScimResourceTypeResponse != nil {
 		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
+	if readResponse.MappingScimResourceTypeResponse != nil {
+		readMappingScimResourceTypeResponse(ctx, readResponse.MappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ScimResourceTypeApi.UpdateScimResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ScimResourceTypeAPI.UpdateScimResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createScimResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.UpdateScimResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.UpdateScimResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Resource Type", err, httpResp)
 			return
@@ -644,6 +812,9 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 		// Read the response
 		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.MappingScimResourceTypeResponse != nil {
+			readMappingScimResourceTypeResponse(ctx, updateResponse.MappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
@@ -676,7 +847,7 @@ func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ScimResourceTypeApi.GetScimResourceType(
+	readResponse, httpResp, err := apiClient.ScimResourceTypeAPI.GetScimResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -697,6 +868,9 @@ func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	// Read the response into the state
 	if readResponse.LdapPassThroughScimResourceTypeResponse != nil {
 		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.MappingScimResourceTypeResponse != nil {
+		readMappingScimResourceTypeResponse(ctx, readResponse.MappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
@@ -732,7 +906,7 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state scimResourceTypeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ScimResourceTypeApi.UpdateScimResourceType(
+	updateRequest := apiClient.ScimResourceTypeAPI.UpdateScimResourceType(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -742,7 +916,7 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ScimResourceTypeApi.UpdateScimResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ScimResourceTypeAPI.UpdateScimResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Resource Type", err, httpResp)
 			return
@@ -757,6 +931,9 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 		// Read the response
 		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.MappingScimResourceTypeResponse != nil {
+			readMappingScimResourceTypeResponse(ctx, updateResponse.MappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
@@ -788,7 +965,7 @@ func (r *scimResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.ScimResourceTypeApi.DeleteScimResourceTypeExecute(r.apiClient.ScimResourceTypeApi.DeleteScimResourceType(
+	httpResp, err := r.apiClient.ScimResourceTypeAPI.DeleteScimResourceTypeExecute(r.apiClient.ScimResourceTypeAPI.DeleteScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Resource Type", err, httpResp)

@@ -77,7 +77,7 @@ func testAccCheckExpectedBlindTrustManagerProviderAttributes(config blindTrustMa
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, config.id).Execute()
+		response, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func testAccCheckExpectedBlindTrustManagerProviderAttributes(config blindTrustMa
 func testAccCheckBlindTrustManagerProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, testIdBlindTrustManagerProvider).Execute()
+	_, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, testIdBlindTrustManagerProvider).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Blind Trust Manager Provider", testIdBlindTrustManagerProvider)
 	}

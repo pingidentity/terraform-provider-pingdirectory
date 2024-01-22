@@ -126,7 +126,7 @@ func (r *keyPairDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyPairApi.GetKeyPair(
+	readResponse, httpResp, err := r.apiClient.KeyPairAPI.GetKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)

@@ -79,7 +79,7 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.IdTokenValidatorApi.DeleteIdTokenValidator(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.IdTokenValidatorAPI.DeleteIdTokenValidator(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -126,7 +126,7 @@ func testAccCheckExpectedPingOneIdTokenValidatorAttributes(config pingOneIdToken
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.IdTokenValidatorApi.GetIdTokenValidator(ctx, config.id).Execute()
+		response, _, err := testClient.IdTokenValidatorAPI.GetIdTokenValidator(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -160,7 +160,7 @@ func testAccCheckExpectedPingOneIdTokenValidatorAttributes(config pingOneIdToken
 func testAccCheckPingOneIdTokenValidatorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.IdTokenValidatorApi.GetIdTokenValidator(ctx, testIdPingOneIdTokenValidator).Execute()
+	_, _, err := testClient.IdTokenValidatorAPI.GetIdTokenValidator(ctx, testIdPingOneIdTokenValidator).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Ping One Id Token Validator", testIdPingOneIdTokenValidator)
 	}

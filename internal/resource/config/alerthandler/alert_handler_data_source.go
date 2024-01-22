@@ -484,7 +484,7 @@ func (r *alertHandlerDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
+	readResponse, httpResp, err := r.apiClient.AlertHandlerAPI.GetAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)

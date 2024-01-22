@@ -84,12 +84,12 @@ func (r *logFieldMappingsDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	listRequest := r.apiClient.LogFieldMappingApi.ListLogFieldMappings(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogFieldMappingAPI.ListLogFieldMappings(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.ListLogFieldMappingsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.ListLogFieldMappingsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log Field Mapping objects", err, httpResp)
 		return

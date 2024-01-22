@@ -156,7 +156,7 @@ func (r *azureAuthenticationMethodDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.GetAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)

@@ -118,7 +118,7 @@ func (r *conjurAuthenticationMethodDataSource) Read(ctx context.Context, req dat
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.GetConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Conjur Authentication Method", err, httpResp)

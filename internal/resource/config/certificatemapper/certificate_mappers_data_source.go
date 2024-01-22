@@ -84,12 +84,12 @@ func (r *certificateMappersDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.CertificateMapperApi.ListCertificateMappers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.CertificateMapperAPI.ListCertificateMappers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.ListCertificateMappersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.CertificateMapperAPI.ListCertificateMappersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Certificate Mapper objects", err, httpResp)
 		return

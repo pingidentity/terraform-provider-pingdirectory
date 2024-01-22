@@ -148,7 +148,7 @@ func (r *localDbCompositeIndexDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexAPI.GetLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Composite Index", err, httpResp)

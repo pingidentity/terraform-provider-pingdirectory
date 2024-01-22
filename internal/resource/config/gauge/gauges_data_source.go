@@ -84,12 +84,12 @@ func (r *gaugesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	listRequest := r.apiClient.GaugeApi.ListGauges(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.GaugeAPI.ListGauges(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.GaugeApi.ListGaugesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.GaugeAPI.ListGaugesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Gauge objects", err, httpResp)
 		return

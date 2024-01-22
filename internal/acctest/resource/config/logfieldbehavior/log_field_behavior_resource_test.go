@@ -66,7 +66,7 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogFieldBehaviorApi.DeleteLogFieldBehavior(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogFieldBehaviorAPI.DeleteLogFieldBehavior(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedTextAccessLogFieldBehaviorAttributes(config textAccessL
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogFieldBehaviorApi.GetLogFieldBehavior(ctx, config.id).Execute()
+		response, _, err := testClient.LogFieldBehaviorAPI.GetLogFieldBehavior(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func testAccCheckExpectedTextAccessLogFieldBehaviorAttributes(config textAccessL
 func testAccCheckTextAccessLogFieldBehaviorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogFieldBehaviorApi.GetLogFieldBehavior(ctx, testIdTextAccessLogFieldBehavior).Execute()
+	_, _, err := testClient.LogFieldBehaviorAPI.GetLogFieldBehavior(ctx, testIdTextAccessLogFieldBehavior).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Text Access Log Field Behavior", testIdTextAccessLogFieldBehavior)
 	}

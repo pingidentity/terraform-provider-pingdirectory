@@ -657,11 +657,11 @@ func (r *topologyAdminUserResource) CreateTopologyAdminUser(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TopologyAdminUserApi.AddTopologyAdminUser(
+	apiAddRequest := r.apiClient.TopologyAdminUserAPI.AddTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTopologyAdminUserRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.AddTopologyAdminUserExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TopologyAdminUserAPI.AddTopologyAdminUserExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Topology Admin User", err, httpResp)
 		return nil, err
@@ -717,7 +717,7 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
+	readResponse, httpResp, err := r.apiClient.TopologyAdminUserAPI.GetTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
@@ -735,14 +735,14 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 	readTopologyAdminUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TopologyAdminUserAPI.UpdateTopologyAdminUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTopologyAdminUserOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUserExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.TopologyAdminUserAPI.UpdateTopologyAdminUserExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Topology Admin User", err, httpResp)
 			return
@@ -785,7 +785,7 @@ func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
+	readResponse, httpResp, err := apiClient.TopologyAdminUserAPI.GetTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -836,7 +836,7 @@ func updateTopologyAdminUser(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state topologyAdminUserResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(
+	updateRequest := apiClient.TopologyAdminUserAPI.UpdateTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -846,7 +846,7 @@ func updateTopologyAdminUser(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.TopologyAdminUserApi.UpdateTopologyAdminUserExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TopologyAdminUserAPI.UpdateTopologyAdminUserExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Topology Admin User", err, httpResp)
 			return
@@ -888,7 +888,7 @@ func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUserExecute(r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUser(
+	httpResp, err := r.apiClient.TopologyAdminUserAPI.DeleteTopologyAdminUserExecute(r.apiClient.TopologyAdminUserAPI.DeleteTopologyAdminUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Topology Admin User", err, httpResp)

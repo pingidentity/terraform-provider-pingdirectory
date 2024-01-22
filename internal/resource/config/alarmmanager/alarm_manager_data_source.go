@@ -113,7 +113,7 @@ func (r *alarmManagerDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlarmManagerApi.GetAlarmManager(
+	readResponse, httpResp, err := r.apiClient.AlarmManagerAPI.GetAlarmManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alarm Manager", err, httpResp)

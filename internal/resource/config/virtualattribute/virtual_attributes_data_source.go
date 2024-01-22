@@ -84,12 +84,12 @@ func (r *virtualAttributesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.VirtualAttributeApi.ListVirtualAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.VirtualAttributeAPI.ListVirtualAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.ListVirtualAttributesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.ListVirtualAttributesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Virtual Attribute objects", err, httpResp)
 		return

@@ -89,12 +89,12 @@ func (r *replicationDomainsDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.ReplicationDomainApi.ListReplicationDomains(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SynchronizationProviderName.ValueString())
+	listRequest := r.apiClient.ReplicationDomainAPI.ListReplicationDomains(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SynchronizationProviderName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.ListReplicationDomainsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.ListReplicationDomainsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Replication Domain objects", err, httpResp)
 		return

@@ -111,7 +111,7 @@ func (r *constructedAttributeDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
+	readResponse, httpResp, err := r.apiClient.ConstructedAttributeAPI.GetConstructedAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)

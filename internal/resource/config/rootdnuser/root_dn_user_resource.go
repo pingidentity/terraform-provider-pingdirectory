@@ -657,11 +657,11 @@ func (r *rootDnUserResource) CreateRootDnUser(ctx context.Context, req resource.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RootDnUserApi.AddRootDnUser(
+	apiAddRequest := r.apiClient.RootDnUserAPI.AddRootDnUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRootDnUserRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.RootDnUserApi.AddRootDnUserExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RootDnUserAPI.AddRootDnUserExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Root Dn User", err, httpResp)
 		return nil, err
@@ -717,7 +717,7 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnUserApi.GetRootDnUser(
+	readResponse, httpResp, err := r.apiClient.RootDnUserAPI.GetRootDnUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn User", err, httpResp)
@@ -735,14 +735,14 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 	readRootDnUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RootDnUserApi.UpdateRootDnUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.RootDnUserAPI.UpdateRootDnUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRootDnUserOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RootDnUserApi.UpdateRootDnUserExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RootDnUserAPI.UpdateRootDnUserExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dn User", err, httpResp)
 			return
@@ -785,7 +785,7 @@ func readRootDnUser(ctx context.Context, req resource.ReadRequest, resp *resourc
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.RootDnUserApi.GetRootDnUser(
+	readResponse, httpResp, err := apiClient.RootDnUserAPI.GetRootDnUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -836,7 +836,7 @@ func updateRootDnUser(ctx context.Context, req resource.UpdateRequest, resp *res
 	// Get the current state to see how any attributes are changing
 	var state rootDnUserResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.RootDnUserApi.UpdateRootDnUser(
+	updateRequest := apiClient.RootDnUserAPI.UpdateRootDnUser(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -846,7 +846,7 @@ func updateRootDnUser(ctx context.Context, req resource.UpdateRequest, resp *res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.RootDnUserApi.UpdateRootDnUserExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RootDnUserAPI.UpdateRootDnUserExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dn User", err, httpResp)
 			return
@@ -888,7 +888,7 @@ func (r *rootDnUserResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	httpResp, err := r.apiClient.RootDnUserApi.DeleteRootDnUserExecute(r.apiClient.RootDnUserApi.DeleteRootDnUser(
+	httpResp, err := r.apiClient.RootDnUserAPI.DeleteRootDnUserExecute(r.apiClient.RootDnUserAPI.DeleteRootDnUser(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Root Dn User", err, httpResp)

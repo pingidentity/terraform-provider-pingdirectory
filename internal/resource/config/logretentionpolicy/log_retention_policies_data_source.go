@@ -84,12 +84,12 @@ func (r *logRetentionPoliciesDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	listRequest := r.apiClient.LogRetentionPolicyApi.ListLogRetentionPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogRetentionPolicyAPI.ListLogRetentionPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.ListLogRetentionPoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.ListLogRetentionPoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log Retention Policy objects", err, httpResp)
 		return

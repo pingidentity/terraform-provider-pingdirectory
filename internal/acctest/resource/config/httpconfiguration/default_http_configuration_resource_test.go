@@ -81,7 +81,7 @@ func testAccCheckExpectedHttpConfigurationAttributes(config httpConfigurationTes
 		resourceType := "http configuration"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.HttpConfigurationApi.GetHttpConfiguration(ctx).Execute()
+		response, _, err := testClient.HttpConfigurationAPI.GetHttpConfiguration(ctx).Execute()
 		if err != nil {
 			return err
 		}

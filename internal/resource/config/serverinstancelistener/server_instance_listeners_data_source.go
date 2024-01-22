@@ -89,12 +89,12 @@ func (r *serverInstanceListenersDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	listRequest := r.apiClient.ServerInstanceListenerApi.ListServerInstanceListeners(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
+	listRequest := r.apiClient.ServerInstanceListenerAPI.ListServerInstanceListeners(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.ListServerInstanceListenersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerAPI.ListServerInstanceListenersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Server Instance Listener objects", err, httpResp)
 		return

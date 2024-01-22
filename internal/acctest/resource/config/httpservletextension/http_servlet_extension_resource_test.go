@@ -66,7 +66,7 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.HttpServletExtensionApi.DeleteHttpServletExtension(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.HttpServletExtensionAPI.DeleteHttpServletExtension(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedQuickstartHttpServletExtensionAttributes(config quickst
 		resourceType := "http servlet extension"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.HttpServletExtensionApi.GetHttpServletExtension(ctx, config.id).Execute()
+		response, _, err := testClient.HttpServletExtensionAPI.GetHttpServletExtension(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ func testAccCheckExpectedQuickstartHttpServletExtensionAttributes(config quickst
 func testAccCheckQuickstartHttpServletExtensionDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.HttpServletExtensionApi.GetHttpServletExtension(ctx, testIdQuickstartHttpServletExtension).Execute()
+	_, _, err := testClient.HttpServletExtensionAPI.GetHttpServletExtension(ctx, testIdQuickstartHttpServletExtension).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Quickstart Http Servlet Extension", testIdQuickstartHttpServletExtension)
 	}

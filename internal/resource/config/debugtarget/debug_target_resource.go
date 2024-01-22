@@ -291,8 +291,8 @@ func (r *debugTargetResource) CreateDebugTarget(ctx context.Context, req resourc
 		return nil, err
 	}
 	addRequest := client.NewAddDebugTargetRequest(plan.DebugScope.ValueString(),
-		plan.DebugScope.ValueString(),
-		*debugLevel)
+		*debugLevel,
+		plan.DebugScope.ValueString())
 	err = addOptionalDebugTargetFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Debug Target", err.Error())
@@ -303,11 +303,11 @@ func (r *debugTargetResource) CreateDebugTarget(ctx context.Context, req resourc
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DebugTargetApi.AddDebugTarget(
+	apiAddRequest := r.apiClient.DebugTargetAPI.AddDebugTarget(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.LogPublisherName.ValueString())
 	apiAddRequest = apiAddRequest.AddDebugTargetRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.DebugTargetApi.AddDebugTargetExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DebugTargetAPI.AddDebugTargetExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Debug Target", err, httpResp)
 		return nil, err
@@ -363,7 +363,7 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
+	readResponse, httpResp, err := r.apiClient.DebugTargetAPI.GetDebugTarget(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
@@ -381,14 +381,14 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 	readDebugTargetResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
+	updateRequest := r.apiClient.DebugTargetAPI.UpdateDebugTarget(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
 	ops := createDebugTargetOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DebugTargetAPI.UpdateDebugTargetExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
 			return
@@ -431,7 +431,7 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DebugTargetApi.GetDebugTarget(
+	readResponse, httpResp, err := apiClient.DebugTargetAPI.GetDebugTarget(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -482,7 +482,7 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 	// Get the current state to see how any attributes are changing
 	var state debugTargetResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DebugTargetApi.UpdateDebugTarget(
+	updateRequest := apiClient.DebugTargetAPI.UpdateDebugTarget(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
 
 	// Determine what update operations are necessary
@@ -492,7 +492,7 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DebugTargetAPI.UpdateDebugTargetExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
 			return
@@ -534,7 +534,7 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	httpResp, err := r.apiClient.DebugTargetApi.DeleteDebugTargetExecute(r.apiClient.DebugTargetApi.DeleteDebugTarget(
+	httpResp, err := r.apiClient.DebugTargetAPI.DeleteDebugTargetExecute(r.apiClient.DebugTargetAPI.DeleteDebugTarget(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Debug Target", err, httpResp)

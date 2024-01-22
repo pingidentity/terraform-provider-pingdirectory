@@ -84,12 +84,12 @@ func (r *backendsDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	listRequest := r.apiClient.BackendApi.ListBackends(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.BackendAPI.ListBackends(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.ListBackendsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.BackendAPI.ListBackendsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Backend objects", err, httpResp)
 		return

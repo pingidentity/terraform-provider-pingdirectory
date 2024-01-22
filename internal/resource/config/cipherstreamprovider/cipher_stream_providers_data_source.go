@@ -84,12 +84,12 @@ func (r *cipherStreamProvidersDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.CipherStreamProviderApi.ListCipherStreamProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.CipherStreamProviderAPI.ListCipherStreamProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.ListCipherStreamProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.CipherStreamProviderAPI.ListCipherStreamProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Cipher Stream Provider objects", err, httpResp)
 		return

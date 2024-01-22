@@ -84,12 +84,12 @@ func (r *constructedAttributesDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.ConstructedAttributeApi.ListConstructedAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ConstructedAttributeAPI.ListConstructedAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.ListConstructedAttributesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ConstructedAttributeAPI.ListConstructedAttributesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Constructed Attribute objects", err, httpResp)
 		return

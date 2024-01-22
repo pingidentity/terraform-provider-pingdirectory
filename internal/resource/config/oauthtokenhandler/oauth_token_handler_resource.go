@@ -299,21 +299,21 @@ func createOauthTokenHandlerOperations(plan oauthTokenHandlerResourceModel, stat
 
 // Create a groovy-scripted oauth-token-handler
 func (r *oauthTokenHandlerResource) CreateGroovyScriptedOauthTokenHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan oauthTokenHandlerResourceModel) (*oauthTokenHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedOauthTokenHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedOauthTokenHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDOAUTHTOKENHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OAUTH_TOKEN_HANDLERGROOVY_SCRIPTED},
-		plan.ScriptClass.ValueString())
+	addRequest := client.NewAddGroovyScriptedOauthTokenHandlerRequest([]client.EnumgroovyScriptedOauthTokenHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDOAUTHTOKENHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OAUTH_TOKEN_HANDLERGROOVY_SCRIPTED},
+		plan.ScriptClass.ValueString(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedOauthTokenHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.OauthTokenHandlerApi.AddOauthTokenHandler(
+	apiAddRequest := r.apiClient.OauthTokenHandlerAPI.AddOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddOauthTokenHandlerRequest(
 		client.AddGroovyScriptedOauthTokenHandlerRequestAsAddOauthTokenHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.AddOauthTokenHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.AddOauthTokenHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Oauth Token Handler", err, httpResp)
 		return nil, err
@@ -333,21 +333,21 @@ func (r *oauthTokenHandlerResource) CreateGroovyScriptedOauthTokenHandler(ctx co
 
 // Create a third-party oauth-token-handler
 func (r *oauthTokenHandlerResource) CreateThirdPartyOauthTokenHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan oauthTokenHandlerResourceModel) (*oauthTokenHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyOauthTokenHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyOauthTokenHandlerSchemaUrn{client.ENUMTHIRDPARTYOAUTHTOKENHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OAUTH_TOKEN_HANDLERTHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyOauthTokenHandlerRequest([]client.EnumthirdPartyOauthTokenHandlerSchemaUrn{client.ENUMTHIRDPARTYOAUTHTOKENHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OAUTH_TOKEN_HANDLERTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyOauthTokenHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.OauthTokenHandlerApi.AddOauthTokenHandler(
+	apiAddRequest := r.apiClient.OauthTokenHandlerAPI.AddOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddOauthTokenHandlerRequest(
 		client.AddThirdPartyOauthTokenHandlerRequestAsAddOauthTokenHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.AddOauthTokenHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.AddOauthTokenHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Oauth Token Handler", err, httpResp)
 		return nil, err
@@ -411,7 +411,7 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
+	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.GetOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)
@@ -434,14 +434,14 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.OauthTokenHandlerAPI.UpdateOauthTokenHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createOauthTokenHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.UpdateOauthTokenHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Oauth Token Handler", err, httpResp)
 			return
@@ -488,7 +488,7 @@ func readOauthTokenHandler(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
+	readResponse, httpResp, err := apiClient.OauthTokenHandlerAPI.GetOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -544,7 +544,7 @@ func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state oauthTokenHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(
+	updateRequest := apiClient.OauthTokenHandlerAPI.UpdateOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -554,7 +554,7 @@ func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.OauthTokenHandlerAPI.UpdateOauthTokenHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Oauth Token Handler", err, httpResp)
 			return
@@ -600,7 +600,7 @@ func (r *oauthTokenHandlerResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.OauthTokenHandlerApi.DeleteOauthTokenHandlerExecute(r.apiClient.OauthTokenHandlerApi.DeleteOauthTokenHandler(
+	httpResp, err := r.apiClient.OauthTokenHandlerAPI.DeleteOauthTokenHandlerExecute(r.apiClient.OauthTokenHandlerAPI.DeleteOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Oauth Token Handler", err, httpResp)

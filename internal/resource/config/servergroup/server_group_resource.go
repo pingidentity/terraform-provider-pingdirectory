@@ -171,11 +171,11 @@ func (r *serverGroupResource) CreateServerGroup(ctx context.Context, req resourc
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ServerGroupApi.AddServerGroup(
+	apiAddRequest := r.apiClient.ServerGroupAPI.AddServerGroup(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddServerGroupRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ServerGroupApi.AddServerGroupExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ServerGroupAPI.AddServerGroupExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Server Group", err, httpResp)
 		return nil, err
@@ -229,7 +229,7 @@ func (r *defaultServerGroupResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerGroupApi.GetServerGroup(
+	readResponse, httpResp, err := r.apiClient.ServerGroupAPI.GetServerGroup(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Group", err, httpResp)
@@ -247,14 +247,14 @@ func (r *defaultServerGroupResource) Create(ctx context.Context, req resource.Cr
 	readServerGroupResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ServerGroupApi.UpdateServerGroup(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ServerGroupAPI.UpdateServerGroup(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createServerGroupOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ServerGroupApi.UpdateServerGroupExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ServerGroupAPI.UpdateServerGroupExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Group", err, httpResp)
 			return
@@ -295,7 +295,7 @@ func readServerGroup(ctx context.Context, req resource.ReadRequest, resp *resour
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ServerGroupApi.GetServerGroup(
+	readResponse, httpResp, err := apiClient.ServerGroupAPI.GetServerGroup(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -342,7 +342,7 @@ func updateServerGroup(ctx context.Context, req resource.UpdateRequest, resp *re
 	// Get the current state to see how any attributes are changing
 	var state serverGroupResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ServerGroupApi.UpdateServerGroup(
+	updateRequest := apiClient.ServerGroupAPI.UpdateServerGroup(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -352,7 +352,7 @@ func updateServerGroup(ctx context.Context, req resource.UpdateRequest, resp *re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ServerGroupApi.UpdateServerGroupExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ServerGroupAPI.UpdateServerGroupExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Group", err, httpResp)
 			return
@@ -393,7 +393,7 @@ func (r *serverGroupResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	httpResp, err := r.apiClient.ServerGroupApi.DeleteServerGroupExecute(r.apiClient.ServerGroupApi.DeleteServerGroup(
+	httpResp, err := r.apiClient.ServerGroupAPI.DeleteServerGroupExecute(r.apiClient.ServerGroupAPI.DeleteServerGroup(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Server Group", err, httpResp)

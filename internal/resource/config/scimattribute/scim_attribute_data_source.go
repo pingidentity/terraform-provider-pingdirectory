@@ -169,7 +169,7 @@ func (r *scimAttributeDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimAttributeApi.GetScimAttribute(
+	readResponse, httpResp, err := r.apiClient.ScimAttributeAPI.GetScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)

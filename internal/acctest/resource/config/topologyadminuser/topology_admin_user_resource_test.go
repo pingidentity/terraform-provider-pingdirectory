@@ -90,7 +90,7 @@ func TestAccTopologyAdminUser(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.TopologyAdminUserApi.DeleteTopologyAdminUser(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.TopologyAdminUserAPI.DeleteTopologyAdminUser(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -143,7 +143,7 @@ func testAccCheckExpectedTopologyAdminUserAttributes(config topologyAdminUserTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TopologyAdminUserApi.GetTopologyAdminUser(ctx, config.id).Execute()
+		response, _, err := testClient.TopologyAdminUserAPI.GetTopologyAdminUser(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -197,7 +197,7 @@ func testAccCheckExpectedTopologyAdminUserAttributes(config topologyAdminUserTes
 func testAccCheckTopologyAdminUserDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.TopologyAdminUserApi.GetTopologyAdminUser(ctx, testIdTopologyAdminUser).Execute()
+	_, _, err := testClient.TopologyAdminUserAPI.GetTopologyAdminUser(ctx, testIdTopologyAdminUser).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Topology Admin User", testIdTopologyAdminUser)
 	}

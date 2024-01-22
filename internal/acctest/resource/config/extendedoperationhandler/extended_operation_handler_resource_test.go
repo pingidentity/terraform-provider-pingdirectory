@@ -67,7 +67,7 @@ func TestAccValidateTotpPasswordExtendedOperationHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ExtendedOperationHandlerApi.DeleteExtendedOperationHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ExtendedOperationHandlerAPI.DeleteExtendedOperationHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -108,7 +108,7 @@ func testAccCheckExpectedValidateTotpPasswordExtendedOperationHandlerAttributes(
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(ctx, config.id).Execute()
+		response, _, err := testClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func testAccCheckExpectedValidateTotpPasswordExtendedOperationHandlerAttributes(
 func testAccCheckValidateTotpPasswordExtendedOperationHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(ctx, testIdValidateTotpPasswordExtendedOperationHandler).Execute()
+	_, _, err := testClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(ctx, testIdValidateTotpPasswordExtendedOperationHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Validate Totp Password Extended Operation Handler", testIdValidateTotpPasswordExtendedOperationHandler)
 	}

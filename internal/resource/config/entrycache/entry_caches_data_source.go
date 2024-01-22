@@ -84,12 +84,12 @@ func (r *entryCachesDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	listRequest := r.apiClient.EntryCacheApi.ListEntryCaches(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.EntryCacheAPI.ListEntryCaches(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.EntryCacheApi.ListEntryCachesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.EntryCacheAPI.ListEntryCachesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Entry Cache objects", err, httpResp)
 		return

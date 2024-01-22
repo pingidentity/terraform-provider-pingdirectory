@@ -84,12 +84,12 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	listRequest := r.apiClient.PluginApi.ListPlugins(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.PluginAPI.ListPlugins(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.ListPluginsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PluginAPI.ListPluginsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Plugin objects", err, httpResp)
 		return
@@ -112,6 +112,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		if response.StatsCollectorPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.StatsCollectorPluginResponse.Id)
 			attributes["type"] = types.StringValue("stats-collector")
+		}
+		if response.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse.Id)
+			attributes["type"] = types.StringValue("traditional-static-group-support-for-inverted-static-groups")
 		}
 		if response.InternalSearchRatePluginResponse != nil {
 			attributes["id"] = types.StringValue(response.InternalSearchRatePluginResponse.Id)
@@ -284,6 +288,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		if response.SnmpMasterAgentPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.SnmpMasterAgentPluginResponse.Id)
 			attributes["type"] = types.StringValue("snmp-master-agent")
+		}
+		if response.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.InvertedStaticGroupReferentialIntegrityPluginResponse.Id)
+			attributes["type"] = types.StringValue("inverted-static-group-referential-integrity")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

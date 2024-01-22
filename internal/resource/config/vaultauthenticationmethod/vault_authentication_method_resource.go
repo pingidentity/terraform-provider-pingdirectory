@@ -381,21 +381,21 @@ func createVaultAuthenticationMethodOperations(plan vaultAuthenticationMethodRes
 
 // Create a static-token vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateStaticTokenVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddStaticTokenVaultAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumstaticTokenVaultAuthenticationMethodSchemaUrn{client.ENUMSTATICTOKENVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODSTATIC_TOKEN},
-		plan.VaultAccessToken.ValueString())
+	addRequest := client.NewAddStaticTokenVaultAuthenticationMethodRequest([]client.EnumstaticTokenVaultAuthenticationMethodSchemaUrn{client.ENUMSTATICTOKENVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODSTATIC_TOKEN},
+		plan.VaultAccessToken.ValueString(),
+		plan.Name.ValueString())
 	addOptionalStaticTokenVaultAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethod(
+	apiAddRequest := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVaultAuthenticationMethodRequest(
 		client.AddStaticTokenVaultAuthenticationMethodRequestAsAddVaultAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Vault Authentication Method", err, httpResp)
 		return nil, err
@@ -415,22 +415,22 @@ func (r *vaultAuthenticationMethodResource) CreateStaticTokenVaultAuthentication
 
 // Create a app-role vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateAppRoleVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddAppRoleVaultAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumappRoleVaultAuthenticationMethodSchemaUrn{client.ENUMAPPROLEVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODAPP_ROLE},
+	addRequest := client.NewAddAppRoleVaultAuthenticationMethodRequest([]client.EnumappRoleVaultAuthenticationMethodSchemaUrn{client.ENUMAPPROLEVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODAPP_ROLE},
 		plan.VaultRoleID.ValueString(),
-		plan.VaultSecretID.ValueString())
+		plan.VaultSecretID.ValueString(),
+		plan.Name.ValueString())
 	addOptionalAppRoleVaultAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethod(
+	apiAddRequest := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVaultAuthenticationMethodRequest(
 		client.AddAppRoleVaultAuthenticationMethodRequestAsAddVaultAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Vault Authentication Method", err, httpResp)
 		return nil, err
@@ -450,22 +450,22 @@ func (r *vaultAuthenticationMethodResource) CreateAppRoleVaultAuthenticationMeth
 
 // Create a user-pass vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateUserPassVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddUserPassVaultAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumuserPassVaultAuthenticationMethodSchemaUrn{client.ENUMUSERPASSVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODUSER_PASS},
+	addRequest := client.NewAddUserPassVaultAuthenticationMethodRequest([]client.EnumuserPassVaultAuthenticationMethodSchemaUrn{client.ENUMUSERPASSVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODUSER_PASS},
 		plan.Username.ValueString(),
-		plan.Password.ValueString())
+		plan.Password.ValueString(),
+		plan.Name.ValueString())
 	addOptionalUserPassVaultAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethod(
+	apiAddRequest := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVaultAuthenticationMethodRequest(
 		client.AddUserPassVaultAuthenticationMethodRequestAsAddVaultAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.AddVaultAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.AddVaultAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Vault Authentication Method", err, httpResp)
 		return nil, err
@@ -537,7 +537,7 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.GetVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)
@@ -563,14 +563,14 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.VaultAuthenticationMethodAPI.UpdateVaultAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createVaultAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.UpdateVaultAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Vault Authentication Method", err, httpResp)
 			return
@@ -621,7 +621,7 @@ func readVaultAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
+	readResponse, httpResp, err := apiClient.VaultAuthenticationMethodAPI.GetVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -680,7 +680,7 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state vaultAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethod(
+	updateRequest := apiClient.VaultAuthenticationMethodAPI.UpdateVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -690,7 +690,7 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VaultAuthenticationMethodAPI.UpdateVaultAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Vault Authentication Method", err, httpResp)
 			return
@@ -740,7 +740,7 @@ func (r *vaultAuthenticationMethodResource) Delete(ctx context.Context, req reso
 		return
 	}
 
-	httpResp, err := r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethodExecute(r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethod(
+	httpResp, err := r.apiClient.VaultAuthenticationMethodAPI.DeleteVaultAuthenticationMethodExecute(r.apiClient.VaultAuthenticationMethodAPI.DeleteVaultAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Vault Authentication Method", err, httpResp)

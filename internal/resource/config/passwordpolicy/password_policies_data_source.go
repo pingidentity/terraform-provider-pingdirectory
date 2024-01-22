@@ -84,12 +84,12 @@ func (r *passwordPoliciesDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	listRequest := r.apiClient.PasswordPolicyApi.ListPasswordPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.PasswordPolicyAPI.ListPasswordPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.ListPasswordPoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PasswordPolicyAPI.ListPasswordPoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Password Policy objects", err, httpResp)
 		return

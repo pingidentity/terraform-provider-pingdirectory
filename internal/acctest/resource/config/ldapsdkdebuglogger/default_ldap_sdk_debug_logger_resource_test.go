@@ -79,7 +79,7 @@ func testAccCheckExpectedLdapSdkDebugLoggerAttributes(config ldapSdkDebugLoggerT
 		resourceType := "LDAP SDK Debug Logger"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LdapSdkDebugLoggerApi.GetLdapSdkDebugLogger(ctx).Execute()
+		response, _, err := testClient.LdapSdkDebugLoggerAPI.GetLdapSdkDebugLogger(ctx).Execute()
 		if err != nil {
 			return err
 		}

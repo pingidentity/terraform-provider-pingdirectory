@@ -179,7 +179,7 @@ func (r *localDbIndexDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbIndexAPI.GetLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)

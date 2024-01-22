@@ -94,12 +94,12 @@ func (r *interServerAuthenticationInfoListDataSource) Read(ctx context.Context, 
 		return
 	}
 
-	listRequest := r.apiClient.InterServerAuthenticationInfoApi.ListInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString())
+	listRequest := r.apiClient.InterServerAuthenticationInfoAPI.ListInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.ListInterServerAuthenticationInfoExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.ListInterServerAuthenticationInfoExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Inter Server Authentication Info objects", err, httpResp)
 		return

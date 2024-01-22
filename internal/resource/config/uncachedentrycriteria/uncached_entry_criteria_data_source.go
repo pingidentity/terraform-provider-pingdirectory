@@ -196,7 +196,7 @@ func (r *uncachedEntryCriteriaDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
+	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.GetUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)

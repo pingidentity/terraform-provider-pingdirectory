@@ -70,7 +70,7 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.IdentityMapperApi.DeleteIdentityMapper(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.IdentityMapperAPI.DeleteIdentityMapper(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedExactMatchIdentityMapperAttributes(config exactMatchIde
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.IdentityMapperApi.GetIdentityMapper(ctx, config.id).Execute()
+		response, _, err := testClient.IdentityMapperAPI.GetIdentityMapper(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedExactMatchIdentityMapperAttributes(config exactMatchIde
 func testAccCheckExactMatchIdentityMapperDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.IdentityMapperApi.GetIdentityMapper(ctx, testIdExactMatchIdentityMapper).Execute()
+	_, _, err := testClient.IdentityMapperAPI.GetIdentityMapper(ctx, testIdExactMatchIdentityMapper).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Exact Match Identity Mapper", testIdExactMatchIdentityMapper)
 	}

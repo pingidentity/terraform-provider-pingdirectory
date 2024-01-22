@@ -94,7 +94,7 @@ func (r *locationDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(
+	readResponse, httpResp, err := r.apiClient.LocationAPI.GetLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)

@@ -71,7 +71,7 @@ func TestAccDebugTarget(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DebugTargetApi.DeleteDebugTarget(ctx, updatedResourceModel.debugScope, updatedResourceModel.logPublisherName).Execute()
+					_, err := testClient.DebugTargetAPI.DeleteDebugTarget(ctx, updatedResourceModel.debugScope, updatedResourceModel.logPublisherName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -115,7 +115,7 @@ func testAccCheckExpectedDebugTargetAttributes(config debugTargetTestModel) reso
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DebugTargetApi.GetDebugTarget(ctx, config.debugScope, config.logPublisherName).Execute()
+		response, _, err := testClient.DebugTargetAPI.GetDebugTarget(ctx, config.debugScope, config.logPublisherName).Execute()
 		if err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func testAccCheckExpectedDebugTargetAttributes(config debugTargetTestModel) reso
 func testAccCheckDebugTargetDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DebugTargetApi.GetDebugTarget(ctx, testIdDebugTarget, testLogPublisherName).Execute()
+	_, _, err := testClient.DebugTargetAPI.GetDebugTarget(ctx, testIdDebugTarget, testLogPublisherName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Debug Target", testIdDebugTarget)
 	}

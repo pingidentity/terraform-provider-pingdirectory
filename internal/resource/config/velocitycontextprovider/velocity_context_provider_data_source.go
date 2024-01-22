@@ -215,7 +215,7 @@ func (r *velocityContextProviderDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
+	readResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.GetVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)

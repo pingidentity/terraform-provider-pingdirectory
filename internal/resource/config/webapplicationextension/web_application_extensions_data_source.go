@@ -84,12 +84,12 @@ func (r *webApplicationExtensionsDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.WebApplicationExtensionApi.ListWebApplicationExtensions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.WebApplicationExtensionAPI.ListWebApplicationExtensions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.ListWebApplicationExtensionsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionAPI.ListWebApplicationExtensionsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Web Application Extension objects", err, httpResp)
 		return

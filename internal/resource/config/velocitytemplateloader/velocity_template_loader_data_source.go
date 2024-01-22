@@ -139,7 +139,7 @@ func (r *velocityTemplateLoaderDataSource) Read(ctx context.Context, req datasou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
+	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.GetVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)

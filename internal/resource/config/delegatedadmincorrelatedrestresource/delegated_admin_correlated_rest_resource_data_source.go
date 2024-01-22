@@ -131,7 +131,7 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Read(ctx context.Contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.GetDelegatedAdminCorrelatedRestResource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)

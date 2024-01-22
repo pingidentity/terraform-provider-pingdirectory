@@ -301,7 +301,7 @@ func (r *attributeSyntaxDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
+	readResponse, httpResp, err := r.apiClient.AttributeSyntaxAPI.GetAttributeSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)

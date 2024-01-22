@@ -82,7 +82,7 @@ func testAccCheckExpectedJmxConnectionHandlerAttributes(config jmxConnectionHand
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, config.id).Execute()
+		response, _, err := testClient.ConnectionHandlerAPI.GetConnectionHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func testAccCheckExpectedJmxConnectionHandlerAttributes(config jmxConnectionHand
 func testAccCheckJmxConnectionHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, testIdJmxConnectionHandler).Execute()
+	_, _, err := testClient.ConnectionHandlerAPI.GetConnectionHandler(ctx, testIdJmxConnectionHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Jmx Connection Handler", testIdJmxConnectionHandler)
 	}

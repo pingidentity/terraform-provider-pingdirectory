@@ -146,7 +146,7 @@ func (r *httpServletCrossOriginPolicyDataSource) Read(ctx context.Context, req d
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyAPI.GetHttpServletCrossOriginPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)

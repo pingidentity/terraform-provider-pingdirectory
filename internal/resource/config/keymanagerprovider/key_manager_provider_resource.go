@@ -624,22 +624,22 @@ func createKeyManagerProviderOperations(plan keyManagerProviderResourceModel, st
 
 // Create a file-based key-manager-provider
 func (r *keyManagerProviderResource) CreateFileBasedKeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedKeyManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedKeyManagerProviderSchemaUrn{client.ENUMFILEBASEDKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERFILE_BASED},
+	addRequest := client.NewAddFileBasedKeyManagerProviderRequest([]client.EnumfileBasedKeyManagerProviderSchemaUrn{client.ENUMFILEBASEDKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERFILE_BASED},
 		plan.KeyStoreFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFileBasedKeyManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.KeyManagerProviderApi.AddKeyManagerProvider(
+	apiAddRequest := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddKeyManagerProviderRequest(
 		client.AddFileBasedKeyManagerProviderRequestAsAddKeyManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.AddKeyManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Key Manager Provider", err, httpResp)
 		return nil, err
@@ -659,21 +659,21 @@ func (r *keyManagerProviderResource) CreateFileBasedKeyManagerProvider(ctx conte
 
 // Create a pkcs11 key-manager-provider
 func (r *keyManagerProviderResource) CreatePkcs11KeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddPkcs11KeyManagerProviderRequest(plan.Name.ValueString(),
-		[]client.Enumpkcs11KeyManagerProviderSchemaUrn{client.ENUMPKCS11KEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERPKCS11},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddPkcs11KeyManagerProviderRequest([]client.Enumpkcs11KeyManagerProviderSchemaUrn{client.ENUMPKCS11KEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERPKCS11},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalPkcs11KeyManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.KeyManagerProviderApi.AddKeyManagerProvider(
+	apiAddRequest := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddKeyManagerProviderRequest(
 		client.AddPkcs11KeyManagerProviderRequestAsAddKeyManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.AddKeyManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Key Manager Provider", err, httpResp)
 		return nil, err
@@ -693,22 +693,22 @@ func (r *keyManagerProviderResource) CreatePkcs11KeyManagerProvider(ctx context.
 
 // Create a third-party key-manager-provider
 func (r *keyManagerProviderResource) CreateThirdPartyKeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyKeyManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyKeyManagerProviderSchemaUrn{client.ENUMTHIRDPARTYKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyKeyManagerProviderRequest([]client.EnumthirdPartyKeyManagerProviderSchemaUrn{client.ENUMTHIRDPARTYKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyKeyManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.KeyManagerProviderApi.AddKeyManagerProvider(
+	apiAddRequest := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddKeyManagerProviderRequest(
 		client.AddThirdPartyKeyManagerProviderRequestAsAddKeyManagerProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.AddKeyManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.AddKeyManagerProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Key Manager Provider", err, httpResp)
 		return nil, err
@@ -780,7 +780,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
+	readResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.GetKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
@@ -809,14 +809,14 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.KeyManagerProviderAPI.UpdateKeyManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createKeyManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.KeyManagerProviderAPI.UpdateKeyManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Manager Provider", err, httpResp)
 			return
@@ -870,7 +870,7 @@ func readKeyManagerProvider(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
+	readResponse, httpResp, err := apiClient.KeyManagerProviderAPI.GetKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -932,7 +932,7 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state keyManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(
+	updateRequest := apiClient.KeyManagerProviderAPI.UpdateKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -942,7 +942,7 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.KeyManagerProviderApi.UpdateKeyManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.KeyManagerProviderAPI.UpdateKeyManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Manager Provider", err, httpResp)
 			return
@@ -995,7 +995,7 @@ func (r *keyManagerProviderResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.KeyManagerProviderApi.DeleteKeyManagerProviderExecute(r.apiClient.KeyManagerProviderApi.DeleteKeyManagerProvider(
+	httpResp, err := r.apiClient.KeyManagerProviderAPI.DeleteKeyManagerProviderExecute(r.apiClient.KeyManagerProviderAPI.DeleteKeyManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Manager Provider", err, httpResp)

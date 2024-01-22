@@ -84,12 +84,12 @@ func (r *clientConnectionPoliciesDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.ClientConnectionPolicyApi.ListClientConnectionPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ClientConnectionPolicyAPI.ListClientConnectionPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.ListClientConnectionPoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyAPI.ListClientConnectionPoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Client Connection Policy objects", err, httpResp)
 		return

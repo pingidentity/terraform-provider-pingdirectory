@@ -84,12 +84,12 @@ func (r *requestCriteriaListDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.RequestCriteriaApi.ListRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.RequestCriteriaAPI.ListRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.ListRequestCriteriaExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.ListRequestCriteriaExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Request Criteria objects", err, httpResp)
 		return

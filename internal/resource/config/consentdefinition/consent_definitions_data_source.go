@@ -84,12 +84,12 @@ func (r *consentDefinitionsDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.ConsentDefinitionApi.ListConsentDefinitions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ConsentDefinitionAPI.ListConsentDefinitions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.ListConsentDefinitionsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionAPI.ListConsentDefinitionsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Consent Definition objects", err, httpResp)
 		return

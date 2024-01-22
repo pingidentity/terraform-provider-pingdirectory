@@ -1466,14 +1466,14 @@ func createPasswordStorageSchemeOperations(plan passwordStorageSchemeResourceMod
 
 // Create a argon2 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2PasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumargon2PasswordStorageSchemeSchemaUrn{client.ENUMARGON2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2},
+	addRequest := client.NewAddArgon2PasswordStorageSchemeRequest([]client.Enumargon2PasswordStorageSchemeSchemaUrn{client.ENUMARGON2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
 		plan.MemoryUsageKb.ValueInt64(),
 		plan.SaltLengthBytes.ValueInt64(),
 		plan.DerivedKeyLengthBytes.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalArgon2PasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1484,12 +1484,12 @@ func (r *passwordStorageSchemeResource) CreateArgon2PasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddArgon2PasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1509,10 +1509,10 @@ func (r *passwordStorageSchemeResource) CreateArgon2PasswordStorageScheme(ctx co
 
 // Create a third-party-enhanced password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateThirdPartyEnhancedPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyEnhancedPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyEnhancedPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYENHANCEDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY_ENHANCED},
+	addRequest := client.NewAddThirdPartyEnhancedPasswordStorageSchemeRequest([]client.EnumthirdPartyEnhancedPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYENHANCEDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY_ENHANCED},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyEnhancedPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1523,12 +1523,12 @@ func (r *passwordStorageSchemeResource) CreateThirdPartyEnhancedPasswordStorageS
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddThirdPartyEnhancedPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1548,9 +1548,9 @@ func (r *passwordStorageSchemeResource) CreateThirdPartyEnhancedPasswordStorageS
 
 // Create a pbkdf2 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreatePbkdf2PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddPbkdf2PasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumpbkdf2PasswordStorageSchemeSchemaUrn{client.ENUMPBKDF2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEPBKDF2},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddPbkdf2PasswordStorageSchemeRequest([]client.Enumpbkdf2PasswordStorageSchemeSchemaUrn{client.ENUMPBKDF2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEPBKDF2},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPbkdf2PasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1561,12 +1561,12 @@ func (r *passwordStorageSchemeResource) CreatePbkdf2PasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddPbkdf2PasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1586,14 +1586,14 @@ func (r *passwordStorageSchemeResource) CreatePbkdf2PasswordStorageScheme(ctx co
 
 // Create a argon2d password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2dPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2dPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumargon2dPasswordStorageSchemeSchemaUrn{client.ENUMARGON2DPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2D},
+	addRequest := client.NewAddArgon2dPasswordStorageSchemeRequest([]client.Enumargon2dPasswordStorageSchemeSchemaUrn{client.ENUMARGON2DPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2D},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
 		plan.MemoryUsageKb.ValueInt64(),
 		plan.SaltLengthBytes.ValueInt64(),
 		plan.DerivedKeyLengthBytes.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalArgon2dPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1604,12 +1604,12 @@ func (r *passwordStorageSchemeResource) CreateArgon2dPasswordStorageScheme(ctx c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddArgon2dPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1629,9 +1629,9 @@ func (r *passwordStorageSchemeResource) CreateArgon2dPasswordStorageScheme(ctx c
 
 // Create a crypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateCryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddCryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumcryptPasswordStorageSchemeSchemaUrn{client.ENUMCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECRYPT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddCryptPasswordStorageSchemeRequest([]client.EnumcryptPasswordStorageSchemeSchemaUrn{client.ENUMCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECRYPT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCryptPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1642,12 +1642,12 @@ func (r *passwordStorageSchemeResource) CreateCryptPasswordStorageScheme(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddCryptPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1667,14 +1667,14 @@ func (r *passwordStorageSchemeResource) CreateCryptPasswordStorageScheme(ctx con
 
 // Create a argon2i password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2iPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2iPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumargon2iPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2I},
+	addRequest := client.NewAddArgon2iPasswordStorageSchemeRequest([]client.Enumargon2iPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2I},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
 		plan.MemoryUsageKb.ValueInt64(),
 		plan.SaltLengthBytes.ValueInt64(),
 		plan.DerivedKeyLengthBytes.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalArgon2iPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1685,12 +1685,12 @@ func (r *passwordStorageSchemeResource) CreateArgon2iPasswordStorageScheme(ctx c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddArgon2iPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1710,9 +1710,9 @@ func (r *passwordStorageSchemeResource) CreateArgon2iPasswordStorageScheme(ctx c
 
 // Create a aes-256 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAes256PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAes256PasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumaes256PasswordStorageSchemeSchemaUrn{client.ENUMAES256PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAES_256},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddAes256PasswordStorageSchemeRequest([]client.Enumaes256PasswordStorageSchemeSchemaUrn{client.ENUMAES256PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAES_256},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAes256PasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1723,12 +1723,12 @@ func (r *passwordStorageSchemeResource) CreateAes256PasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddAes256PasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1748,9 +1748,9 @@ func (r *passwordStorageSchemeResource) CreateAes256PasswordStorageScheme(ctx co
 
 // Create a bcrypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateBcryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddBcryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumbcryptPasswordStorageSchemeSchemaUrn{client.ENUMBCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEBCRYPT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddBcryptPasswordStorageSchemeRequest([]client.EnumbcryptPasswordStorageSchemeSchemaUrn{client.ENUMBCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEBCRYPT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalBcryptPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1761,12 +1761,12 @@ func (r *passwordStorageSchemeResource) CreateBcryptPasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddBcryptPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1786,14 +1786,14 @@ func (r *passwordStorageSchemeResource) CreateBcryptPasswordStorageScheme(ctx co
 
 // Create a argon2id password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2idPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2idPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.Enumargon2idPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2ID},
+	addRequest := client.NewAddArgon2idPasswordStorageSchemeRequest([]client.Enumargon2idPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2ID},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
 		plan.MemoryUsageKb.ValueInt64(),
 		plan.SaltLengthBytes.ValueInt64(),
 		plan.DerivedKeyLengthBytes.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalArgon2idPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1804,12 +1804,12 @@ func (r *passwordStorageSchemeResource) CreateArgon2idPasswordStorageScheme(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddArgon2idPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1829,10 +1829,10 @@ func (r *passwordStorageSchemeResource) CreateArgon2idPasswordStorageScheme(ctx 
 
 // Create a amazon-secrets-manager password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAmazonSecretsManagerPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumamazonSecretsManagerPasswordStorageSchemeSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAMAZON_SECRETS_MANAGER},
+	addRequest := client.NewAddAmazonSecretsManagerPasswordStorageSchemeRequest([]client.EnumamazonSecretsManagerPasswordStorageSchemeSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAmazonSecretsManagerPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1843,12 +1843,12 @@ func (r *passwordStorageSchemeResource) CreateAmazonSecretsManagerPasswordStorag
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddAmazonSecretsManagerPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1868,11 +1868,11 @@ func (r *passwordStorageSchemeResource) CreateAmazonSecretsManagerPasswordStorag
 
 // Create a azure-key-vault password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAzureKeyVaultPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumazureKeyVaultPasswordStorageSchemeSchemaUrn{client.ENUMAZUREKEYVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAZURE_KEY_VAULT},
+	addRequest := client.NewAddAzureKeyVaultPasswordStorageSchemeRequest([]client.EnumazureKeyVaultPasswordStorageSchemeSchemaUrn{client.ENUMAZUREKEYVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAzureKeyVaultPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1883,12 +1883,12 @@ func (r *passwordStorageSchemeResource) CreateAzureKeyVaultPasswordStorageScheme
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddAzureKeyVaultPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1908,10 +1908,10 @@ func (r *passwordStorageSchemeResource) CreateAzureKeyVaultPasswordStorageScheme
 
 // Create a conjur password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateConjurPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddConjurPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumconjurPasswordStorageSchemeSchemaUrn{client.ENUMCONJURPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECONJUR},
+	addRequest := client.NewAddConjurPasswordStorageSchemeRequest([]client.EnumconjurPasswordStorageSchemeSchemaUrn{client.ENUMCONJURPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECONJUR},
 		plan.ConjurExternalServer.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalConjurPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1922,12 +1922,12 @@ func (r *passwordStorageSchemeResource) CreateConjurPasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddConjurPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1947,9 +1947,9 @@ func (r *passwordStorageSchemeResource) CreateConjurPasswordStorageScheme(ctx co
 
 // Create a scrypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateScryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddScryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumscryptPasswordStorageSchemeSchemaUrn{client.ENUMSCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMESCRYPT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddScryptPasswordStorageSchemeRequest([]client.EnumscryptPasswordStorageSchemeSchemaUrn{client.ENUMSCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMESCRYPT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalScryptPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1960,12 +1960,12 @@ func (r *passwordStorageSchemeResource) CreateScryptPasswordStorageScheme(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddScryptPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -1985,10 +1985,10 @@ func (r *passwordStorageSchemeResource) CreateScryptPasswordStorageScheme(ctx co
 
 // Create a vault password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateVaultPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddVaultPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumvaultPasswordStorageSchemeSchemaUrn{client.ENUMVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEVAULT},
+	addRequest := client.NewAddVaultPasswordStorageSchemeRequest([]client.EnumvaultPasswordStorageSchemeSchemaUrn{client.ENUMVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEVAULT},
 		plan.VaultExternalServer.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalVaultPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -1999,12 +1999,12 @@ func (r *passwordStorageSchemeResource) CreateVaultPasswordStorageScheme(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddVaultPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -2024,10 +2024,10 @@ func (r *passwordStorageSchemeResource) CreateVaultPasswordStorageScheme(ctx con
 
 // Create a third-party password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateThirdPartyPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordStorageSchemeRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyPasswordStorageSchemeRequest([]client.EnumthirdPartyPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyPasswordStorageSchemeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Storage Scheme", err.Error())
@@ -2038,12 +2038,12 @@ func (r *passwordStorageSchemeResource) CreateThirdPartyPasswordStorageScheme(ct
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageScheme(
+	apiAddRequest := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordStorageSchemeRequest(
 		client.AddThirdPartyPasswordStorageSchemeRequestAsAddPasswordStorageSchemeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.AddPasswordStorageSchemeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.AddPasswordStorageSchemeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Storage Scheme", err, httpResp)
 		return nil, err
@@ -2185,7 +2185,7 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
+	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.GetPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
@@ -2286,14 +2286,14 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageScheme(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PasswordStorageSchemeAPI.UpdatePasswordStorageScheme(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordStorageSchemeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageSchemeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PasswordStorageSchemeAPI.UpdatePasswordStorageSchemeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Storage Scheme", err, httpResp)
 			return
@@ -2418,7 +2418,7 @@ func readPasswordStorageScheme(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
+	readResponse, httpResp, err := apiClient.PasswordStorageSchemeAPI.GetPasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -2552,7 +2552,7 @@ func updatePasswordStorageScheme(ctx context.Context, req resource.UpdateRequest
 	// Get the current state to see how any attributes are changing
 	var state passwordStorageSchemeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageScheme(
+	updateRequest := apiClient.PasswordStorageSchemeAPI.UpdatePasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2562,7 +2562,7 @@ func updatePasswordStorageScheme(ctx context.Context, req resource.UpdateRequest
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageSchemeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PasswordStorageSchemeAPI.UpdatePasswordStorageSchemeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Storage Scheme", err, httpResp)
 			return
@@ -2686,7 +2686,7 @@ func (r *passwordStorageSchemeResource) Delete(ctx context.Context, req resource
 		return
 	}
 
-	httpResp, err := r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageSchemeExecute(r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageScheme(
+	httpResp, err := r.apiClient.PasswordStorageSchemeAPI.DeletePasswordStorageSchemeExecute(r.apiClient.PasswordStorageSchemeAPI.DeletePasswordStorageScheme(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Storage Scheme", err, httpResp)

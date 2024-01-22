@@ -688,23 +688,23 @@ func createOtpDeliveryMechanismOperations(plan otpDeliveryMechanismResourceModel
 func (r *otpDeliveryMechanismResource) CreateTwilioOtpDeliveryMechanism(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan otpDeliveryMechanismResourceModel) (*otpDeliveryMechanismResourceModel, error) {
 	var SenderPhoneNumberSlice []string
 	plan.SenderPhoneNumber.ElementsAs(ctx, &SenderPhoneNumberSlice, false)
-	addRequest := client.NewAddTwilioOtpDeliveryMechanismRequest(plan.Name.ValueString(),
-		[]client.EnumtwilioOtpDeliveryMechanismSchemaUrn{client.ENUMTWILIOOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMTWILIO},
+	addRequest := client.NewAddTwilioOtpDeliveryMechanismRequest([]client.EnumtwilioOtpDeliveryMechanismSchemaUrn{client.ENUMTWILIOOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMTWILIO},
 		plan.TwilioAccountSID.ValueString(),
 		SenderPhoneNumberSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalTwilioOtpDeliveryMechanismFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanism(
+	apiAddRequest := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddOtpDeliveryMechanismRequest(
 		client.AddTwilioOtpDeliveryMechanismRequestAsAddOtpDeliveryMechanismRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanismExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanismExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Otp Delivery Mechanism", err, httpResp)
 		return nil, err
@@ -724,22 +724,22 @@ func (r *otpDeliveryMechanismResource) CreateTwilioOtpDeliveryMechanism(ctx cont
 
 // Create a email otp-delivery-mechanism
 func (r *otpDeliveryMechanismResource) CreateEmailOtpDeliveryMechanism(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan otpDeliveryMechanismResourceModel) (*otpDeliveryMechanismResourceModel, error) {
-	addRequest := client.NewAddEmailOtpDeliveryMechanismRequest(plan.Name.ValueString(),
-		[]client.EnumemailOtpDeliveryMechanismSchemaUrn{client.ENUMEMAILOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMEMAIL},
+	addRequest := client.NewAddEmailOtpDeliveryMechanismRequest([]client.EnumemailOtpDeliveryMechanismSchemaUrn{client.ENUMEMAILOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMEMAIL},
 		plan.SenderAddress.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalEmailOtpDeliveryMechanismFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanism(
+	apiAddRequest := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddOtpDeliveryMechanismRequest(
 		client.AddEmailOtpDeliveryMechanismRequestAsAddOtpDeliveryMechanismRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanismExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanismExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Otp Delivery Mechanism", err, httpResp)
 		return nil, err
@@ -759,22 +759,22 @@ func (r *otpDeliveryMechanismResource) CreateEmailOtpDeliveryMechanism(ctx conte
 
 // Create a third-party otp-delivery-mechanism
 func (r *otpDeliveryMechanismResource) CreateThirdPartyOtpDeliveryMechanism(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan otpDeliveryMechanismResourceModel) (*otpDeliveryMechanismResourceModel, error) {
-	addRequest := client.NewAddThirdPartyOtpDeliveryMechanismRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyOtpDeliveryMechanismSchemaUrn{client.ENUMTHIRDPARTYOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyOtpDeliveryMechanismRequest([]client.EnumthirdPartyOtpDeliveryMechanismSchemaUrn{client.ENUMTHIRDPARTYOTPDELIVERYMECHANISMSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0OTP_DELIVERY_MECHANISMTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyOtpDeliveryMechanismFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanism(
+	apiAddRequest := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddOtpDeliveryMechanismRequest(
 		client.AddThirdPartyOtpDeliveryMechanismRequestAsAddOtpDeliveryMechanismRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.AddOtpDeliveryMechanismExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.AddOtpDeliveryMechanismExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Otp Delivery Mechanism", err, httpResp)
 		return nil, err
@@ -846,7 +846,7 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
+	readResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.GetOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
@@ -872,14 +872,14 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.OtpDeliveryMechanismApi.UpdateOtpDeliveryMechanism(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.OtpDeliveryMechanismAPI.UpdateOtpDeliveryMechanism(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createOtpDeliveryMechanismOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.UpdateOtpDeliveryMechanismExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.UpdateOtpDeliveryMechanismExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Otp Delivery Mechanism", err, httpResp)
 			return
@@ -930,7 +930,7 @@ func readOtpDeliveryMechanism(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
+	readResponse, httpResp, err := apiClient.OtpDeliveryMechanismAPI.GetOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -989,7 +989,7 @@ func updateOtpDeliveryMechanism(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state otpDeliveryMechanismResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.OtpDeliveryMechanismApi.UpdateOtpDeliveryMechanism(
+	updateRequest := apiClient.OtpDeliveryMechanismAPI.UpdateOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -999,7 +999,7 @@ func updateOtpDeliveryMechanism(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.OtpDeliveryMechanismApi.UpdateOtpDeliveryMechanismExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.OtpDeliveryMechanismAPI.UpdateOtpDeliveryMechanismExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Otp Delivery Mechanism", err, httpResp)
 			return
@@ -1049,7 +1049,7 @@ func (r *otpDeliveryMechanismResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanismExecute(r.apiClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanism(
+	httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.DeleteOtpDeliveryMechanismExecute(r.apiClient.OtpDeliveryMechanismAPI.DeleteOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Otp Delivery Mechanism", err, httpResp)

@@ -187,20 +187,20 @@ func createDnMapOperations(plan dnMapResourceModel, state dnMapResourceModel) []
 
 // Create a dn-map dn-map
 func (r *dnMapResource) CreateDnMap(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dnMapResourceModel) (*dnMapResourceModel, error) {
-	addRequest := client.NewAddDnMapRequest(plan.Name.ValueString(),
-		plan.FromDNPattern.ValueString(),
-		plan.ToDNPattern.ValueString())
+	addRequest := client.NewAddDnMapRequest(plan.FromDNPattern.ValueString(),
+		plan.ToDNPattern.ValueString(),
+		plan.Name.ValueString())
 	addOptionalDnMapFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DnMapApi.AddDnMap(
+	apiAddRequest := r.apiClient.DnMapAPI.AddDnMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDnMapRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.DnMapApi.AddDnMapExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DnMapAPI.AddDnMapExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Dn Map", err, httpResp)
 		return nil, err
@@ -254,7 +254,7 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DnMapApi.GetDnMap(
+	readResponse, httpResp, err := r.apiClient.DnMapAPI.GetDnMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
@@ -272,14 +272,14 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 	readDnMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DnMapApi.UpdateDnMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.DnMapAPI.UpdateDnMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createDnMapOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DnMapApi.UpdateDnMapExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DnMapAPI.UpdateDnMapExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Dn Map", err, httpResp)
 			return
@@ -321,7 +321,7 @@ func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DnMapApi.GetDnMap(
+	readResponse, httpResp, err := apiClient.DnMapAPI.GetDnMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -372,7 +372,7 @@ func updateDnMap(ctx context.Context, req resource.UpdateRequest, resp *resource
 	// Get the current state to see how any attributes are changing
 	var state dnMapResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DnMapApi.UpdateDnMap(
+	updateRequest := apiClient.DnMapAPI.UpdateDnMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -382,7 +382,7 @@ func updateDnMap(ctx context.Context, req resource.UpdateRequest, resp *resource
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DnMapApi.UpdateDnMapExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DnMapAPI.UpdateDnMapExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Dn Map", err, httpResp)
 			return
@@ -423,7 +423,7 @@ func (r *dnMapResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	httpResp, err := r.apiClient.DnMapApi.DeleteDnMapExecute(r.apiClient.DnMapApi.DeleteDnMap(
+	httpResp, err := r.apiClient.DnMapAPI.DeleteDnMapExecute(r.apiClient.DnMapAPI.DeleteDnMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Dn Map", err, httpResp)

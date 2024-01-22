@@ -215,7 +215,7 @@ func (r *customLoggedStatsDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
+	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsAPI.GetCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.PluginName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)

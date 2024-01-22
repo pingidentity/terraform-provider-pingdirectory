@@ -84,12 +84,12 @@ func (r *logRotationPoliciesDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	listRequest := r.apiClient.LogRotationPolicyApi.ListLogRotationPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.LogRotationPolicyAPI.ListLogRotationPolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.ListLogRotationPoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.ListLogRotationPoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Log Rotation Policy objects", err, httpResp)
 		return

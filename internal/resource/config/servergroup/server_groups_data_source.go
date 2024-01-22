@@ -84,12 +84,12 @@ func (r *serverGroupsDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	listRequest := r.apiClient.ServerGroupApi.ListServerGroups(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ServerGroupAPI.ListServerGroups(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerGroupApi.ListServerGroupsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ServerGroupAPI.ListServerGroupsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Server Group objects", err, httpResp)
 		return

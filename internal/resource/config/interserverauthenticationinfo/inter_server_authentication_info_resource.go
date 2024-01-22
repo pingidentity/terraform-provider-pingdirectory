@@ -238,7 +238,7 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
+	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.GetInterServerAuthenticationInfo(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)
@@ -261,14 +261,14 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.InterServerAuthenticationInfoAPI.UpdateInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createInterServerAuthenticationInfoOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfoExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.UpdateInterServerAuthenticationInfoExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Inter Server Authentication Info", err, httpResp)
 			return
@@ -307,7 +307,7 @@ func (r *interServerAuthenticationInfoResource) Read(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
+	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.GetInterServerAuthenticationInfo(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)
@@ -346,7 +346,7 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 	// Get the current state to see how any attributes are changing
 	var state interServerAuthenticationInfoResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfo(
+	updateRequest := r.apiClient.InterServerAuthenticationInfoAPI.UpdateInterServerAuthenticationInfo(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
@@ -356,7 +356,7 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfoExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoAPI.UpdateInterServerAuthenticationInfoExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Inter Server Authentication Info", err, httpResp)
 			return

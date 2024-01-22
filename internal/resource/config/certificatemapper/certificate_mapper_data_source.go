@@ -226,7 +226,7 @@ func (r *certificateMapperDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
+	readResponse, httpResp, err := r.apiClient.CertificateMapperAPI.GetCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)

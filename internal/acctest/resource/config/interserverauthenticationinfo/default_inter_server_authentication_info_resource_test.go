@@ -32,7 +32,7 @@ func TestAccInterServerAuthenticationInfo(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GlobalConfigurationApi.GetGlobalConfiguration(ctx).Execute()
+		response, _, err := testClient.GlobalConfigurationAPI.GetGlobalConfiguration(ctx).Execute()
 		if err != nil {
 			t.Error(err)
 			t.FailNow()
@@ -115,7 +115,7 @@ func testAccCheckExpectedInterServerAuthenticationInfoAttributes(config interSer
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(ctx, config.id, config.serverInstanceListenerName, config.serverInstanceName).Execute()
+		response, _, err := testClient.InterServerAuthenticationInfoAPI.GetInterServerAuthenticationInfo(ctx, config.id, config.serverInstanceListenerName, config.serverInstanceName).Execute()
 		if err != nil {
 			return err
 		}

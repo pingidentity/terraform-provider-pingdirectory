@@ -84,12 +84,12 @@ func (r *idTokenValidatorsDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.IdTokenValidatorApi.ListIdTokenValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.IdTokenValidatorAPI.ListIdTokenValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.ListIdTokenValidatorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.IdTokenValidatorAPI.ListIdTokenValidatorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Id Token Validator objects", err, httpResp)
 		return

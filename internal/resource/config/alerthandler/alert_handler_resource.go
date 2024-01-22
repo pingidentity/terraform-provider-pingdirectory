@@ -1814,11 +1814,11 @@ func createAlertHandlerOperationsDefault(plan defaultAlertHandlerResourceModel, 
 func (r *alertHandlerResource) CreateSmtpAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
 	var RecipientAddressSlice []string
 	plan.RecipientAddress.ElementsAs(ctx, &RecipientAddressSlice, false)
-	addRequest := client.NewAddSmtpAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumsmtpAlertHandlerSchemaUrn{client.ENUMSMTPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSMTP},
+	addRequest := client.NewAddSmtpAlertHandlerRequest([]client.EnumsmtpAlertHandlerSchemaUrn{client.ENUMSMTPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSMTP},
 		plan.SenderAddress.ValueString(),
 		RecipientAddressSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSmtpAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -1829,12 +1829,12 @@ func (r *alertHandlerResource) CreateSmtpAlertHandler(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddSmtpAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -1854,9 +1854,9 @@ func (r *alertHandlerResource) CreateSmtpAlertHandler(ctx context.Context, req r
 
 // Create a jmx alert-handler
 func (r *alertHandlerResource) CreateJmxAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddJmxAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumjmxAlertHandlerSchemaUrn{client.ENUMJMXALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERJMX},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddJmxAlertHandlerRequest([]client.EnumjmxAlertHandlerSchemaUrn{client.ENUMJMXALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERJMX},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJmxAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -1867,12 +1867,12 @@ func (r *alertHandlerResource) CreateJmxAlertHandler(ctx context.Context, req re
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddJmxAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -1892,10 +1892,10 @@ func (r *alertHandlerResource) CreateJmxAlertHandler(ctx context.Context, req re
 
 // Create a groovy-scripted alert-handler
 func (r *alertHandlerResource) CreateGroovyScriptedAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedAlertHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedAlertHandlerRequest([]client.EnumgroovyScriptedAlertHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -1906,12 +1906,12 @@ func (r *alertHandlerResource) CreateGroovyScriptedAlertHandler(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddGroovyScriptedAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -1931,10 +1931,10 @@ func (r *alertHandlerResource) CreateGroovyScriptedAlertHandler(ctx context.Cont
 
 // Create a snmp alert-handler
 func (r *alertHandlerResource) CreateSnmpAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddSnmpAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumsnmpAlertHandlerSchemaUrn{client.ENUMSNMPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP},
+	addRequest := client.NewAddSnmpAlertHandlerRequest([]client.EnumsnmpAlertHandlerSchemaUrn{client.ENUMSNMPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP},
 		plan.ServerHostName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSnmpAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -1945,12 +1945,12 @@ func (r *alertHandlerResource) CreateSnmpAlertHandler(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddSnmpAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -1974,12 +1974,12 @@ func (r *alertHandlerResource) CreateTwilioAlertHandler(ctx context.Context, req
 	plan.SenderPhoneNumber.ElementsAs(ctx, &SenderPhoneNumberSlice, false)
 	var RecipientPhoneNumberSlice []string
 	plan.RecipientPhoneNumber.ElementsAs(ctx, &RecipientPhoneNumberSlice, false)
-	addRequest := client.NewAddTwilioAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumtwilioAlertHandlerSchemaUrn{client.ENUMTWILIOALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTWILIO},
+	addRequest := client.NewAddTwilioAlertHandlerRequest([]client.EnumtwilioAlertHandlerSchemaUrn{client.ENUMTWILIOALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTWILIO},
 		plan.TwilioAccountSID.ValueString(),
 		SenderPhoneNumberSlice,
 		RecipientPhoneNumberSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalTwilioAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -1990,12 +1990,12 @@ func (r *alertHandlerResource) CreateTwilioAlertHandler(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddTwilioAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -2015,9 +2015,9 @@ func (r *alertHandlerResource) CreateTwilioAlertHandler(ctx context.Context, req
 
 // Create a error-log alert-handler
 func (r *alertHandlerResource) CreateErrorLogAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddErrorLogAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumerrorLogAlertHandlerSchemaUrn{client.ENUMERRORLOGALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERERROR_LOG},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddErrorLogAlertHandlerRequest([]client.EnumerrorLogAlertHandlerSchemaUrn{client.ENUMERRORLOGALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERERROR_LOG},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalErrorLogAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -2028,12 +2028,12 @@ func (r *alertHandlerResource) CreateErrorLogAlertHandler(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddErrorLogAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -2053,9 +2053,9 @@ func (r *alertHandlerResource) CreateErrorLogAlertHandler(ctx context.Context, r
 
 // Create a snmp-sub-agent alert-handler
 func (r *alertHandlerResource) CreateSnmpSubAgentAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddSnmpSubAgentAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumsnmpSubAgentAlertHandlerSchemaUrn{client.ENUMSNMPSUBAGENTALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP_SUB_AGENT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSnmpSubAgentAlertHandlerRequest([]client.EnumsnmpSubAgentAlertHandlerSchemaUrn{client.ENUMSNMPSUBAGENTALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP_SUB_AGENT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSnmpSubAgentAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -2066,12 +2066,12 @@ func (r *alertHandlerResource) CreateSnmpSubAgentAlertHandler(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddSnmpSubAgentAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -2091,10 +2091,10 @@ func (r *alertHandlerResource) CreateSnmpSubAgentAlertHandler(ctx context.Contex
 
 // Create a exec alert-handler
 func (r *alertHandlerResource) CreateExecAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddExecAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumexecAlertHandlerSchemaUrn{client.ENUMEXECALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLEREXEC},
+	addRequest := client.NewAddExecAlertHandlerRequest([]client.EnumexecAlertHandlerSchemaUrn{client.ENUMEXECALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLEREXEC},
 		plan.Command.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalExecAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -2105,12 +2105,12 @@ func (r *alertHandlerResource) CreateExecAlertHandler(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddExecAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -2130,10 +2130,10 @@ func (r *alertHandlerResource) CreateExecAlertHandler(ctx context.Context, req r
 
 // Create a third-party alert-handler
 func (r *alertHandlerResource) CreateThirdPartyAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAlertHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyAlertHandlerSchemaUrn{client.ENUMTHIRDPARTYALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyAlertHandlerRequest([]client.EnumthirdPartyAlertHandlerSchemaUrn{client.ENUMTHIRDPARTYALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyAlertHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Alert Handler", err.Error())
@@ -2144,12 +2144,12 @@ func (r *alertHandlerResource) CreateThirdPartyAlertHandler(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AlertHandlerApi.AddAlertHandler(
+	apiAddRequest := r.apiClient.AlertHandlerAPI.AddAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAlertHandlerRequest(
 		client.AddThirdPartyAlertHandlerRequestAsAddAlertHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AlertHandlerApi.AddAlertHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AlertHandlerAPI.AddAlertHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Alert Handler", err, httpResp)
 		return nil, err
@@ -2257,7 +2257,7 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
+	readResponse, httpResp, err := r.apiClient.AlertHandlerAPI.GetAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
@@ -2307,14 +2307,14 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.AlertHandlerAPI.UpdateAlertHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAlertHandlerOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AlertHandlerApi.UpdateAlertHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AlertHandlerAPI.UpdateAlertHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Alert Handler", err, httpResp)
 			return
@@ -2380,7 +2380,7 @@ func (r *alertHandlerResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
+	readResponse, httpResp, err := r.apiClient.AlertHandlerAPI.GetAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -2441,7 +2441,7 @@ func (r *defaultAlertHandlerResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
+	readResponse, httpResp, err := r.apiClient.AlertHandlerAPI.GetAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
@@ -2480,7 +2480,7 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state alertHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(
+	updateRequest := r.apiClient.AlertHandlerAPI.UpdateAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2490,7 +2490,7 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AlertHandlerApi.UpdateAlertHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AlertHandlerAPI.UpdateAlertHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Alert Handler", err, httpResp)
 			return
@@ -2554,7 +2554,7 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 	// Get the current state to see how any attributes are changing
 	var state defaultAlertHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(
+	updateRequest := r.apiClient.AlertHandlerAPI.UpdateAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2564,7 +2564,7 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AlertHandlerApi.UpdateAlertHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AlertHandlerAPI.UpdateAlertHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Alert Handler", err, httpResp)
 			return
@@ -2638,7 +2638,7 @@ func (r *alertHandlerResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	httpResp, err := r.apiClient.AlertHandlerApi.DeleteAlertHandlerExecute(r.apiClient.AlertHandlerApi.DeleteAlertHandler(
+	httpResp, err := r.apiClient.AlertHandlerAPI.DeleteAlertHandlerExecute(r.apiClient.AlertHandlerAPI.DeleteAlertHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Alert Handler", err, httpResp)

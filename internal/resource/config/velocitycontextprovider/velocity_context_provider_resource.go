@@ -508,8 +508,8 @@ func createVelocityContextProviderOperations(plan velocityContextProviderResourc
 
 // Create a velocity-tools velocity-context-provider
 func (r *velocityContextProviderResource) CreateVelocityToolsVelocityContextProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityContextProviderResourceModel) (*velocityContextProviderResourceModel, error) {
-	addRequest := client.NewAddVelocityToolsVelocityContextProviderRequest(plan.Name.ValueString(),
-		[]client.EnumvelocityToolsVelocityContextProviderSchemaUrn{client.ENUMVELOCITYTOOLSVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERVELOCITY_TOOLS})
+	addRequest := client.NewAddVelocityToolsVelocityContextProviderRequest([]client.EnumvelocityToolsVelocityContextProviderSchemaUrn{client.ENUMVELOCITYTOOLSVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERVELOCITY_TOOLS},
+		plan.Name.ValueString())
 	err := addOptionalVelocityToolsVelocityContextProviderFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Velocity Context Provider", err.Error())
@@ -520,12 +520,12 @@ func (r *velocityContextProviderResource) CreateVelocityToolsVelocityContextProv
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VelocityContextProviderApi.AddVelocityContextProvider(
+	apiAddRequest := r.apiClient.VelocityContextProviderAPI.AddVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.HttpServletExtensionName.ValueString())
 	apiAddRequest = apiAddRequest.AddVelocityContextProviderRequest(
 		client.AddVelocityToolsVelocityContextProviderRequestAsAddVelocityContextProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.AddVelocityContextProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.AddVelocityContextProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Velocity Context Provider", err, httpResp)
 		return nil, err
@@ -545,9 +545,9 @@ func (r *velocityContextProviderResource) CreateVelocityToolsVelocityContextProv
 
 // Create a third-party velocity-context-provider
 func (r *velocityContextProviderResource) CreateThirdPartyVelocityContextProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityContextProviderResourceModel) (*velocityContextProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyVelocityContextProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyVelocityContextProviderSchemaUrn{client.ENUMTHIRDPARTYVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERTHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyVelocityContextProviderRequest([]client.EnumthirdPartyVelocityContextProviderSchemaUrn{client.ENUMTHIRDPARTYVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyVelocityContextProviderFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Velocity Context Provider", err.Error())
@@ -558,12 +558,12 @@ func (r *velocityContextProviderResource) CreateThirdPartyVelocityContextProvide
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VelocityContextProviderApi.AddVelocityContextProvider(
+	apiAddRequest := r.apiClient.VelocityContextProviderAPI.AddVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.HttpServletExtensionName.ValueString())
 	apiAddRequest = apiAddRequest.AddVelocityContextProviderRequest(
 		client.AddThirdPartyVelocityContextProviderRequestAsAddVelocityContextProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.AddVelocityContextProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.AddVelocityContextProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Velocity Context Provider", err, httpResp)
 		return nil, err
@@ -629,7 +629,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
+	readResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.GetVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
@@ -655,14 +655,14 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VelocityContextProviderApi.UpdateVelocityContextProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.VelocityContextProviderAPI.UpdateVelocityContextProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 	ops := createVelocityContextProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.UpdateVelocityContextProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VelocityContextProviderAPI.UpdateVelocityContextProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Context Provider", err, httpResp)
 			return
@@ -713,7 +713,7 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
+	readResponse, httpResp, err := apiClient.VelocityContextProviderAPI.GetVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -772,7 +772,7 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 	// Get the current state to see how any attributes are changing
 	var state velocityContextProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.VelocityContextProviderApi.UpdateVelocityContextProvider(
+	updateRequest := apiClient.VelocityContextProviderAPI.UpdateVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
@@ -782,7 +782,7 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.VelocityContextProviderApi.UpdateVelocityContextProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VelocityContextProviderAPI.UpdateVelocityContextProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Context Provider", err, httpResp)
 			return
@@ -832,7 +832,7 @@ func (r *velocityContextProviderResource) Delete(ctx context.Context, req resour
 		return
 	}
 
-	httpResp, err := r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProviderExecute(r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProvider(
+	httpResp, err := r.apiClient.VelocityContextProviderAPI.DeleteVelocityContextProviderExecute(r.apiClient.VelocityContextProviderAPI.DeleteVelocityContextProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Context Provider", err, httpResp)

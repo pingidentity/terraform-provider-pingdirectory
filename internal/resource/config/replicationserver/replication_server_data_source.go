@@ -47,22 +47,24 @@ func (r *replicationServerDataSource) Configure(_ context.Context, req datasourc
 }
 
 type replicationServerDataSourceModel struct {
-	Id                                  types.String `tfsdk:"id"`
-	Type                                types.String `tfsdk:"type"`
-	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
-	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
-	ReplicationDBDirectory              types.String `tfsdk:"replication_db_directory"`
-	JeProperty                          types.Set    `tfsdk:"je_property"`
-	ReplicationPurgeDelay               types.String `tfsdk:"replication_purge_delay"`
-	TargetDatabaseSize                  types.String `tfsdk:"target_database_size"`
-	ReplicationPort                     types.Int64  `tfsdk:"replication_port"`
-	ListenOnAllAddresses                types.Bool   `tfsdk:"listen_on_all_addresses"`
-	CompressionCriteria                 types.String `tfsdk:"compression_criteria"`
-	HeartbeatInterval                   types.String `tfsdk:"heartbeat_interval"`
-	RemoteMonitorUpdateInterval         types.String `tfsdk:"remote_monitor_update_interval"`
-	RestrictedDomain                    types.Set    `tfsdk:"restricted_domain"`
-	GatewayPriority                     types.Int64  `tfsdk:"gateway_priority"`
-	MissingChangesAlertThresholdPercent types.Int64  `tfsdk:"missing_changes_alert_threshold_percent"`
+	Id                                           types.String `tfsdk:"id"`
+	Type                                         types.String `tfsdk:"type"`
+	SynchronizationProviderName                  types.String `tfsdk:"synchronization_provider_name"`
+	ReplicationServerID                          types.Int64  `tfsdk:"replication_server_id"`
+	ReplicationDBDirectory                       types.String `tfsdk:"replication_db_directory"`
+	JeProperty                                   types.Set    `tfsdk:"je_property"`
+	ReplicationPurgeDelay                        types.String `tfsdk:"replication_purge_delay"`
+	TargetDatabaseSize                           types.String `tfsdk:"target_database_size"`
+	ReplicationPort                              types.Int64  `tfsdk:"replication_port"`
+	ListenOnAllAddresses                         types.Bool   `tfsdk:"listen_on_all_addresses"`
+	CompressionCriteria                          types.String `tfsdk:"compression_criteria"`
+	HeartbeatInterval                            types.String `tfsdk:"heartbeat_interval"`
+	RemoteMonitorUpdateInterval                  types.String `tfsdk:"remote_monitor_update_interval"`
+	RestrictedDomain                             types.Set    `tfsdk:"restricted_domain"`
+	GatewayPriority                              types.Int64  `tfsdk:"gateway_priority"`
+	MissingChangesAlertThresholdPercent          types.Int64  `tfsdk:"missing_changes_alert_threshold_percent"`
+	MissingChangesPolicy                         types.String `tfsdk:"missing_changes_policy"`
+	IncludeAllRemoteServersStateInMonitorMessage types.Bool   `tfsdk:"include_all_remote_servers_state_in_monitor_message"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -158,6 +160,18 @@ func (r *replicationServerDataSource) Schema(ctx context.Context, req datasource
 				Optional:    false,
 				Computed:    true,
 			},
+			"missing_changes_policy": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Determines how the server responds when replication detects that some changes might have been missed. Each missing changes policy is a set of missing changes actions to take for a set of missing changes types. The value configured here acts as a default for all replication domains on this replication server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"include_all_remote_servers_state_in_monitor_message": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates monitor messages should include information about remote servers.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 		},
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, false)
@@ -183,6 +197,9 @@ func readReplicationServerResponseDataSource(ctx context.Context, r *client.Repl
 	state.RestrictedDomain = internaltypes.GetStringSet(r.RestrictedDomain)
 	state.GatewayPriority = types.Int64Value(r.GatewayPriority)
 	state.MissingChangesAlertThresholdPercent = internaltypes.Int64TypeOrNil(r.MissingChangesAlertThresholdPercent)
+	state.MissingChangesPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumreplicationServerMissingChangesPolicyProp(r.MissingChangesPolicy), false)
+	state.IncludeAllRemoteServersStateInMonitorMessage = internaltypes.BoolTypeOrNil(r.IncludeAllRemoteServersStateInMonitorMessage)
 }
 
 // Read resource information
@@ -195,7 +212,7 @@ func (r *replicationServerDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationServerApi.GetReplicationServer(
+	readResponse, httpResp, err := r.apiClient.ReplicationServerAPI.GetReplicationServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Server", err, httpResp)

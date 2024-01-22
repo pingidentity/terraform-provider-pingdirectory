@@ -109,6 +109,8 @@ type globalConfigurationDataSourceModel struct {
 	DuplicateAlertLimit                                            types.Int64  `tfsdk:"duplicate_alert_limit"`
 	DuplicateAlertTimeLimit                                        types.String `tfsdk:"duplicate_alert_time_limit"`
 	WritabilityMode                                                types.String `tfsdk:"writability_mode"`
+	UseSharedDatabaseCacheAcrossAllLocalDBBackends                 types.Bool   `tfsdk:"use_shared_database_cache_across_all_local_db_backends"`
+	SharedLocalDBBackendDatabaseCachePercent                       types.Int64  `tfsdk:"shared_local_db_backend_database_cache_percent"`
 	UnrecoverableDatabaseErrorMode                                 types.String `tfsdk:"unrecoverable_database_error_mode"`
 	DatabaseOnVirtualizedOrNetworkStorage                          types.Bool   `tfsdk:"database_on_virtualized_or_network_storage"`
 	AutoNameWithEntryUUIDConnectionCriteria                        types.String `tfsdk:"auto_name_with_entry_uuid_connection_criteria"`
@@ -516,6 +518,18 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Optional:    false,
 				Computed:    true,
 			},
+			"use_shared_database_cache_across_all_local_db_backends": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether the server should use a common database cache that is shared across all local DB backends instead of maintaining a separate cache for each backend.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"shared_local_db_backend_database_cache_percent": schema.Int64Attribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Specifies the percentage of the JVM memory to allocate to the database cache that is shared across all local DB backends.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"unrecoverable_database_error_mode": schema.StringAttribute{
 				Description: "Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.",
 				Required:    false,
@@ -771,6 +785,8 @@ func readGlobalConfigurationResponseDataSource(ctx context.Context, r *client.Gl
 	state.DuplicateAlertTimeLimit = types.StringValue(r.DuplicateAlertTimeLimit)
 	state.WritabilityMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationWritabilityModeProp(r.WritabilityMode), false)
+	state.UseSharedDatabaseCacheAcrossAllLocalDBBackends = internaltypes.BoolTypeOrNil(r.UseSharedDatabaseCacheAcrossAllLocalDBBackends)
+	state.SharedLocalDBBackendDatabaseCachePercent = internaltypes.Int64TypeOrNil(r.SharedLocalDBBackendDatabaseCachePercent)
 	state.UnrecoverableDatabaseErrorMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationUnrecoverableDatabaseErrorModeProp(r.UnrecoverableDatabaseErrorMode), false)
 	state.DatabaseOnVirtualizedOrNetworkStorage = internaltypes.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
@@ -814,7 +830,7 @@ func (r *globalConfigurationDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(
+	readResponse, httpResp, err := r.apiClient.GlobalConfigurationAPI.GetGlobalConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Global Configuration", err, httpResp)

@@ -320,7 +320,7 @@ func (r *restResourceTypeDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
+	readResponse, httpResp, err := r.apiClient.RestResourceTypeAPI.GetRestResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)

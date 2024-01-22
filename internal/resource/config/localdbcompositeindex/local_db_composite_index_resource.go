@@ -276,8 +276,8 @@ func createLocalDbCompositeIndexOperations(plan localDbCompositeIndexResourceMod
 
 // Create a local-db-composite-index local-db-composite-index
 func (r *localDbCompositeIndexResource) CreateLocalDbCompositeIndex(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan localDbCompositeIndexResourceModel) (*localDbCompositeIndexResourceModel, error) {
-	addRequest := client.NewAddLocalDbCompositeIndexRequest(plan.Name.ValueString(),
-		plan.IndexFilterPattern.ValueString())
+	addRequest := client.NewAddLocalDbCompositeIndexRequest(plan.IndexFilterPattern.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalLocalDbCompositeIndexFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Local Db Composite Index", err.Error())
@@ -288,11 +288,11 @@ func (r *localDbCompositeIndexResource) CreateLocalDbCompositeIndex(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocalDbCompositeIndexApi.AddLocalDbCompositeIndex(
+	apiAddRequest := r.apiClient.LocalDbCompositeIndexAPI.AddLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendName.ValueString())
 	apiAddRequest = apiAddRequest.AddLocalDbCompositeIndexRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.AddLocalDbCompositeIndexExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexAPI.AddLocalDbCompositeIndexExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Local Db Composite Index", err, httpResp)
 		return nil, err
@@ -348,7 +348,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexAPI.GetLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Composite Index", err, httpResp)
@@ -366,14 +366,14 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
+	updateRequest := r.apiClient.LocalDbCompositeIndexAPI.UpdateLocalDbCompositeIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 	ops := createLocalDbCompositeIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndexExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexAPI.UpdateLocalDbCompositeIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Composite Index", err, httpResp)
 			return
@@ -416,7 +416,7 @@ func readLocalDbCompositeIndex(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
+	readResponse, httpResp, err := apiClient.LocalDbCompositeIndexAPI.GetLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -467,7 +467,7 @@ func updateLocalDbCompositeIndex(ctx context.Context, req resource.UpdateRequest
 	// Get the current state to see how any attributes are changing
 	var state localDbCompositeIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(
+	updateRequest := apiClient.LocalDbCompositeIndexAPI.UpdateLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
@@ -477,7 +477,7 @@ func updateLocalDbCompositeIndex(ctx context.Context, req resource.UpdateRequest
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbCompositeIndexAPI.UpdateLocalDbCompositeIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Composite Index", err, httpResp)
 			return
@@ -519,7 +519,7 @@ func (r *localDbCompositeIndexResource) Delete(ctx context.Context, req resource
 		return
 	}
 
-	httpResp, err := r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndexExecute(r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndex(
+	httpResp, err := r.apiClient.LocalDbCompositeIndexAPI.DeleteLocalDbCompositeIndexExecute(r.apiClient.LocalDbCompositeIndexAPI.DeleteLocalDbCompositeIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Composite Index", err, httpResp)

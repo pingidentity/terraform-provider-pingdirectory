@@ -73,7 +73,7 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.TokenClaimValidationApi.DeleteTokenClaimValidation(ctx, updatedResourceModel.id, updatedResourceModel.idTokenValidatorName).Execute()
+					_, err := testClient.TokenClaimValidationAPI.DeleteTokenClaimValidation(ctx, updatedResourceModel.id, updatedResourceModel.idTokenValidatorName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -129,7 +129,7 @@ func testAccCheckExpectedStringArrayTokenClaimValidationAttributes(config string
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TokenClaimValidationApi.GetTokenClaimValidation(ctx, config.id, config.idTokenValidatorName).Execute()
+		response, _, err := testClient.TokenClaimValidationAPI.GetTokenClaimValidation(ctx, config.id, config.idTokenValidatorName).Execute()
 		if err != nil {
 			return err
 		}
@@ -153,7 +153,7 @@ func testAccCheckExpectedStringArrayTokenClaimValidationAttributes(config string
 func testAccCheckStringArrayTokenClaimValidationDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.TokenClaimValidationApi.GetTokenClaimValidation(ctx, testIdStringArrayTokenClaimValidation, testIdTokenValidatorName).Execute()
+	_, _, err := testClient.TokenClaimValidationAPI.GetTokenClaimValidation(ctx, testIdStringArrayTokenClaimValidation, testIdTokenValidatorName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("String Array Token Claim Validation", testIdStringArrayTokenClaimValidation)
 	}

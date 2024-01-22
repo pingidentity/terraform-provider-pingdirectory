@@ -84,12 +84,12 @@ func (r *scimResourceTypesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.ScimResourceTypeApi.ListScimResourceTypes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ScimResourceTypeAPI.ListScimResourceTypes(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.ListScimResourceTypesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.ListScimResourceTypesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Scim Resource Type objects", err, httpResp)
 		return

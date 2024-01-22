@@ -69,7 +69,7 @@ func TestAccGroovyScriptedOauthTokenHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.OauthTokenHandlerApi.DeleteOauthTokenHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.OauthTokenHandlerAPI.DeleteOauthTokenHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedGroovyScriptedOauthTokenHandlerAttributes(config groovy
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.OauthTokenHandlerApi.GetOauthTokenHandler(ctx, config.id).Execute()
+		response, _, err := testClient.OauthTokenHandlerAPI.GetOauthTokenHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedGroovyScriptedOauthTokenHandlerAttributes(config groovy
 func testAccCheckGroovyScriptedOauthTokenHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.OauthTokenHandlerApi.GetOauthTokenHandler(ctx, testIdGroovyScriptedOauthTokenHandler).Execute()
+	_, _, err := testClient.OauthTokenHandlerAPI.GetOauthTokenHandler(ctx, testIdGroovyScriptedOauthTokenHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Groovy Scripted Oauth Token Handler", testIdGroovyScriptedOauthTokenHandler)
 	}

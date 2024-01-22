@@ -74,7 +74,7 @@ func TestAccLdapPassThroughScimResourceType(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ScimResourceTypeApi.DeleteScimResourceType(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ScimResourceTypeAPI.DeleteScimResourceType(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -119,7 +119,7 @@ func testAccCheckExpectedLdapPassThroughScimResourceTypeAttributes(config ldapPa
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ScimResourceTypeApi.GetScimResourceType(ctx, config.id).Execute()
+		response, _, err := testClient.ScimResourceTypeAPI.GetScimResourceType(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -148,7 +148,7 @@ func testAccCheckExpectedLdapPassThroughScimResourceTypeAttributes(config ldapPa
 func testAccCheckLdapPassThroughScimResourceTypeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ScimResourceTypeApi.GetScimResourceType(ctx, testIdLdapPassThroughScimResourceType).Execute()
+	_, _, err := testClient.ScimResourceTypeAPI.GetScimResourceType(ctx, testIdLdapPassThroughScimResourceType).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Ldap Pass Through Scim Resource Type", testIdLdapPassThroughScimResourceType)
 	}

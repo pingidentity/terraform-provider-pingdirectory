@@ -223,11 +223,11 @@ func (r *resultCodeMapResource) CreateResultCodeMap(ctx context.Context, req res
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCodeMapApi.AddResultCodeMap(
+	apiAddRequest := r.apiClient.ResultCodeMapAPI.AddResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCodeMapRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ResultCodeMapApi.AddResultCodeMapExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCodeMapAPI.AddResultCodeMapExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Code Map", err, httpResp)
 		return nil, err
@@ -281,7 +281,7 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ResultCodeMapApi.GetResultCodeMap(
+	readResponse, httpResp, err := r.apiClient.ResultCodeMapAPI.GetResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Code Map", err, httpResp)
@@ -299,14 +299,14 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 	readResultCodeMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ResultCodeMapApi.UpdateResultCodeMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ResultCodeMapAPI.UpdateResultCodeMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createResultCodeMapOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ResultCodeMapApi.UpdateResultCodeMapExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ResultCodeMapAPI.UpdateResultCodeMapExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Result Code Map", err, httpResp)
 			return
@@ -348,7 +348,7 @@ func readResultCodeMap(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ResultCodeMapApi.GetResultCodeMap(
+	readResponse, httpResp, err := apiClient.ResultCodeMapAPI.GetResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -399,7 +399,7 @@ func updateResultCodeMap(ctx context.Context, req resource.UpdateRequest, resp *
 	// Get the current state to see how any attributes are changing
 	var state resultCodeMapResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ResultCodeMapApi.UpdateResultCodeMap(
+	updateRequest := apiClient.ResultCodeMapAPI.UpdateResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -409,7 +409,7 @@ func updateResultCodeMap(ctx context.Context, req resource.UpdateRequest, resp *
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ResultCodeMapApi.UpdateResultCodeMapExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ResultCodeMapAPI.UpdateResultCodeMapExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Result Code Map", err, httpResp)
 			return
@@ -450,7 +450,7 @@ func (r *resultCodeMapResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	httpResp, err := r.apiClient.ResultCodeMapApi.DeleteResultCodeMapExecute(r.apiClient.ResultCodeMapApi.DeleteResultCodeMap(
+	httpResp, err := r.apiClient.ResultCodeMapAPI.DeleteResultCodeMapExecute(r.apiClient.ResultCodeMapAPI.DeleteResultCodeMap(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Code Map", err, httpResp)

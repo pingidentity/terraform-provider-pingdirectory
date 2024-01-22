@@ -84,12 +84,12 @@ func (r *replicationAssurancePoliciesDataSource) Read(ctx context.Context, req d
 		return
 	}
 
-	listRequest := r.apiClient.ReplicationAssurancePolicyApi.ListReplicationAssurancePolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ReplicationAssurancePolicyAPI.ListReplicationAssurancePolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.ListReplicationAssurancePoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyAPI.ListReplicationAssurancePoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Replication Assurance Policy objects", err, httpResp)
 		return

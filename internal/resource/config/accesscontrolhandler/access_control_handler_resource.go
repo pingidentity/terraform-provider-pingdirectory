@@ -160,7 +160,7 @@ func (r *accessControlHandlerResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.GetAccessControlHandler(
+	readResponse, httpResp, err := r.apiClient.AccessControlHandlerAPI.GetAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Control Handler", err, httpResp)
@@ -178,14 +178,14 @@ func (r *accessControlHandlerResource) Create(ctx context.Context, req resource.
 	readDseeCompatAccessControlHandlerResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.AccessControlHandlerAPI.UpdateAccessControlHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createAccessControlHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerAPI.UpdateAccessControlHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Control Handler", err, httpResp)
 			return
@@ -218,7 +218,7 @@ func (r *accessControlHandlerResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.GetAccessControlHandler(
+	readResponse, httpResp, err := r.apiClient.AccessControlHandlerAPI.GetAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Control Handler", err, httpResp)
@@ -252,7 +252,7 @@ func (r *accessControlHandlerResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state accessControlHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandler(
+	updateRequest := r.apiClient.AccessControlHandlerAPI.UpdateAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -262,7 +262,7 @@ func (r *accessControlHandlerResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerAPI.UpdateAccessControlHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Control Handler", err, httpResp)
 			return

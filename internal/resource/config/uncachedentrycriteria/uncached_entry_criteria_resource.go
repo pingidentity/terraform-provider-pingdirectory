@@ -464,21 +464,21 @@ func createUncachedEntryCriteriaOperations(plan uncachedEntryCriteriaResourceMod
 
 // Create a default uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateDefaultUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddDefaultUncachedEntryCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumdefaultUncachedEntryCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIADEFAULT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddDefaultUncachedEntryCriteriaRequest([]client.EnumdefaultUncachedEntryCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIADEFAULT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalDefaultUncachedEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteria(
+	apiAddRequest := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedEntryCriteriaRequest(
 		client.AddDefaultUncachedEntryCriteriaRequestAsAddUncachedEntryCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Entry Criteria", err, httpResp)
 		return nil, err
@@ -498,22 +498,22 @@ func (r *uncachedEntryCriteriaResource) CreateDefaultUncachedEntryCriteria(ctx c
 
 // Create a last-access-time uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateLastAccessTimeUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddLastAccessTimeUncachedEntryCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumlastAccessTimeUncachedEntryCriteriaSchemaUrn{client.ENUMLASTACCESSTIMEUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIALAST_ACCESS_TIME},
+	addRequest := client.NewAddLastAccessTimeUncachedEntryCriteriaRequest([]client.EnumlastAccessTimeUncachedEntryCriteriaSchemaUrn{client.ENUMLASTACCESSTIMEUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIALAST_ACCESS_TIME},
 		plan.AccessTimeThreshold.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalLastAccessTimeUncachedEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteria(
+	apiAddRequest := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedEntryCriteriaRequest(
 		client.AddLastAccessTimeUncachedEntryCriteriaRequestAsAddUncachedEntryCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Entry Criteria", err, httpResp)
 		return nil, err
@@ -533,22 +533,22 @@ func (r *uncachedEntryCriteriaResource) CreateLastAccessTimeUncachedEntryCriteri
 
 // Create a filter-based uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateFilterBasedUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddFilterBasedUncachedEntryCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumfilterBasedUncachedEntryCriteriaSchemaUrn{client.ENUMFILTERBASEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAFILTER_BASED},
+	addRequest := client.NewAddFilterBasedUncachedEntryCriteriaRequest([]client.EnumfilterBasedUncachedEntryCriteriaSchemaUrn{client.ENUMFILTERBASEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAFILTER_BASED},
 		plan.Filter.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFilterBasedUncachedEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteria(
+	apiAddRequest := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedEntryCriteriaRequest(
 		client.AddFilterBasedUncachedEntryCriteriaRequestAsAddUncachedEntryCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Entry Criteria", err, httpResp)
 		return nil, err
@@ -568,22 +568,22 @@ func (r *uncachedEntryCriteriaResource) CreateFilterBasedUncachedEntryCriteria(c
 
 // Create a groovy-scripted uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateGroovyScriptedUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedUncachedEntryCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedUncachedEntryCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedUncachedEntryCriteriaRequest([]client.EnumgroovyScriptedUncachedEntryCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedUncachedEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteria(
+	apiAddRequest := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedEntryCriteriaRequest(
 		client.AddGroovyScriptedUncachedEntryCriteriaRequestAsAddUncachedEntryCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Entry Criteria", err, httpResp)
 		return nil, err
@@ -603,22 +603,22 @@ func (r *uncachedEntryCriteriaResource) CreateGroovyScriptedUncachedEntryCriteri
 
 // Create a third-party uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateThirdPartyUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyUncachedEntryCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyUncachedEntryCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIATHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyUncachedEntryCriteriaRequest([]client.EnumthirdPartyUncachedEntryCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyUncachedEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteria(
+	apiAddRequest := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedEntryCriteriaRequest(
 		client.AddThirdPartyUncachedEntryCriteriaRequestAsAddUncachedEntryCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.AddUncachedEntryCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.AddUncachedEntryCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Entry Criteria", err, httpResp)
 		return nil, err
@@ -700,7 +700,7 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
+	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.GetUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
@@ -732,14 +732,14 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.UncachedEntryCriteriaAPI.UpdateUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createUncachedEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.UpdateUncachedEntryCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Entry Criteria", err, httpResp)
 			return
@@ -795,7 +795,7 @@ func readUncachedEntryCriteria(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
+	readResponse, httpResp, err := apiClient.UncachedEntryCriteriaAPI.GetUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -860,7 +860,7 @@ func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest
 	// Get the current state to see how any attributes are changing
 	var state uncachedEntryCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(
+	updateRequest := apiClient.UncachedEntryCriteriaAPI.UpdateUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -870,7 +870,7 @@ func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.UncachedEntryCriteriaAPI.UpdateUncachedEntryCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Entry Criteria", err, httpResp)
 			return
@@ -925,7 +925,7 @@ func (r *uncachedEntryCriteriaResource) Delete(ctx context.Context, req resource
 		return
 	}
 
-	httpResp, err := r.apiClient.UncachedEntryCriteriaApi.DeleteUncachedEntryCriteriaExecute(r.apiClient.UncachedEntryCriteriaApi.DeleteUncachedEntryCriteria(
+	httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.DeleteUncachedEntryCriteriaExecute(r.apiClient.UncachedEntryCriteriaAPI.DeleteUncachedEntryCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Uncached Entry Criteria", err, httpResp)

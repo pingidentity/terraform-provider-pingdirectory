@@ -67,7 +67,7 @@ func TestAccSummarizeLogFileRotationListener(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogFileRotationListenerApi.DeleteLogFileRotationListener(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogFileRotationListenerAPI.DeleteLogFileRotationListener(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -108,7 +108,7 @@ func testAccCheckExpectedSummarizeLogFileRotationListenerAttributes(config summa
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogFileRotationListenerApi.GetLogFileRotationListener(ctx, config.id).Execute()
+		response, _, err := testClient.LogFileRotationListenerAPI.GetLogFileRotationListener(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func testAccCheckExpectedSummarizeLogFileRotationListenerAttributes(config summa
 func testAccCheckSummarizeLogFileRotationListenerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogFileRotationListenerApi.GetLogFileRotationListener(ctx, testIdSummarizeLogFileRotationListener).Execute()
+	_, _, err := testClient.LogFileRotationListenerAPI.GetLogFileRotationListener(ctx, testIdSummarizeLogFileRotationListener).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Summarize Log File Rotation Listener", testIdSummarizeLogFileRotationListener)
 	}

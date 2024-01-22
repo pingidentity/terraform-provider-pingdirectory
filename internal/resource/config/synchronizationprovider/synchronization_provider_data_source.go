@@ -119,7 +119,7 @@ func (r *synchronizationProviderDataSource) Read(ctx context.Context, req dataso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
+	readResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.GetSynchronizationProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)

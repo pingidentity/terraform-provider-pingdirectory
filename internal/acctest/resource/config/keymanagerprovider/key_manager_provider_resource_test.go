@@ -78,7 +78,7 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.KeyManagerProviderApi.DeleteKeyManagerProvider(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.KeyManagerProviderAPI.DeleteKeyManagerProvider(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -123,7 +123,7 @@ func testAccCheckExpectedFileBasedKeyManagerProviderAttributes(config fileBasedK
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.KeyManagerProviderApi.GetKeyManagerProvider(ctx, config.id).Execute()
+		response, _, err := testClient.KeyManagerProviderAPI.GetKeyManagerProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -152,7 +152,7 @@ func testAccCheckExpectedFileBasedKeyManagerProviderAttributes(config fileBasedK
 func testAccCheckFileBasedKeyManagerProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.KeyManagerProviderApi.GetKeyManagerProvider(ctx, testIdFileBasedKeyManagerProvider).Execute()
+	_, _, err := testClient.KeyManagerProviderAPI.GetKeyManagerProvider(ctx, testIdFileBasedKeyManagerProvider).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("File Based Key Manager Provider", testIdFileBasedKeyManagerProvider)
 	}

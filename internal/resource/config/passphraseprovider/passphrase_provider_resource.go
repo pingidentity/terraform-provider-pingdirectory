@@ -811,22 +811,22 @@ func createPassphraseProviderOperations(plan passphraseProviderResourceModel, st
 
 // Create a environment-variable passphrase-provider
 func (r *passphraseProviderResource) CreateEnvironmentVariablePassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddEnvironmentVariablePassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumenvironmentVariablePassphraseProviderSchemaUrn{client.ENUMENVIRONMENTVARIABLEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERENVIRONMENT_VARIABLE},
+	addRequest := client.NewAddEnvironmentVariablePassphraseProviderRequest([]client.EnumenvironmentVariablePassphraseProviderSchemaUrn{client.ENUMENVIRONMENTVARIABLEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERENVIRONMENT_VARIABLE},
 		plan.EnvironmentVariable.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalEnvironmentVariablePassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddEnvironmentVariablePassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -846,24 +846,24 @@ func (r *passphraseProviderResource) CreateEnvironmentVariablePassphraseProvider
 
 // Create a amazon-secrets-manager passphrase-provider
 func (r *passphraseProviderResource) CreateAmazonSecretsManagerPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumamazonSecretsManagerPassphraseProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAMAZON_SECRETS_MANAGER},
+	addRequest := client.NewAddAmazonSecretsManagerPassphraseProviderRequest([]client.EnumamazonSecretsManagerPassphraseProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
 		plan.SecretID.ValueString(),
 		plan.SecretFieldName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAmazonSecretsManagerPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddAmazonSecretsManagerPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -883,22 +883,22 @@ func (r *passphraseProviderResource) CreateAmazonSecretsManagerPassphraseProvide
 
 // Create a obscured-value passphrase-provider
 func (r *passphraseProviderResource) CreateObscuredValuePassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddObscuredValuePassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumobscuredValuePassphraseProviderSchemaUrn{client.ENUMOBSCUREDVALUEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDEROBSCURED_VALUE},
+	addRequest := client.NewAddObscuredValuePassphraseProviderRequest([]client.EnumobscuredValuePassphraseProviderSchemaUrn{client.ENUMOBSCUREDVALUEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDEROBSCURED_VALUE},
 		plan.ObscuredValue.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalObscuredValuePassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddObscuredValuePassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -918,24 +918,24 @@ func (r *passphraseProviderResource) CreateObscuredValuePassphraseProvider(ctx c
 
 // Create a azure-key-vault passphrase-provider
 func (r *passphraseProviderResource) CreateAzureKeyVaultPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumazureKeyVaultPassphraseProviderSchemaUrn{client.ENUMAZUREKEYVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAZURE_KEY_VAULT},
+	addRequest := client.NewAddAzureKeyVaultPassphraseProviderRequest([]client.EnumazureKeyVaultPassphraseProviderSchemaUrn{client.ENUMAZUREKEYVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
 		plan.SecretName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAzureKeyVaultPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddAzureKeyVaultPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -955,22 +955,22 @@ func (r *passphraseProviderResource) CreateAzureKeyVaultPassphraseProvider(ctx c
 
 // Create a file-based passphrase-provider
 func (r *passphraseProviderResource) CreateFileBasedPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedPassphraseProviderSchemaUrn{client.ENUMFILEBASEDPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERFILE_BASED},
+	addRequest := client.NewAddFileBasedPassphraseProviderRequest([]client.EnumfileBasedPassphraseProviderSchemaUrn{client.ENUMFILEBASEDPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERFILE_BASED},
 		plan.PasswordFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFileBasedPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddFileBasedPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -990,23 +990,23 @@ func (r *passphraseProviderResource) CreateFileBasedPassphraseProvider(ctx conte
 
 // Create a conjur passphrase-provider
 func (r *passphraseProviderResource) CreateConjurPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddConjurPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumconjurPassphraseProviderSchemaUrn{client.ENUMCONJURPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERCONJUR},
+	addRequest := client.NewAddConjurPassphraseProviderRequest([]client.EnumconjurPassphraseProviderSchemaUrn{client.ENUMCONJURPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERCONJUR},
 		plan.ConjurExternalServer.ValueString(),
 		plan.ConjurSecretRelativePath.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalConjurPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddConjurPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -1026,24 +1026,24 @@ func (r *passphraseProviderResource) CreateConjurPassphraseProvider(ctx context.
 
 // Create a vault passphrase-provider
 func (r *passphraseProviderResource) CreateVaultPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddVaultPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumvaultPassphraseProviderSchemaUrn{client.ENUMVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERVAULT},
+	addRequest := client.NewAddVaultPassphraseProviderRequest([]client.EnumvaultPassphraseProviderSchemaUrn{client.ENUMVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERVAULT},
 		plan.VaultExternalServer.ValueString(),
 		plan.VaultSecretPath.ValueString(),
 		plan.VaultSecretFieldName.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalVaultPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddVaultPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -1063,22 +1063,22 @@ func (r *passphraseProviderResource) CreateVaultPassphraseProvider(ctx context.C
 
 // Create a third-party passphrase-provider
 func (r *passphraseProviderResource) CreateThirdPartyPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPassphraseProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPassphraseProviderSchemaUrn{client.ENUMTHIRDPARTYPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyPassphraseProviderRequest([]client.EnumthirdPartyPassphraseProviderSchemaUrn{client.ENUMTHIRDPARTYPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyPassphraseProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassphraseProviderApi.AddPassphraseProvider(
+	apiAddRequest := r.apiClient.PassphraseProviderAPI.AddPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassphraseProviderRequest(
 		client.AddThirdPartyPassphraseProviderRequestAsAddPassphraseProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassphraseProviderApi.AddPassphraseProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.AddPassphraseProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Passphrase Provider", err, httpResp)
 		return nil, err
@@ -1180,7 +1180,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PassphraseProviderApi.GetPassphraseProvider(
+	readResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.GetPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
@@ -1221,14 +1221,14 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PassphraseProviderApi.UpdatePassphraseProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PassphraseProviderAPI.UpdatePassphraseProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPassphraseProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PassphraseProviderApi.UpdatePassphraseProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PassphraseProviderAPI.UpdatePassphraseProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Passphrase Provider", err, httpResp)
 			return
@@ -1294,7 +1294,7 @@ func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PassphraseProviderApi.GetPassphraseProvider(
+	readResponse, httpResp, err := apiClient.PassphraseProviderAPI.GetPassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1368,7 +1368,7 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state passphraseProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PassphraseProviderApi.UpdatePassphraseProvider(
+	updateRequest := apiClient.PassphraseProviderAPI.UpdatePassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1378,7 +1378,7 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PassphraseProviderApi.UpdatePassphraseProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PassphraseProviderAPI.UpdatePassphraseProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Passphrase Provider", err, httpResp)
 			return
@@ -1443,7 +1443,7 @@ func (r *passphraseProviderResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.PassphraseProviderApi.DeletePassphraseProviderExecute(r.apiClient.PassphraseProviderApi.DeletePassphraseProvider(
+	httpResp, err := r.apiClient.PassphraseProviderAPI.DeletePassphraseProviderExecute(r.apiClient.PassphraseProviderAPI.DeletePassphraseProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Passphrase Provider", err, httpResp)

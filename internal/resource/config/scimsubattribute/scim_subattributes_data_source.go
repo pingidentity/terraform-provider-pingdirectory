@@ -94,12 +94,12 @@ func (r *scimSubattributesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	listRequest := r.apiClient.ScimSubattributeApi.ListScimSubattributes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString())
+	listRequest := r.apiClient.ScimSubattributeAPI.ListScimSubattributes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimSubattributeApi.ListScimSubattributesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ScimSubattributeAPI.ListScimSubattributesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Scim Subattribute objects", err, httpResp)
 		return

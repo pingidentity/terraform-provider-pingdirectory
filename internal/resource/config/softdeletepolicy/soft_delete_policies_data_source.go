@@ -84,12 +84,12 @@ func (r *softDeletePoliciesDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.SoftDeletePolicyApi.ListSoftDeletePolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.SoftDeletePolicyAPI.ListSoftDeletePolicies(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.ListSoftDeletePoliciesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyAPI.ListSoftDeletePoliciesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Soft Delete Policy objects", err, httpResp)
 		return

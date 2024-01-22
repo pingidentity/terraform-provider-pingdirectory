@@ -89,12 +89,12 @@ func (r *delegatedAdminCorrelatedRestResourcesDataSource) Read(ctx context.Conte
 		return
 	}
 
-	listRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.ListDelegatedAdminCorrelatedRestResources(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.RestResourceTypeName.ValueString())
+	listRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.ListDelegatedAdminCorrelatedRestResources(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.RestResourceTypeName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.ListDelegatedAdminCorrelatedRestResourcesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceAPI.ListDelegatedAdminCorrelatedRestResourcesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Delegated Admin Correlated Rest Resource objects", err, httpResp)
 		return

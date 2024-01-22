@@ -68,7 +68,7 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ChangeSubscriptionHandlerApi.DeleteChangeSubscriptionHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ChangeSubscriptionHandlerAPI.DeleteChangeSubscriptionHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -109,7 +109,7 @@ func testAccCheckExpectedLoggingChangeSubscriptionHandlerAttributes(config loggi
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(ctx, config.id).Execute()
+		response, _, err := testClient.ChangeSubscriptionHandlerAPI.GetChangeSubscriptionHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -128,7 +128,7 @@ func testAccCheckExpectedLoggingChangeSubscriptionHandlerAttributes(config loggi
 func testAccCheckLoggingChangeSubscriptionHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(ctx, testIdLoggingChangeSubscriptionHandler).Execute()
+	_, _, err := testClient.ChangeSubscriptionHandlerAPI.GetChangeSubscriptionHandler(ctx, testIdLoggingChangeSubscriptionHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Logging Change Subscription Handler", testIdLoggingChangeSubscriptionHandler)
 	}

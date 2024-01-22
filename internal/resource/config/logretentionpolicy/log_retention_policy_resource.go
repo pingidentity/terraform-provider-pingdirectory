@@ -335,21 +335,21 @@ func createLogRetentionPolicyOperations(plan logRetentionPolicyResourceModel, st
 
 // Create a time-limit log-retention-policy
 func (r *logRetentionPolicyResource) CreateTimeLimitLogRetentionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRetentionPolicyResourceModel) (*logRetentionPolicyResourceModel, error) {
-	addRequest := client.NewAddTimeLimitLogRetentionPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumtimeLimitLogRetentionPolicySchemaUrn{client.ENUMTIMELIMITLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYTIME_LIMIT},
-		plan.RetainDuration.ValueString())
+	addRequest := client.NewAddTimeLimitLogRetentionPolicyRequest([]client.EnumtimeLimitLogRetentionPolicySchemaUrn{client.ENUMTIMELIMITLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYTIME_LIMIT},
+		plan.RetainDuration.ValueString(),
+		plan.Name.ValueString())
 	addOptionalTimeLimitLogRetentionPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicy(
+	apiAddRequest := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRetentionPolicyRequest(
 		client.AddTimeLimitLogRetentionPolicyRequestAsAddLogRetentionPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Retention Policy", err, httpResp)
 		return nil, err
@@ -369,20 +369,20 @@ func (r *logRetentionPolicyResource) CreateTimeLimitLogRetentionPolicy(ctx conte
 
 // Create a never-delete log-retention-policy
 func (r *logRetentionPolicyResource) CreateNeverDeleteLogRetentionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRetentionPolicyResourceModel) (*logRetentionPolicyResourceModel, error) {
-	addRequest := client.NewAddNeverDeleteLogRetentionPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumneverDeleteLogRetentionPolicySchemaUrn{client.ENUMNEVERDELETELOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYNEVER_DELETE})
+	addRequest := client.NewAddNeverDeleteLogRetentionPolicyRequest([]client.EnumneverDeleteLogRetentionPolicySchemaUrn{client.ENUMNEVERDELETELOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYNEVER_DELETE},
+		plan.Name.ValueString())
 	addOptionalNeverDeleteLogRetentionPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicy(
+	apiAddRequest := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRetentionPolicyRequest(
 		client.AddNeverDeleteLogRetentionPolicyRequestAsAddLogRetentionPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Retention Policy", err, httpResp)
 		return nil, err
@@ -402,21 +402,21 @@ func (r *logRetentionPolicyResource) CreateNeverDeleteLogRetentionPolicy(ctx con
 
 // Create a file-count log-retention-policy
 func (r *logRetentionPolicyResource) CreateFileCountLogRetentionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRetentionPolicyResourceModel) (*logRetentionPolicyResourceModel, error) {
-	addRequest := client.NewAddFileCountLogRetentionPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumfileCountLogRetentionPolicySchemaUrn{client.ENUMFILECOUNTLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYFILE_COUNT},
-		plan.NumberOfFiles.ValueInt64())
+	addRequest := client.NewAddFileCountLogRetentionPolicyRequest([]client.EnumfileCountLogRetentionPolicySchemaUrn{client.ENUMFILECOUNTLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYFILE_COUNT},
+		plan.NumberOfFiles.ValueInt64(),
+		plan.Name.ValueString())
 	addOptionalFileCountLogRetentionPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicy(
+	apiAddRequest := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRetentionPolicyRequest(
 		client.AddFileCountLogRetentionPolicyRequestAsAddLogRetentionPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Retention Policy", err, httpResp)
 		return nil, err
@@ -436,21 +436,21 @@ func (r *logRetentionPolicyResource) CreateFileCountLogRetentionPolicy(ctx conte
 
 // Create a free-disk-space log-retention-policy
 func (r *logRetentionPolicyResource) CreateFreeDiskSpaceLogRetentionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRetentionPolicyResourceModel) (*logRetentionPolicyResourceModel, error) {
-	addRequest := client.NewAddFreeDiskSpaceLogRetentionPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumfreeDiskSpaceLogRetentionPolicySchemaUrn{client.ENUMFREEDISKSPACELOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYFREE_DISK_SPACE},
-		plan.FreeDiskSpace.ValueString())
+	addRequest := client.NewAddFreeDiskSpaceLogRetentionPolicyRequest([]client.EnumfreeDiskSpaceLogRetentionPolicySchemaUrn{client.ENUMFREEDISKSPACELOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYFREE_DISK_SPACE},
+		plan.FreeDiskSpace.ValueString(),
+		plan.Name.ValueString())
 	addOptionalFreeDiskSpaceLogRetentionPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicy(
+	apiAddRequest := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRetentionPolicyRequest(
 		client.AddFreeDiskSpaceLogRetentionPolicyRequestAsAddLogRetentionPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Retention Policy", err, httpResp)
 		return nil, err
@@ -470,21 +470,21 @@ func (r *logRetentionPolicyResource) CreateFreeDiskSpaceLogRetentionPolicy(ctx c
 
 // Create a size-limit log-retention-policy
 func (r *logRetentionPolicyResource) CreateSizeLimitLogRetentionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRetentionPolicyResourceModel) (*logRetentionPolicyResourceModel, error) {
-	addRequest := client.NewAddSizeLimitLogRetentionPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumsizeLimitLogRetentionPolicySchemaUrn{client.ENUMSIZELIMITLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYSIZE_LIMIT},
-		plan.DiskSpaceUsed.ValueString())
+	addRequest := client.NewAddSizeLimitLogRetentionPolicyRequest([]client.EnumsizeLimitLogRetentionPolicySchemaUrn{client.ENUMSIZELIMITLOGRETENTIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_RETENTION_POLICYSIZE_LIMIT},
+		plan.DiskSpaceUsed.ValueString(),
+		plan.Name.ValueString())
 	addOptionalSizeLimitLogRetentionPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicy(
+	apiAddRequest := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRetentionPolicyRequest(
 		client.AddSizeLimitLogRetentionPolicyRequestAsAddLogRetentionPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.AddLogRetentionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.AddLogRetentionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Retention Policy", err, httpResp)
 		return nil, err
@@ -566,7 +566,7 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
+	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.GetLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)
@@ -598,14 +598,14 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogRetentionPolicyAPI.UpdateLogRetentionPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogRetentionPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogRetentionPolicyAPI.UpdateLogRetentionPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Retention Policy", err, httpResp)
 			return
@@ -661,7 +661,7 @@ func readLogRetentionPolicy(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
+	readResponse, httpResp, err := apiClient.LogRetentionPolicyAPI.GetLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -726,7 +726,7 @@ func updateLogRetentionPolicy(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state logRetentionPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(
+	updateRequest := apiClient.LogRetentionPolicyAPI.UpdateLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -736,7 +736,7 @@ func updateLogRetentionPolicy(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogRetentionPolicyAPI.UpdateLogRetentionPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Retention Policy", err, httpResp)
 			return
@@ -791,7 +791,7 @@ func (r *logRetentionPolicyResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.LogRetentionPolicyApi.DeleteLogRetentionPolicyExecute(r.apiClient.LogRetentionPolicyApi.DeleteLogRetentionPolicy(
+	httpResp, err := r.apiClient.LogRetentionPolicyAPI.DeleteLogRetentionPolicyExecute(r.apiClient.LogRetentionPolicyAPI.DeleteLogRetentionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Retention Policy", err, httpResp)

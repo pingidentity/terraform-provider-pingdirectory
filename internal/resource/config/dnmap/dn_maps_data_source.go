@@ -84,12 +84,12 @@ func (r *dnMapsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	listRequest := r.apiClient.DnMapApi.ListDnMaps(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.DnMapAPI.ListDnMaps(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DnMapApi.ListDnMapsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DnMapAPI.ListDnMapsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Dn Map objects", err, httpResp)
 		return

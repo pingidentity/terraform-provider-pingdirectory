@@ -78,7 +78,7 @@ func testAccCheckExpectedPluginRootAttributes(config pluginRootTestModel) resour
 		resourceType := "Plugin Root"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PluginRootApi.GetPluginRoot(ctx).Execute()
+		response, _, err := testClient.PluginRootAPI.GetPluginRoot(ctx).Execute()
 		if err != nil {
 			return err
 		}

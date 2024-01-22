@@ -66,7 +66,7 @@ func TestAccConsentDefinition(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ConsentDefinitionApi.DeleteConsentDefinition(ctx, updatedResourceModel.uniqueId).Execute()
+					_, err := testClient.ConsentDefinitionAPI.DeleteConsentDefinition(ctx, updatedResourceModel.uniqueId).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedConsentDefinitionAttributes(config consentDefinitionTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConsentDefinitionApi.GetConsentDefinition(ctx, config.uniqueId).Execute()
+		response, _, err := testClient.ConsentDefinitionAPI.GetConsentDefinition(ctx, config.uniqueId).Execute()
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,7 @@ func testAccCheckExpectedConsentDefinitionAttributes(config consentDefinitionTes
 func testAccCheckConsentDefinitionDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConsentDefinitionApi.GetConsentDefinition(ctx, testIdConsentDefinition).Execute()
+	_, _, err := testClient.ConsentDefinitionAPI.GetConsentDefinition(ctx, testIdConsentDefinition).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Consent Definition", testIdConsentDefinition)
 	}

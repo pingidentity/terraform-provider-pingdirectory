@@ -84,12 +84,12 @@ func (r *oauthTokenHandlersDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.OauthTokenHandlerApi.ListOauthTokenHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.OauthTokenHandlerAPI.ListOauthTokenHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.ListOauthTokenHandlersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.ListOauthTokenHandlersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Oauth Token Handler objects", err, httpResp)
 		return

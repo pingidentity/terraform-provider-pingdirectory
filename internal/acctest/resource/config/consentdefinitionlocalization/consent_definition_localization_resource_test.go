@@ -79,7 +79,7 @@ func TestAccConsentDefinitionLocalization(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalization(ctx, updatedResourceModel.locale, updatedResourceModel.consentDefinitionName).Execute()
+					_, err := testClient.ConsentDefinitionLocalizationAPI.DeleteConsentDefinitionLocalization(ctx, updatedResourceModel.locale, updatedResourceModel.consentDefinitionName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -131,7 +131,7 @@ func testAccCheckExpectedConsentDefinitionLocalizationAttributes(config consentD
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(ctx, config.locale, config.consentDefinitionName).Execute()
+		response, _, err := testClient.ConsentDefinitionLocalizationAPI.GetConsentDefinitionLocalization(ctx, config.locale, config.consentDefinitionName).Execute()
 		if err != nil {
 			return err
 		}
@@ -165,7 +165,7 @@ func testAccCheckExpectedConsentDefinitionLocalizationAttributes(config consentD
 func testAccCheckConsentDefinitionLocalizationDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(ctx, testIdConsentDefinitionLocalization, testConsentDefinitionName).Execute()
+	_, _, err := testClient.ConsentDefinitionLocalizationAPI.GetConsentDefinitionLocalization(ctx, testIdConsentDefinitionLocalization, testConsentDefinitionName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Consent Definition Localization", testIdConsentDefinitionLocalization)
 	}

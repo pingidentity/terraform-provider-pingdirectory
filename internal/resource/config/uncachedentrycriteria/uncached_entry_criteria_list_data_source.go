@@ -84,12 +84,12 @@ func (r *uncachedEntryCriteriaListDataSource) Read(ctx context.Context, req data
 		return
 	}
 
-	listRequest := r.apiClient.UncachedEntryCriteriaApi.ListUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.UncachedEntryCriteriaAPI.ListUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.ListUncachedEntryCriteriaExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaAPI.ListUncachedEntryCriteriaExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Uncached Entry Criteria objects", err, httpResp)
 		return

@@ -163,19 +163,19 @@ func createTrustedCertificateOperations(plan trustedCertificateResourceModel, st
 
 // Create a trusted-certificate trusted-certificate
 func (r *trustedCertificateResource) CreateTrustedCertificate(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustedCertificateResourceModel) (*trustedCertificateResourceModel, error) {
-	addRequest := client.NewAddTrustedCertificateRequest(plan.Name.ValueString(),
-		plan.Certificate.ValueString())
+	addRequest := client.NewAddTrustedCertificateRequest(plan.Certificate.ValueString(),
+		plan.Name.ValueString())
 	addOptionalTrustedCertificateFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustedCertificateApi.AddTrustedCertificate(
+	apiAddRequest := r.apiClient.TrustedCertificateAPI.AddTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustedCertificateRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.TrustedCertificateApi.AddTrustedCertificateExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustedCertificateAPI.AddTrustedCertificateExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trusted Certificate", err, httpResp)
 		return nil, err
@@ -229,7 +229,7 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
+	readResponse, httpResp, err := r.apiClient.TrustedCertificateAPI.GetTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
@@ -247,14 +247,14 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustedCertificateAPI.UpdateTrustedCertificate(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTrustedCertificateOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificateExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.TrustedCertificateAPI.UpdateTrustedCertificateExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trusted Certificate", err, httpResp)
 			return
@@ -296,7 +296,7 @@ func readTrustedCertificate(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.TrustedCertificateApi.GetTrustedCertificate(
+	readResponse, httpResp, err := apiClient.TrustedCertificateAPI.GetTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -347,7 +347,7 @@ func updateTrustedCertificate(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state trustedCertificateResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.TrustedCertificateApi.UpdateTrustedCertificate(
+	updateRequest := apiClient.TrustedCertificateAPI.UpdateTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -357,7 +357,7 @@ func updateTrustedCertificate(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.TrustedCertificateApi.UpdateTrustedCertificateExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TrustedCertificateAPI.UpdateTrustedCertificateExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trusted Certificate", err, httpResp)
 			return
@@ -398,7 +398,7 @@ func (r *trustedCertificateResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.TrustedCertificateApi.DeleteTrustedCertificateExecute(r.apiClient.TrustedCertificateApi.DeleteTrustedCertificate(
+	httpResp, err := r.apiClient.TrustedCertificateAPI.DeleteTrustedCertificateExecute(r.apiClient.TrustedCertificateAPI.DeleteTrustedCertificate(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trusted Certificate", err, httpResp)

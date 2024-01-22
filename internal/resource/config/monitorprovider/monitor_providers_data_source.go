@@ -84,12 +84,12 @@ func (r *monitorProvidersDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	listRequest := r.apiClient.MonitorProviderApi.ListMonitorProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.MonitorProviderAPI.ListMonitorProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.ListMonitorProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.MonitorProviderAPI.ListMonitorProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Monitor Provider objects", err, httpResp)
 		return

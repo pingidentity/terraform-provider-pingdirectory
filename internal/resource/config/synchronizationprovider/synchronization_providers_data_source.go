@@ -84,12 +84,12 @@ func (r *synchronizationProvidersDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.SynchronizationProviderApi.ListSynchronizationProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.SynchronizationProviderAPI.ListSynchronizationProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.ListSynchronizationProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.SynchronizationProviderAPI.ListSynchronizationProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Synchronization Provider objects", err, httpResp)
 		return

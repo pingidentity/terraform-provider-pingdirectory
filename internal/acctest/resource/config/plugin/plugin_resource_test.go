@@ -85,7 +85,7 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PluginApi.DeletePlugin(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PluginAPI.DeletePlugin(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -136,7 +136,7 @@ func testAccCheckExpectedInternalSearchRatePluginAttributes(config internalSearc
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PluginApi.GetPlugin(ctx, config.id).Execute()
+		response, _, err := testClient.PluginAPI.GetPlugin(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func testAccCheckExpectedInternalSearchRatePluginAttributes(config internalSearc
 func testAccCheckInternalSearchRatePluginDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PluginApi.GetPlugin(ctx, testIdInternalSearchRatePlugin).Execute()
+	_, _, err := testClient.PluginAPI.GetPlugin(ctx, testIdInternalSearchRatePlugin).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Internal Search Rate Plugin", testIdInternalSearchRatePlugin)
 	}

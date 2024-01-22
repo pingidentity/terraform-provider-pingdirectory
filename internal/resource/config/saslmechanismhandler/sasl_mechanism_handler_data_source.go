@@ -78,6 +78,8 @@ type saslMechanismHandlerDataSourceModel struct {
 	YubikeyAPIKeyPassphraseProvider              types.String `tfsdk:"yubikey_api_key_passphrase_provider"`
 	YubikeyValidationServerBaseURL               types.Set    `tfsdk:"yubikey_validation_server_base_url"`
 	HttpProxyExternalServer                      types.String `tfsdk:"http_proxy_external_server"`
+	HttpConnectTimeout                           types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                          types.String `tfsdk:"http_response_timeout"`
 	IdentityMapper                               types.String `tfsdk:"identity_mapper"`
 	SharedSecretAttributeType                    types.String `tfsdk:"shared_secret_attribute_type"`
 	KeyManagerProvider                           types.String `tfsdk:"key_manager_provider"`
@@ -281,6 +283,18 @@ func (r *saslMechanismHandlerDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
+			"http_connect_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"http_response_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities. When the `type` attribute is set to  one of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request. When the `type` attribute is set to `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values. When the `type` attribute is set to `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory. When the `type` attribute is set to `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`unboundid-totp`, `unboundid-yubikey-otp`, `unboundid-delivered-otp`]: The identity mapper that should be used to identify the user(s) targeted in the authentication and/or authorization identities contained in the bind request. This will only be used for \"u:\"-style identities.\n  - One of [`digest-md5`, `plain`]: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the authentication or authorization ID included in the SASL bind request to the corresponding user in the directory.\n  - `unboundid-ms-chap-v2`: The identity mapper that should be used to identify the entry associated with the username provided in the bind request.\n  - `unboundid-external-auth`: The identity mapper that should be used to identify the user targeted by the authentication ID contained in the bind request. This will only be used for \"u:\"-style authentication ID values.\n  - `cram-md5`: Specifies the name of the identity mapper used with this SASL mechanism handler to match the authentication ID included in the SASL bind request to the corresponding user in the directory.\n  - `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to match the Kerberos principal included in the SASL bind request to the corresponding user in the directory.\n  - `third-party`: The identity mapper that may be used to map usernames to user entries. If the custom SASL mechanism involves a username or some other form of authentication and/or authorization identity, then this may be used to map that ID to an entry for that user.",
@@ -383,6 +397,8 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDataSource(ctx context.C
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, false)
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, false)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, false)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.RequireStaticPassword = internaltypes.BoolTypeOrNil(r.RequireStaticPassword)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
@@ -538,7 +554,7 @@ func (r *saslMechanismHandlerDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(
+	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sasl Mechanism Handler", err, httpResp)

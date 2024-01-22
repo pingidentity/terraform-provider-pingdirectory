@@ -95,7 +95,7 @@ func (r *rootDnDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnApi.GetRootDn(
+	readResponse, httpResp, err := r.apiClient.RootDnAPI.GetRootDn(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn", err, httpResp)

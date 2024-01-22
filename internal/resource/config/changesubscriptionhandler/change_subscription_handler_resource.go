@@ -409,22 +409,22 @@ func createChangeSubscriptionHandlerOperations(plan changeSubscriptionHandlerRes
 
 // Create a groovy-scripted change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateGroovyScriptedChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedChangeSubscriptionHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedChangeSubscriptionHandlerRequest([]client.EnumgroovyScriptedChangeSubscriptionHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedChangeSubscriptionHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandler(
+	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddChangeSubscriptionHandlerRequest(
 		client.AddGroovyScriptedChangeSubscriptionHandlerRequestAsAddChangeSubscriptionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Change Subscription Handler", err, httpResp)
 		return nil, err
@@ -444,21 +444,21 @@ func (r *changeSubscriptionHandlerResource) CreateGroovyScriptedChangeSubscripti
 
 // Create a logging change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateLoggingChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddLoggingChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumloggingChangeSubscriptionHandlerSchemaUrn{client.ENUMLOGGINGCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERLOGGING},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddLoggingChangeSubscriptionHandlerRequest([]client.EnumloggingChangeSubscriptionHandlerSchemaUrn{client.ENUMLOGGINGCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERLOGGING},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalLoggingChangeSubscriptionHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandler(
+	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddChangeSubscriptionHandlerRequest(
 		client.AddLoggingChangeSubscriptionHandlerRequestAsAddChangeSubscriptionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Change Subscription Handler", err, httpResp)
 		return nil, err
@@ -478,22 +478,22 @@ func (r *changeSubscriptionHandlerResource) CreateLoggingChangeSubscriptionHandl
 
 // Create a third-party change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateThirdPartyChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyChangeSubscriptionHandlerSchemaUrn{client.ENUMTHIRDPARTYCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyChangeSubscriptionHandlerRequest([]client.EnumthirdPartyChangeSubscriptionHandlerSchemaUrn{client.ENUMTHIRDPARTYCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyChangeSubscriptionHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandler(
+	apiAddRequest := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddChangeSubscriptionHandlerRequest(
 		client.AddThirdPartyChangeSubscriptionHandlerRequestAsAddChangeSubscriptionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.AddChangeSubscriptionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.AddChangeSubscriptionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Change Subscription Handler", err, httpResp)
 		return nil, err
@@ -563,7 +563,7 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
+	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.GetChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription Handler", err, httpResp)
@@ -589,14 +589,14 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ChangeSubscriptionHandlerAPI.UpdateChangeSubscriptionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createChangeSubscriptionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.UpdateChangeSubscriptionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Change Subscription Handler", err, httpResp)
 			return
@@ -646,7 +646,7 @@ func readChangeSubscriptionHandler(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
+	readResponse, httpResp, err := apiClient.ChangeSubscriptionHandlerAPI.GetChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -705,7 +705,7 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state changeSubscriptionHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandler(
+	updateRequest := apiClient.ChangeSubscriptionHandlerAPI.UpdateChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -715,7 +715,7 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ChangeSubscriptionHandlerAPI.UpdateChangeSubscriptionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Change Subscription Handler", err, httpResp)
 			return
@@ -764,7 +764,7 @@ func (r *changeSubscriptionHandlerResource) Delete(ctx context.Context, req reso
 		return
 	}
 
-	httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.DeleteChangeSubscriptionHandlerExecute(r.apiClient.ChangeSubscriptionHandlerApi.DeleteChangeSubscriptionHandler(
+	httpResp, err := r.apiClient.ChangeSubscriptionHandlerAPI.DeleteChangeSubscriptionHandlerExecute(r.apiClient.ChangeSubscriptionHandlerAPI.DeleteChangeSubscriptionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Change Subscription Handler", err, httpResp)

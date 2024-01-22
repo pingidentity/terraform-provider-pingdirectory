@@ -260,7 +260,7 @@ func (r *otpDeliveryMechanismDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
+	readResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismAPI.GetOtpDeliveryMechanism(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)

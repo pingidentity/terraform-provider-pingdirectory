@@ -84,12 +84,12 @@ func (r *scimSchemasDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	listRequest := r.apiClient.ScimSchemaApi.ListScimSchemas(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ScimSchemaAPI.ListScimSchemas(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimSchemaApi.ListScimSchemasExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ScimSchemaAPI.ListScimSchemasExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Scim Schema objects", err, httpResp)
 		return

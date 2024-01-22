@@ -84,12 +84,12 @@ func (r *httpServletExtensionsDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.HttpServletExtensionApi.ListHttpServletExtensions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.HttpServletExtensionAPI.ListHttpServletExtensions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.ListHttpServletExtensionsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.ListHttpServletExtensionsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Http Servlet Extension objects", err, httpResp)
 		return

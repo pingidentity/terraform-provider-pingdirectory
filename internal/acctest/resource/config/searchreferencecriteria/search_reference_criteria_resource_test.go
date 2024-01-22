@@ -66,7 +66,7 @@ func TestAccSimpleSearchReferenceCriteria(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.SearchReferenceCriteriaApi.DeleteSearchReferenceCriteria(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.SearchReferenceCriteriaAPI.DeleteSearchReferenceCriteria(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(config simpleSe
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.SearchReferenceCriteriaAPI.GetSearchReferenceCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(config simpleSe
 func testAccCheckSimpleSearchReferenceCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, testIdSimpleSearchReferenceCriteria).Execute()
+	_, _, err := testClient.SearchReferenceCriteriaAPI.GetSearchReferenceCriteria(ctx, testIdSimpleSearchReferenceCriteria).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Simple Search Reference Criteria", testIdSimpleSearchReferenceCriteria)
 	}

@@ -248,11 +248,11 @@ func createNotificationManagerOperations(plan notificationManagerResourceModel, 
 
 // Create a third-party notification-manager
 func (r *notificationManagerResource) CreateThirdPartyNotificationManager(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan notificationManagerResourceModel) (*notificationManagerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyNotificationManagerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyNotificationManagerSchemaUrn{client.ENUMTHIRDPARTYNOTIFICATIONMANAGERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0NOTIFICATION_MANAGERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyNotificationManagerRequest([]client.EnumthirdPartyNotificationManagerSchemaUrn{client.ENUMTHIRDPARTYNOTIFICATIONMANAGERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0NOTIFICATION_MANAGERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.SubscriptionBaseDN.ValueString())
+		plan.SubscriptionBaseDN.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyNotificationManagerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Notification Manager", err.Error())
@@ -263,11 +263,11 @@ func (r *notificationManagerResource) CreateThirdPartyNotificationManager(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.NotificationManagerApi.AddNotificationManager(
+	apiAddRequest := r.apiClient.NotificationManagerAPI.AddNotificationManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddThirdPartyNotificationManagerRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.NotificationManagerApi.AddNotificationManagerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.NotificationManagerAPI.AddNotificationManagerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Notification Manager", err, httpResp)
 		return nil, err
@@ -321,7 +321,7 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.NotificationManagerApi.GetNotificationManager(
+	readResponse, httpResp, err := r.apiClient.NotificationManagerAPI.GetNotificationManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)
@@ -339,14 +339,14 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 	readThirdPartyNotificationManagerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.NotificationManagerApi.UpdateNotificationManager(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.NotificationManagerAPI.UpdateNotificationManager(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createNotificationManagerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.NotificationManagerApi.UpdateNotificationManagerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.NotificationManagerAPI.UpdateNotificationManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Notification Manager", err, httpResp)
 			return
@@ -388,7 +388,7 @@ func readNotificationManager(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.NotificationManagerApi.GetNotificationManager(
+	readResponse, httpResp, err := apiClient.NotificationManagerAPI.GetNotificationManager(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -439,7 +439,7 @@ func updateNotificationManager(ctx context.Context, req resource.UpdateRequest, 
 	// Get the current state to see how any attributes are changing
 	var state notificationManagerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.NotificationManagerApi.UpdateNotificationManager(
+	updateRequest := apiClient.NotificationManagerAPI.UpdateNotificationManager(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -449,7 +449,7 @@ func updateNotificationManager(ctx context.Context, req resource.UpdateRequest, 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.NotificationManagerApi.UpdateNotificationManagerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.NotificationManagerAPI.UpdateNotificationManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Notification Manager", err, httpResp)
 			return
@@ -490,7 +490,7 @@ func (r *notificationManagerResource) Delete(ctx context.Context, req resource.D
 		return
 	}
 
-	httpResp, err := r.apiClient.NotificationManagerApi.DeleteNotificationManagerExecute(r.apiClient.NotificationManagerApi.DeleteNotificationManager(
+	httpResp, err := r.apiClient.NotificationManagerAPI.DeleteNotificationManagerExecute(r.apiClient.NotificationManagerAPI.DeleteNotificationManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Notification Manager", err, httpResp)

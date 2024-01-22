@@ -118,7 +118,7 @@ func (r *delegatedAdminRightsDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsAPI.GetDelegatedAdminRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)

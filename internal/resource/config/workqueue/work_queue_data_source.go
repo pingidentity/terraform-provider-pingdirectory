@@ -181,7 +181,7 @@ func (r *workQueueDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.WorkQueueApi.GetWorkQueue(
+	readResponse, httpResp, err := r.apiClient.WorkQueueAPI.GetWorkQueue(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Work Queue", err, httpResp)

@@ -89,12 +89,12 @@ func (r *consentDefinitionLocalizationsDataSource) Read(ctx context.Context, req
 		return
 	}
 
-	listRequest := r.apiClient.ConsentDefinitionLocalizationApi.ListConsentDefinitionLocalizations(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ConsentDefinitionName.ValueString())
+	listRequest := r.apiClient.ConsentDefinitionLocalizationAPI.ListConsentDefinitionLocalizations(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ConsentDefinitionName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.ListConsentDefinitionLocalizationsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.ListConsentDefinitionLocalizationsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Consent Definition Localization objects", err, httpResp)
 		return

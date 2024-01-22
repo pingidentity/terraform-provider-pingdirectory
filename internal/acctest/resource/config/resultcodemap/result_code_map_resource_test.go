@@ -65,7 +65,7 @@ func TestAccResultCodeMap(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ResultCodeMapApi.DeleteResultCodeMap(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ResultCodeMapAPI.DeleteResultCodeMap(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedResultCodeMapAttributes(config resultCodeMapTestModel) 
 		resourceType := "Result Code Map"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ResultCodeMapApi.GetResultCodeMap(ctx, config.id).Execute()
+		response, _, err := testClient.ResultCodeMapAPI.GetResultCodeMap(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -123,7 +123,7 @@ func testAccCheckExpectedResultCodeMapAttributes(config resultCodeMapTestModel) 
 func testAccCheckResultCodeMapDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ResultCodeMapApi.GetResultCodeMap(ctx, testIdResultCodeMap).Execute()
+	_, _, err := testClient.ResultCodeMapAPI.GetResultCodeMap(ctx, testIdResultCodeMap).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Result Code Map", testIdResultCodeMap)
 	}

@@ -78,7 +78,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ConnectionHandlerApi.DeleteConnectionHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ConnectionHandlerAPI.DeleteConnectionHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -119,7 +119,7 @@ data "pingdirectory_connection_handlers" "list" {
 func testAccCheckHttpConnectionHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, configId).Execute()
+	_, _, err := testClient.ConnectionHandlerAPI.GetConnectionHandler(ctx, configId).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("http connection handler", configId)
 	}
@@ -132,7 +132,7 @@ func testAccCheckExpectedHttpConnectionHandlerAttributes(config testModel) resou
 		resourceType := "http connection handler"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, config.id).Execute()
+		response, _, err := testClient.ConnectionHandlerAPI.GetConnectionHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

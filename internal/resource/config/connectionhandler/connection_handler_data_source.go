@@ -76,12 +76,14 @@ type connectionHandlerDataSourceModel struct {
 	CorrelationIDResponseHeader            types.String `tfsdk:"correlation_id_response_header"`
 	CorrelationIDRequestHeader             types.Set    `tfsdk:"correlation_id_request_header"`
 	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
+	EnableSniHostnameChecks                types.Bool   `tfsdk:"enable_sni_hostname_checks"`
 	SendRejectionNotice                    types.Bool   `tfsdk:"send_rejection_notice"`
 	FailedBindResponseDelay                types.String `tfsdk:"failed_bind_response_delay"`
 	MaxRequestSize                         types.String `tfsdk:"max_request_size"`
 	MaxCancelHandlers                      types.Int64  `tfsdk:"max_cancel_handlers"`
 	NumAcceptHandlers                      types.Int64  `tfsdk:"num_accept_handlers"`
 	NumRequestHandlers                     types.Int64  `tfsdk:"num_request_handlers"`
+	RequestHandlerPerConnection            types.Bool   `tfsdk:"request_handler_per_connection"`
 	SslClientAuthPolicy                    types.String `tfsdk:"ssl_client_auth_policy"`
 	AcceptBacklog                          types.Int64  `tfsdk:"accept_backlog"`
 	SslProtocol                            types.Set    `tfsdk:"ssl_protocol"`
@@ -275,6 +277,12 @@ func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource
 				Optional:    false,
 				Computed:    true,
 			},
+			"enable_sni_hostname_checks": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"send_rejection_notice": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.",
 				Required:    false,
@@ -311,6 +319,12 @@ func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource
 				Required:            false,
 				Optional:            false,
 				Computed:            true,
+			},
+			"request_handler_per_connection": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether a separate request handler thread should be created for each client connection, which can help avoid starvation of client connections for cases in which one or more clients send large numbers of concurrent asynchronous requests. This should only be used for cases in which a relatively small number of connections will be established at any given time, the connections established will generally be long-lived, and at least one client may send high volumes of asynchronous requests. This property can be used to alleviate possible blocking during long-running TLS negotiation on a single request handler which can result in it being unable to acknowledge further client requests until the TLS negotation completes or times out.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
 			},
 			"ssl_client_auth_policy": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates. When the `type` attribute is set to `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.",
@@ -433,6 +447,7 @@ func readLdapConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
 	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
 	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
+	state.RequestHandlerPerConnection = internaltypes.BoolTypeOrNil(r.RequestHandlerPerConnection)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), false)
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
@@ -498,6 +513,7 @@ func readHttpConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), false)
+	state.EnableSniHostnameChecks = internaltypes.BoolTypeOrNil(r.EnableSniHostnameChecks)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -512,7 +528,7 @@ func (r *connectionHandlerDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
+	readResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.GetConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)

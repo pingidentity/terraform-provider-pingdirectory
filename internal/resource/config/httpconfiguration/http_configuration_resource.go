@@ -152,7 +152,7 @@ func (r *httpConfigurationResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpConfigurationApi.GetHttpConfiguration(
+	readResponse, httpResp, err := r.apiClient.HttpConfigurationAPI.GetHttpConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Configuration", err, httpResp)
@@ -170,14 +170,14 @@ func (r *httpConfigurationResource) Create(ctx context.Context, req resource.Cre
 	readHttpConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.HttpConfigurationApi.UpdateHttpConfiguration(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.HttpConfigurationAPI.UpdateHttpConfiguration(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createHttpConfigurationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpConfigurationApi.UpdateHttpConfigurationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpConfigurationAPI.UpdateHttpConfigurationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Configuration", err, httpResp)
 			return
@@ -210,7 +210,7 @@ func (r *httpConfigurationResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpConfigurationApi.GetHttpConfiguration(
+	readResponse, httpResp, err := r.apiClient.HttpConfigurationAPI.GetHttpConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Configuration", err, httpResp)
@@ -244,7 +244,7 @@ func (r *httpConfigurationResource) Update(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state httpConfigurationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpConfigurationApi.UpdateHttpConfiguration(
+	updateRequest := r.apiClient.HttpConfigurationAPI.UpdateHttpConfiguration(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -254,7 +254,7 @@ func (r *httpConfigurationResource) Update(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpConfigurationApi.UpdateHttpConfigurationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpConfigurationAPI.UpdateHttpConfigurationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Configuration", err, httpResp)
 			return

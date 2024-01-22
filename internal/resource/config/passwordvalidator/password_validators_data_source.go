@@ -84,12 +84,12 @@ func (r *passwordValidatorsDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.PasswordValidatorApi.ListPasswordValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.PasswordValidatorAPI.ListPasswordValidators(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordValidatorApi.ListPasswordValidatorsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.ListPasswordValidatorsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Password Validator objects", err, httpResp)
 		return

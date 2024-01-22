@@ -84,12 +84,12 @@ func (r *obscuredValuesDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	listRequest := r.apiClient.ObscuredValueApi.ListObscuredValues(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ObscuredValueAPI.ListObscuredValues(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ObscuredValueApi.ListObscuredValuesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ObscuredValueAPI.ListObscuredValuesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Obscured Value objects", err, httpResp)
 		return

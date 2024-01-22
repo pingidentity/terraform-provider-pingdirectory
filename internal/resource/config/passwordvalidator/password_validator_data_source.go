@@ -62,6 +62,8 @@ type passwordValidatorDataSourceModel struct {
 	DisallowedTrailingCharacters                   types.String `tfsdk:"disallowed_trailing_characters"`
 	PwnedPasswordsBaseURL                          types.String `tfsdk:"pwned_passwords_base_url"`
 	HttpProxyExternalServer                        types.String `tfsdk:"http_proxy_external_server"`
+	HttpConnectTimeout                             types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                            types.String `tfsdk:"http_response_timeout"`
 	InvokeForAdd                                   types.Bool   `tfsdk:"invoke_for_add"`
 	InvokeForSelfChange                            types.Bool   `tfsdk:"invoke_for_self_change"`
 	InvokeForAdminReset                            types.Bool   `tfsdk:"invoke_for_admin_reset"`
@@ -178,6 +180,18 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 			},
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"http_connect_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"http_response_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -534,6 +548,8 @@ func readPwnedPasswordsPasswordValidatorResponseDataSource(ctx context.Context, 
 	state.Name = types.StringValue(r.Id)
 	state.PwnedPasswordsBaseURL = types.StringValue(r.PwnedPasswordsBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, false)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, false)
 	state.InvokeForAdd = types.BoolValue(r.InvokeForAdd)
 	state.InvokeForSelfChange = types.BoolValue(r.InvokeForSelfChange)
 	state.InvokeForAdminReset = types.BoolValue(r.InvokeForAdminReset)
@@ -622,7 +638,7 @@ func (r *passwordValidatorDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordValidatorApi.GetPasswordValidator(
+	readResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.GetPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)

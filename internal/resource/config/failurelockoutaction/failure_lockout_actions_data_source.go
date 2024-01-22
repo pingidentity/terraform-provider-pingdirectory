@@ -84,12 +84,12 @@ func (r *failureLockoutActionsDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.FailureLockoutActionApi.ListFailureLockoutActions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.FailureLockoutActionAPI.ListFailureLockoutActions(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.ListFailureLockoutActionsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.ListFailureLockoutActionsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Failure Lockout Action objects", err, httpResp)
 		return

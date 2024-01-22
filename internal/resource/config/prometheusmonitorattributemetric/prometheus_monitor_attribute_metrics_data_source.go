@@ -98,12 +98,12 @@ func (r *prometheusMonitorAttributeMetricsDataSource) Read(ctx context.Context, 
 		return
 	}
 
-	listRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.ListPrometheusMonitorAttributeMetrics(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
+	listRequest := r.apiClient.PrometheusMonitorAttributeMetricAPI.ListPrometheusMonitorAttributeMetrics(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.ListPrometheusMonitorAttributeMetricsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.ListPrometheusMonitorAttributeMetricsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Prometheus Monitor Attribute Metric objects", err, httpResp)
 		return

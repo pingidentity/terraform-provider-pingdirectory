@@ -84,12 +84,12 @@ func (r *trustManagerProvidersDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.TrustManagerProviderApi.ListTrustManagerProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.TrustManagerProviderAPI.ListTrustManagerProviders(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.ListTrustManagerProvidersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.TrustManagerProviderAPI.ListTrustManagerProvidersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Trust Manager Provider objects", err, httpResp)
 		return

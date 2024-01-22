@@ -463,7 +463,7 @@ func (r *extendedOperationHandlerDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(
+	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Extended Operation Handler", err, httpResp)
