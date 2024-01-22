@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -159,7 +159,7 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.GetMatchingRule(
+	readResponse, httpResp, err := r.apiClient.MatchingRuleAPI.GetMatchingRule(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Matching Rule", err, httpResp)
@@ -191,14 +191,14 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MatchingRuleApi.UpdateMatchingRule(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.MatchingRuleAPI.UpdateMatchingRule(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMatchingRuleOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MatchingRuleApi.UpdateMatchingRuleExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MatchingRuleAPI.UpdateMatchingRuleExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Matching Rule", err, httpResp)
 			return
@@ -245,7 +245,7 @@ func (r *matchingRuleResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.GetMatchingRule(
+	readResponse, httpResp, err := r.apiClient.MatchingRuleAPI.GetMatchingRule(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Matching Rule", err, httpResp)
@@ -293,7 +293,7 @@ func (r *matchingRuleResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state matchingRuleResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MatchingRuleApi.UpdateMatchingRule(
+	updateRequest := r.apiClient.MatchingRuleAPI.UpdateMatchingRule(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -303,7 +303,7 @@ func (r *matchingRuleResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MatchingRuleApi.UpdateMatchingRuleExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MatchingRuleAPI.UpdateMatchingRuleExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Matching Rule", err, httpResp)
 			return

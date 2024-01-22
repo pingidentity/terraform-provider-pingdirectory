@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -572,21 +572,21 @@ func createCertificateMapperOperations(plan certificateMapperResourceModel, stat
 
 // Create a subject-equals-dn certificate-mapper
 func (r *certificateMapperResource) CreateSubjectEqualsDnCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddSubjectEqualsDnCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumsubjectEqualsDnCertificateMapperSchemaUrn{client.ENUMSUBJECTEQUALSDNCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_EQUALS_DN},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSubjectEqualsDnCertificateMapperRequest([]client.EnumsubjectEqualsDnCertificateMapperSchemaUrn{client.ENUMSUBJECTEQUALSDNCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_EQUALS_DN},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalSubjectEqualsDnCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddSubjectEqualsDnCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -606,21 +606,21 @@ func (r *certificateMapperResource) CreateSubjectEqualsDnCertificateMapper(ctx c
 
 // Create a subject-dn-to-user-attribute certificate-mapper
 func (r *certificateMapperResource) CreateSubjectDnToUserAttributeCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddSubjectDnToUserAttributeCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumsubjectDnToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTDNTOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_DN_TO_USER_ATTRIBUTE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSubjectDnToUserAttributeCertificateMapperRequest([]client.EnumsubjectDnToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTDNTOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_DN_TO_USER_ATTRIBUTE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalSubjectDnToUserAttributeCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddSubjectDnToUserAttributeCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -640,22 +640,22 @@ func (r *certificateMapperResource) CreateSubjectDnToUserAttributeCertificateMap
 
 // Create a groovy-scripted certificate-mapper
 func (r *certificateMapperResource) CreateGroovyScriptedCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedCertificateMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedCertificateMapperRequest([]client.EnumgroovyScriptedCertificateMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddGroovyScriptedCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -677,22 +677,22 @@ func (r *certificateMapperResource) CreateGroovyScriptedCertificateMapper(ctx co
 func (r *certificateMapperResource) CreateSubjectAttributeToUserAttributeCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
 	var SubjectAttributeMappingSlice []string
 	plan.SubjectAttributeMapping.ElementsAs(ctx, &SubjectAttributeMappingSlice, false)
-	addRequest := client.NewAddSubjectAttributeToUserAttributeCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumsubjectAttributeToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTATTRIBUTETOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_ATTRIBUTE_TO_USER_ATTRIBUTE},
+	addRequest := client.NewAddSubjectAttributeToUserAttributeCertificateMapperRequest([]client.EnumsubjectAttributeToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTATTRIBUTETOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_ATTRIBUTE_TO_USER_ATTRIBUTE},
 		SubjectAttributeMappingSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalSubjectAttributeToUserAttributeCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddSubjectAttributeToUserAttributeCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -717,22 +717,22 @@ func (r *certificateMapperResource) CreateFingerprintCertificateMapper(ctx conte
 		resp.Diagnostics.AddError("Failed to parse enum value for FingerprintAlgorithm", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddFingerprintCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumfingerprintCertificateMapperSchemaUrn{client.ENUMFINGERPRINTCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERFINGERPRINT},
+	addRequest := client.NewAddFingerprintCertificateMapperRequest([]client.EnumfingerprintCertificateMapperSchemaUrn{client.ENUMFINGERPRINTCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERFINGERPRINT},
 		*fingerprintAlgorithm,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalFingerprintCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddFingerprintCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -752,22 +752,22 @@ func (r *certificateMapperResource) CreateFingerprintCertificateMapper(ctx conte
 
 // Create a third-party certificate-mapper
 func (r *certificateMapperResource) CreateThirdPartyCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddThirdPartyCertificateMapperRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyCertificateMapperSchemaUrn{client.ENUMTHIRDPARTYCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyCertificateMapperRequest([]client.EnumthirdPartyCertificateMapperSchemaUrn{client.ENUMTHIRDPARTYCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyCertificateMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CertificateMapperApi.AddCertificateMapper(
+	apiAddRequest := r.apiClient.CertificateMapperAPI.AddCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddCertificateMapperRequest(
 		client.AddThirdPartyCertificateMapperRequestAsAddCertificateMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.CertificateMapperApi.AddCertificateMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CertificateMapperAPI.AddCertificateMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Certificate Mapper", err, httpResp)
 		return nil, err
@@ -855,7 +855,7 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
+	readResponse, httpResp, err := r.apiClient.CertificateMapperAPI.GetCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
@@ -890,14 +890,14 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.CertificateMapperAPI.UpdateCertificateMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createCertificateMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CertificateMapperApi.UpdateCertificateMapperExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CertificateMapperAPI.UpdateCertificateMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Certificate Mapper", err, httpResp)
 			return
@@ -956,7 +956,7 @@ func readCertificateMapper(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.CertificateMapperApi.GetCertificateMapper(
+	readResponse, httpResp, err := apiClient.CertificateMapperAPI.GetCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1024,7 +1024,7 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state certificateMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.CertificateMapperApi.UpdateCertificateMapper(
+	updateRequest := apiClient.CertificateMapperAPI.UpdateCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1034,7 +1034,7 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.CertificateMapperApi.UpdateCertificateMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.CertificateMapperAPI.UpdateCertificateMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Certificate Mapper", err, httpResp)
 			return
@@ -1092,7 +1092,7 @@ func (r *certificateMapperResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.CertificateMapperApi.DeleteCertificateMapperExecute(r.apiClient.CertificateMapperApi.DeleteCertificateMapper(
+	httpResp, err := r.apiClient.CertificateMapperAPI.DeleteCertificateMapperExecute(r.apiClient.CertificateMapperAPI.DeleteCertificateMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Certificate Mapper", err, httpResp)

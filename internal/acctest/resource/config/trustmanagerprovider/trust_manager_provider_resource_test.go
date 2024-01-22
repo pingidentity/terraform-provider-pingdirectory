@@ -54,7 +54,7 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.TrustManagerProviderApi.DeleteTrustManagerProvider(ctx, tmpName).Execute()
+					_, err := testClient.TrustManagerProviderAPI.DeleteTrustManagerProvider(ctx, tmpName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -189,7 +189,7 @@ resource "pingdirectory_trust_manager_provider" "%[1]s" {
 func testAccCheckTrustManagerProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, tmpName).Execute()
+	_, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, tmpName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("trust manager provider", tmpName)
 	}
@@ -202,7 +202,7 @@ func testAccCheckExpectedFileBasedTrustManagerProviderAttributes(enabled bool, t
 		resourceType := "file based trust manager provider"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, tmpName).Execute()
+		response, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, tmpName).Execute()
 		if err != nil {
 			return err
 		}
@@ -229,7 +229,7 @@ func testAccCheckExpectedJvmDefaultTrustManagerProviderAttributes(enabled bool) 
 		resourceType := "jvm default trust manager provider"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, tmpName).Execute()
+		response, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, tmpName).Execute()
 		if err != nil {
 			return err
 		}
@@ -248,7 +248,7 @@ func testAccCheckExpectedThirdPartyTrustManagerProviderAttributes(enabled bool, 
 		resourceType := "third party trust manager provider"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, tmpName).Execute()
+		response, _, err := testClient.TrustManagerProviderAPI.GetTrustManagerProvider(ctx, tmpName).Execute()
 		if err != nil {
 			return err
 		}

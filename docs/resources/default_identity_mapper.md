@@ -50,7 +50,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `id` (String) The ID of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
-- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']
+- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'dn', 'regular-expression', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

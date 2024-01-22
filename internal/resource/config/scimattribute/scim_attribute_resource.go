@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -340,11 +340,11 @@ func (r *scimAttributeResource) CreateScimAttribute(ctx context.Context, req res
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ScimAttributeApi.AddScimAttribute(
+	apiAddRequest := r.apiClient.ScimAttributeAPI.AddScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ScimSchemaName.ValueString())
 	apiAddRequest = apiAddRequest.AddScimAttributeRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ScimAttributeApi.AddScimAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ScimAttributeAPI.AddScimAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Attribute", err, httpResp)
 		return nil, err
@@ -400,7 +400,7 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimAttributeApi.GetScimAttribute(
+	readResponse, httpResp, err := r.apiClient.ScimAttributeAPI.GetScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
@@ -418,14 +418,14 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 	readScimAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ScimAttributeApi.UpdateScimAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
+	updateRequest := r.apiClient.ScimAttributeAPI.UpdateScimAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
 	ops := createScimAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ScimAttributeApi.UpdateScimAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ScimAttributeAPI.UpdateScimAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute", err, httpResp)
 			return
@@ -468,7 +468,7 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ScimAttributeApi.GetScimAttribute(
+	readResponse, httpResp, err := apiClient.ScimAttributeAPI.GetScimAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -519,7 +519,7 @@ func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *
 	// Get the current state to see how any attributes are changing
 	var state scimAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ScimAttributeApi.UpdateScimAttribute(
+	updateRequest := apiClient.ScimAttributeAPI.UpdateScimAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
 
 	// Determine what update operations are necessary
@@ -529,7 +529,7 @@ func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ScimAttributeApi.UpdateScimAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ScimAttributeAPI.UpdateScimAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute", err, httpResp)
 			return
@@ -571,7 +571,7 @@ func (r *scimAttributeResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	httpResp, err := r.apiClient.ScimAttributeApi.DeleteScimAttributeExecute(r.apiClient.ScimAttributeApi.DeleteScimAttribute(
+	httpResp, err := r.apiClient.ScimAttributeAPI.DeleteScimAttributeExecute(r.apiClient.ScimAttributeAPI.DeleteScimAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Attribute", err, httpResp)

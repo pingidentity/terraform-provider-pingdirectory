@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -461,21 +461,21 @@ func createUncachedAttributeCriteriaOperations(plan uncachedAttributeCriteriaRes
 
 // Create a default uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateDefaultUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddDefaultUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumdefaultUncachedAttributeCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIADEFAULT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddDefaultUncachedAttributeCriteriaRequest([]client.EnumdefaultUncachedAttributeCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIADEFAULT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalDefaultUncachedAttributeCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteria(
+	apiAddRequest := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedAttributeCriteriaRequest(
 		client.AddDefaultUncachedAttributeCriteriaRequestAsAddUncachedAttributeCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Attribute Criteria", err, httpResp)
 		return nil, err
@@ -495,22 +495,22 @@ func (r *uncachedAttributeCriteriaResource) CreateDefaultUncachedAttributeCriter
 
 // Create a groovy-scripted uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateGroovyScriptedUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedUncachedAttributeCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIAGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedUncachedAttributeCriteriaRequest([]client.EnumgroovyScriptedUncachedAttributeCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIAGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedUncachedAttributeCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteria(
+	apiAddRequest := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedAttributeCriteriaRequest(
 		client.AddGroovyScriptedUncachedAttributeCriteriaRequestAsAddUncachedAttributeCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Attribute Criteria", err, httpResp)
 		return nil, err
@@ -532,22 +532,22 @@ func (r *uncachedAttributeCriteriaResource) CreateGroovyScriptedUncachedAttribut
 func (r *uncachedAttributeCriteriaResource) CreateSimpleUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
-	addRequest := client.NewAddSimpleUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleUncachedAttributeCriteriaSchemaUrn{client.ENUMSIMPLEUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIASIMPLE},
+	addRequest := client.NewAddSimpleUncachedAttributeCriteriaRequest([]client.EnumsimpleUncachedAttributeCriteriaSchemaUrn{client.ENUMSIMPLEUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIASIMPLE},
 		AttributeTypeSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalSimpleUncachedAttributeCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteria(
+	apiAddRequest := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedAttributeCriteriaRequest(
 		client.AddSimpleUncachedAttributeCriteriaRequestAsAddUncachedAttributeCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Attribute Criteria", err, httpResp)
 		return nil, err
@@ -567,22 +567,22 @@ func (r *uncachedAttributeCriteriaResource) CreateSimpleUncachedAttributeCriteri
 
 // Create a third-party uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateThirdPartyUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyUncachedAttributeCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIATHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyUncachedAttributeCriteriaRequest([]client.EnumthirdPartyUncachedAttributeCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyUncachedAttributeCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteria(
+	apiAddRequest := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddUncachedAttributeCriteriaRequest(
 		client.AddThirdPartyUncachedAttributeCriteriaRequestAsAddUncachedAttributeCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.AddUncachedAttributeCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.AddUncachedAttributeCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Uncached Attribute Criteria", err, httpResp)
 		return nil, err
@@ -658,7 +658,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
+	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.GetUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Attribute Criteria", err, httpResp)
@@ -687,14 +687,14 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.UncachedAttributeCriteriaAPI.UpdateUncachedAttributeCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createUncachedAttributeCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.UpdateUncachedAttributeCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Attribute Criteria", err, httpResp)
 			return
@@ -747,7 +747,7 @@ func readUncachedAttributeCriteria(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
+	readResponse, httpResp, err := apiClient.UncachedAttributeCriteriaAPI.GetUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -809,7 +809,7 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state uncachedAttributeCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteria(
+	updateRequest := apiClient.UncachedAttributeCriteriaAPI.UpdateUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -819,7 +819,7 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.UncachedAttributeCriteriaAPI.UpdateUncachedAttributeCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Attribute Criteria", err, httpResp)
 			return
@@ -871,7 +871,7 @@ func (r *uncachedAttributeCriteriaResource) Delete(ctx context.Context, req reso
 		return
 	}
 
-	httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.DeleteUncachedAttributeCriteriaExecute(r.apiClient.UncachedAttributeCriteriaApi.DeleteUncachedAttributeCriteria(
+	httpResp, err := r.apiClient.UncachedAttributeCriteriaAPI.DeleteUncachedAttributeCriteriaExecute(r.apiClient.UncachedAttributeCriteriaAPI.DeleteUncachedAttributeCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Uncached Attribute Criteria", err, httpResp)

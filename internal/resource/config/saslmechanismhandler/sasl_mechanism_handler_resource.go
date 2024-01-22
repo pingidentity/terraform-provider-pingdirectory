@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -140,6 +140,8 @@ type defaultSaslMechanismHandlerResourceModel struct {
 	YubikeyAPIKeyPassphraseProvider              types.String `tfsdk:"yubikey_api_key_passphrase_provider"`
 	YubikeyValidationServerBaseURL               types.Set    `tfsdk:"yubikey_validation_server_base_url"`
 	HttpProxyExternalServer                      types.String `tfsdk:"http_proxy_external_server"`
+	HttpConnectTimeout                           types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                          types.String `tfsdk:"http_response_timeout"`
 	IdentityMapper                               types.String `tfsdk:"identity_mapper"`
 	SharedSecretAttributeType                    types.String `tfsdk:"shared_secret_attribute_type"`
 	KeyManagerProvider                           types.String `tfsdk:"key_manager_provider"`
@@ -326,6 +328,12 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
 			Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
 		}
+		schemaDef.Attributes["http_connect_timeout"] = schema.StringAttribute{
+			Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+		}
+		schemaDef.Attributes["http_response_timeout"] = schema.StringAttribute{
+			Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
+		}
 		schemaDef.Attributes["shared_secret_attribute_type"] = schema.StringAttribute{
 			Description: "The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.",
 		}
@@ -397,7 +405,7 @@ func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -408,6 +416,21 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 	}
 	var model defaultSaslMechanismHandlerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpConnectTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_connect_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -584,6 +607,16 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_response_timeout"),
 			path.MatchRoot("type"),
 			[]string{"unboundid-yubikey-otp"},
 		),
@@ -845,6 +878,12 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, true)
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, true)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_connect_timeout",
+		expectedValues.HttpConnectTimeout, state.HttpConnectTimeout, diagnostics)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_response_timeout",
+		expectedValues.HttpResponseTimeout, state.HttpResponseTimeout, diagnostics)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.RequireStaticPassword = internaltypes.BoolTypeOrNil(r.RequireStaticPassword)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, true)
@@ -1124,6 +1163,8 @@ func createSaslMechanismHandlerOperationsDefault(plan defaultSaslMechanismHandle
 	operations.AddStringOperationIfNecessary(&ops, plan.YubikeyAPIKeyPassphraseProvider, state.YubikeyAPIKeyPassphraseProvider, "yubikey-api-key-passphrase-provider")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.YubikeyValidationServerBaseURL, state.YubikeyValidationServerBaseURL, "yubikey-validation-server-base-url")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpConnectTimeout, state.HttpConnectTimeout, "http-connect-timeout")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpResponseTimeout, state.HttpResponseTimeout, "http-response-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.IdentityMapper, state.IdentityMapper, "identity-mapper")
 	operations.AddStringOperationIfNecessary(&ops, plan.SharedSecretAttributeType, state.SharedSecretAttributeType, "shared-secret-attribute-type")
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyManagerProvider, state.KeyManagerProvider, "key-manager-provider")
@@ -1139,10 +1180,10 @@ func createSaslMechanismHandlerOperationsDefault(plan defaultSaslMechanismHandle
 
 // Create a unboundid-ms-chap-v2 sasl-mechanism-handler
 func (r *saslMechanismHandlerResource) CreateUnboundidMsChapV2SaslMechanismHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan saslMechanismHandlerResourceModel) (*saslMechanismHandlerResourceModel, error) {
-	addRequest := client.NewAddUnboundidMsChapV2SaslMechanismHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumunboundidMsChapV2SaslMechanismHandlerSchemaUrn{client.ENUMUNBOUNDIDMSCHAPV2SASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERUNBOUNDID_MS_CHAP_V2},
+	addRequest := client.NewAddUnboundidMsChapV2SaslMechanismHandlerRequest([]client.EnumunboundidMsChapV2SaslMechanismHandlerSchemaUrn{client.ENUMUNBOUNDIDMSCHAPV2SASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERUNBOUNDID_MS_CHAP_V2},
 		plan.IdentityMapper.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalUnboundidMsChapV2SaslMechanismHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Sasl Mechanism Handler", err.Error())
@@ -1153,12 +1194,12 @@ func (r *saslMechanismHandlerResource) CreateUnboundidMsChapV2SaslMechanismHandl
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandler(
+	apiAddRequest := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSaslMechanismHandlerRequest(
 		client.AddUnboundidMsChapV2SaslMechanismHandlerRequestAsAddSaslMechanismHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Sasl Mechanism Handler", err, httpResp)
 		return nil, err
@@ -1178,10 +1219,10 @@ func (r *saslMechanismHandlerResource) CreateUnboundidMsChapV2SaslMechanismHandl
 
 // Create a unboundid-delivered-otp sasl-mechanism-handler
 func (r *saslMechanismHandlerResource) CreateUnboundidDeliveredOtpSaslMechanismHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan saslMechanismHandlerResourceModel) (*saslMechanismHandlerResourceModel, error) {
-	addRequest := client.NewAddUnboundidDeliveredOtpSaslMechanismHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumunboundidDeliveredOtpSaslMechanismHandlerSchemaUrn{client.ENUMUNBOUNDIDDELIVEREDOTPSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERUNBOUNDID_DELIVERED_OTP},
+	addRequest := client.NewAddUnboundidDeliveredOtpSaslMechanismHandlerRequest([]client.EnumunboundidDeliveredOtpSaslMechanismHandlerSchemaUrn{client.ENUMUNBOUNDIDDELIVEREDOTPSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERUNBOUNDID_DELIVERED_OTP},
 		plan.IdentityMapper.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalUnboundidDeliveredOtpSaslMechanismHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Sasl Mechanism Handler", err.Error())
@@ -1192,12 +1233,12 @@ func (r *saslMechanismHandlerResource) CreateUnboundidDeliveredOtpSaslMechanismH
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandler(
+	apiAddRequest := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSaslMechanismHandlerRequest(
 		client.AddUnboundidDeliveredOtpSaslMechanismHandlerRequestAsAddSaslMechanismHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Sasl Mechanism Handler", err, httpResp)
 		return nil, err
@@ -1217,9 +1258,9 @@ func (r *saslMechanismHandlerResource) CreateUnboundidDeliveredOtpSaslMechanismH
 
 // Create a oauth-bearer sasl-mechanism-handler
 func (r *saslMechanismHandlerResource) CreateOauthBearerSaslMechanismHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan saslMechanismHandlerResourceModel) (*saslMechanismHandlerResourceModel, error) {
-	addRequest := client.NewAddOauthBearerSaslMechanismHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumoauthBearerSaslMechanismHandlerSchemaUrn{client.ENUMOAUTHBEARERSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLEROAUTH_BEARER},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddOauthBearerSaslMechanismHandlerRequest([]client.EnumoauthBearerSaslMechanismHandlerSchemaUrn{client.ENUMOAUTHBEARERSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLEROAUTH_BEARER},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalOauthBearerSaslMechanismHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Sasl Mechanism Handler", err.Error())
@@ -1230,12 +1271,12 @@ func (r *saslMechanismHandlerResource) CreateOauthBearerSaslMechanismHandler(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandler(
+	apiAddRequest := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSaslMechanismHandlerRequest(
 		client.AddOauthBearerSaslMechanismHandlerRequestAsAddSaslMechanismHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Sasl Mechanism Handler", err, httpResp)
 		return nil, err
@@ -1255,10 +1296,10 @@ func (r *saslMechanismHandlerResource) CreateOauthBearerSaslMechanismHandler(ctx
 
 // Create a third-party sasl-mechanism-handler
 func (r *saslMechanismHandlerResource) CreateThirdPartySaslMechanismHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan saslMechanismHandlerResourceModel) (*saslMechanismHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartySaslMechanismHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartySaslMechanismHandlerSchemaUrn{client.ENUMTHIRDPARTYSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartySaslMechanismHandlerRequest([]client.EnumthirdPartySaslMechanismHandlerSchemaUrn{client.ENUMTHIRDPARTYSASLMECHANISMHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SASL_MECHANISM_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartySaslMechanismHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Sasl Mechanism Handler", err.Error())
@@ -1269,12 +1310,12 @@ func (r *saslMechanismHandlerResource) CreateThirdPartySaslMechanismHandler(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandler(
+	apiAddRequest := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSaslMechanismHandlerRequest(
 		client.AddThirdPartySaslMechanismHandlerRequestAsAddSaslMechanismHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.AddSaslMechanismHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.AddSaslMechanismHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Sasl Mechanism Handler", err, httpResp)
 		return nil, err
@@ -1350,7 +1391,7 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(
+	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sasl Mechanism Handler", err, httpResp)
@@ -1409,14 +1450,14 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSaslMechanismHandlerOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Sasl Mechanism Handler", err, httpResp)
 			return
@@ -1491,7 +1532,7 @@ func (r *saslMechanismHandlerResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(
+	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -1537,7 +1578,7 @@ func (r *defaultSaslMechanismHandlerResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(
+	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.GetSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sasl Mechanism Handler", err, httpResp)
@@ -1600,7 +1641,7 @@ func (r *saslMechanismHandlerResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state saslMechanismHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandler(
+	updateRequest := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1610,7 +1651,7 @@ func (r *saslMechanismHandlerResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Sasl Mechanism Handler", err, httpResp)
 			return
@@ -1658,7 +1699,7 @@ func (r *defaultSaslMechanismHandlerResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state defaultSaslMechanismHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandler(
+	updateRequest := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1668,7 +1709,7 @@ func (r *defaultSaslMechanismHandlerResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.UpdateSaslMechanismHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SaslMechanismHandlerAPI.UpdateSaslMechanismHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Sasl Mechanism Handler", err, httpResp)
 			return
@@ -1750,7 +1791,7 @@ func (r *saslMechanismHandlerResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.SaslMechanismHandlerApi.DeleteSaslMechanismHandlerExecute(r.apiClient.SaslMechanismHandlerApi.DeleteSaslMechanismHandler(
+	httpResp, err := r.apiClient.SaslMechanismHandlerAPI.DeleteSaslMechanismHandlerExecute(r.apiClient.SaslMechanismHandlerAPI.DeleteSaslMechanismHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Sasl Mechanism Handler", err, httpResp)

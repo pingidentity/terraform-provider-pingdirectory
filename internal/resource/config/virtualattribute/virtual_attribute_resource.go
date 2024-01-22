@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -3253,11 +3253,11 @@ func createVirtualAttributeOperationsDefault(plan defaultVirtualAttributeResourc
 
 // Create a mirror virtual-attribute
 func (r *virtualAttributeResource) CreateMirrorVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddMirrorVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnummirrorVirtualAttributeSchemaUrn{client.ENUMMIRRORVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMIRROR},
+	addRequest := client.NewAddMirrorVirtualAttributeRequest([]client.EnummirrorVirtualAttributeSchemaUrn{client.ENUMMIRRORVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMIRROR},
 		plan.SourceAttribute.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalMirrorVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3268,12 +3268,12 @@ func (r *virtualAttributeResource) CreateMirrorVirtualAttribute(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddMirrorVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3295,11 +3295,11 @@ func (r *virtualAttributeResource) CreateMirrorVirtualAttribute(ctx context.Cont
 func (r *virtualAttributeResource) CreateConstructedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddConstructedVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumconstructedVirtualAttributeSchemaUrn{client.ENUMCONSTRUCTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTECONSTRUCTED},
+	addRequest := client.NewAddConstructedVirtualAttributeRequest([]client.EnumconstructedVirtualAttributeSchemaUrn{client.ENUMCONSTRUCTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTECONSTRUCTED},
 		ValuePatternSlice,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalConstructedVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3310,12 +3310,12 @@ func (r *virtualAttributeResource) CreateConstructedVirtualAttribute(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddConstructedVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3335,9 +3335,9 @@ func (r *virtualAttributeResource) CreateConstructedVirtualAttribute(ctx context
 
 // Create a is-member-of virtual-attribute
 func (r *virtualAttributeResource) CreateIsMemberOfVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddIsMemberOfVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumisMemberOfVirtualAttributeSchemaUrn{client.ENUMISMEMBEROFVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIS_MEMBER_OF},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddIsMemberOfVirtualAttributeRequest([]client.EnumisMemberOfVirtualAttributeSchemaUrn{client.ENUMISMEMBEROFVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIS_MEMBER_OF},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalIsMemberOfVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3348,12 +3348,12 @@ func (r *virtualAttributeResource) CreateIsMemberOfVirtualAttribute(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddIsMemberOfVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3378,12 +3378,12 @@ func (r *virtualAttributeResource) CreateReverseDnJoinVirtualAttribute(ctx conte
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddReverseDnJoinVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumreverseDnJoinVirtualAttributeSchemaUrn{client.ENUMREVERSEDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEREVERSE_DN_JOIN},
+	addRequest := client.NewAddReverseDnJoinVirtualAttributeRequest([]client.EnumreverseDnJoinVirtualAttributeSchemaUrn{client.ENUMREVERSEDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEREVERSE_DN_JOIN},
 		plan.JoinDNAttribute.ValueString(),
 		*joinBaseDNType,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err = addOptionalReverseDnJoinVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3394,12 +3394,12 @@ func (r *virtualAttributeResource) CreateReverseDnJoinVirtualAttribute(ctx conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddReverseDnJoinVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3421,11 +3421,11 @@ func (r *virtualAttributeResource) CreateReverseDnJoinVirtualAttribute(ctx conte
 func (r *virtualAttributeResource) CreateIdentifyReferencesVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ReferencedByAttributeSlice []string
 	plan.ReferencedByAttribute.ElementsAs(ctx, &ReferencedByAttributeSlice, false)
-	addRequest := client.NewAddIdentifyReferencesVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumidentifyReferencesVirtualAttributeSchemaUrn{client.ENUMIDENTIFYREFERENCESVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIDENTIFY_REFERENCES},
+	addRequest := client.NewAddIdentifyReferencesVirtualAttributeRequest([]client.EnumidentifyReferencesVirtualAttributeSchemaUrn{client.ENUMIDENTIFYREFERENCESVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIDENTIFY_REFERENCES},
 		ReferencedByAttributeSlice,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalIdentifyReferencesVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3436,12 +3436,12 @@ func (r *virtualAttributeResource) CreateIdentifyReferencesVirtualAttribute(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddIdentifyReferencesVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3463,11 +3463,11 @@ func (r *virtualAttributeResource) CreateIdentifyReferencesVirtualAttribute(ctx 
 func (r *virtualAttributeResource) CreateUserDefinedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ValueSlice []string
 	plan.Value.ElementsAs(ctx, &ValueSlice, false)
-	addRequest := client.NewAddUserDefinedVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumuserDefinedVirtualAttributeSchemaUrn{client.ENUMUSERDEFINEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEUSER_DEFINED},
+	addRequest := client.NewAddUserDefinedVirtualAttributeRequest([]client.EnumuserDefinedVirtualAttributeSchemaUrn{client.ENUMUSERDEFINEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEUSER_DEFINED},
 		ValueSlice,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalUserDefinedVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3478,12 +3478,12 @@ func (r *virtualAttributeResource) CreateUserDefinedVirtualAttribute(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddUserDefinedVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3503,9 +3503,9 @@ func (r *virtualAttributeResource) CreateUserDefinedVirtualAttribute(ctx context
 
 // Create a entry-dn virtual-attribute
 func (r *virtualAttributeResource) CreateEntryDnVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddEntryDnVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumentryDnVirtualAttributeSchemaUrn{client.ENUMENTRYDNVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEENTRY_DN},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddEntryDnVirtualAttributeRequest([]client.EnumentryDnVirtualAttributeSchemaUrn{client.ENUMENTRYDNVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEENTRY_DN},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalEntryDnVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3516,12 +3516,12 @@ func (r *virtualAttributeResource) CreateEntryDnVirtualAttribute(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddEntryDnVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3546,13 +3546,13 @@ func (r *virtualAttributeResource) CreateEqualityJoinVirtualAttribute(ctx contex
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddEqualityJoinVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumequalityJoinVirtualAttributeSchemaUrn{client.ENUMEQUALITYJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEEQUALITY_JOIN},
+	addRequest := client.NewAddEqualityJoinVirtualAttributeRequest([]client.EnumequalityJoinVirtualAttributeSchemaUrn{client.ENUMEQUALITYJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEEQUALITY_JOIN},
 		plan.JoinSourceAttribute.ValueString(),
 		plan.JoinTargetAttribute.ValueString(),
 		*joinBaseDNType,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err = addOptionalEqualityJoinVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3563,12 +3563,12 @@ func (r *virtualAttributeResource) CreateEqualityJoinVirtualAttribute(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddEqualityJoinVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3588,11 +3588,11 @@ func (r *virtualAttributeResource) CreateEqualityJoinVirtualAttribute(ctx contex
 
 // Create a groovy-scripted virtual-attribute
 func (r *virtualAttributeResource) CreateGroovyScriptedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedVirtualAttributeSchemaUrn{client.ENUMGROOVYSCRIPTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedVirtualAttributeRequest([]client.EnumgroovyScriptedVirtualAttributeSchemaUrn{client.ENUMGROOVYSCRIPTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3603,12 +3603,12 @@ func (r *virtualAttributeResource) CreateGroovyScriptedVirtualAttribute(ctx cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddGroovyScriptedVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3628,10 +3628,10 @@ func (r *virtualAttributeResource) CreateGroovyScriptedVirtualAttribute(ctx cont
 
 // Create a member virtual-attribute
 func (r *virtualAttributeResource) CreateMemberVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddMemberVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnummemberVirtualAttributeSchemaUrn{client.ENUMMEMBERVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMEMBER},
+	addRequest := client.NewAddMemberVirtualAttributeRequest([]client.EnummemberVirtualAttributeSchemaUrn{client.ENUMMEMBERVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMEMBER},
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalMemberVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3642,12 +3642,12 @@ func (r *virtualAttributeResource) CreateMemberVirtualAttribute(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddMemberVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3667,9 +3667,9 @@ func (r *virtualAttributeResource) CreateMemberVirtualAttribute(ctx context.Cont
 
 // Create a password-policy-state-json virtual-attribute
 func (r *virtualAttributeResource) CreatePasswordPolicyStateJsonVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddPasswordPolicyStateJsonVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumpasswordPolicyStateJsonVirtualAttributeSchemaUrn{client.ENUMPASSWORDPOLICYSTATEJSONVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEPASSWORD_POLICY_STATE_JSON},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddPasswordPolicyStateJsonVirtualAttributeRequest([]client.EnumpasswordPolicyStateJsonVirtualAttributeSchemaUrn{client.ENUMPASSWORDPOLICYSTATEJSONVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEPASSWORD_POLICY_STATE_JSON},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPasswordPolicyStateJsonVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3680,12 +3680,12 @@ func (r *virtualAttributeResource) CreatePasswordPolicyStateJsonVirtualAttribute
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddPasswordPolicyStateJsonVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3710,12 +3710,12 @@ func (r *virtualAttributeResource) CreateDnJoinVirtualAttribute(ctx context.Cont
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddDnJoinVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumdnJoinVirtualAttributeSchemaUrn{client.ENUMDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEDN_JOIN},
+	addRequest := client.NewAddDnJoinVirtualAttributeRequest([]client.EnumdnJoinVirtualAttributeSchemaUrn{client.ENUMDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEDN_JOIN},
 		plan.JoinDNAttribute.ValueString(),
 		*joinBaseDNType,
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err = addOptionalDnJoinVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3726,12 +3726,12 @@ func (r *virtualAttributeResource) CreateDnJoinVirtualAttribute(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddDnJoinVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3751,11 +3751,11 @@ func (r *virtualAttributeResource) CreateDnJoinVirtualAttribute(ctx context.Cont
 
 // Create a third-party virtual-attribute
 func (r *virtualAttributeResource) CreateThirdPartyVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyVirtualAttributeRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyVirtualAttributeSchemaUrn{client.ENUMTHIRDPARTYVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTETHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyVirtualAttributeRequest([]client.EnumthirdPartyVirtualAttributeSchemaUrn{client.ENUMTHIRDPARTYVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTETHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.AttributeType.ValueString())
+		plan.AttributeType.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Virtual Attribute", err.Error())
@@ -3766,12 +3766,12 @@ func (r *virtualAttributeResource) CreateThirdPartyVirtualAttribute(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VirtualAttributeApi.AddVirtualAttribute(
+	apiAddRequest := r.apiClient.VirtualAttributeAPI.AddVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddVirtualAttributeRequest(
 		client.AddThirdPartyVirtualAttributeRequestAsAddVirtualAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.VirtualAttributeApi.AddVirtualAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.AddVirtualAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Virtual Attribute", err, httpResp)
 		return nil, err
@@ -3901,7 +3901,7 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.GetVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
@@ -3987,14 +3987,14 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createVirtualAttributeOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Virtual Attribute", err, httpResp)
 			return
@@ -4095,7 +4095,7 @@ func (r *virtualAttributeResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.GetVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -4168,7 +4168,7 @@ func (r *defaultVirtualAttributeResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.GetVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
@@ -4231,7 +4231,7 @@ func (r *virtualAttributeResource) Update(ctx context.Context, req resource.Upda
 	// Get the current state to see how any attributes are changing
 	var state virtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+	updateRequest := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -4241,7 +4241,7 @@ func (r *virtualAttributeResource) Update(ctx context.Context, req resource.Upda
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Virtual Attribute", err, httpResp)
 			return
@@ -4316,7 +4316,7 @@ func (r *defaultVirtualAttributeResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state defaultVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+	updateRequest := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -4326,7 +4326,7 @@ func (r *defaultVirtualAttributeResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeAPI.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Virtual Attribute", err, httpResp)
 			return
@@ -4435,7 +4435,7 @@ func (r *virtualAttributeResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.VirtualAttributeApi.DeleteVirtualAttributeExecute(r.apiClient.VirtualAttributeApi.DeleteVirtualAttribute(
+	httpResp, err := r.apiClient.VirtualAttributeAPI.DeleteVirtualAttributeExecute(r.apiClient.VirtualAttributeAPI.DeleteVirtualAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Virtual Attribute", err, httpResp)

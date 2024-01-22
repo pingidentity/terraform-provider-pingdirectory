@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1231,20 +1231,20 @@ func createLogFieldMappingOperations(plan logFieldMappingResourceModel, state lo
 
 // Create a access log-field-mapping
 func (r *logFieldMappingResource) CreateAccessLogFieldMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldMappingResourceModel) (*logFieldMappingResourceModel, error) {
-	addRequest := client.NewAddAccessLogFieldMappingRequest(plan.Name.ValueString(),
-		[]client.EnumaccessLogFieldMappingSchemaUrn{client.ENUMACCESSLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGACCESS})
+	addRequest := client.NewAddAccessLogFieldMappingRequest([]client.EnumaccessLogFieldMappingSchemaUrn{client.ENUMACCESSLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGACCESS},
+		plan.Name.ValueString())
 	addOptionalAccessLogFieldMappingFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFieldMappingApi.AddLogFieldMapping(
+	apiAddRequest := r.apiClient.LogFieldMappingAPI.AddLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFieldMappingRequest(
 		client.AddAccessLogFieldMappingRequestAsAddLogFieldMappingRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFieldMappingApi.AddLogFieldMappingExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.AddLogFieldMappingExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Field Mapping", err, httpResp)
 		return nil, err
@@ -1264,20 +1264,20 @@ func (r *logFieldMappingResource) CreateAccessLogFieldMapping(ctx context.Contex
 
 // Create a error log-field-mapping
 func (r *logFieldMappingResource) CreateErrorLogFieldMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldMappingResourceModel) (*logFieldMappingResourceModel, error) {
-	addRequest := client.NewAddErrorLogFieldMappingRequest(plan.Name.ValueString(),
-		[]client.EnumerrorLogFieldMappingSchemaUrn{client.ENUMERRORLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGERROR})
+	addRequest := client.NewAddErrorLogFieldMappingRequest([]client.EnumerrorLogFieldMappingSchemaUrn{client.ENUMERRORLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGERROR},
+		plan.Name.ValueString())
 	addOptionalErrorLogFieldMappingFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFieldMappingApi.AddLogFieldMapping(
+	apiAddRequest := r.apiClient.LogFieldMappingAPI.AddLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFieldMappingRequest(
 		client.AddErrorLogFieldMappingRequestAsAddLogFieldMappingRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFieldMappingApi.AddLogFieldMappingExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.AddLogFieldMappingExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Field Mapping", err, httpResp)
 		return nil, err
@@ -1341,7 +1341,7 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
+	readResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.GetLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
@@ -1364,14 +1364,14 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogFieldMappingAPI.UpdateLogFieldMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldMappingOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldMappingApi.UpdateLogFieldMappingExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogFieldMappingAPI.UpdateLogFieldMappingExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Mapping", err, httpResp)
 			return
@@ -1418,7 +1418,7 @@ func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogFieldMappingApi.GetLogFieldMapping(
+	readResponse, httpResp, err := apiClient.LogFieldMappingAPI.GetLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1474,7 +1474,7 @@ func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp
 	// Get the current state to see how any attributes are changing
 	var state logFieldMappingResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogFieldMappingApi.UpdateLogFieldMapping(
+	updateRequest := apiClient.LogFieldMappingAPI.UpdateLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1484,7 +1484,7 @@ func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogFieldMappingApi.UpdateLogFieldMappingExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogFieldMappingAPI.UpdateLogFieldMappingExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Mapping", err, httpResp)
 			return
@@ -1530,7 +1530,7 @@ func (r *logFieldMappingResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	httpResp, err := r.apiClient.LogFieldMappingApi.DeleteLogFieldMappingExecute(r.apiClient.LogFieldMappingApi.DeleteLogFieldMapping(
+	httpResp, err := r.apiClient.LogFieldMappingAPI.DeleteLogFieldMappingExecute(r.apiClient.LogFieldMappingAPI.DeleteLogFieldMapping(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Mapping", err, httpResp)

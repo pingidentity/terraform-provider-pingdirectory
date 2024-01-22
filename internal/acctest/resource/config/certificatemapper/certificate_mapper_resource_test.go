@@ -67,7 +67,7 @@ func TestAccSubjectEqualsDnCertificateMapper(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.CertificateMapperApi.DeleteCertificateMapper(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.CertificateMapperAPI.DeleteCertificateMapper(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -108,7 +108,7 @@ func testAccCheckExpectedSubjectEqualsDnCertificateMapperAttributes(config subje
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.CertificateMapperApi.GetCertificateMapper(ctx, config.id).Execute()
+		response, _, err := testClient.CertificateMapperAPI.GetCertificateMapper(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func testAccCheckExpectedSubjectEqualsDnCertificateMapperAttributes(config subje
 func testAccCheckSubjectEqualsDnCertificateMapperDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.CertificateMapperApi.GetCertificateMapper(ctx, testIdSubjectEqualsDnCertificateMapper).Execute()
+	_, _, err := testClient.CertificateMapperAPI.GetCertificateMapper(ctx, testIdSubjectEqualsDnCertificateMapper).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Subject Equals Dn Certificate Mapper", testIdSubjectEqualsDnCertificateMapper)
 	}

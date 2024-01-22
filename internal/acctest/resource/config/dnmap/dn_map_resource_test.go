@@ -70,7 +70,7 @@ func TestAccDnMap(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DnMapApi.DeleteDnMap(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.DnMapAPI.DeleteDnMap(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedDnMapAttributes(config dnMapTestModel) resource.TestChe
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DnMapApi.GetDnMap(ctx, config.id).Execute()
+		response, _, err := testClient.DnMapAPI.GetDnMap(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedDnMapAttributes(config dnMapTestModel) resource.TestChe
 func testAccCheckDnMapDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DnMapApi.GetDnMap(ctx, testIdDnMap).Execute()
+	_, _, err := testClient.DnMapAPI.GetDnMap(ctx, testIdDnMap).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Dn Map", testIdDnMap)
 	}

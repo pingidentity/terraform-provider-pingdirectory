@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -121,7 +121,7 @@ func (r *licenseResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LicenseApi.GetLicense(
+	readResponse, httpResp, err := r.apiClient.LicenseAPI.GetLicense(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the License", err, httpResp)
@@ -139,14 +139,14 @@ func (r *licenseResource) Create(ctx context.Context, req resource.CreateRequest
 	readLicenseResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LicenseApi.UpdateLicense(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.LicenseAPI.UpdateLicense(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createLicenseOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LicenseApi.UpdateLicenseExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LicenseAPI.UpdateLicenseExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the License", err, httpResp)
 			return
@@ -179,7 +179,7 @@ func (r *licenseResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LicenseApi.GetLicense(
+	readResponse, httpResp, err := r.apiClient.LicenseAPI.GetLicense(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the License", err, httpResp)
@@ -213,7 +213,7 @@ func (r *licenseResource) Update(ctx context.Context, req resource.UpdateRequest
 	// Get the current state to see how any attributes are changing
 	var state licenseResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LicenseApi.UpdateLicense(
+	updateRequest := r.apiClient.LicenseAPI.UpdateLicense(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -223,7 +223,7 @@ func (r *licenseResource) Update(ctx context.Context, req resource.UpdateRequest
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LicenseApi.UpdateLicenseExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LicenseAPI.UpdateLicenseExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the License", err, httpResp)
 			return

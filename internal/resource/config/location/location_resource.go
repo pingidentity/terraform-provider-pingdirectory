@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -174,11 +174,11 @@ func (r *locationResource) CreateLocation(ctx context.Context, req resource.Crea
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocationApi.AddLocation(
+	apiAddRequest := r.apiClient.LocationAPI.AddLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LocationAPI.AddLocationExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return nil, err
@@ -232,7 +232,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(
+	readResponse, httpResp, err := r.apiClient.LocationAPI.GetLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
@@ -250,14 +250,14 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 	readLocationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LocationAPI.UpdateLocation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLocationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LocationAPI.UpdateLocationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
@@ -299,7 +299,7 @@ func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LocationApi.GetLocation(
+	readResponse, httpResp, err := apiClient.LocationAPI.GetLocation(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -350,7 +350,7 @@ func updateLocation(ctx context.Context, req resource.UpdateRequest, resp *resou
 	// Get the current state to see how any attributes are changing
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LocationApi.UpdateLocation(
+	updateRequest := apiClient.LocationAPI.UpdateLocation(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -360,7 +360,7 @@ func updateLocation(ctx context.Context, req resource.UpdateRequest, resp *resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LocationApi.UpdateLocationExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocationAPI.UpdateLocationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
@@ -401,7 +401,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(
+	httpResp, err := r.apiClient.LocationAPI.DeleteLocationExecute(r.apiClient.LocationAPI.DeleteLocation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -67,12 +67,18 @@ type accessTokenValidatorDataSourceModel struct {
 	IncludeAudParameter               types.Bool   `tfsdk:"include_aud_parameter"`
 	AccessTokenManagerID              types.String `tfsdk:"access_token_manager_id"`
 	EndpointCacheRefresh              types.String `tfsdk:"endpoint_cache_refresh"`
-	EvaluationOrderIndex              types.Int64  `tfsdk:"evaluation_order_index"`
+	Enabled                           types.Bool   `tfsdk:"enabled"`
 	AuthorizationServer               types.String `tfsdk:"authorization_server"`
+	PersistAccessTokens               types.Bool   `tfsdk:"persist_access_tokens"`
+	MaximumTokenLifetime              types.String `tfsdk:"maximum_token_lifetime"`
+	AllowedAuthenticationType         types.Set    `tfsdk:"allowed_authentication_type"`
+	AllowedSASLMechanism              types.Set    `tfsdk:"allowed_sasl_mechanism"`
+	GenerateTokenResultCriteria       types.String `tfsdk:"generate_token_result_criteria"`
+	IncludedScope                     types.Set    `tfsdk:"included_scope"`
 	IdentityMapper                    types.String `tfsdk:"identity_mapper"`
 	SubjectClaimName                  types.String `tfsdk:"subject_claim_name"`
 	Description                       types.String `tfsdk:"description"`
-	Enabled                           types.Bool   `tfsdk:"enabled"`
+	EvaluationOrderIndex              types.Int64  `tfsdk:"evaluation_order_index"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -81,7 +87,7 @@ func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasou
 		Description: "Describes a Access Token Validator.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']",
+				Description: "The type of Access Token Validator resource. Options are ['bind', 'ping-federate', 'jwt', 'mock', 'third-party']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -194,9 +200,9 @@ func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
-			"evaluation_order_index": schema.Int64Attribute{
-				Description:         "When the `type` attribute is set to `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `third-party`: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.",
-				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `third-party`: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.",
+			"enabled": schema.BoolAttribute{
+				Description:         "When the `type` attribute is set to  one of [`ping-federate`, `jwt`, `mock`, `third-party`]: Indicates whether this Access Token Validator is enabled for use in Directory Server. When the `type` attribute is set to `bind`: Indicates whether this Bind Access Token Validator is enabled for use in Directory Server.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`ping-federate`, `jwt`, `mock`, `third-party`]: Indicates whether this Access Token Validator is enabled for use in Directory Server.\n  - `bind`: Indicates whether this Bind Access Token Validator is enabled for use in Directory Server.",
 				Required:            false,
 				Optional:            false,
 				Computed:            true,
@@ -206,6 +212,45 @@ func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasou
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"persist_access_tokens": schema.BoolAttribute{
+				Description: "Indicates whether access tokens should be persisted in user entries.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_token_lifetime": schema.StringAttribute{
+				Description: "Specifies the maximum length of time that a generated token should be considered valid. If this is not specified, then generated access tokens will not expire.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"allowed_authentication_type": schema.SetAttribute{
+				Description: "Specifies the authentication types for bind operations that may be used to generate access tokens, and for which generated access tokens will be accepted.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"allowed_sasl_mechanism": schema.SetAttribute{
+				Description: "Specifies the names of the SASL mechanisms for which access tokens may be generated, and for which generated access tokens will be accepted.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"generate_token_result_criteria": schema.StringAttribute{
+				Description: "A reference to a request criteria object that may be used to identify the types of bind operations for which access tokens may be generated. If no criteria is specified, then access tokens may be generated for any bind operations that satisfy the other requirements configured in this validator.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"included_scope": schema.SetAttribute{
+				Description: "Specifies the names of any scopes that should be granted to a client that authenticates with a bind access token. By default, no scopes will be granted.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description: "Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.",
@@ -225,16 +270,36 @@ func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
-			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether this Access Token Validator is enabled for use in Directory Server.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
+			"evaluation_order_index": schema.Int64Attribute{
+				Description:         "When the `type` attribute is set to  one of [`bind`, `third-party`]: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token. When the `type` attribute is set to `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`bind`, `third-party`]: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.\n  - `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
 			},
 		},
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Read a BindAccessTokenValidatorResponse object into the model struct
+func readBindAccessTokenValidatorResponseDataSource(ctx context.Context, r *client.BindAccessTokenValidatorResponse, state *accessTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("bind")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.PersistAccessTokens = internaltypes.BoolTypeOrNil(r.PersistAccessTokens)
+	state.MaximumTokenLifetime = internaltypes.StringTypeOrNil(r.MaximumTokenLifetime, false)
+	state.AllowedAuthenticationType = internaltypes.GetStringSet(
+		client.StringSliceEnumaccessTokenValidatorAllowedAuthenticationTypeProp(r.AllowedAuthenticationType))
+	state.AllowedSASLMechanism = internaltypes.GetStringSet(r.AllowedSASLMechanism)
+	state.GenerateTokenResultCriteria = internaltypes.StringTypeOrNil(r.GenerateTokenResultCriteria, false)
+	state.IncludedScope = internaltypes.GetStringSet(r.IncludedScope)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 }
 
 // Read a PingFederateAccessTokenValidatorResponse object into the model struct
@@ -318,7 +383,7 @@ func (r *accessTokenValidatorDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
+	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorAPI.GetAccessTokenValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
@@ -332,6 +397,9 @@ func (r *accessTokenValidatorDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	// Read the response into the state
+	if readResponse.BindAccessTokenValidatorResponse != nil {
+		readBindAccessTokenValidatorResponseDataSource(ctx, readResponse.BindAccessTokenValidatorResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.PingFederateAccessTokenValidatorResponse != nil {
 		readPingFederateAccessTokenValidatorResponseDataSource(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &resp.Diagnostics)
 	}

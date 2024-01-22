@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -84,12 +84,12 @@ func (r *groupImplementationsDataSource) Read(ctx context.Context, req datasourc
 		return
 	}
 
-	listRequest := r.apiClient.GroupImplementationApi.ListGroupImplementations(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.GroupImplementationAPI.ListGroupImplementations(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.ListGroupImplementationsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.GroupImplementationAPI.ListGroupImplementationsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Group Implementation objects", err, httpResp)
 		return
@@ -116,6 +116,10 @@ func (r *groupImplementationsDataSource) Read(ctx context.Context, req datasourc
 		if response.StaticGroupImplementationResponse != nil {
 			attributes["id"] = types.StringValue(response.StaticGroupImplementationResponse.Id)
 			attributes["type"] = types.StringValue("static")
+		}
+		if response.InvertedStaticGroupImplementationResponse != nil {
+			attributes["id"] = types.StringValue(response.InvertedStaticGroupImplementationResponse.Id)
+			attributes["type"] = types.StringValue("inverted-static")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

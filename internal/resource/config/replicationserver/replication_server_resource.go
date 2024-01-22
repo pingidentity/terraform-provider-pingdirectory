@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -58,24 +58,26 @@ func (r *replicationServerResource) Configure(_ context.Context, req resource.Co
 }
 
 type replicationServerResourceModel struct {
-	Id                                  types.String `tfsdk:"id"`
-	Notifications                       types.Set    `tfsdk:"notifications"`
-	RequiredActions                     types.Set    `tfsdk:"required_actions"`
-	Type                                types.String `tfsdk:"type"`
-	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
-	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
-	ReplicationDBDirectory              types.String `tfsdk:"replication_db_directory"`
-	JeProperty                          types.Set    `tfsdk:"je_property"`
-	ReplicationPurgeDelay               types.String `tfsdk:"replication_purge_delay"`
-	TargetDatabaseSize                  types.String `tfsdk:"target_database_size"`
-	ReplicationPort                     types.Int64  `tfsdk:"replication_port"`
-	ListenOnAllAddresses                types.Bool   `tfsdk:"listen_on_all_addresses"`
-	CompressionCriteria                 types.String `tfsdk:"compression_criteria"`
-	HeartbeatInterval                   types.String `tfsdk:"heartbeat_interval"`
-	RemoteMonitorUpdateInterval         types.String `tfsdk:"remote_monitor_update_interval"`
-	RestrictedDomain                    types.Set    `tfsdk:"restricted_domain"`
-	GatewayPriority                     types.Int64  `tfsdk:"gateway_priority"`
-	MissingChangesAlertThresholdPercent types.Int64  `tfsdk:"missing_changes_alert_threshold_percent"`
+	Id                                           types.String `tfsdk:"id"`
+	Notifications                                types.Set    `tfsdk:"notifications"`
+	RequiredActions                              types.Set    `tfsdk:"required_actions"`
+	Type                                         types.String `tfsdk:"type"`
+	SynchronizationProviderName                  types.String `tfsdk:"synchronization_provider_name"`
+	ReplicationServerID                          types.Int64  `tfsdk:"replication_server_id"`
+	ReplicationDBDirectory                       types.String `tfsdk:"replication_db_directory"`
+	JeProperty                                   types.Set    `tfsdk:"je_property"`
+	ReplicationPurgeDelay                        types.String `tfsdk:"replication_purge_delay"`
+	TargetDatabaseSize                           types.String `tfsdk:"target_database_size"`
+	ReplicationPort                              types.Int64  `tfsdk:"replication_port"`
+	ListenOnAllAddresses                         types.Bool   `tfsdk:"listen_on_all_addresses"`
+	CompressionCriteria                          types.String `tfsdk:"compression_criteria"`
+	HeartbeatInterval                            types.String `tfsdk:"heartbeat_interval"`
+	RemoteMonitorUpdateInterval                  types.String `tfsdk:"remote_monitor_update_interval"`
+	RestrictedDomain                             types.Set    `tfsdk:"restricted_domain"`
+	GatewayPriority                              types.Int64  `tfsdk:"gateway_priority"`
+	MissingChangesAlertThresholdPercent          types.Int64  `tfsdk:"missing_changes_alert_threshold_percent"`
+	MissingChangesPolicy                         types.String `tfsdk:"missing_changes_policy"`
+	IncludeAllRemoteServersStateInMonitorMessage types.Bool   `tfsdk:"include_all_remote_servers_state_in_monitor_message"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -209,6 +211,22 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"missing_changes_policy": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Determines how the server responds when replication detects that some changes might have been missed. Each missing changes policy is a set of missing changes actions to take for a set of missing changes types. The value configured here acts as a default for all replication domains on this replication server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"include_all_remote_servers_state_in_monitor_message": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates monitor messages should include information about remote servers.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
@@ -217,7 +235,7 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -228,6 +246,21 @@ func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource
 	}
 	var model replicationServerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.MissingChangesPolicy) {
+		resp.Diagnostics.AddError("Attribute 'missing_changes_policy' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludeAllRemoteServersStateInMonitorMessage) {
+		resp.Diagnostics.AddError("Attribute 'include_all_remote_servers_state_in_monitor_message' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.MissingChangesAlertThresholdPercent) {
 		resp.Diagnostics.AddError("Attribute 'missing_changes_alert_threshold_percent' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
@@ -260,6 +293,9 @@ func readReplicationServerResponse(ctx context.Context, r *client.ReplicationSer
 	state.RestrictedDomain = internaltypes.GetStringSet(r.RestrictedDomain)
 	state.GatewayPriority = types.Int64Value(r.GatewayPriority)
 	state.MissingChangesAlertThresholdPercent = internaltypes.Int64TypeOrNil(r.MissingChangesAlertThresholdPercent)
+	state.MissingChangesPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumreplicationServerMissingChangesPolicyProp(r.MissingChangesPolicy), true)
+	state.IncludeAllRemoteServersStateInMonitorMessage = internaltypes.BoolTypeOrNil(r.IncludeAllRemoteServersStateInMonitorMessage)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -287,6 +323,8 @@ func createReplicationServerOperations(plan replicationServerResourceModel, stat
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.RestrictedDomain, state.RestrictedDomain, "restricted-domain")
 	operations.AddInt64OperationIfNecessary(&ops, plan.GatewayPriority, state.GatewayPriority, "gateway-priority")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MissingChangesAlertThresholdPercent, state.MissingChangesAlertThresholdPercent, "missing-changes-alert-threshold-percent")
+	operations.AddStringOperationIfNecessary(&ops, plan.MissingChangesPolicy, state.MissingChangesPolicy, "missing-changes-policy")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeAllRemoteServersStateInMonitorMessage, state.IncludeAllRemoteServersStateInMonitorMessage, "include-all-remote-servers-state-in-monitor-message")
 	return ops
 }
 
@@ -303,7 +341,7 @@ func (r *replicationServerResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationServerApi.GetReplicationServer(
+	readResponse, httpResp, err := r.apiClient.ReplicationServerAPI.GetReplicationServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Server", err, httpResp)
@@ -321,14 +359,14 @@ func (r *replicationServerResource) Create(ctx context.Context, req resource.Cre
 	readReplicationServerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ReplicationServerApi.UpdateReplicationServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.SynchronizationProviderName.ValueString())
+	updateRequest := r.apiClient.ReplicationServerAPI.UpdateReplicationServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.SynchronizationProviderName.ValueString())
 	ops := createReplicationServerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ReplicationServerApi.UpdateReplicationServerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ReplicationServerAPI.UpdateReplicationServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Server", err, httpResp)
 			return
@@ -362,7 +400,7 @@ func (r *replicationServerResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationServerApi.GetReplicationServer(
+	readResponse, httpResp, err := r.apiClient.ReplicationServerAPI.GetReplicationServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Server", err, httpResp)
@@ -396,7 +434,7 @@ func (r *replicationServerResource) Update(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state replicationServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ReplicationServerApi.UpdateReplicationServer(
+	updateRequest := r.apiClient.ReplicationServerAPI.UpdateReplicationServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.SynchronizationProviderName.ValueString())
 
 	// Determine what update operations are necessary
@@ -406,7 +444,7 @@ func (r *replicationServerResource) Update(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ReplicationServerApi.UpdateReplicationServerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ReplicationServerAPI.UpdateReplicationServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Server", err, httpResp)
 			return

@@ -47,7 +47,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `id` (String) The ID of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
-- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
+- `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'mapping', 'ldap-mapping']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

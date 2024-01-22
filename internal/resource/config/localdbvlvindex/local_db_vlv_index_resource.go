@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -268,11 +268,11 @@ func (r *localDbVlvIndexResource) CreateLocalDbVlvIndex(ctx context.Context, req
 		resp.Diagnostics.AddError("Failed to parse enum value for Scope", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddLocalDbVlvIndexRequest(plan.Name.ValueString(),
-		plan.BaseDN.ValueString(),
+	addRequest := client.NewAddLocalDbVlvIndexRequest(plan.BaseDN.ValueString(),
 		*scope,
 		plan.Filter.ValueString(),
 		plan.SortOrder.ValueString(),
+		plan.Name.ValueString(),
 		plan.Name.ValueString())
 	err = addOptionalLocalDbVlvIndexFields(ctx, addRequest, plan)
 	if err != nil {
@@ -284,11 +284,11 @@ func (r *localDbVlvIndexResource) CreateLocalDbVlvIndex(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocalDbVlvIndexApi.AddLocalDbVlvIndex(
+	apiAddRequest := r.apiClient.LocalDbVlvIndexAPI.AddLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendName.ValueString())
 	apiAddRequest = apiAddRequest.AddLocalDbVlvIndexRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.AddLocalDbVlvIndexExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LocalDbVlvIndexAPI.AddLocalDbVlvIndexExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Local Db Vlv Index", err, httpResp)
 		return nil, err
@@ -344,7 +344,7 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexAPI.GetLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
@@ -362,14 +362,14 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
+	updateRequest := r.apiClient.LocalDbVlvIndexAPI.UpdateLocalDbVlvIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 	ops := createLocalDbVlvIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndexExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LocalDbVlvIndexAPI.UpdateLocalDbVlvIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Vlv Index", err, httpResp)
 			return
@@ -412,7 +412,7 @@ func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
+	readResponse, httpResp, err := apiClient.LocalDbVlvIndexAPI.GetLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -463,7 +463,7 @@ func updateLocalDbVlvIndex(ctx context.Context, req resource.UpdateRequest, resp
 	// Get the current state to see how any attributes are changing
 	var state localDbVlvIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(
+	updateRequest := apiClient.LocalDbVlvIndexAPI.UpdateLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
@@ -473,7 +473,7 @@ func updateLocalDbVlvIndex(ctx context.Context, req resource.UpdateRequest, resp
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbVlvIndexAPI.UpdateLocalDbVlvIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Vlv Index", err, httpResp)
 			return
@@ -515,7 +515,7 @@ func (r *localDbVlvIndexResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	httpResp, err := r.apiClient.LocalDbVlvIndexApi.DeleteLocalDbVlvIndexExecute(r.apiClient.LocalDbVlvIndexApi.DeleteLocalDbVlvIndex(
+	httpResp, err := r.apiClient.LocalDbVlvIndexAPI.DeleteLocalDbVlvIndexExecute(r.apiClient.LocalDbVlvIndexAPI.DeleteLocalDbVlvIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Vlv Index", err, httpResp)

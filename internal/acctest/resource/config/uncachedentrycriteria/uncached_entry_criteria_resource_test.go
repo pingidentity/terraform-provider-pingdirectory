@@ -70,7 +70,7 @@ func TestAccDefaultUncachedEntryCriteria(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.UncachedEntryCriteriaApi.DeleteUncachedEntryCriteria(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.UncachedEntryCriteriaAPI.DeleteUncachedEntryCriteria(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -113,7 +113,7 @@ func testAccCheckExpectedDefaultUncachedEntryCriteriaAttributes(config defaultUn
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.UncachedEntryCriteriaAPI.GetUncachedEntryCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func testAccCheckExpectedDefaultUncachedEntryCriteriaAttributes(config defaultUn
 func testAccCheckDefaultUncachedEntryCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(ctx, testIdDefaultUncachedEntryCriteria).Execute()
+	_, _, err := testClient.UncachedEntryCriteriaAPI.GetUncachedEntryCriteria(ctx, testIdDefaultUncachedEntryCriteria).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Default Uncached Entry Criteria", testIdDefaultUncachedEntryCriteria)
 	}

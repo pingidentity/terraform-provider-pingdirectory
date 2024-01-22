@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -59,6 +59,8 @@ type externalServerDataSourceModel struct {
 	AwsRegionName                          types.String `tfsdk:"aws_region_name"`
 	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	ConjurAccountName                      types.String `tfsdk:"conjur_account_name"`
+	HttpConnectTimeout                     types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                    types.String `tfsdk:"http_response_timeout"`
 	TrustStoreFile                         types.String `tfsdk:"trust_store_file"`
 	TrustStorePin                          types.String `tfsdk:"trust_store_pin"`
 	TrustStoreType                         types.String `tfsdk:"trust_store_type"`
@@ -168,6 +170,18 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 			"conjur_account_name": schema.StringAttribute{
 				Description: "The name of the account with which the desired secrets are associated.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"http_connect_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"http_response_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -782,6 +796,8 @@ func readConjurExternalServerResponseDataSource(ctx context.Context, r *client.C
 	state.ConjurServerBaseURI = internaltypes.GetStringSet(r.ConjurServerBaseURI)
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, false)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, false)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, false)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -807,6 +823,8 @@ func readVaultExternalServerResponseDataSource(ctx context.Context, r *client.Va
 	state.Name = types.StringValue(r.Id)
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, false)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, false)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, false)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -822,7 +840,7 @@ func (r *externalServerDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+	readResponse, httpResp, err := r.apiClient.ExternalServerAPI.GetExternalServer(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)

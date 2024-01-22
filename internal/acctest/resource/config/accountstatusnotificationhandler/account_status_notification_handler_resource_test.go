@@ -85,7 +85,7 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.AccountStatusNotificationHandlerApi.DeleteAccountStatusNotificationHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.AccountStatusNotificationHandlerAPI.DeleteAccountStatusNotificationHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -136,7 +136,7 @@ func testAccCheckExpectedSmtpAccountStatusNotificationHandlerAttributes(config s
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(ctx, config.id).Execute()
+		response, _, err := testClient.AccountStatusNotificationHandlerAPI.GetAccountStatusNotificationHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func testAccCheckExpectedSmtpAccountStatusNotificationHandlerAttributes(config s
 func testAccCheckSmtpAccountStatusNotificationHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(ctx, testIdSmtpAccountStatusNotificationHandler).Execute()
+	_, _, err := testClient.AccountStatusNotificationHandlerAPI.GetAccountStatusNotificationHandler(ctx, testIdSmtpAccountStatusNotificationHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Smtp Account Status Notification Handler", testIdSmtpAccountStatusNotificationHandler)
 	}

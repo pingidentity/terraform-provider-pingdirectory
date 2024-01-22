@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -230,11 +230,11 @@ func (r *changeSubscriptionResource) CreateChangeSubscription(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ChangeSubscriptionApi.AddChangeSubscription(
+	apiAddRequest := r.apiClient.ChangeSubscriptionAPI.AddChangeSubscription(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddChangeSubscriptionRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.AddChangeSubscriptionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ChangeSubscriptionAPI.AddChangeSubscriptionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Change Subscription", err, httpResp)
 		return nil, err
@@ -288,7 +288,7 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.GetChangeSubscription(
+	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionAPI.GetChangeSubscription(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription", err, httpResp)
@@ -306,14 +306,14 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 	readChangeSubscriptionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ChangeSubscriptionAPI.UpdateChangeSubscription(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createChangeSubscriptionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.UpdateChangeSubscriptionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ChangeSubscriptionAPI.UpdateChangeSubscriptionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Change Subscription", err, httpResp)
 			return
@@ -355,7 +355,7 @@ func readChangeSubscription(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ChangeSubscriptionApi.GetChangeSubscription(
+	readResponse, httpResp, err := apiClient.ChangeSubscriptionAPI.GetChangeSubscription(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -406,7 +406,7 @@ func updateChangeSubscription(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state changeSubscriptionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(
+	updateRequest := apiClient.ChangeSubscriptionAPI.UpdateChangeSubscription(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -416,7 +416,7 @@ func updateChangeSubscription(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ChangeSubscriptionApi.UpdateChangeSubscriptionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ChangeSubscriptionAPI.UpdateChangeSubscriptionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Change Subscription", err, httpResp)
 			return
@@ -457,7 +457,7 @@ func (r *changeSubscriptionResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.ChangeSubscriptionApi.DeleteChangeSubscriptionExecute(r.apiClient.ChangeSubscriptionApi.DeleteChangeSubscription(
+	httpResp, err := r.apiClient.ChangeSubscriptionAPI.DeleteChangeSubscriptionExecute(r.apiClient.ChangeSubscriptionAPI.DeleteChangeSubscription(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Change Subscription", err, httpResp)

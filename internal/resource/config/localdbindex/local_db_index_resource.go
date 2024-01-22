@@ -18,7 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -320,8 +320,8 @@ func (r *localDbIndexResource) CreateLocalDbIndex(ctx context.Context, req resou
 	var IndexTypeSlice []client.EnumlocalDbIndexIndexTypeProp
 	plan.IndexType.ElementsAs(ctx, &IndexTypeSlice, false)
 	addRequest := client.NewAddLocalDbIndexRequest(plan.Attribute.ValueString(),
-		plan.Attribute.ValueString(),
-		IndexTypeSlice)
+		IndexTypeSlice,
+		plan.Attribute.ValueString())
 	err := addOptionalLocalDbIndexFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Local Db Index", err.Error())
@@ -332,11 +332,11 @@ func (r *localDbIndexResource) CreateLocalDbIndex(ctx context.Context, req resou
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocalDbIndexApi.AddLocalDbIndex(
+	apiAddRequest := r.apiClient.LocalDbIndexAPI.AddLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendName.ValueString())
 	apiAddRequest = apiAddRequest.AddLocalDbIndexRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.LocalDbIndexApi.AddLocalDbIndexExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LocalDbIndexAPI.AddLocalDbIndexExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Local Db Index", err, httpResp)
 		return nil, err
@@ -392,7 +392,7 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
+	readResponse, httpResp, err := r.apiClient.LocalDbIndexAPI.GetLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
@@ -410,14 +410,14 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
+	updateRequest := r.apiClient.LocalDbIndexAPI.UpdateLocalDbIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
 	ops := createLocalDbIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LocalDbIndexAPI.UpdateLocalDbIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
 			return
@@ -460,7 +460,7 @@ func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resou
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LocalDbIndexApi.GetLocalDbIndex(
+	readResponse, httpResp, err := apiClient.LocalDbIndexAPI.GetLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -511,7 +511,7 @@ func updateLocalDbIndex(ctx context.Context, req resource.UpdateRequest, resp *r
 	// Get the current state to see how any attributes are changing
 	var state localDbIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
+	updateRequest := apiClient.LocalDbIndexAPI.UpdateLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
@@ -521,7 +521,7 @@ func updateLocalDbIndex(ctx context.Context, req resource.UpdateRequest, resp *r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbIndexAPI.UpdateLocalDbIndexExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
 			return
@@ -563,7 +563,7 @@ func (r *localDbIndexResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	httpResp, err := r.apiClient.LocalDbIndexApi.DeleteLocalDbIndexExecute(r.apiClient.LocalDbIndexApi.DeleteLocalDbIndex(
+	httpResp, err := r.apiClient.LocalDbIndexAPI.DeleteLocalDbIndexExecute(r.apiClient.LocalDbIndexAPI.DeleteLocalDbIndex(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Index", err, httpResp)

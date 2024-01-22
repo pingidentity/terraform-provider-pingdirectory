@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -214,7 +214,7 @@ func (r *consentServiceResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentServiceApi.GetConsentService(
+	readResponse, httpResp, err := r.apiClient.ConsentServiceAPI.GetConsentService(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Service", err, httpResp)
@@ -232,14 +232,14 @@ func (r *consentServiceResource) Create(ctx context.Context, req resource.Create
 	readConsentServiceResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConsentServiceApi.UpdateConsentService(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.ConsentServiceAPI.UpdateConsentService(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createConsentServiceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConsentServiceApi.UpdateConsentServiceExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConsentServiceAPI.UpdateConsentServiceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Service", err, httpResp)
 			return
@@ -272,7 +272,7 @@ func (r *consentServiceResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentServiceApi.GetConsentService(
+	readResponse, httpResp, err := r.apiClient.ConsentServiceAPI.GetConsentService(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Service", err, httpResp)
@@ -306,7 +306,7 @@ func (r *consentServiceResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state consentServiceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConsentServiceApi.UpdateConsentService(
+	updateRequest := r.apiClient.ConsentServiceAPI.UpdateConsentService(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -316,7 +316,7 @@ func (r *consentServiceResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConsentServiceApi.UpdateConsentServiceExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConsentServiceAPI.UpdateConsentServiceExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Service", err, httpResp)
 			return

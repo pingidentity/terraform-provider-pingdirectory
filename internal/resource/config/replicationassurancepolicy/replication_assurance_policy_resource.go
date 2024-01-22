@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -268,9 +268,9 @@ func createReplicationAssurancePolicyOperations(plan replicationAssurancePolicyR
 
 // Create a replication-assurance-policy replication-assurance-policy
 func (r *replicationAssurancePolicyResource) CreateReplicationAssurancePolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan replicationAssurancePolicyResourceModel) (*replicationAssurancePolicyResourceModel, error) {
-	addRequest := client.NewAddReplicationAssurancePolicyRequest(plan.Name.ValueString(),
-		plan.EvaluationOrderIndex.ValueInt64(),
-		plan.Timeout.ValueString())
+	addRequest := client.NewAddReplicationAssurancePolicyRequest(plan.EvaluationOrderIndex.ValueInt64(),
+		plan.Timeout.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalReplicationAssurancePolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Replication Assurance Policy", err.Error())
@@ -281,11 +281,11 @@ func (r *replicationAssurancePolicyResource) CreateReplicationAssurancePolicy(ct
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ReplicationAssurancePolicyApi.AddReplicationAssurancePolicy(
+	apiAddRequest := r.apiClient.ReplicationAssurancePolicyAPI.AddReplicationAssurancePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddReplicationAssurancePolicyRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.AddReplicationAssurancePolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyAPI.AddReplicationAssurancePolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Replication Assurance Policy", err, httpResp)
 		return nil, err
@@ -339,7 +339,7 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(
+	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyAPI.GetReplicationAssurancePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Assurance Policy", err, httpResp)
@@ -357,14 +357,14 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 	readReplicationAssurancePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ReplicationAssurancePolicyAPI.UpdateReplicationAssurancePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createReplicationAssurancePolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyAPI.UpdateReplicationAssurancePolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Assurance Policy", err, httpResp)
 			return
@@ -406,7 +406,7 @@ func readReplicationAssurancePolicy(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(
+	readResponse, httpResp, err := apiClient.ReplicationAssurancePolicyAPI.GetReplicationAssurancePolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -457,7 +457,7 @@ func updateReplicationAssurancePolicy(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state replicationAssurancePolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(
+	updateRequest := apiClient.ReplicationAssurancePolicyAPI.UpdateReplicationAssurancePolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -467,7 +467,7 @@ func updateReplicationAssurancePolicy(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ReplicationAssurancePolicyAPI.UpdateReplicationAssurancePolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Replication Assurance Policy", err, httpResp)
 			return
@@ -508,7 +508,7 @@ func (r *replicationAssurancePolicyResource) Delete(ctx context.Context, req res
 		return
 	}
 
-	httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.DeleteReplicationAssurancePolicyExecute(r.apiClient.ReplicationAssurancePolicyApi.DeleteReplicationAssurancePolicy(
+	httpResp, err := r.apiClient.ReplicationAssurancePolicyAPI.DeleteReplicationAssurancePolicyExecute(r.apiClient.ReplicationAssurancePolicyAPI.DeleteReplicationAssurancePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Replication Assurance Policy", err, httpResp)

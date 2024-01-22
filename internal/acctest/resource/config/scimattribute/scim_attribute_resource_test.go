@@ -70,7 +70,7 @@ func TestAccScimAttribute(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ScimAttributeApi.DeleteScimAttribute(ctx, updatedResourceModel.name, updatedResourceModel.scimSchemaName).Execute()
+					_, err := testClient.ScimAttributeAPI.DeleteScimAttribute(ctx, updatedResourceModel.name, updatedResourceModel.scimSchemaName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -118,7 +118,7 @@ func testAccCheckExpectedScimAttributeAttributes(config scimAttributeTestModel) 
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ScimAttributeApi.GetScimAttribute(ctx, config.name, config.scimSchemaName).Execute()
+		response, _, err := testClient.ScimAttributeAPI.GetScimAttribute(ctx, config.name, config.scimSchemaName).Execute()
 		if err != nil {
 			return err
 		}
@@ -142,7 +142,7 @@ func testAccCheckExpectedScimAttributeAttributes(config scimAttributeTestModel) 
 func testAccCheckScimAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ScimAttributeApi.GetScimAttribute(ctx, testIdScimAttribute, testScimSchemaName).Execute()
+	_, _, err := testClient.ScimAttributeAPI.GetScimAttribute(ctx, testIdScimAttribute, testScimSchemaName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Scim Attribute", testIdScimAttribute)
 	}

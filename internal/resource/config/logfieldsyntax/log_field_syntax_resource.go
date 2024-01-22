@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -252,7 +252,7 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.GetLogFieldSyntax(
+	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxAPI.GetLogFieldSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Syntax", err, httpResp)
@@ -278,14 +278,14 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogFieldSyntaxAPI.UpdateLogFieldSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldSyntaxOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntaxExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogFieldSyntaxAPI.UpdateLogFieldSyntaxExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Syntax", err, httpResp)
 			return
@@ -326,7 +326,7 @@ func (r *logFieldSyntaxResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.GetLogFieldSyntax(
+	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxAPI.GetLogFieldSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Syntax", err, httpResp)
@@ -368,7 +368,7 @@ func (r *logFieldSyntaxResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state logFieldSyntaxResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntax(
+	updateRequest := r.apiClient.LogFieldSyntaxAPI.UpdateLogFieldSyntax(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -378,7 +378,7 @@ func (r *logFieldSyntaxResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntaxExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogFieldSyntaxAPI.UpdateLogFieldSyntaxExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Syntax", err, httpResp)
 			return

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -60,7 +60,7 @@ func (r *groupImplementationDataSource) Schema(ctx context.Context, req datasour
 		Description: "Describes a Group Implementation.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Group Implementation resource. Options are ['static', 'virtual-static', 'dynamic']",
+				Description: "The type of Group Implementation resource. Options are ['static', 'inverted-static', 'virtual-static', 'dynamic']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -86,6 +86,15 @@ func (r *groupImplementationDataSource) Schema(ctx context.Context, req datasour
 // Read a StaticGroupImplementationResponse object into the model struct
 func readStaticGroupImplementationResponseDataSource(ctx context.Context, r *client.StaticGroupImplementationResponse, state *groupImplementationDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a InvertedStaticGroupImplementationResponse object into the model struct
+func readInvertedStaticGroupImplementationResponseDataSource(ctx context.Context, r *client.InvertedStaticGroupImplementationResponse, state *groupImplementationDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("inverted-static")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -120,7 +129,7 @@ func (r *groupImplementationDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.GetGroupImplementation(
+	readResponse, httpResp, err := r.apiClient.GroupImplementationAPI.GetGroupImplementation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Group Implementation", err, httpResp)
@@ -136,6 +145,9 @@ func (r *groupImplementationDataSource) Read(ctx context.Context, req datasource
 	// Read the response into the state
 	if readResponse.StaticGroupImplementationResponse != nil {
 		readStaticGroupImplementationResponseDataSource(ctx, readResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.InvertedStaticGroupImplementationResponse != nil {
+		readInvertedStaticGroupImplementationResponseDataSource(ctx, readResponse.InvertedStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.VirtualStaticGroupImplementationResponse != nil {
 		readVirtualStaticGroupImplementationResponseDataSource(ctx, readResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)

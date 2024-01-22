@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -206,7 +206,7 @@ func (r *gaugeDataSourceDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GaugeDataSourceApi.GetGaugeDataSource(
+	readResponse, httpResp, err := r.apiClient.GaugeDataSourceAPI.GetGaugeDataSource(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge Data Source", err, httpResp)

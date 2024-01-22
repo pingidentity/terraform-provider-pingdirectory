@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -452,11 +452,11 @@ func (r *jsonFieldConstraintsResource) CreateJsonFieldConstraints(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.JsonFieldConstraintsApi.AddJsonFieldConstraints(
+	apiAddRequest := r.apiClient.JsonFieldConstraintsAPI.AddJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.JsonAttributeConstraintsName.ValueString())
 	apiAddRequest = apiAddRequest.AddJsonFieldConstraintsRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.AddJsonFieldConstraintsExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.AddJsonFieldConstraintsExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Json Field Constraints", err, httpResp)
 		return nil, err
@@ -512,7 +512,7 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.GetJsonFieldConstraints(
+	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.GetJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.JsonField.ValueString(), plan.JsonAttributeConstraintsName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Field Constraints", err, httpResp)
@@ -530,14 +530,14 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 	readJsonFieldConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.JsonFieldConstraintsApi.UpdateJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.JsonField.ValueString(), plan.JsonAttributeConstraintsName.ValueString())
+	updateRequest := r.apiClient.JsonFieldConstraintsAPI.UpdateJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.JsonField.ValueString(), plan.JsonAttributeConstraintsName.ValueString())
 	ops := createJsonFieldConstraintsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.UpdateJsonFieldConstraintsExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.UpdateJsonFieldConstraintsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Field Constraints", err, httpResp)
 			return
@@ -580,7 +580,7 @@ func readJsonFieldConstraints(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.JsonFieldConstraintsApi.GetJsonFieldConstraints(
+	readResponse, httpResp, err := apiClient.JsonFieldConstraintsAPI.GetJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -631,7 +631,7 @@ func updateJsonFieldConstraints(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state jsonFieldConstraintsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.JsonFieldConstraintsApi.UpdateJsonFieldConstraints(
+	updateRequest := apiClient.JsonFieldConstraintsAPI.UpdateJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.JsonField.ValueString(), plan.JsonAttributeConstraintsName.ValueString())
 
 	// Determine what update operations are necessary
@@ -641,7 +641,7 @@ func updateJsonFieldConstraints(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.JsonFieldConstraintsApi.UpdateJsonFieldConstraintsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.JsonFieldConstraintsAPI.UpdateJsonFieldConstraintsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Field Constraints", err, httpResp)
 			return
@@ -683,7 +683,7 @@ func (r *jsonFieldConstraintsResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraintsExecute(r.apiClient.JsonFieldConstraintsApi.DeleteJsonFieldConstraints(
+	httpResp, err := r.apiClient.JsonFieldConstraintsAPI.DeleteJsonFieldConstraintsExecute(r.apiClient.JsonFieldConstraintsAPI.DeleteJsonFieldConstraints(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonField.ValueString(), state.JsonAttributeConstraintsName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Json Field Constraints", err, httpResp)

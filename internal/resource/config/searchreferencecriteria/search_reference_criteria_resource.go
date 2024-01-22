@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -477,20 +477,20 @@ func createSearchReferenceCriteriaOperations(plan searchReferenceCriteriaResourc
 
 // Create a simple search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateSimpleSearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleSearchReferenceCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleSearchReferenceCriteriaSchemaUrn{client.ENUMSIMPLESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIASIMPLE})
+	addRequest := client.NewAddSimpleSearchReferenceCriteriaRequest([]client.EnumsimpleSearchReferenceCriteriaSchemaUrn{client.ENUMSIMPLESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIASIMPLE},
+		plan.Name.ValueString())
 	addOptionalSimpleSearchReferenceCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteria(
+	apiAddRequest := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSearchReferenceCriteriaRequest(
 		client.AddSimpleSearchReferenceCriteriaRequestAsAddSearchReferenceCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Search Reference Criteria", err, httpResp)
 		return nil, err
@@ -510,20 +510,20 @@ func (r *searchReferenceCriteriaResource) CreateSimpleSearchReferenceCriteria(ct
 
 // Create a aggregate search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateAggregateSearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateSearchReferenceCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumaggregateSearchReferenceCriteriaSchemaUrn{client.ENUMAGGREGATESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIAAGGREGATE})
+	addRequest := client.NewAddAggregateSearchReferenceCriteriaRequest([]client.EnumaggregateSearchReferenceCriteriaSchemaUrn{client.ENUMAGGREGATESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIAAGGREGATE},
+		plan.Name.ValueString())
 	addOptionalAggregateSearchReferenceCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteria(
+	apiAddRequest := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSearchReferenceCriteriaRequest(
 		client.AddAggregateSearchReferenceCriteriaRequestAsAddSearchReferenceCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Search Reference Criteria", err, httpResp)
 		return nil, err
@@ -543,21 +543,21 @@ func (r *searchReferenceCriteriaResource) CreateAggregateSearchReferenceCriteria
 
 // Create a third-party search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateThirdPartySearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartySearchReferenceCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartySearchReferenceCriteriaSchemaUrn{client.ENUMTHIRDPARTYSEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIATHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartySearchReferenceCriteriaRequest([]client.EnumthirdPartySearchReferenceCriteriaSchemaUrn{client.ENUMTHIRDPARTYSEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIATHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	addOptionalThirdPartySearchReferenceCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteria(
+	apiAddRequest := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSearchReferenceCriteriaRequest(
 		client.AddThirdPartySearchReferenceCriteriaRequestAsAddSearchReferenceCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.AddSearchReferenceCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.AddSearchReferenceCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Search Reference Criteria", err, httpResp)
 		return nil, err
@@ -627,7 +627,7 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
+	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.GetSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Reference Criteria", err, httpResp)
@@ -653,14 +653,14 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.SearchReferenceCriteriaAPI.UpdateSearchReferenceCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSearchReferenceCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.UpdateSearchReferenceCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Search Reference Criteria", err, httpResp)
 			return
@@ -710,7 +710,7 @@ func readSearchReferenceCriteria(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
+	readResponse, httpResp, err := apiClient.SearchReferenceCriteriaAPI.GetSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -769,7 +769,7 @@ func updateSearchReferenceCriteria(ctx context.Context, req resource.UpdateReque
 	// Get the current state to see how any attributes are changing
 	var state searchReferenceCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteria(
+	updateRequest := apiClient.SearchReferenceCriteriaAPI.UpdateSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -779,7 +779,7 @@ func updateSearchReferenceCriteria(ctx context.Context, req resource.UpdateReque
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.SearchReferenceCriteriaAPI.UpdateSearchReferenceCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Search Reference Criteria", err, httpResp)
 			return
@@ -828,7 +828,7 @@ func (r *searchReferenceCriteriaResource) Delete(ctx context.Context, req resour
 		return
 	}
 
-	httpResp, err := r.apiClient.SearchReferenceCriteriaApi.DeleteSearchReferenceCriteriaExecute(r.apiClient.SearchReferenceCriteriaApi.DeleteSearchReferenceCriteria(
+	httpResp, err := r.apiClient.SearchReferenceCriteriaAPI.DeleteSearchReferenceCriteriaExecute(r.apiClient.SearchReferenceCriteriaAPI.DeleteSearchReferenceCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Search Reference Criteria", err, httpResp)

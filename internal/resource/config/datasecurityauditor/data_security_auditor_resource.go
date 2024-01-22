@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1445,8 +1445,8 @@ func createDataSecurityAuditorOperations(plan dataSecurityAuditorResourceModel, 
 
 // Create a expired-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateExpiredPasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddExpiredPasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumexpiredPasswordDataSecurityAuditorSchemaUrn{client.ENUMEXPIREDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITOREXPIRED_PASSWORD})
+	addRequest := client.NewAddExpiredPasswordDataSecurityAuditorRequest([]client.EnumexpiredPasswordDataSecurityAuditorSchemaUrn{client.ENUMEXPIREDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITOREXPIRED_PASSWORD},
+		plan.Name.ValueString())
 	err := addOptionalExpiredPasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1457,12 +1457,12 @@ func (r *dataSecurityAuditorResource) CreateExpiredPasswordDataSecurityAuditor(c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddExpiredPasswordDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1482,9 +1482,9 @@ func (r *dataSecurityAuditorResource) CreateExpiredPasswordDataSecurityAuditor(c
 
 // Create a idle-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateIdleAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddIdleAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumidleAccountDataSecurityAuditorSchemaUrn{client.ENUMIDLEACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORIDLE_ACCOUNT},
-		plan.IdleAccountWarningInterval.ValueString())
+	addRequest := client.NewAddIdleAccountDataSecurityAuditorRequest([]client.EnumidleAccountDataSecurityAuditorSchemaUrn{client.ENUMIDLEACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORIDLE_ACCOUNT},
+		plan.IdleAccountWarningInterval.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalIdleAccountDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1495,12 +1495,12 @@ func (r *dataSecurityAuditorResource) CreateIdleAccountDataSecurityAuditor(ctx c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddIdleAccountDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1520,8 +1520,8 @@ func (r *dataSecurityAuditorResource) CreateIdleAccountDataSecurityAuditor(ctx c
 
 // Create a disabled-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateDisabledAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddDisabledAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumdisabledAccountDataSecurityAuditorSchemaUrn{client.ENUMDISABLEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDISABLED_ACCOUNT})
+	addRequest := client.NewAddDisabledAccountDataSecurityAuditorRequest([]client.EnumdisabledAccountDataSecurityAuditorSchemaUrn{client.ENUMDISABLEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDISABLED_ACCOUNT},
+		plan.Name.ValueString())
 	err := addOptionalDisabledAccountDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1532,12 +1532,12 @@ func (r *dataSecurityAuditorResource) CreateDisabledAccountDataSecurityAuditor(c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddDisabledAccountDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1557,8 +1557,8 @@ func (r *dataSecurityAuditorResource) CreateDisabledAccountDataSecurityAuditor(c
 
 // Create a weakly-encoded-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateWeaklyEncodedPasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddWeaklyEncodedPasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumweaklyEncodedPasswordDataSecurityAuditorSchemaUrn{client.ENUMWEAKLYENCODEDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORWEAKLY_ENCODED_PASSWORD})
+	addRequest := client.NewAddWeaklyEncodedPasswordDataSecurityAuditorRequest([]client.EnumweaklyEncodedPasswordDataSecurityAuditorSchemaUrn{client.ENUMWEAKLYENCODEDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORWEAKLY_ENCODED_PASSWORD},
+		plan.Name.ValueString())
 	err := addOptionalWeaklyEncodedPasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1569,12 +1569,12 @@ func (r *dataSecurityAuditorResource) CreateWeaklyEncodedPasswordDataSecurityAud
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddWeaklyEncodedPasswordDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1594,8 +1594,8 @@ func (r *dataSecurityAuditorResource) CreateWeaklyEncodedPasswordDataSecurityAud
 
 // Create a privilege data-security-auditor
 func (r *dataSecurityAuditorResource) CreatePrivilegeDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddPrivilegeDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumprivilegeDataSecurityAuditorSchemaUrn{client.ENUMPRIVILEGEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORPRIVILEGE})
+	addRequest := client.NewAddPrivilegeDataSecurityAuditorRequest([]client.EnumprivilegeDataSecurityAuditorSchemaUrn{client.ENUMPRIVILEGEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORPRIVILEGE},
+		plan.Name.ValueString())
 	err := addOptionalPrivilegeDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1606,12 +1606,12 @@ func (r *dataSecurityAuditorResource) CreatePrivilegeDataSecurityAuditor(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddPrivilegeDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1631,8 +1631,8 @@ func (r *dataSecurityAuditorResource) CreatePrivilegeDataSecurityAuditor(ctx con
 
 // Create a account-usability-issues data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccountUsabilityIssuesDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccountUsabilityIssuesDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumaccountUsabilityIssuesDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTUSABILITYISSUESDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_USABILITY_ISSUES})
+	addRequest := client.NewAddAccountUsabilityIssuesDataSecurityAuditorRequest([]client.EnumaccountUsabilityIssuesDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTUSABILITYISSUESDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_USABILITY_ISSUES},
+		plan.Name.ValueString())
 	err := addOptionalAccountUsabilityIssuesDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1643,12 +1643,12 @@ func (r *dataSecurityAuditorResource) CreateAccountUsabilityIssuesDataSecurityAu
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddAccountUsabilityIssuesDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1668,8 +1668,8 @@ func (r *dataSecurityAuditorResource) CreateAccountUsabilityIssuesDataSecurityAu
 
 // Create a locked-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateLockedAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddLockedAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumlockedAccountDataSecurityAuditorSchemaUrn{client.ENUMLOCKEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORLOCKED_ACCOUNT})
+	addRequest := client.NewAddLockedAccountDataSecurityAuditorRequest([]client.EnumlockedAccountDataSecurityAuditorSchemaUrn{client.ENUMLOCKEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORLOCKED_ACCOUNT},
+		plan.Name.ValueString())
 	err := addOptionalLockedAccountDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1680,12 +1680,12 @@ func (r *dataSecurityAuditorResource) CreateLockedAccountDataSecurityAuditor(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddLockedAccountDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1707,10 +1707,10 @@ func (r *dataSecurityAuditorResource) CreateLockedAccountDataSecurityAuditor(ctx
 func (r *dataSecurityAuditorResource) CreateFilterDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
 	var FilterSlice []string
 	plan.Filter.ElementsAs(ctx, &FilterSlice, false)
-	addRequest := client.NewAddFilterDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumfilterDataSecurityAuditorSchemaUrn{client.ENUMFILTERDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORFILTER},
+	addRequest := client.NewAddFilterDataSecurityAuditorRequest([]client.EnumfilterDataSecurityAuditorSchemaUrn{client.ENUMFILTERDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORFILTER},
 		plan.ReportFile.ValueString(),
-		FilterSlice)
+		FilterSlice,
+		plan.Name.ValueString())
 	err := addOptionalFilterDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1721,12 +1721,12 @@ func (r *dataSecurityAuditorResource) CreateFilterDataSecurityAuditor(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddFilterDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1746,8 +1746,8 @@ func (r *dataSecurityAuditorResource) CreateFilterDataSecurityAuditor(ctx contex
 
 // Create a account-validity-window data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccountValidityWindowDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccountValidityWindowDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumaccountValidityWindowDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTVALIDITYWINDOWDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_VALIDITY_WINDOW})
+	addRequest := client.NewAddAccountValidityWindowDataSecurityAuditorRequest([]client.EnumaccountValidityWindowDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTVALIDITYWINDOWDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_VALIDITY_WINDOW},
+		plan.Name.ValueString())
 	err := addOptionalAccountValidityWindowDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1758,12 +1758,12 @@ func (r *dataSecurityAuditorResource) CreateAccountValidityWindowDataSecurityAud
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddAccountValidityWindowDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1783,8 +1783,8 @@ func (r *dataSecurityAuditorResource) CreateAccountValidityWindowDataSecurityAud
 
 // Create a multiple-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateMultiplePasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddMultiplePasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnummultiplePasswordDataSecurityAuditorSchemaUrn{client.ENUMMULTIPLEPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORMULTIPLE_PASSWORD})
+	addRequest := client.NewAddMultiplePasswordDataSecurityAuditorRequest([]client.EnummultiplePasswordDataSecurityAuditorSchemaUrn{client.ENUMMULTIPLEPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORMULTIPLE_PASSWORD},
+		plan.Name.ValueString())
 	err := addOptionalMultiplePasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1795,12 +1795,12 @@ func (r *dataSecurityAuditorResource) CreateMultiplePasswordDataSecurityAuditor(
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddMultiplePasswordDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1820,8 +1820,8 @@ func (r *dataSecurityAuditorResource) CreateMultiplePasswordDataSecurityAuditor(
 
 // Create a deprecated-password-storage-scheme data-security-auditor
 func (r *dataSecurityAuditorResource) CreateDeprecatedPasswordStorageSchemeDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddDeprecatedPasswordStorageSchemeDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumdeprecatedPasswordStorageSchemeDataSecurityAuditorSchemaUrn{client.ENUMDEPRECATEDPASSWORDSTORAGESCHEMEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDEPRECATED_PASSWORD_STORAGE_SCHEME})
+	addRequest := client.NewAddDeprecatedPasswordStorageSchemeDataSecurityAuditorRequest([]client.EnumdeprecatedPasswordStorageSchemeDataSecurityAuditorSchemaUrn{client.ENUMDEPRECATEDPASSWORDSTORAGESCHEMEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDEPRECATED_PASSWORD_STORAGE_SCHEME},
+		plan.Name.ValueString())
 	err := addOptionalDeprecatedPasswordStorageSchemeDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1832,12 +1832,12 @@ func (r *dataSecurityAuditorResource) CreateDeprecatedPasswordStorageSchemeDataS
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddDeprecatedPasswordStorageSchemeDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1857,8 +1857,8 @@ func (r *dataSecurityAuditorResource) CreateDeprecatedPasswordStorageSchemeDataS
 
 // Create a nonexistent-password-policy data-security-auditor
 func (r *dataSecurityAuditorResource) CreateNonexistentPasswordPolicyDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddNonexistentPasswordPolicyDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumnonexistentPasswordPolicyDataSecurityAuditorSchemaUrn{client.ENUMNONEXISTENTPASSWORDPOLICYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORNONEXISTENT_PASSWORD_POLICY})
+	addRequest := client.NewAddNonexistentPasswordPolicyDataSecurityAuditorRequest([]client.EnumnonexistentPasswordPolicyDataSecurityAuditorSchemaUrn{client.ENUMNONEXISTENTPASSWORDPOLICYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORNONEXISTENT_PASSWORD_POLICY},
+		plan.Name.ValueString())
 	err := addOptionalNonexistentPasswordPolicyDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1869,12 +1869,12 @@ func (r *dataSecurityAuditorResource) CreateNonexistentPasswordPolicyDataSecurit
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddNonexistentPasswordPolicyDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1894,8 +1894,8 @@ func (r *dataSecurityAuditorResource) CreateNonexistentPasswordPolicyDataSecurit
 
 // Create a access-control data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccessControlDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccessControlDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumaccessControlDataSecurityAuditorSchemaUrn{client.ENUMACCESSCONTROLDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCESS_CONTROL})
+	addRequest := client.NewAddAccessControlDataSecurityAuditorRequest([]client.EnumaccessControlDataSecurityAuditorSchemaUrn{client.ENUMACCESSCONTROLDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCESS_CONTROL},
+		plan.Name.ValueString())
 	err := addOptionalAccessControlDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1906,12 +1906,12 @@ func (r *dataSecurityAuditorResource) CreateAccessControlDataSecurityAuditor(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddAccessControlDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -1931,10 +1931,10 @@ func (r *dataSecurityAuditorResource) CreateAccessControlDataSecurityAuditor(ctx
 
 // Create a third-party data-security-auditor
 func (r *dataSecurityAuditorResource) CreateThirdPartyDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyDataSecurityAuditorRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyDataSecurityAuditorSchemaUrn{client.ENUMTHIRDPARTYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyDataSecurityAuditorRequest([]client.EnumthirdPartyDataSecurityAuditorSchemaUrn{client.ENUMTHIRDPARTYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.ReportFile.ValueString())
+		plan.ReportFile.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Data Security Auditor", err.Error())
@@ -1945,12 +1945,12 @@ func (r *dataSecurityAuditorResource) CreateThirdPartyDataSecurityAuditor(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditor(
+	apiAddRequest := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDataSecurityAuditorRequest(
 		client.AddThirdPartyDataSecurityAuditorRequestAsAddDataSecurityAuditorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.AddDataSecurityAuditorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.AddDataSecurityAuditorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Data Security Auditor", err, httpResp)
 		return nil, err
@@ -2086,7 +2086,7 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
+	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.GetDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
@@ -2145,14 +2145,14 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditor(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.DataSecurityAuditorAPI.UpdateDataSecurityAuditor(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createDataSecurityAuditorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DataSecurityAuditorAPI.UpdateDataSecurityAuditorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Data Security Auditor", err, httpResp)
 			return
@@ -2235,7 +2235,7 @@ func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
+	readResponse, httpResp, err := apiClient.DataSecurityAuditorAPI.GetDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -2327,7 +2327,7 @@ func updateDataSecurityAuditor(ctx context.Context, req resource.UpdateRequest, 
 	// Get the current state to see how any attributes are changing
 	var state dataSecurityAuditorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditor(
+	updateRequest := apiClient.DataSecurityAuditorAPI.UpdateDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2337,7 +2337,7 @@ func updateDataSecurityAuditor(ctx context.Context, req resource.UpdateRequest, 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DataSecurityAuditorAPI.UpdateDataSecurityAuditorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Data Security Auditor", err, httpResp)
 			return
@@ -2419,7 +2419,7 @@ func (r *dataSecurityAuditorResource) Delete(ctx context.Context, req resource.D
 		return
 	}
 
-	httpResp, err := r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditorExecute(r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditor(
+	httpResp, err := r.apiClient.DataSecurityAuditorAPI.DeleteDataSecurityAuditorExecute(r.apiClient.DataSecurityAuditorAPI.DeleteDataSecurityAuditor(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Data Security Auditor", err, httpResp)

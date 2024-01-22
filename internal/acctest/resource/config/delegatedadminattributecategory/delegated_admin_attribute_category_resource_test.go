@@ -68,7 +68,7 @@ func TestAccDelegatedAdminAttributeCategory(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DelegatedAdminAttributeCategoryApi.DeleteDelegatedAdminAttributeCategory(ctx, updatedResourceModel.displayName).Execute()
+					_, err := testClient.DelegatedAdminAttributeCategoryAPI.DeleteDelegatedAdminAttributeCategory(ctx, updatedResourceModel.displayName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -108,7 +108,7 @@ func testAccCheckExpectedDelegatedAdminAttributeCategoryAttributes(config delega
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(ctx, config.displayName).Execute()
+		response, _, err := testClient.DelegatedAdminAttributeCategoryAPI.GetDelegatedAdminAttributeCategory(ctx, config.displayName).Execute()
 		if err != nil {
 			return err
 		}
@@ -132,7 +132,7 @@ func testAccCheckExpectedDelegatedAdminAttributeCategoryAttributes(config delega
 func testAccCheckDelegatedAdminAttributeCategoryDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(ctx, testIdDelegatedAdminAttributeCategory).Execute()
+	_, _, err := testClient.DelegatedAdminAttributeCategoryAPI.GetDelegatedAdminAttributeCategory(ctx, testIdDelegatedAdminAttributeCategory).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Delegated Admin Attribute Category", testIdDelegatedAdminAttributeCategory)
 	}

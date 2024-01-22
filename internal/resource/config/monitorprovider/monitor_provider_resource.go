@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -706,9 +706,9 @@ func createMonitorProviderOperationsDefault(plan defaultMonitorProviderResourceM
 
 // Create a encryption-settings-database-accessibility monitor-provider
 func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityMonitorProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitorProviderResourceModel) (*monitorProviderResourceModel, error) {
-	addRequest := client.NewAddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest(plan.Name.ValueString(),
-		[]client.EnumencryptionSettingsDatabaseAccessibilityMonitorProviderSchemaUrn{client.ENUMENCRYPTIONSETTINGSDATABASEACCESSIBILITYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERENCRYPTION_SETTINGS_DATABASE_ACCESSIBILITY},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest([]client.EnumencryptionSettingsDatabaseAccessibilityMonitorProviderSchemaUrn{client.ENUMENCRYPTIONSETTINGSDATABASEACCESSIBILITYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERENCRYPTION_SETTINGS_DATABASE_ACCESSIBILITY},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalEncryptionSettingsDatabaseAccessibilityMonitorProviderFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitor Provider", err.Error())
@@ -719,12 +719,12 @@ func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityM
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.MonitorProviderApi.AddMonitorProvider(
+	apiAddRequest := r.apiClient.MonitorProviderAPI.AddMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddMonitorProviderRequest(
 		client.AddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequestAsAddMonitorProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.MonitorProviderApi.AddMonitorProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.MonitorProviderAPI.AddMonitorProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Monitor Provider", err, httpResp)
 		return nil, err
@@ -744,10 +744,10 @@ func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityM
 
 // Create a third-party monitor-provider
 func (r *monitorProviderResource) CreateThirdPartyMonitorProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitorProviderResourceModel) (*monitorProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyMonitorProviderRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyMonitorProviderSchemaUrn{client.ENUMTHIRDPARTYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyMonitorProviderRequest([]client.EnumthirdPartyMonitorProviderSchemaUrn{client.ENUMTHIRDPARTYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyMonitorProviderFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitor Provider", err.Error())
@@ -758,12 +758,12 @@ func (r *monitorProviderResource) CreateThirdPartyMonitorProvider(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.MonitorProviderApi.AddMonitorProvider(
+	apiAddRequest := r.apiClient.MonitorProviderAPI.AddMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddMonitorProviderRequest(
 		client.AddThirdPartyMonitorProviderRequestAsAddMonitorProviderRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.MonitorProviderApi.AddMonitorProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.MonitorProviderAPI.AddMonitorProviderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Monitor Provider", err, httpResp)
 		return nil, err
@@ -827,7 +827,7 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
+	readResponse, httpResp, err := r.apiClient.MonitorProviderAPI.GetMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
@@ -883,14 +883,14 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.MonitorProviderAPI.UpdateMonitorProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMonitorProviderOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MonitorProviderApi.UpdateMonitorProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MonitorProviderAPI.UpdateMonitorProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitor Provider", err, httpResp)
 			return
@@ -961,7 +961,7 @@ func (r *monitorProviderResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
+	readResponse, httpResp, err := r.apiClient.MonitorProviderAPI.GetMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -1001,7 +1001,7 @@ func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
+	readResponse, httpResp, err := r.apiClient.MonitorProviderAPI.GetMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
@@ -1067,7 +1067,7 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 	// Get the current state to see how any attributes are changing
 	var state monitorProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(
+	updateRequest := r.apiClient.MonitorProviderAPI.UpdateMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1077,7 +1077,7 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MonitorProviderApi.UpdateMonitorProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MonitorProviderAPI.UpdateMonitorProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitor Provider", err, httpResp)
 			return
@@ -1119,7 +1119,7 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state defaultMonitorProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(
+	updateRequest := r.apiClient.MonitorProviderAPI.UpdateMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1129,7 +1129,7 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MonitorProviderApi.UpdateMonitorProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MonitorProviderAPI.UpdateMonitorProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitor Provider", err, httpResp)
 			return
@@ -1208,7 +1208,7 @@ func (r *monitorProviderResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	httpResp, err := r.apiClient.MonitorProviderApi.DeleteMonitorProviderExecute(r.apiClient.MonitorProviderApi.DeleteMonitorProvider(
+	httpResp, err := r.apiClient.MonitorProviderAPI.DeleteMonitorProviderExecute(r.apiClient.MonitorProviderAPI.DeleteMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitor Provider", err, httpResp)

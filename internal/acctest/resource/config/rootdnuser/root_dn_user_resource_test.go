@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
@@ -94,7 +94,7 @@ func TestAccRootDnUser(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RootDnUserApi.DeleteRootDnUser(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RootDnUserAPI.DeleteRootDnUser(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -149,7 +149,7 @@ func testAccCheckExpectedRootDnUserAttributes(config rootDnUserTestModel) resour
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RootDnUserApi.GetRootDnUser(ctx, config.id).Execute()
+		response, _, err := testClient.RootDnUserAPI.GetRootDnUser(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -208,7 +208,7 @@ func testAccCheckExpectedRootDnUserAttributes(config rootDnUserTestModel) resour
 func testAccCheckRootDnUserDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RootDnUserApi.GetRootDnUser(ctx, testIdRootDnUser).Execute()
+	_, _, err := testClient.RootDnUserAPI.GetRootDnUser(ctx, testIdRootDnUser).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Root Dn User", testIdRootDnUser)
 	}

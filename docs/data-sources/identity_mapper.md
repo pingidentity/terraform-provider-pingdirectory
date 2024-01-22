@@ -49,5 +49,5 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `replace_pattern` (String) Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Identity Mapper. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Identity Mapper.
-- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']
+- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'dn', 'regular-expression', 'aggregate', 'third-party']
 

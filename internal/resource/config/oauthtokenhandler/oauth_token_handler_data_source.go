@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -136,7 +136,7 @@ func (r *oauthTokenHandlerDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
+	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerAPI.GetOauthTokenHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)

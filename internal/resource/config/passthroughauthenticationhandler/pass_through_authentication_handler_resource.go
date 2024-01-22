@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1014,14 +1014,14 @@ func (r *passThroughAuthenticationHandlerResource) CreatePingOnePassThroughAuthe
 	plan.UserMappingLocalAttribute.ElementsAs(ctx, &UserMappingLocalAttributeSlice, false)
 	var UserMappingRemoteJSONFieldSlice []string
 	plan.UserMappingRemoteJSONField.ElementsAs(ctx, &UserMappingRemoteJSONFieldSlice, false)
-	addRequest := client.NewAddPingOnePassThroughAuthenticationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumpingOnePassThroughAuthenticationHandlerSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERPING_ONE},
+	addRequest := client.NewAddPingOnePassThroughAuthenticationHandlerRequest([]client.EnumpingOnePassThroughAuthenticationHandlerSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERPING_ONE},
 		plan.ApiURL.ValueString(),
 		plan.AuthURL.ValueString(),
 		plan.OAuthClientID.ValueString(),
 		plan.EnvironmentID.ValueString(),
 		UserMappingLocalAttributeSlice,
-		UserMappingRemoteJSONFieldSlice)
+		UserMappingRemoteJSONFieldSlice,
+		plan.Name.ValueString())
 	err := addOptionalPingOnePassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
@@ -1032,12 +1032,12 @@ func (r *passThroughAuthenticationHandlerResource) CreatePingOnePassThroughAuthe
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
 		client.AddPingOnePassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
 		return nil, err
@@ -1059,9 +1059,9 @@ func (r *passThroughAuthenticationHandlerResource) CreatePingOnePassThroughAuthe
 func (r *passThroughAuthenticationHandlerResource) CreateLdapPassThroughAuthenticationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passThroughAuthenticationHandlerResourceModel) (*passThroughAuthenticationHandlerResourceModel, error) {
 	var ServerSlice []string
 	plan.Server.ElementsAs(ctx, &ServerSlice, false)
-	addRequest := client.NewAddLdapPassThroughAuthenticationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumldapPassThroughAuthenticationHandlerSchemaUrn{client.ENUMLDAPPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERLDAP},
-		ServerSlice)
+	addRequest := client.NewAddLdapPassThroughAuthenticationHandlerRequest([]client.EnumldapPassThroughAuthenticationHandlerSchemaUrn{client.ENUMLDAPPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERLDAP},
+		ServerSlice,
+		plan.Name.ValueString())
 	err := addOptionalLdapPassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
@@ -1072,12 +1072,12 @@ func (r *passThroughAuthenticationHandlerResource) CreateLdapPassThroughAuthenti
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
 		client.AddLdapPassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
 		return nil, err
@@ -1099,9 +1099,9 @@ func (r *passThroughAuthenticationHandlerResource) CreateLdapPassThroughAuthenti
 func (r *passThroughAuthenticationHandlerResource) CreateAggregatePassThroughAuthenticationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passThroughAuthenticationHandlerResourceModel) (*passThroughAuthenticationHandlerResourceModel, error) {
 	var SubordinatePassThroughAuthenticationHandlerSlice []string
 	plan.SubordinatePassThroughAuthenticationHandler.ElementsAs(ctx, &SubordinatePassThroughAuthenticationHandlerSlice, false)
-	addRequest := client.NewAddAggregatePassThroughAuthenticationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumaggregatePassThroughAuthenticationHandlerSchemaUrn{client.ENUMAGGREGATEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERAGGREGATE},
-		SubordinatePassThroughAuthenticationHandlerSlice)
+	addRequest := client.NewAddAggregatePassThroughAuthenticationHandlerRequest([]client.EnumaggregatePassThroughAuthenticationHandlerSchemaUrn{client.ENUMAGGREGATEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERAGGREGATE},
+		SubordinatePassThroughAuthenticationHandlerSlice,
+		plan.Name.ValueString())
 	err := addOptionalAggregatePassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
@@ -1112,12 +1112,12 @@ func (r *passThroughAuthenticationHandlerResource) CreateAggregatePassThroughAut
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
 		client.AddAggregatePassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
 		return nil, err
@@ -1137,9 +1137,9 @@ func (r *passThroughAuthenticationHandlerResource) CreateAggregatePassThroughAut
 
 // Create a third-party pass-through-authentication-handler
 func (r *passThroughAuthenticationHandlerResource) CreateThirdPartyPassThroughAuthenticationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passThroughAuthenticationHandlerResourceModel) (*passThroughAuthenticationHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPassThroughAuthenticationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPassThroughAuthenticationHandlerSchemaUrn{client.ENUMTHIRDPARTYPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERTHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyPassThroughAuthenticationHandlerRequest([]client.EnumthirdPartyPassThroughAuthenticationHandlerSchemaUrn{client.ENUMTHIRDPARTYPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
@@ -1150,12 +1150,12 @@ func (r *passThroughAuthenticationHandlerResource) CreateThirdPartyPassThroughAu
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
 		client.AddThirdPartyPassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
 		return nil, err
@@ -1233,7 +1233,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(
+	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.GetPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pass Through Authentication Handler", err, httpResp)
@@ -1262,14 +1262,14 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PassThroughAuthenticationHandlerApi.UpdatePassThroughAuthenticationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PassThroughAuthenticationHandlerAPI.UpdatePassThroughAuthenticationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPassThroughAuthenticationHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.UpdatePassThroughAuthenticationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.UpdatePassThroughAuthenticationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pass Through Authentication Handler", err, httpResp)
 			return
@@ -1323,7 +1323,7 @@ func readPassThroughAuthenticationHandler(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(
+	readResponse, httpResp, err := apiClient.PassThroughAuthenticationHandlerAPI.GetPassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1385,7 +1385,7 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state passThroughAuthenticationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PassThroughAuthenticationHandlerApi.UpdatePassThroughAuthenticationHandler(
+	updateRequest := apiClient.PassThroughAuthenticationHandlerAPI.UpdatePassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1395,7 +1395,7 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PassThroughAuthenticationHandlerApi.UpdatePassThroughAuthenticationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PassThroughAuthenticationHandlerAPI.UpdatePassThroughAuthenticationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pass Through Authentication Handler", err, httpResp)
 			return
@@ -1448,7 +1448,7 @@ func (r *passThroughAuthenticationHandlerResource) Delete(ctx context.Context, r
 		return
 	}
 
-	httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.DeletePassThroughAuthenticationHandlerExecute(r.apiClient.PassThroughAuthenticationHandlerApi.DeletePassThroughAuthenticationHandler(
+	httpResp, err := r.apiClient.PassThroughAuthenticationHandlerAPI.DeletePassThroughAuthenticationHandlerExecute(r.apiClient.PassThroughAuthenticationHandlerAPI.DeletePassThroughAuthenticationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Pass Through Authentication Handler", err, httpResp)

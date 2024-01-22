@@ -69,7 +69,7 @@ func TestAccJsonAttributeConstraints(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.JsonAttributeConstraintsApi.DeleteJsonAttributeConstraints(ctx, updatedResourceModel.attributeType).Execute()
+					_, err := testClient.JsonAttributeConstraintsAPI.DeleteJsonAttributeConstraints(ctx, updatedResourceModel.attributeType).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -111,7 +111,7 @@ func testAccCheckExpectedJsonAttributeConstraintsAttributes(config jsonAttribute
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(ctx, config.attributeType).Execute()
+		response, _, err := testClient.JsonAttributeConstraintsAPI.GetJsonAttributeConstraints(ctx, config.attributeType).Execute()
 		if err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func testAccCheckExpectedJsonAttributeConstraintsAttributes(config jsonAttribute
 func testAccCheckJsonAttributeConstraintsDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(ctx, testIdJsonAttributeConstraints).Execute()
+	_, _, err := testClient.JsonAttributeConstraintsAPI.GetJsonAttributeConstraints(ctx, testIdJsonAttributeConstraints).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Json Attribute Constraints", testIdJsonAttributeConstraints)
 	}

@@ -15,11 +15,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -118,13 +119,13 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		Description: "Manages a Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']",
+				Description: "The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'dn', 'regular-expression', 'aggregate', 'third-party']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"exact-match", "groovy-scripted", "regular-expression", "aggregate", "third-party"}...),
+					stringvalidator.OneOf([]string{"exact-match", "groovy-scripted", "dn", "regular-expression", "aggregate", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -223,6 +224,7 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_identity_mapper")
 	var planModel, configModel identityMapperResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -256,10 +258,35 @@ func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.Mo
 	resp.Plan.Set(ctx, &planModel)
 }
 
+func (r *defaultIdentityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_identity_mapper")
+}
+
+func modifyPlanIdentityMapper(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model identityMapperResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "dn" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			providerConfig.ProductVersion, resourceName+" with type \"dn\"")
+	}
+}
+
 func (model *identityMapperResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
 	if resourceType == "groovy-scripted" {
+		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "dn" {
 		model.MatchAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "aggregate" {
@@ -399,6 +426,14 @@ func addOptionalGroovyScriptedIdentityMapperFields(ctx context.Context, addReque
 	}
 }
 
+// Add optional fields to create request for dn identity-mapper
+func addOptionalDnIdentityMapperFields(ctx context.Context, addRequest *client.AddDnIdentityMapperRequest, plan identityMapperResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
 // Add optional fields to create request for regular-expression identity-mapper
 func addOptionalRegularExpressionIdentityMapperFields(ctx context.Context, addRequest *client.AddRegularExpressionIdentityMapperRequest, plan identityMapperResourceModel) {
 	if internaltypes.IsDefined(plan.MatchAttribute) {
@@ -527,6 +562,17 @@ func readGroovyScriptedIdentityMapperResponse(ctx context.Context, r *client.Gro
 	populateIdentityMapperUnknownValues(state)
 }
 
+// Read a DnIdentityMapperResponse object into the model struct
+func readDnIdentityMapperResponse(ctx context.Context, r *client.DnIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("dn")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateIdentityMapperUnknownValues(state)
+}
+
 // Read a RegularExpressionIdentityMapperResponse object into the model struct
 func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.RegularExpressionIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
@@ -590,21 +636,21 @@ func createIdentityMapperOperations(plan identityMapperResourceModel, state iden
 
 // Create a exact-match identity-mapper
 func (r *identityMapperResource) CreateExactMatchIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddExactMatchIdentityMapperRequest(plan.Name.ValueString(),
-		[]client.EnumexactMatchIdentityMapperSchemaUrn{client.ENUMEXACTMATCHIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPEREXACT_MATCH},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddExactMatchIdentityMapperRequest([]client.EnumexactMatchIdentityMapperSchemaUrn{client.ENUMEXACTMATCHIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPEREXACT_MATCH},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalExactMatchIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdentityMapperApi.AddIdentityMapper(
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
 		client.AddExactMatchIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdentityMapperApi.AddIdentityMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
 		return nil, err
@@ -624,22 +670,22 @@ func (r *identityMapperResource) CreateExactMatchIdentityMapper(ctx context.Cont
 
 // Create a groovy-scripted identity-mapper
 func (r *identityMapperResource) CreateGroovyScriptedIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedIdentityMapperRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedIdentityMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedIdentityMapperRequest([]client.EnumgroovyScriptedIdentityMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdentityMapperApi.AddIdentityMapper(
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
 		client.AddGroovyScriptedIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdentityMapperApi.AddIdentityMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
 		return nil, err
@@ -657,24 +703,58 @@ func (r *identityMapperResource) CreateGroovyScriptedIdentityMapper(ctx context.
 	return &state, nil
 }
 
+// Create a dn identity-mapper
+func (r *identityMapperResource) CreateDnIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
+	addRequest := client.NewAddDnIdentityMapperRequest([]client.EnumdnIdentityMapperSchemaUrn{client.ENUMDNIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERDN},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	addOptionalDnIdentityMapperFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
+		client.AddDnIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state identityMapperResourceModel
+	readDnIdentityMapperResponse(ctx, addResponse.DnIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a regular-expression identity-mapper
 func (r *identityMapperResource) CreateRegularExpressionIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddRegularExpressionIdentityMapperRequest(plan.Name.ValueString(),
-		[]client.EnumregularExpressionIdentityMapperSchemaUrn{client.ENUMREGULAREXPRESSIONIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERREGULAR_EXPRESSION},
+	addRequest := client.NewAddRegularExpressionIdentityMapperRequest([]client.EnumregularExpressionIdentityMapperSchemaUrn{client.ENUMREGULAREXPRESSIONIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERREGULAR_EXPRESSION},
 		plan.MatchPattern.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalRegularExpressionIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdentityMapperApi.AddIdentityMapper(
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
 		client.AddRegularExpressionIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdentityMapperApi.AddIdentityMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
 		return nil, err
@@ -694,21 +774,21 @@ func (r *identityMapperResource) CreateRegularExpressionIdentityMapper(ctx conte
 
 // Create a aggregate identity-mapper
 func (r *identityMapperResource) CreateAggregateIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddAggregateIdentityMapperRequest(plan.Name.ValueString(),
-		[]client.EnumaggregateIdentityMapperSchemaUrn{client.ENUMAGGREGATEIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERAGGREGATE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddAggregateIdentityMapperRequest([]client.EnumaggregateIdentityMapperSchemaUrn{client.ENUMAGGREGATEIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERAGGREGATE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalAggregateIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdentityMapperApi.AddIdentityMapper(
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
 		client.AddAggregateIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdentityMapperApi.AddIdentityMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
 		return nil, err
@@ -728,22 +808,22 @@ func (r *identityMapperResource) CreateAggregateIdentityMapper(ctx context.Conte
 
 // Create a third-party identity-mapper
 func (r *identityMapperResource) CreateThirdPartyIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddThirdPartyIdentityMapperRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyIdentityMapperSchemaUrn{client.ENUMTHIRDPARTYIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyIdentityMapperRequest([]client.EnumthirdPartyIdentityMapperSchemaUrn{client.ENUMTHIRDPARTYIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.IdentityMapperApi.AddIdentityMapper(
+	apiAddRequest := r.apiClient.IdentityMapperAPI.AddIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddIdentityMapperRequest(
 		client.AddThirdPartyIdentityMapperRequestAsAddIdentityMapperRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.IdentityMapperApi.AddIdentityMapperExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.IdentityMapperAPI.AddIdentityMapperExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Identity Mapper", err, httpResp)
 		return nil, err
@@ -781,6 +861,12 @@ func (r *identityMapperResource) Create(ctx context.Context, req resource.Create
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
 		state, err = r.CreateGroovyScriptedIdentityMapper(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+	if plan.Type.ValueString() == "dn" {
+		state, err = r.CreateDnIdentityMapper(ctx, req, resp, plan)
 		if err != nil {
 			return
 		}
@@ -825,7 +911,7 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+	readResponse, httpResp, err := r.apiClient.IdentityMapperAPI.GetIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
@@ -846,6 +932,9 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 	if readResponse.GroovyScriptedIdentityMapperResponse != nil {
 		readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
+	if readResponse.DnIdentityMapperResponse != nil {
+		readDnIdentityMapperResponse(ctx, readResponse.DnIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.RegularExpressionIdentityMapperResponse != nil {
 		readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -857,14 +946,14 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.IdentityMapperAPI.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createIdentityMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.IdentityMapperAPI.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Identity Mapper", err, httpResp)
 			return
@@ -882,6 +971,9 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 		}
 		if updateResponse.GroovyScriptedIdentityMapperResponse != nil {
 			readGroovyScriptedIdentityMapperResponse(ctx, updateResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.DnIdentityMapperResponse != nil {
+			readDnIdentityMapperResponse(ctx, updateResponse.DnIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.RegularExpressionIdentityMapperResponse != nil {
 			readRegularExpressionIdentityMapperResponse(ctx, updateResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
@@ -920,7 +1012,7 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
+	readResponse, httpResp, err := apiClient.IdentityMapperAPI.GetIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -944,6 +1036,9 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 	if readResponse.GroovyScriptedIdentityMapperResponse != nil {
 		readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.DnIdentityMapperResponse != nil {
+		readDnIdentityMapperResponse(ctx, readResponse.DnIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.RegularExpressionIdentityMapperResponse != nil {
 		readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &state, &resp.Diagnostics)
@@ -985,7 +1080,7 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 	// Get the current state to see how any attributes are changing
 	var state identityMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
+	updateRequest := apiClient.IdentityMapperAPI.UpdateIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -995,7 +1090,7 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdentityMapperAPI.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Identity Mapper", err, httpResp)
 			return
@@ -1013,6 +1108,9 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 		if updateResponse.GroovyScriptedIdentityMapperResponse != nil {
 			readGroovyScriptedIdentityMapperResponse(ctx, updateResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.DnIdentityMapperResponse != nil {
+			readDnIdentityMapperResponse(ctx, updateResponse.DnIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.RegularExpressionIdentityMapperResponse != nil {
 			readRegularExpressionIdentityMapperResponse(ctx, updateResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
@@ -1050,7 +1148,7 @@ func (r *identityMapperResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	httpResp, err := r.apiClient.IdentityMapperApi.DeleteIdentityMapperExecute(r.apiClient.IdentityMapperApi.DeleteIdentityMapper(
+	httpResp, err := r.apiClient.IdentityMapperAPI.DeleteIdentityMapperExecute(r.apiClient.IdentityMapperAPI.DeleteIdentityMapper(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Identity Mapper", err, httpResp)

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -198,7 +198,7 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
+	readResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.GetCipherSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)
@@ -216,14 +216,14 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 	readCipherSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.CipherSecretKeyAPI.UpdateCipherSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createCipherSecretKeyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKeyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.UpdateCipherSecretKeyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Cipher Secret Key", err, httpResp)
 			return
@@ -257,7 +257,7 @@ func (r *cipherSecretKeyResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
+	readResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.GetCipherSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)
@@ -291,7 +291,7 @@ func (r *cipherSecretKeyResource) Update(ctx context.Context, req resource.Updat
 	// Get the current state to see how any attributes are changing
 	var state cipherSecretKeyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(
+	updateRequest := r.apiClient.CipherSecretKeyAPI.UpdateCipherSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
@@ -301,7 +301,7 @@ func (r *cipherSecretKeyResource) Update(ctx context.Context, req resource.Updat
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKeyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CipherSecretKeyAPI.UpdateCipherSecretKeyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Cipher Secret Key", err, httpResp)
 			return

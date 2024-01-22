@@ -115,7 +115,7 @@ func testAccCheckExpectedGlobalConfigurationAttributes(globalConfig testModel) r
 		resourceType := "global configuration"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GlobalConfigurationApi.GetGlobalConfiguration(ctx).Execute()
+		response, _, err := testClient.GlobalConfigurationAPI.GetGlobalConfiguration(ctx).Execute()
 		if err != nil {
 			return err
 		}

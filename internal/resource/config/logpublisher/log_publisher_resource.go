@@ -18,7 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -14300,10 +14300,10 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 func (r *logPublisherResource) CreateSyslogJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonAuditLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogJsonAuditLogPublisherSchemaUrn{client.ENUMSYSLOGJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_AUDIT},
+	addRequest := client.NewAddSyslogJsonAuditLogPublisherRequest([]client.EnumsyslogJsonAuditLogPublisherSchemaUrn{client.ENUMSYSLOGJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_AUDIT},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogJsonAuditLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14314,12 +14314,12 @@ func (r *logPublisherResource) CreateSyslogJsonAuditLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogJsonAuditLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14339,9 +14339,9 @@ func (r *logPublisherResource) CreateSyslogJsonAuditLogPublisher(ctx context.Con
 
 // Create a syslog-based-error log-publisher
 func (r *logPublisherResource) CreateSyslogBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddSyslogBasedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogBasedErrorLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ERROR},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSyslogBasedErrorLogPublisherRequest([]client.EnumsyslogBasedErrorLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ERROR},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14352,12 +14352,12 @@ func (r *logPublisherResource) CreateSyslogBasedErrorLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogBasedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14377,11 +14377,11 @@ func (r *logPublisherResource) CreateSyslogBasedErrorLogPublisher(ctx context.Co
 
 // Create a third-party-file-based-access log-publisher
 func (r *logPublisherResource) CreateThirdPartyFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyFileBasedAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ACCESS},
+	addRequest := client.NewAddThirdPartyFileBasedAccessLogPublisherRequest([]client.EnumthirdPartyFileBasedAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyFileBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14392,12 +14392,12 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedAccessLogPublisher(ctx c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddThirdPartyFileBasedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14417,10 +14417,10 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedAccessLogPublisher(ctx c
 
 // Create a operation-timing-access log-publisher
 func (r *logPublisherResource) CreateOperationTimingAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddOperationTimingAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumoperationTimingAccessLogPublisherSchemaUrn{client.ENUMOPERATIONTIMINGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHEROPERATION_TIMING_ACCESS},
+	addRequest := client.NewAddOperationTimingAccessLogPublisherRequest([]client.EnumoperationTimingAccessLogPublisherSchemaUrn{client.ENUMOPERATIONTIMINGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHEROPERATION_TIMING_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalOperationTimingAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14431,12 +14431,12 @@ func (r *logPublisherResource) CreateOperationTimingAccessLogPublisher(ctx conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddOperationTimingAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14456,10 +14456,10 @@ func (r *logPublisherResource) CreateOperationTimingAccessLogPublisher(ctx conte
 
 // Create a third-party-http-operation log-publisher
 func (r *logPublisherResource) CreateThirdPartyHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyHttpOperationLogPublisherSchemaUrn{client.ENUMTHIRDPARTYHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_HTTP_OPERATION},
+	addRequest := client.NewAddThirdPartyHttpOperationLogPublisherRequest([]client.EnumthirdPartyHttpOperationLogPublisherSchemaUrn{client.ENUMTHIRDPARTYHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_HTTP_OPERATION},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14470,12 +14470,12 @@ func (r *logPublisherResource) CreateThirdPartyHttpOperationLogPublisher(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddThirdPartyHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14495,9 +14495,9 @@ func (r *logPublisherResource) CreateThirdPartyHttpOperationLogPublisher(ctx con
 
 // Create a admin-alert-access log-publisher
 func (r *logPublisherResource) CreateAdminAlertAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddAdminAlertAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumadminAlertAccessLogPublisherSchemaUrn{client.ENUMADMINALERTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERADMIN_ALERT_ACCESS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddAdminAlertAccessLogPublisherRequest([]client.EnumadminAlertAccessLogPublisherSchemaUrn{client.ENUMADMINALERTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERADMIN_ALERT_ACCESS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAdminAlertAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14508,12 +14508,12 @@ func (r *logPublisherResource) CreateAdminAlertAccessLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddAdminAlertAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14533,10 +14533,10 @@ func (r *logPublisherResource) CreateAdminAlertAccessLogPublisher(ctx context.Co
 
 // Create a file-based-trace log-publisher
 func (r *logPublisherResource) CreateFileBasedTraceLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedTraceLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedTraceLogPublisherSchemaUrn{client.ENUMFILEBASEDTRACELOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_TRACE},
+	addRequest := client.NewAddFileBasedTraceLogPublisherRequest([]client.EnumfileBasedTraceLogPublisherSchemaUrn{client.ENUMFILEBASEDTRACELOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_TRACE},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedTraceLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14547,12 +14547,12 @@ func (r *logPublisherResource) CreateFileBasedTraceLogPublisher(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedTraceLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14572,11 +14572,11 @@ func (r *logPublisherResource) CreateFileBasedTraceLogPublisher(ctx context.Cont
 
 // Create a jdbc-based-error log-publisher
 func (r *logPublisherResource) CreateJdbcBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJdbcBasedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumjdbcBasedErrorLogPublisherSchemaUrn{client.ENUMJDBCBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ERROR},
+	addRequest := client.NewAddJdbcBasedErrorLogPublisherRequest([]client.EnumjdbcBasedErrorLogPublisherSchemaUrn{client.ENUMJDBCBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ERROR},
 		plan.Server.ValueString(),
 		plan.LogFieldMapping.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJdbcBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14587,12 +14587,12 @@ func (r *logPublisherResource) CreateJdbcBasedErrorLogPublisher(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddJdbcBasedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14612,11 +14612,11 @@ func (r *logPublisherResource) CreateJdbcBasedErrorLogPublisher(ctx context.Cont
 
 // Create a jdbc-based-access log-publisher
 func (r *logPublisherResource) CreateJdbcBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJdbcBasedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumjdbcBasedAccessLogPublisherSchemaUrn{client.ENUMJDBCBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ACCESS},
+	addRequest := client.NewAddJdbcBasedAccessLogPublisherRequest([]client.EnumjdbcBasedAccessLogPublisherSchemaUrn{client.ENUMJDBCBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ACCESS},
 		plan.Server.ValueString(),
 		plan.LogFieldMapping.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJdbcBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14627,12 +14627,12 @@ func (r *logPublisherResource) CreateJdbcBasedAccessLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddJdbcBasedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14652,10 +14652,10 @@ func (r *logPublisherResource) CreateJdbcBasedAccessLogPublisher(ctx context.Con
 
 // Create a common-log-file-http-operation log-publisher
 func (r *logPublisherResource) CreateCommonLogFileHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddCommonLogFileHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumcommonLogFileHttpOperationLogPublisherSchemaUrn{client.ENUMCOMMONLOGFILEHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCOMMON_LOG_FILE_HTTP_OPERATION},
+	addRequest := client.NewAddCommonLogFileHttpOperationLogPublisherRequest([]client.EnumcommonLogFileHttpOperationLogPublisherSchemaUrn{client.ENUMCOMMONLOGFILEHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCOMMON_LOG_FILE_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCommonLogFileHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14666,12 +14666,12 @@ func (r *logPublisherResource) CreateCommonLogFileHttpOperationLogPublisher(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddCommonLogFileHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14693,10 +14693,10 @@ func (r *logPublisherResource) CreateCommonLogFileHttpOperationLogPublisher(ctx 
 func (r *logPublisherResource) CreateSyslogTextErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogTextErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogTextErrorLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ERROR},
+	addRequest := client.NewAddSyslogTextErrorLogPublisherRequest([]client.EnumsyslogTextErrorLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ERROR},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogTextErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14707,12 +14707,12 @@ func (r *logPublisherResource) CreateSyslogTextErrorLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogTextErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14732,9 +14732,9 @@ func (r *logPublisherResource) CreateSyslogTextErrorLogPublisher(ctx context.Con
 
 // Create a syslog-based-access log-publisher
 func (r *logPublisherResource) CreateSyslogBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddSyslogBasedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogBasedAccessLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ACCESS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSyslogBasedAccessLogPublisherRequest([]client.EnumsyslogBasedAccessLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ACCESS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14745,12 +14745,12 @@ func (r *logPublisherResource) CreateSyslogBasedAccessLogPublisher(ctx context.C
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogBasedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14770,10 +14770,10 @@ func (r *logPublisherResource) CreateSyslogBasedAccessLogPublisher(ctx context.C
 
 // Create a file-based-json-audit log-publisher
 func (r *logPublisherResource) CreateFileBasedJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedJsonAuditLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedJsonAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_AUDIT},
+	addRequest := client.NewAddFileBasedJsonAuditLogPublisherRequest([]client.EnumfileBasedJsonAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_AUDIT},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedJsonAuditLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14784,12 +14784,12 @@ func (r *logPublisherResource) CreateFileBasedJsonAuditLogPublisher(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedJsonAuditLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14809,10 +14809,10 @@ func (r *logPublisherResource) CreateFileBasedJsonAuditLogPublisher(ctx context.
 
 // Create a file-based-debug log-publisher
 func (r *logPublisherResource) CreateFileBasedDebugLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedDebugLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedDebugLogPublisherSchemaUrn{client.ENUMFILEBASEDDEBUGLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_DEBUG},
+	addRequest := client.NewAddFileBasedDebugLogPublisherRequest([]client.EnumfileBasedDebugLogPublisherSchemaUrn{client.ENUMFILEBASEDDEBUGLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_DEBUG},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedDebugLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14823,12 +14823,12 @@ func (r *logPublisherResource) CreateFileBasedDebugLogPublisher(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedDebugLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14848,10 +14848,10 @@ func (r *logPublisherResource) CreateFileBasedDebugLogPublisher(ctx context.Cont
 
 // Create a file-based-error log-publisher
 func (r *logPublisherResource) CreateFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedErrorLogPublisherSchemaUrn{client.ENUMFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ERROR},
+	addRequest := client.NewAddFileBasedErrorLogPublisherRequest([]client.EnumfileBasedErrorLogPublisherSchemaUrn{client.ENUMFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ERROR},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14862,12 +14862,12 @@ func (r *logPublisherResource) CreateFileBasedErrorLogPublisher(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14887,10 +14887,10 @@ func (r *logPublisherResource) CreateFileBasedErrorLogPublisher(ctx context.Cont
 
 // Create a third-party-error log-publisher
 func (r *logPublisherResource) CreateThirdPartyErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ERROR},
+	addRequest := client.NewAddThirdPartyErrorLogPublisherRequest([]client.EnumthirdPartyErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ERROR},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14901,12 +14901,12 @@ func (r *logPublisherResource) CreateThirdPartyErrorLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddThirdPartyErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14928,10 +14928,10 @@ func (r *logPublisherResource) CreateThirdPartyErrorLogPublisher(ctx context.Con
 func (r *logPublisherResource) CreateSyslogTextAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogTextAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogTextAccessLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ACCESS},
+	addRequest := client.NewAddSyslogTextAccessLogPublisherRequest([]client.EnumsyslogTextAccessLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ACCESS},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogTextAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14942,12 +14942,12 @@ func (r *logPublisherResource) CreateSyslogTextAccessLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogTextAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -14967,10 +14967,10 @@ func (r *logPublisherResource) CreateSyslogTextAccessLogPublisher(ctx context.Co
 
 // Create a detailed-http-operation log-publisher
 func (r *logPublisherResource) CreateDetailedHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddDetailedHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumdetailedHttpOperationLogPublisherSchemaUrn{client.ENUMDETAILEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDETAILED_HTTP_OPERATION},
+	addRequest := client.NewAddDetailedHttpOperationLogPublisherRequest([]client.EnumdetailedHttpOperationLogPublisherSchemaUrn{client.ENUMDETAILEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDETAILED_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDetailedHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -14981,12 +14981,12 @@ func (r *logPublisherResource) CreateDetailedHttpOperationLogPublisher(ctx conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddDetailedHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15006,10 +15006,10 @@ func (r *logPublisherResource) CreateDetailedHttpOperationLogPublisher(ctx conte
 
 // Create a json-access log-publisher
 func (r *logPublisherResource) CreateJsonAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJsonAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumjsonAccessLogPublisherSchemaUrn{client.ENUMJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ACCESS},
+	addRequest := client.NewAddJsonAccessLogPublisherRequest([]client.EnumjsonAccessLogPublisherSchemaUrn{client.ENUMJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJsonAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15020,12 +15020,12 @@ func (r *logPublisherResource) CreateJsonAccessLogPublisher(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddJsonAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15045,10 +15045,10 @@ func (r *logPublisherResource) CreateJsonAccessLogPublisher(ctx context.Context,
 
 // Create a debug-access log-publisher
 func (r *logPublisherResource) CreateDebugAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddDebugAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumdebugAccessLogPublisherSchemaUrn{client.ENUMDEBUGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDEBUG_ACCESS},
+	addRequest := client.NewAddDebugAccessLogPublisherRequest([]client.EnumdebugAccessLogPublisherSchemaUrn{client.ENUMDEBUGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDEBUG_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDebugAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15059,12 +15059,12 @@ func (r *logPublisherResource) CreateDebugAccessLogPublisher(ctx context.Context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddDebugAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15086,10 +15086,10 @@ func (r *logPublisherResource) CreateDebugAccessLogPublisher(ctx context.Context
 func (r *logPublisherResource) CreateSyslogJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogJsonHttpOperationLogPublisherSchemaUrn{client.ENUMSYSLOGJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_HTTP_OPERATION},
+	addRequest := client.NewAddSyslogJsonHttpOperationLogPublisherRequest([]client.EnumsyslogJsonHttpOperationLogPublisherSchemaUrn{client.ENUMSYSLOGJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_HTTP_OPERATION},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15100,12 +15100,12 @@ func (r *logPublisherResource) CreateSyslogJsonHttpOperationLogPublisher(ctx con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogJsonHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15125,10 +15125,10 @@ func (r *logPublisherResource) CreateSyslogJsonHttpOperationLogPublisher(ctx con
 
 // Create a third-party-access log-publisher
 func (r *logPublisherResource) CreateThirdPartyAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ACCESS},
+	addRequest := client.NewAddThirdPartyAccessLogPublisherRequest([]client.EnumthirdPartyAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ACCESS},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15139,12 +15139,12 @@ func (r *logPublisherResource) CreateThirdPartyAccessLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddThirdPartyAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15164,10 +15164,10 @@ func (r *logPublisherResource) CreateThirdPartyAccessLogPublisher(ctx context.Co
 
 // Create a file-based-audit log-publisher
 func (r *logPublisherResource) CreateFileBasedAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedAuditLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_AUDIT},
+	addRequest := client.NewAddFileBasedAuditLogPublisherRequest([]client.EnumfileBasedAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_AUDIT},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedAuditLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15178,12 +15178,12 @@ func (r *logPublisherResource) CreateFileBasedAuditLogPublisher(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedAuditLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15203,10 +15203,10 @@ func (r *logPublisherResource) CreateFileBasedAuditLogPublisher(ctx context.Cont
 
 // Create a json-error log-publisher
 func (r *logPublisherResource) CreateJsonErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJsonErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumjsonErrorLogPublisherSchemaUrn{client.ENUMJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ERROR},
+	addRequest := client.NewAddJsonErrorLogPublisherRequest([]client.EnumjsonErrorLogPublisherSchemaUrn{client.ENUMJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ERROR},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJsonErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15217,12 +15217,12 @@ func (r *logPublisherResource) CreateJsonErrorLogPublisher(ctx context.Context, 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddJsonErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15242,11 +15242,11 @@ func (r *logPublisherResource) CreateJsonErrorLogPublisher(ctx context.Context, 
 
 // Create a groovy-scripted-file-based-access log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedFileBasedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ACCESS},
+	addRequest := client.NewAddGroovyScriptedFileBasedAccessLogPublisherRequest([]client.EnumgroovyScriptedFileBasedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ACCESS},
 		plan.ScriptClass.ValueString(),
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedFileBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15257,12 +15257,12 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedAccessLogPublisher(c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddGroovyScriptedFileBasedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15282,11 +15282,11 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedAccessLogPublisher(c
 
 // Create a groovy-scripted-file-based-error log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedFileBasedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ERROR},
+	addRequest := client.NewAddGroovyScriptedFileBasedErrorLogPublisherRequest([]client.EnumgroovyScriptedFileBasedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ERROR},
 		plan.ScriptClass.ValueString(),
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedFileBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15297,12 +15297,12 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedErrorLogPublisher(ct
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddGroovyScriptedFileBasedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15324,10 +15324,10 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedErrorLogPublisher(ct
 func (r *logPublisherResource) CreateSyslogJsonAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogJsonAccessLogPublisherSchemaUrn{client.ENUMSYSLOGJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ACCESS},
+	addRequest := client.NewAddSyslogJsonAccessLogPublisherRequest([]client.EnumsyslogJsonAccessLogPublisherSchemaUrn{client.ENUMSYSLOGJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ACCESS},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogJsonAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15338,12 +15338,12 @@ func (r *logPublisherResource) CreateSyslogJsonAccessLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogJsonAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15363,10 +15363,10 @@ func (r *logPublisherResource) CreateSyslogJsonAccessLogPublisher(ctx context.Co
 
 // Create a groovy-scripted-access log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ACCESS},
+	addRequest := client.NewAddGroovyScriptedAccessLogPublisherRequest([]client.EnumgroovyScriptedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ACCESS},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15377,12 +15377,12 @@ func (r *logPublisherResource) CreateGroovyScriptedAccessLogPublisher(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddGroovyScriptedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15402,11 +15402,11 @@ func (r *logPublisherResource) CreateGroovyScriptedAccessLogPublisher(ctx contex
 
 // Create a third-party-file-based-error log-publisher
 func (r *logPublisherResource) CreateThirdPartyFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyFileBasedErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ERROR},
+	addRequest := client.NewAddThirdPartyFileBasedErrorLogPublisherRequest([]client.EnumthirdPartyFileBasedErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ERROR},
 		plan.LogFile.ValueString(),
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyFileBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15417,12 +15417,12 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedErrorLogPublisher(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddThirdPartyFileBasedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15442,9 +15442,9 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedErrorLogPublisher(ctx co
 
 // Create a console-json-audit log-publisher
 func (r *logPublisherResource) CreateConsoleJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddConsoleJsonAuditLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumconsoleJsonAuditLogPublisherSchemaUrn{client.ENUMCONSOLEJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_AUDIT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddConsoleJsonAuditLogPublisherRequest([]client.EnumconsoleJsonAuditLogPublisherSchemaUrn{client.ENUMCONSOLEJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_AUDIT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalConsoleJsonAuditLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15455,12 +15455,12 @@ func (r *logPublisherResource) CreateConsoleJsonAuditLogPublisher(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddConsoleJsonAuditLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15480,9 +15480,9 @@ func (r *logPublisherResource) CreateConsoleJsonAuditLogPublisher(ctx context.Co
 
 // Create a console-json-http-operation log-publisher
 func (r *logPublisherResource) CreateConsoleJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddConsoleJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumconsoleJsonHttpOperationLogPublisherSchemaUrn{client.ENUMCONSOLEJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_HTTP_OPERATION},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddConsoleJsonHttpOperationLogPublisherRequest([]client.EnumconsoleJsonHttpOperationLogPublisherSchemaUrn{client.ENUMCONSOLEJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_HTTP_OPERATION},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalConsoleJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15493,12 +15493,12 @@ func (r *logPublisherResource) CreateConsoleJsonHttpOperationLogPublisher(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddConsoleJsonHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15518,10 +15518,10 @@ func (r *logPublisherResource) CreateConsoleJsonHttpOperationLogPublisher(ctx co
 
 // Create a file-based-access log-publisher
 func (r *logPublisherResource) CreateFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedAccessLogPublisherSchemaUrn{client.ENUMFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ACCESS},
+	addRequest := client.NewAddFileBasedAccessLogPublisherRequest([]client.EnumfileBasedAccessLogPublisherSchemaUrn{client.ENUMFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15532,12 +15532,12 @@ func (r *logPublisherResource) CreateFileBasedAccessLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedAccessLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15557,10 +15557,10 @@ func (r *logPublisherResource) CreateFileBasedAccessLogPublisher(ctx context.Con
 
 // Create a groovy-scripted-error log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ERROR},
+	addRequest := client.NewAddGroovyScriptedErrorLogPublisherRequest([]client.EnumgroovyScriptedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ERROR},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15571,12 +15571,12 @@ func (r *logPublisherResource) CreateGroovyScriptedErrorLogPublisher(ctx context
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddGroovyScriptedErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15596,10 +15596,10 @@ func (r *logPublisherResource) CreateGroovyScriptedErrorLogPublisher(ctx context
 
 // Create a file-based-json-http-operation log-publisher
 func (r *logPublisherResource) CreateFileBasedJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumfileBasedJsonHttpOperationLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_HTTP_OPERATION},
+	addRequest := client.NewAddFileBasedJsonHttpOperationLogPublisherRequest([]client.EnumfileBasedJsonHttpOperationLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalFileBasedJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15610,12 +15610,12 @@ func (r *logPublisherResource) CreateFileBasedJsonHttpOperationLogPublisher(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddFileBasedJsonHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15637,10 +15637,10 @@ func (r *logPublisherResource) CreateFileBasedJsonHttpOperationLogPublisher(ctx 
 func (r *logPublisherResource) CreateSyslogJsonErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonErrorLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumsyslogJsonErrorLogPublisherSchemaUrn{client.ENUMSYSLOGJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ERROR},
+	addRequest := client.NewAddSyslogJsonErrorLogPublisherRequest([]client.EnumsyslogJsonErrorLogPublisherSchemaUrn{client.ENUMSYSLOGJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ERROR},
 		SyslogExternalServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSyslogJsonErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15651,12 +15651,12 @@ func (r *logPublisherResource) CreateSyslogJsonErrorLogPublisher(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddSyslogJsonErrorLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15676,10 +15676,10 @@ func (r *logPublisherResource) CreateSyslogJsonErrorLogPublisher(ctx context.Con
 
 // Create a groovy-scripted-http-operation log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedHttpOperationLogPublisherRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedHttpOperationLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_HTTP_OPERATION},
+	addRequest := client.NewAddGroovyScriptedHttpOperationLogPublisherRequest([]client.EnumgroovyScriptedHttpOperationLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_HTTP_OPERATION},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Publisher", err.Error())
@@ -15690,12 +15690,12 @@ func (r *logPublisherResource) CreateGroovyScriptedHttpOperationLogPublisher(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogPublisherApi.AddLogPublisher(
+	apiAddRequest := r.apiClient.LogPublisherAPI.AddLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogPublisherRequest(
 		client.AddGroovyScriptedHttpOperationLogPublisherRequestAsAddLogPublisherRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogPublisherApi.AddLogPublisherExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogPublisherAPI.AddLogPublisherExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Publisher", err, httpResp)
 		return nil, err
@@ -15963,7 +15963,7 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+	readResponse, httpResp, err := r.apiClient.LogPublisherAPI.GetLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
@@ -16094,14 +16094,14 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogPublisherAPI.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogPublisherOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogPublisherAPI.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Publisher", err, httpResp)
 			return
@@ -16256,7 +16256,7 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+	readResponse, httpResp, err := apiClient.LogPublisherAPI.GetLogPublisher(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -16420,7 +16420,7 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 	// Get the current state to see how any attributes are changing
 	var state logPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+	updateRequest := apiClient.LogPublisherAPI.UpdateLogPublisher(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -16430,7 +16430,7 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherAPI.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Publisher", err, httpResp)
 			return
@@ -16584,7 +16584,7 @@ func (r *logPublisherResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	httpResp, err := r.apiClient.LogPublisherApi.DeleteLogPublisherExecute(r.apiClient.LogPublisherApi.DeleteLogPublisher(
+	httpResp, err := r.apiClient.LogPublisherAPI.DeleteLogPublisherExecute(r.apiClient.LogPublisherAPI.DeleteLogPublisher(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Publisher", err, httpResp)

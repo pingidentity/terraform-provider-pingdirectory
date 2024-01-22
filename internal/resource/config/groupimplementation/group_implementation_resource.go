@@ -14,10 +14,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -70,7 +71,7 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 		Description: "Manages a Group Implementation.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Group Implementation resource. Options are ['static', 'virtual-static', 'dynamic']",
+				Description: "The type of Group Implementation resource. Options are ['static', 'inverted-static', 'virtual-static', 'dynamic']",
 				Optional:    false,
 				Required:    false,
 				Computed:    true,
@@ -78,7 +79,7 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"static", "virtual-static", "dynamic"}...),
+					stringvalidator.OneOf([]string{"static", "inverted-static", "virtual-static", "dynamic"}...),
 				},
 			},
 			"description": schema.StringAttribute{
@@ -103,9 +104,38 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *groupImplementationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model groupImplementationResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "inverted-static" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			r.providerConfig.ProductVersion, "pingdirectory_group_implementation"+" with type \"inverted_static\"")
+	}
+}
+
 // Read a StaticGroupImplementationResponse object into the model struct
 func readStaticGroupImplementationResponse(ctx context.Context, r *client.StaticGroupImplementationResponse, state *groupImplementationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Read a InvertedStaticGroupImplementationResponse object into the model struct
+func readInvertedStaticGroupImplementationResponse(ctx context.Context, r *client.InvertedStaticGroupImplementationResponse, state *groupImplementationResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("inverted-static")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
@@ -154,7 +184,7 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.GetGroupImplementation(
+	readResponse, httpResp, err := r.apiClient.GroupImplementationAPI.GetGroupImplementation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Group Implementation", err, httpResp)
@@ -172,6 +202,9 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 	if readResponse.StaticGroupImplementationResponse != nil {
 		readStaticGroupImplementationResponse(ctx, readResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.InvertedStaticGroupImplementationResponse != nil {
+		readInvertedStaticGroupImplementationResponse(ctx, readResponse.InvertedStaticGroupImplementationResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.VirtualStaticGroupImplementationResponse != nil {
 		readVirtualStaticGroupImplementationResponse(ctx, readResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
@@ -180,14 +213,14 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.GroupImplementationApi.UpdateGroupImplementation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.GroupImplementationAPI.UpdateGroupImplementation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createGroupImplementationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GroupImplementationApi.UpdateGroupImplementationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.GroupImplementationAPI.UpdateGroupImplementationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Group Implementation", err, httpResp)
 			return
@@ -202,6 +235,9 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 		// Read the response
 		if updateResponse.StaticGroupImplementationResponse != nil {
 			readStaticGroupImplementationResponse(ctx, updateResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
+		}
+		if updateResponse.InvertedStaticGroupImplementationResponse != nil {
+			readInvertedStaticGroupImplementationResponse(ctx, updateResponse.InvertedStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
 		if updateResponse.VirtualStaticGroupImplementationResponse != nil {
 			readVirtualStaticGroupImplementationResponse(ctx, updateResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
@@ -228,7 +264,7 @@ func (r *groupImplementationResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.GetGroupImplementation(
+	readResponse, httpResp, err := r.apiClient.GroupImplementationAPI.GetGroupImplementation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Group Implementation", err, httpResp)
@@ -244,6 +280,9 @@ func (r *groupImplementationResource) Read(ctx context.Context, req resource.Rea
 	// Read the response into the state
 	if readResponse.StaticGroupImplementationResponse != nil {
 		readStaticGroupImplementationResponse(ctx, readResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.InvertedStaticGroupImplementationResponse != nil {
+		readInvertedStaticGroupImplementationResponse(ctx, readResponse.InvertedStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.VirtualStaticGroupImplementationResponse != nil {
 		readVirtualStaticGroupImplementationResponse(ctx, readResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
@@ -270,7 +309,7 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 	// Get the current state to see how any attributes are changing
 	var state groupImplementationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.GroupImplementationApi.UpdateGroupImplementation(
+	updateRequest := r.apiClient.GroupImplementationAPI.UpdateGroupImplementation(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -280,7 +319,7 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GroupImplementationApi.UpdateGroupImplementationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.GroupImplementationAPI.UpdateGroupImplementationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Group Implementation", err, httpResp)
 			return
@@ -295,6 +334,9 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 		// Read the response
 		if updateResponse.StaticGroupImplementationResponse != nil {
 			readStaticGroupImplementationResponse(ctx, updateResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
+		}
+		if updateResponse.InvertedStaticGroupImplementationResponse != nil {
+			readInvertedStaticGroupImplementationResponse(ctx, updateResponse.InvertedStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
 		if updateResponse.VirtualStaticGroupImplementationResponse != nil {
 			readVirtualStaticGroupImplementationResponse(ctx, updateResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)

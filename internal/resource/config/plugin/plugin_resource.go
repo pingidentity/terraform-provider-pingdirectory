@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -91,6 +91,9 @@ type pluginResourceModel struct {
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
+	PreventAddingMembersToNonexistentGroups              types.Bool   `tfsdk:"prevent_adding_members_to_nonexistent_groups"`
+	PreventAddingGroupsAsInvertedStaticGroupMembers      types.Bool   `tfsdk:"prevent_adding_groups_as_inverted_static_group_members"`
+	PreventNestingNonexistentGroups                      types.Bool   `tfsdk:"prevent_nesting_nonexistent_groups"`
 	PassThroughAuthenticationHandler                     types.String `tfsdk:"pass_through_authentication_handler"`
 	Type                                                 types.Set    `tfsdk:"type"`
 	MultipleAttributeBehavior                            types.String `tfsdk:"multiple_attribute_behavior"`
@@ -204,6 +207,9 @@ type pluginResourceModel struct {
 	UpperBound                                           types.Int64  `tfsdk:"upper_bound"`
 	FilterPrefix                                         types.String `tfsdk:"filter_prefix"`
 	FilterSuffix                                         types.String `tfsdk:"filter_suffix"`
+	TraditionalStaticGroupObjectClass                    types.String `tfsdk:"traditional_static_group_object_class"`
+	MaximumMembershipUpdatesPerModify                    types.Int64  `tfsdk:"maximum_membership_updates_per_modify"`
+	ReadOperationSupport                                 types.String `tfsdk:"read_operation_support"`
 	CollectionInterval                                   types.String `tfsdk:"collection_interval"`
 	PerApplicationLDAPStats                              types.String `tfsdk:"per_application_ldap_stats"`
 	LdapChangelogInfo                                    types.String `tfsdk:"ldap_changelog_info"`
@@ -225,6 +231,9 @@ type defaultPluginResourceModel struct {
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
+	PreventAddingMembersToNonexistentGroups              types.Bool   `tfsdk:"prevent_adding_members_to_nonexistent_groups"`
+	PreventAddingGroupsAsInvertedStaticGroupMembers      types.Bool   `tfsdk:"prevent_adding_groups_as_inverted_static_group_members"`
+	PreventNestingNonexistentGroups                      types.Bool   `tfsdk:"prevent_nesting_nonexistent_groups"`
 	PassThroughAuthenticationHandler                     types.String `tfsdk:"pass_through_authentication_handler"`
 	Type                                                 types.Set    `tfsdk:"type"`
 	MultipleAttributeBehavior                            types.String `tfsdk:"multiple_attribute_behavior"`
@@ -353,6 +362,9 @@ type defaultPluginResourceModel struct {
 	UpperBound                                           types.Int64  `tfsdk:"upper_bound"`
 	FilterPrefix                                         types.String `tfsdk:"filter_prefix"`
 	FilterSuffix                                         types.String `tfsdk:"filter_suffix"`
+	TraditionalStaticGroupObjectClass                    types.String `tfsdk:"traditional_static_group_object_class"`
+	MaximumMembershipUpdatesPerModify                    types.Int64  `tfsdk:"maximum_membership_updates_per_modify"`
+	ReadOperationSupport                                 types.String `tfsdk:"read_operation_support"`
 	SampleInterval                                       types.String `tfsdk:"sample_interval"`
 	CollectionInterval                                   types.String `tfsdk:"collection_interval"`
 	LdapInfo                                             types.String `tfsdk:"ldap_info"`
@@ -390,14 +402,29 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		Description: "Manages a Plugin.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
-				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']",
+				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "coalesce-modifications", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
+					stringvalidator.OneOf([]string{"traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "coalesce-modifications", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
 				},
+			},
+			"prevent_adding_members_to_nonexistent_groups": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent updates to user entries that attempt to add them as a member of an inverted static group that does not exist.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"prevent_adding_groups_as_inverted_static_group_members": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent attempts to add a group as a regular member of an inverted static group. If the members of another group should be considered members of an inverted static group, then the other group should be added as a nested group rather than a regular member.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"prevent_nesting_nonexistent_groups": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent updates to inverted static groups that add references to nested groups that don't exist.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"pass_through_authentication_handler": schema.StringAttribute{
 				Description: "The component used to manage authentication with the external authentication service.",
@@ -1045,6 +1072,21 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies a suffix which will be used after of the randomly-selected numeric value in all search filters used. If no upper bound is defined, then this should be omitted.",
 				Optional:    true,
 			},
+			"traditional_static_group_object_class": schema.StringAttribute{
+				Description: "The object class that defines the type of traditional static group that this plugin will attempt to emulate for inverted static groups.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"maximum_membership_updates_per_modify": schema.Int64Attribute{
+				Description: "An integer property that specifies the maximum number of membership changes that will be supported in a single modify operation. A value of zero indicates that modify operations targeting the group entry should not be permitted to alter the set of members for the group.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"read_operation_support": schema.StringAttribute{
+				Description: "The level of support that the server should offer to allow treating search and compare operations targeting inverted static groups as if they were traditional static groups.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"collection_interval": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `stats-collector`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered, and setting this value too small can have an adverse impact on performance. When the `type` attribute is set to `periodic-stats-logger`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered. It should be a multiple of the log-interval.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `stats-collector`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered, and setting this value too small can have an adverse impact on performance.\n  - `periodic-stats-logger`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered. It should be a multiple of the log-interval.",
@@ -1127,7 +1169,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			stringplanmodifier.UseStateForUnknown(),
 		}
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
+			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
 		}
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
@@ -1228,6 +1270,37 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	req.Plan.Get(ctx, &planModel)
 	resourceType := planModel.ResourceType.ValueString()
 	anyDefaultsSet := false
+	// Set defaults for traditional-static-group-support-for-inverted-static-groups type
+	if resourceType == "traditional-static-group-support-for-inverted-static-groups" {
+		if !internaltypes.IsDefined(configModel.TraditionalStaticGroupObjectClass) {
+			defaultVal := types.StringValue("groupOfNames")
+			if !planModel.TraditionalStaticGroupObjectClass.Equal(defaultVal) {
+				planModel.TraditionalStaticGroupObjectClass = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.MaximumMembershipUpdatesPerModify) {
+			defaultVal := types.Int64Value(100)
+			if !planModel.MaximumMembershipUpdatesPerModify.Equal(defaultVal) {
+				planModel.MaximumMembershipUpdatesPerModify = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.ReadOperationSupport) {
+			defaultVal := types.StringValue("enabled-without-support-for-retrieving-membership")
+			if !planModel.ReadOperationSupport.Equal(defaultVal) {
+				planModel.ReadOperationSupport = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
 	// Set defaults for internal-search-rate type
 	if resourceType == "internal-search-rate" {
 		if !internaltypes.IsDefined(configModel.NumThreads) {
@@ -1934,6 +2007,37 @@ func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			}
 		}
 	}
+	// Set defaults for inverted-static-group-referential-integrity type
+	if resourceType == "inverted-static-group-referential-integrity" {
+		if !internaltypes.IsDefined(configModel.PreventAddingMembersToNonexistentGroups) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.PreventAddingMembersToNonexistentGroups.Equal(defaultVal) {
+				planModel.PreventAddingMembersToNonexistentGroups = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.PreventAddingGroupsAsInvertedStaticGroupMembers) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.PreventAddingGroupsAsInvertedStaticGroupMembers.Equal(defaultVal) {
+				planModel.PreventAddingGroupsAsInvertedStaticGroupMembers = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.PreventNestingNonexistentGroups) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.PreventNestingNonexistentGroups.Equal(defaultVal) {
+				planModel.PreventNestingNonexistentGroups = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.InvokeForInternalOperations) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.InvokeForInternalOperations.Equal(defaultVal) {
+				planModel.InvokeForInternalOperations = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
 	if anyDefaultsSet {
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
@@ -1947,7 +2051,7 @@ func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -1958,6 +2062,23 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 	}
 	var model defaultPluginResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "traditional-static-group-support-for-inverted-static-groups" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			providerConfig.ProductVersion, resourceName+" with type \"traditional_static_group_support_for_inverted_static_groups\"")
+	}
+	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "inverted-static-group-referential-integrity" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			providerConfig.ProductVersion, resourceName+" with type \"inverted_static_group_referential_integrity\"")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "coalesce-modifications" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"coalesce_modifications\"")
@@ -1979,6 +2100,75 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.ResourceType.ValueString()
 	// Set any not applicable computed attributes to null for each type
+	if resourceType == "traditional-static-group-support-for-inverted-static-groups" {
+		model.GaugeInfo = types.StringNull()
+		model.SourceAttributeRemovalBehavior = types.StringNull()
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PollingInterval = types.StringNull()
+		model.EnableControlMapping = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SessionTimeout = types.StringNull()
+		model.MultipleValuePatternBehavior = types.StringNull()
+		model.HistogramFormat = types.StringNull()
+		model.LogFileFormat = types.StringNull()
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
+		model.EnableAttributeMapping = types.BoolNull()
+		model.NumDeleteThreads = types.Int64Null()
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
+		model.UpdateInterval = types.StringNull()
+		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
+		model.LinesBetweenHeader = types.Int64Null()
+		model.AgentxPort = types.Int64Null()
+		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
+		model.DatetimeFormat = types.StringNull()
+		model.UpdateSourceAttributeBehavior = types.StringNull()
+		model.LowerBound = types.Int64Null()
+		model.LocalDBBackendInfo = types.StringNull()
+		model.LogFile = types.StringNull()
+		model.TryLocalBind = types.BoolNull()
+		model.NumWorkerThreads = types.Int64Null()
+		model.HeaderPrefixPerColumn = types.BoolNull()
+		model.MultipleAttributeBehavior = types.StringNull()
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
+		model.LogInterval = types.StringNull()
+		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.UpdateTargetAttributeBehavior = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.SuppressIfIdle = types.BoolNull()
+		model.MultiValuedAttributeBehavior = types.StringNull()
+		model.EntryCacheInfo = types.StringNull()
+		model.AgentxAddress = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DelayAfterAlert = types.StringNull()
+		model.UpdateLocalPassword = types.BoolNull()
+		model.NumThreads = types.Int64Null()
+		model.StatusSummaryInfo = types.StringNull()
+		model.CollectionInterval = types.StringNull()
+		model.EmptyInsteadOfZero = types.BoolNull()
+		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
+		model.PingInterval = types.StringNull()
+		model.MaxUpdatesPerSecond = types.Int64Null()
+		model.LdapChangelogInfo = types.StringNull()
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ConnectRetryMaxWait = types.StringNull()
+		model.OverrideLocalPassword = types.BoolNull()
+		model.InitialConnections = types.Int64Null()
+		model.DelayPostGC = types.StringNull()
+		model.NumMostExpensivePhasesShown = types.Int64Null()
+		model.AlwaysMapResponses = types.BoolNull()
+		model.LogFilePermissions = types.StringNull()
+		model.Append = types.BoolNull()
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 	if resourceType == "internal-search-rate" {
 		model.GaugeInfo = types.StringNull()
 		model.SourceAttributeRemovalBehavior = types.StringNull()
@@ -1995,7 +2185,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2004,6 +2196,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2012,7 +2205,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2027,6 +2222,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2059,7 +2255,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2069,6 +2267,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2077,7 +2276,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2093,6 +2294,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2125,7 +2327,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2135,6 +2339,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2143,7 +2348,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2158,6 +2365,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2188,7 +2396,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2198,6 +2408,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2206,7 +2417,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2222,6 +2435,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.LdapChangelogInfo = types.StringNull()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2253,7 +2467,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2263,6 +2479,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2271,7 +2488,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2286,6 +2505,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2316,7 +2536,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
 		model.LinesBetweenHeader = types.Int64Null()
@@ -2325,6 +2547,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.NumWorkerThreads = types.Int64Null()
@@ -2332,7 +2555,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2347,6 +2572,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2376,7 +2602,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2386,6 +2614,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2394,7 +2623,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2410,6 +2641,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2439,7 +2671,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2448,10 +2682,13 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.TryLocalBind = types.BoolNull()
 		model.NumWorkerThreads = types.Int64Null()
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2461,6 +2698,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DelayAfterAlert = types.StringNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2489,7 +2727,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2498,6 +2738,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2506,7 +2747,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2522,6 +2765,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.LdapChangelogInfo = types.StringNull()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2553,7 +2797,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2563,6 +2809,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2571,7 +2818,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2587,6 +2836,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2617,7 +2867,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2627,6 +2879,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2635,7 +2888,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2651,6 +2906,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2682,7 +2938,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
 		model.LinesBetweenHeader = types.Int64Null()
 		model.AgentxPort = types.Int64Null()
@@ -2690,6 +2948,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.NumWorkerThreads = types.Int64Null()
@@ -2697,7 +2956,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.SuppressIfIdle = types.BoolNull()
 		model.MultiValuedAttributeBehavior = types.StringNull()
@@ -2710,6 +2971,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2737,7 +2999,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2747,6 +3011,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2755,7 +3020,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2771,6 +3038,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2800,7 +3068,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2810,6 +3080,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2818,7 +3089,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2834,6 +3107,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2866,7 +3140,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2876,6 +3152,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2884,7 +3161,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2900,6 +3179,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -2932,7 +3212,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -2941,6 +3223,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -2948,7 +3231,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -2963,6 +3248,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -2993,7 +3279,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3003,6 +3291,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3011,7 +3300,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3027,6 +3318,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3057,7 +3349,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3067,6 +3361,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3075,7 +3370,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3091,6 +3388,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.LdapChangelogInfo = types.StringNull()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -3118,7 +3416,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LinesBetweenHeader = types.Int64Null()
@@ -3126,6 +3426,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
 		model.DatetimeFormat = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3133,7 +3434,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.HeaderPrefixPerColumn = types.BoolNull()
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.MaxConnections = types.Int64Null()
 		model.SuppressIfIdle = types.BoolNull()
@@ -3146,6 +3449,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3176,7 +3480,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3186,6 +3492,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3194,7 +3501,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3210,6 +3519,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3240,7 +3550,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3250,6 +3562,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3258,7 +3571,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3274,6 +3589,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3304,7 +3620,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EnableAttributeMapping = types.BoolNull()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3314,6 +3632,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3322,7 +3641,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3338,6 +3659,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.LdapChangelogInfo = types.StringNull()
 		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -3369,7 +3691,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3379,6 +3703,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3387,7 +3712,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3403,6 +3730,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3435,7 +3763,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
 		model.LinesBetweenHeader = types.Int64Null()
@@ -3444,6 +3774,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.NumWorkerThreads = types.Int64Null()
@@ -3451,7 +3782,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3466,6 +3799,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3496,6 +3830,8 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3505,6 +3841,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
 		model.NumWorkerThreads = types.Int64Null()
@@ -3512,7 +3849,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleAttributeBehavior = types.StringNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
 		model.MaxConnections = types.Int64Null()
@@ -3527,6 +3866,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.CollectionInterval = types.StringNull()
 		model.EmptyInsteadOfZero = types.BoolNull()
 		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
 		model.PingInterval = types.StringNull()
 		model.MaxUpdatesPerSecond = types.Int64Null()
 		model.LdapChangelogInfo = types.StringNull()
@@ -3557,7 +3897,9 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
 		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
 		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
 		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
@@ -3566,6 +3908,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.DatetimeFormat = types.StringNull()
 		model.UpdateSourceAttributeBehavior = types.StringNull()
 		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
 		model.LocalDBBackendInfo = types.StringNull()
 		model.LogFile = types.StringNull()
 		model.TryLocalBind = types.BoolNull()
@@ -3573,6 +3916,78 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.HeaderPrefixPerColumn = types.BoolNull()
 		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
 		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
+		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.UpdateTargetAttributeBehavior = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.SuppressIfIdle = types.BoolNull()
+		model.MultiValuedAttributeBehavior = types.StringNull()
+		model.EntryCacheInfo = types.StringNull()
+		model.AgentxAddress = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DelayAfterAlert = types.StringNull()
+		model.UpdateLocalPassword = types.BoolNull()
+		model.NumThreads = types.Int64Null()
+		model.StatusSummaryInfo = types.StringNull()
+		model.CollectionInterval = types.StringNull()
+		model.EmptyInsteadOfZero = types.BoolNull()
+		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
+		model.PingInterval = types.StringNull()
+		model.MaxUpdatesPerSecond = types.Int64Null()
+		model.LdapChangelogInfo = types.StringNull()
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ConnectRetryMaxWait = types.StringNull()
+		model.OverrideLocalPassword = types.BoolNull()
+		model.InitialConnections = types.Int64Null()
+		model.DelayPostGC = types.StringNull()
+		model.NumMostExpensivePhasesShown = types.Int64Null()
+		model.AlwaysMapResponses = types.BoolNull()
+		model.LogFilePermissions = types.StringNull()
+		model.Append = types.BoolNull()
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if resourceType == "inverted-static-group-referential-integrity" {
+		model.GaugeInfo = types.StringNull()
+		model.SourceAttributeRemovalBehavior = types.StringNull()
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PollingInterval = types.StringNull()
+		model.EnableControlMapping = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SessionTimeout = types.StringNull()
+		model.MultipleValuePatternBehavior = types.StringNull()
+		model.HistogramFormat = types.StringNull()
+		model.LogFileFormat = types.StringNull()
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
+		model.EnableAttributeMapping = types.BoolNull()
+		model.NumDeleteThreads = types.Int64Null()
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PerApplicationLDAPStats = types.StringNull()
+		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
+		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
+		model.LinesBetweenHeader = types.Int64Null()
+		model.AgentxPort = types.Int64Null()
+		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
+		model.DatetimeFormat = types.StringNull()
+		model.UpdateSourceAttributeBehavior = types.StringNull()
+		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
+		model.LocalDBBackendInfo = types.StringNull()
+		model.LogFile = types.StringNull()
+		model.TryLocalBind = types.BoolNull()
+		model.NumWorkerThreads = types.Int64Null()
+		model.HeaderPrefixPerColumn = types.BoolNull()
+		model.MultipleAttributeBehavior = types.StringNull()
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
+		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
 		model.ReplicationInfo = types.StringNull()
 		model.ServerAccessMode = types.StringNull()
 		model.UpdateTargetAttributeBehavior = types.StringNull()
@@ -3611,22 +4026,6 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"changelog-password-encryption"},
-			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("changelog_password_encryption_key"),
-				path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"ping-one-pass-through-authentication"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("oauth_client_secret"),
@@ -3637,8 +4036,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
 				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -3646,7 +4045,23 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"changelog-password-encryption"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("changelog_password_encryption_key"),
+				path.MatchRoot("changelog_password_encryption_key_passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
 				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -3665,12 +4080,12 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("invoke_for_internal_operations"),
 			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+			[]string{"last-access-time", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("description"),
 			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"},
+			[]string{"last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("collection_interval"),
@@ -3716,6 +4131,21 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("included_ldap_application"),
 			path.MatchRoot("resource_type"),
 			[]string{"stats-collector", "periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("traditional_static_group_object_class"),
+			path.MatchRoot("resource_type"),
+			[]string{"traditional-static-group-support-for-inverted-static-groups"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_membership_updates_per_modify"),
+			path.MatchRoot("resource_type"),
+			[]string{"traditional-static-group-support-for-inverted-static-groups"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("read_operation_support"),
+			path.MatchRoot("resource_type"),
+			[]string{"traditional-static-group-support-for-inverted-static-groups"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("plugin_type"),
@@ -4282,10 +4712,30 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"unique-attribute"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_adding_members_to_nonexistent_groups"),
+			path.MatchRoot("resource_type"),
+			[]string{"inverted-static-group-referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_adding_groups_as_inverted_static_group_members"),
+			path.MatchRoot("resource_type"),
+			[]string{"inverted-static-group-referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_nesting_nonexistent_groups"),
+			path.MatchRoot("resource_type"),
+			[]string{"inverted-static-group-referential-integrity"},
+		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("resource_type"),
 			"coalesce-modifications",
 			[]path.Expression{path.MatchRoot("request_criteria"), path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"traditional-static-group-support-for-inverted-static-groups",
+			[]path.Expression{path.MatchRoot("enabled")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("resource_type"),
@@ -4411,6 +4861,11 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			"unique-attribute",
 			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("type")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"inverted-static-group-referential-integrity",
+			[]path.Expression{path.MatchRoot("enabled")},
 		),
 	}
 }
@@ -4540,6 +4995,37 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 		),
 	}
 	return append(configValidatorsPlugin(), validators...)
+}
+
+// Add optional fields to create request for traditional-static-group-support-for-inverted-static-groups plugin
+func addOptionalTraditionalStaticGroupSupportForInvertedStaticGroupsPluginFields(ctx context.Context, addRequest *client.AddTraditionalStaticGroupSupportForInvertedStaticGroupsPluginRequest, plan pluginResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.TraditionalStaticGroupObjectClass) {
+		traditionalStaticGroupObjectClass, err := client.NewEnumpluginTraditionalStaticGroupObjectClassPropFromValue(plan.TraditionalStaticGroupObjectClass.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.TraditionalStaticGroupObjectClass = traditionalStaticGroupObjectClass
+	}
+	if internaltypes.IsDefined(plan.MaximumMembershipUpdatesPerModify) {
+		addRequest.MaximumMembershipUpdatesPerModify = plan.MaximumMembershipUpdatesPerModify.ValueInt64Pointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ReadOperationSupport) {
+		readOperationSupport, err := client.NewEnumpluginReadOperationSupportPropFromValue(plan.ReadOperationSupport.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ReadOperationSupport = readOperationSupport
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
+	}
+	return nil
 }
 
 // Add optional fields to create request for internal-search-rate plugin
@@ -5690,6 +6176,27 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 	return nil
 }
 
+// Add optional fields to create request for inverted-static-group-referential-integrity plugin
+func addOptionalInvertedStaticGroupReferentialIntegrityPluginFields(ctx context.Context, addRequest *client.AddInvertedStaticGroupReferentialIntegrityPluginRequest, plan pluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PreventAddingMembersToNonexistentGroups) {
+		addRequest.PreventAddingMembersToNonexistentGroups = plan.PreventAddingMembersToNonexistentGroups.ValueBoolPointer()
+	}
+	if internaltypes.IsDefined(plan.PreventAddingGroupsAsInvertedStaticGroupMembers) {
+		addRequest.PreventAddingGroupsAsInvertedStaticGroupMembers = plan.PreventAddingGroupsAsInvertedStaticGroupMembers.ValueBoolPointer()
+	}
+	if internaltypes.IsDefined(plan.PreventNestingNonexistentGroups) {
+		addRequest.PreventNestingNonexistentGroups = plan.PreventNestingNonexistentGroups.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
+	}
+	return nil
+}
+
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePluginUnknownValues(model *pluginResourceModel) {
 	if model.ValuePattern.IsUnknown() || model.ValuePattern.IsNull() {
@@ -5958,6 +6465,40 @@ func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.Stat
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValuesDefault(state)
+}
+
+// Read a TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse object into the model struct
+func readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx context.Context, r *client.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("traditional-static-group-support-for-inverted-static-groups")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TraditionalStaticGroupObjectClass = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginTraditionalStaticGroupObjectClassProp(r.TraditionalStaticGroupObjectClass), true)
+	state.MaximumMembershipUpdatesPerModify = internaltypes.Int64TypeOrNil(r.MaximumMembershipUpdatesPerModify)
+	state.ReadOperationSupport = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginReadOperationSupportProp(r.ReadOperationSupport), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValues(state)
+}
+
+// Read a TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse object into the model struct
+func readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDefault(ctx context.Context, r *client.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("traditional-static-group-support-for-inverted-static-groups")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TraditionalStaticGroupObjectClass = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginTraditionalStaticGroupObjectClassProp(r.TraditionalStaticGroupObjectClass), true)
+	state.MaximumMembershipUpdatesPerModify = internaltypes.Int64TypeOrNil(r.MaximumMembershipUpdatesPerModify)
+	state.ReadOperationSupport = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginReadOperationSupportProp(r.ReadOperationSupport), true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePluginUnknownValuesDefault(state)
 }
@@ -7320,6 +7861,36 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 	populatePluginUnknownValuesDefault(state)
 }
 
+// Read a InvertedStaticGroupReferentialIntegrityPluginResponse object into the model struct
+func readInvertedStaticGroupReferentialIntegrityPluginResponse(ctx context.Context, r *client.InvertedStaticGroupReferentialIntegrityPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("inverted-static-group-referential-integrity")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.PreventAddingMembersToNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventAddingMembersToNonexistentGroups)
+	state.PreventAddingGroupsAsInvertedStaticGroupMembers = internaltypes.BoolTypeOrNil(r.PreventAddingGroupsAsInvertedStaticGroupMembers)
+	state.PreventNestingNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventNestingNonexistentGroups)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValues(state)
+}
+
+// Read a InvertedStaticGroupReferentialIntegrityPluginResponse object into the model struct
+func readInvertedStaticGroupReferentialIntegrityPluginResponseDefault(ctx context.Context, r *client.InvertedStaticGroupReferentialIntegrityPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("inverted-static-group-referential-integrity")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.PreventAddingMembersToNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventAddingMembersToNonexistentGroups)
+	state.PreventAddingGroupsAsInvertedStaticGroupMembers = internaltypes.BoolTypeOrNil(r.PreventAddingGroupsAsInvertedStaticGroupMembers)
+	state.PreventNestingNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventNestingNonexistentGroups)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValuesDefault(state)
+}
+
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *defaultPluginResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultPluginResourceModel) {
@@ -7340,6 +7911,9 @@ func (state *pluginResourceModel) setStateValuesNotReturnedByAPI(expectedValues 
 // Create any update operations necessary to make the state match the plan
 func createPluginOperations(plan pluginResourceModel, state pluginResourceModel) []client.Operation {
 	var ops []client.Operation
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventAddingMembersToNonexistentGroups, state.PreventAddingMembersToNonexistentGroups, "prevent-adding-members-to-nonexistent-groups")
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventAddingGroupsAsInvertedStaticGroupMembers, state.PreventAddingGroupsAsInvertedStaticGroupMembers, "prevent-adding-groups-as-inverted-static-group-members")
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventNestingNonexistentGroups, state.PreventNestingNonexistentGroups, "prevent-nesting-nonexistent-groups")
 	operations.AddStringOperationIfNecessary(&ops, plan.PassThroughAuthenticationHandler, state.PassThroughAuthenticationHandler, "pass-through-authentication-handler")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.Type, state.Type, "type")
 	operations.AddStringOperationIfNecessary(&ops, plan.MultipleAttributeBehavior, state.MultipleAttributeBehavior, "multiple-attribute-behavior")
@@ -7453,6 +8027,9 @@ func createPluginOperations(plan pluginResourceModel, state pluginResourceModel)
 	operations.AddInt64OperationIfNecessary(&ops, plan.UpperBound, state.UpperBound, "upper-bound")
 	operations.AddStringOperationIfNecessary(&ops, plan.FilterPrefix, state.FilterPrefix, "filter-prefix")
 	operations.AddStringOperationIfNecessary(&ops, plan.FilterSuffix, state.FilterSuffix, "filter-suffix")
+	operations.AddStringOperationIfNecessary(&ops, plan.TraditionalStaticGroupObjectClass, state.TraditionalStaticGroupObjectClass, "traditional-static-group-object-class")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumMembershipUpdatesPerModify, state.MaximumMembershipUpdatesPerModify, "maximum-membership-updates-per-modify")
+	operations.AddStringOperationIfNecessary(&ops, plan.ReadOperationSupport, state.ReadOperationSupport, "read-operation-support")
 	operations.AddStringOperationIfNecessary(&ops, plan.CollectionInterval, state.CollectionInterval, "collection-interval")
 	operations.AddStringOperationIfNecessary(&ops, plan.PerApplicationLDAPStats, state.PerApplicationLDAPStats, "per-application-ldap-stats")
 	operations.AddStringOperationIfNecessary(&ops, plan.LdapChangelogInfo, state.LdapChangelogInfo, "ldap-changelog-info")
@@ -7472,6 +8049,9 @@ func createPluginOperations(plan pluginResourceModel, state pluginResourceModel)
 // Create any update operations necessary to make the state match the plan
 func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaultPluginResourceModel) []client.Operation {
 	var ops []client.Operation
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventAddingMembersToNonexistentGroups, state.PreventAddingMembersToNonexistentGroups, "prevent-adding-members-to-nonexistent-groups")
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventAddingGroupsAsInvertedStaticGroupMembers, state.PreventAddingGroupsAsInvertedStaticGroupMembers, "prevent-adding-groups-as-inverted-static-group-members")
+	operations.AddBoolOperationIfNecessary(&ops, plan.PreventNestingNonexistentGroups, state.PreventNestingNonexistentGroups, "prevent-nesting-nonexistent-groups")
 	operations.AddStringOperationIfNecessary(&ops, plan.PassThroughAuthenticationHandler, state.PassThroughAuthenticationHandler, "pass-through-authentication-handler")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.Type, state.Type, "type")
 	operations.AddStringOperationIfNecessary(&ops, plan.MultipleAttributeBehavior, state.MultipleAttributeBehavior, "multiple-attribute-behavior")
@@ -7600,6 +8180,9 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	operations.AddInt64OperationIfNecessary(&ops, plan.UpperBound, state.UpperBound, "upper-bound")
 	operations.AddStringOperationIfNecessary(&ops, plan.FilterPrefix, state.FilterPrefix, "filter-prefix")
 	operations.AddStringOperationIfNecessary(&ops, plan.FilterSuffix, state.FilterSuffix, "filter-suffix")
+	operations.AddStringOperationIfNecessary(&ops, plan.TraditionalStaticGroupObjectClass, state.TraditionalStaticGroupObjectClass, "traditional-static-group-object-class")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumMembershipUpdatesPerModify, state.MaximumMembershipUpdatesPerModify, "maximum-membership-updates-per-modify")
+	operations.AddStringOperationIfNecessary(&ops, plan.ReadOperationSupport, state.ReadOperationSupport, "read-operation-support")
 	operations.AddStringOperationIfNecessary(&ops, plan.SampleInterval, state.SampleInterval, "sample-interval")
 	operations.AddStringOperationIfNecessary(&ops, plan.CollectionInterval, state.CollectionInterval, "collection-interval")
 	operations.AddStringOperationIfNecessary(&ops, plan.LdapInfo, state.LdapInfo, "ldap-info")
@@ -7624,13 +8207,51 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	return ops
 }
 
+// Create a traditional-static-group-support-for-inverted-static-groups plugin
+func (r *pluginResource) CreateTraditionalStaticGroupSupportForInvertedStaticGroupsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
+	addRequest := client.NewAddTraditionalStaticGroupSupportForInvertedStaticGroupsPluginRequest([]client.EnumtraditionalStaticGroupSupportForInvertedStaticGroupsPluginSchemaUrn{client.ENUMTRADITIONALSTATICGROUPSUPPORTFORINVERTEDSTATICGROUPSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINTRADITIONAL_STATIC_GROUP_SUPPORT_FOR_INVERTED_STATIC_GROUPS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	err := addOptionalTraditionalStaticGroupSupportForInvertedStaticGroupsPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPluginRequest(
+		client.AddTraditionalStaticGroupSupportForInvertedStaticGroupsPluginRequestAsAddPluginRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state pluginResourceModel
+	readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx, addResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a internal-search-rate plugin
 func (r *pluginResource) CreateInternalSearchRatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddInternalSearchRatePluginRequest(plan.Name.ValueString(),
-		[]client.EnuminternalSearchRatePluginSchemaUrn{client.ENUMINTERNALSEARCHRATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGININTERNAL_SEARCH_RATE},
+	addRequest := client.NewAddInternalSearchRatePluginRequest([]client.EnuminternalSearchRatePluginSchemaUrn{client.ENUMINTERNALSEARCHRATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGININTERNAL_SEARCH_RATE},
 		plan.BaseDN.Elements()[0].(types.String).ValueString(),
 		plan.FilterPrefix.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalInternalSearchRatePluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7641,12 +8262,12 @@ func (r *pluginResource) CreateInternalSearchRatePlugin(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddInternalSearchRatePluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7666,9 +8287,9 @@ func (r *pluginResource) CreateInternalSearchRatePlugin(ctx context.Context, req
 
 // Create a modifiable-password-policy-state plugin
 func (r *pluginResource) CreateModifiablePasswordPolicyStatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddModifiablePasswordPolicyStatePluginRequest(plan.Name.ValueString(),
-		[]client.EnummodifiablePasswordPolicyStatePluginSchemaUrn{client.ENUMMODIFIABLEPASSWORDPOLICYSTATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINMODIFIABLE_PASSWORD_POLICY_STATE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddModifiablePasswordPolicyStatePluginRequest([]client.EnummodifiablePasswordPolicyStatePluginSchemaUrn{client.ENUMMODIFIABLEPASSWORDPOLICYSTATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINMODIFIABLE_PASSWORD_POLICY_STATE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalModifiablePasswordPolicyStatePluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7679,12 +8300,12 @@ func (r *pluginResource) CreateModifiablePasswordPolicyStatePlugin(ctx context.C
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddModifiablePasswordPolicyStatePluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7704,9 +8325,9 @@ func (r *pluginResource) CreateModifiablePasswordPolicyStatePlugin(ctx context.C
 
 // Create a seven-bit-clean plugin
 func (r *pluginResource) CreateSevenBitCleanPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSevenBitCleanPluginRequest(plan.Name.ValueString(),
-		[]client.EnumsevenBitCleanPluginSchemaUrn{client.ENUMSEVENBITCLEANPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEVEN_BIT_CLEAN},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSevenBitCleanPluginRequest([]client.EnumsevenBitCleanPluginSchemaUrn{client.ENUMSEVENBITCLEANPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEVEN_BIT_CLEAN},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSevenBitCleanPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7717,12 +8338,12 @@ func (r *pluginResource) CreateSevenBitCleanPlugin(ctx context.Context, req reso
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddSevenBitCleanPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7742,9 +8363,9 @@ func (r *pluginResource) CreateSevenBitCleanPlugin(ctx context.Context, req reso
 
 // Create a clean-up-expired-pingfederate-persistent-access-grants plugin
 func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequest(plan.Name.ValueString(),
-		[]client.EnumcleanUpExpiredPingfederatePersistentAccessGrantsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTACCESSGRANTSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_ACCESS_GRANTS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequest([]client.EnumcleanUpExpiredPingfederatePersistentAccessGrantsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTACCESSGRANTSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_ACCESS_GRANTS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCleanUpExpiredPingfederatePersistentAccessGrantsPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7755,12 +8376,12 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentAccessGrantsP
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7782,10 +8403,10 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentAccessGrantsP
 func (r *pluginResource) CreatePeriodicGcPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var InvokeGCTimeUtcSlice []string
 	plan.InvokeGCTimeUtc.ElementsAs(ctx, &InvokeGCTimeUtcSlice, false)
-	addRequest := client.NewAddPeriodicGcPluginRequest(plan.Name.ValueString(),
-		[]client.EnumperiodicGcPluginSchemaUrn{client.ENUMPERIODICGCPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_GC},
+	addRequest := client.NewAddPeriodicGcPluginRequest([]client.EnumperiodicGcPluginSchemaUrn{client.ENUMPERIODICGCPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_GC},
 		InvokeGCTimeUtcSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPeriodicGcPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7796,12 +8417,12 @@ func (r *pluginResource) CreatePeriodicGcPlugin(ctx context.Context, req resourc
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPeriodicGcPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7825,15 +8446,15 @@ func (r *pluginResource) CreatePingOnePassThroughAuthenticationPlugin(ctx contex
 	plan.UserMappingLocalAttribute.ElementsAs(ctx, &UserMappingLocalAttributeSlice, false)
 	var UserMappingRemoteJSONFieldSlice []string
 	plan.UserMappingRemoteJSONField.ElementsAs(ctx, &UserMappingRemoteJSONFieldSlice, false)
-	addRequest := client.NewAddPingOnePassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
-		[]client.EnumpingOnePassThroughAuthenticationPluginSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPING_ONE_PASS_THROUGH_AUTHENTICATION},
+	addRequest := client.NewAddPingOnePassThroughAuthenticationPluginRequest([]client.EnumpingOnePassThroughAuthenticationPluginSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPING_ONE_PASS_THROUGH_AUTHENTICATION},
 		plan.ApiURL.ValueString(),
 		plan.AuthURL.ValueString(),
 		plan.OAuthClientID.ValueString(),
 		plan.EnvironmentID.ValueString(),
 		UserMappingLocalAttributeSlice,
 		UserMappingRemoteJSONFieldSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPingOnePassThroughAuthenticationPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7844,12 +8465,12 @@ func (r *pluginResource) CreatePingOnePassThroughAuthenticationPlugin(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPingOnePassThroughAuthenticationPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7874,12 +8495,12 @@ func (r *pluginResource) CreateSearchShutdownPlugin(ctx context.Context, req res
 		resp.Diagnostics.AddError("Failed to parse enum value for Scope", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddSearchShutdownPluginRequest(plan.Name.ValueString(),
-		[]client.EnumsearchShutdownPluginSchemaUrn{client.ENUMSEARCHSHUTDOWNPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEARCH_SHUTDOWN},
+	addRequest := client.NewAddSearchShutdownPluginRequest([]client.EnumsearchShutdownPluginSchemaUrn{client.ENUMSEARCHSHUTDOWNPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEARCH_SHUTDOWN},
 		*scope,
 		plan.Filter.Elements()[0].(types.String).ValueString(),
 		plan.OutputFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err = addOptionalSearchShutdownPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7890,12 +8511,12 @@ func (r *pluginResource) CreateSearchShutdownPlugin(ctx context.Context, req res
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddSearchShutdownPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7915,10 +8536,10 @@ func (r *pluginResource) CreateSearchShutdownPlugin(ctx context.Context, req res
 
 // Create a periodic-stats-logger plugin
 func (r *pluginResource) CreatePeriodicStatsLoggerPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPeriodicStatsLoggerPluginRequest(plan.Name.ValueString(),
-		[]client.EnumperiodicStatsLoggerPluginSchemaUrn{client.ENUMPERIODICSTATSLOGGERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_STATS_LOGGER},
+	addRequest := client.NewAddPeriodicStatsLoggerPluginRequest([]client.EnumperiodicStatsLoggerPluginSchemaUrn{client.ENUMPERIODICSTATSLOGGERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_STATS_LOGGER},
 		plan.LogFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPeriodicStatsLoggerPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7929,12 +8550,12 @@ func (r *pluginResource) CreatePeriodicStatsLoggerPlugin(ctx context.Context, re
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPeriodicStatsLoggerPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7954,11 +8575,11 @@ func (r *pluginResource) CreatePeriodicStatsLoggerPlugin(ctx context.Context, re
 
 // Create a purge-expired-data plugin
 func (r *pluginResource) CreatePurgeExpiredDataPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPurgeExpiredDataPluginRequest(plan.Name.ValueString(),
-		[]client.EnumpurgeExpiredDataPluginSchemaUrn{client.ENUMPURGEEXPIREDDATAPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPURGE_EXPIRED_DATA},
+	addRequest := client.NewAddPurgeExpiredDataPluginRequest([]client.EnumpurgeExpiredDataPluginSchemaUrn{client.ENUMPURGEEXPIREDDATAPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPURGE_EXPIRED_DATA},
 		plan.DatetimeAttribute.ValueString(),
 		plan.ExpirationOffset.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPurgeExpiredDataPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -7969,12 +8590,12 @@ func (r *pluginResource) CreatePurgeExpiredDataPlugin(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPurgeExpiredDataPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -7994,9 +8615,9 @@ func (r *pluginResource) CreatePurgeExpiredDataPlugin(ctx context.Context, req r
 
 // Create a sub-operation-timing plugin
 func (r *pluginResource) CreateSubOperationTimingPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSubOperationTimingPluginRequest(plan.Name.ValueString(),
-		[]client.EnumsubOperationTimingPluginSchemaUrn{client.ENUMSUBOPERATIONTIMINGPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSUB_OPERATION_TIMING},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSubOperationTimingPluginRequest([]client.EnumsubOperationTimingPluginSchemaUrn{client.ENUMSUBOPERATIONTIMINGPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSUB_OPERATION_TIMING},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSubOperationTimingPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8007,12 +8628,12 @@ func (r *pluginResource) CreateSubOperationTimingPlugin(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddSubOperationTimingPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8034,11 +8655,11 @@ func (r *pluginResource) CreateSubOperationTimingPlugin(ctx context.Context, req
 func (r *pluginResource) CreateThirdPartyPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var PluginTypeSlice []client.EnumpluginPluginTypeProp
 	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
-	addRequest := client.NewAddThirdPartyPluginRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPluginSchemaUrn{client.ENUMTHIRDPARTYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyPluginRequest([]client.EnumthirdPartyPluginSchemaUrn{client.ENUMTHIRDPARTYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		PluginTypeSlice)
+		PluginTypeSlice,
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8049,12 +8670,12 @@ func (r *pluginResource) CreateThirdPartyPlugin(ctx context.Context, req resourc
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddThirdPartyPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8076,10 +8697,10 @@ func (r *pluginResource) CreateThirdPartyPlugin(ctx context.Context, req resourc
 func (r *pluginResource) CreatePassThroughAuthenticationPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ServerSlice []string
 	plan.Server.ElementsAs(ctx, &ServerSlice, false)
-	addRequest := client.NewAddPassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
-		[]client.EnumpassThroughAuthenticationPluginSchemaUrn{client.ENUMPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPASS_THROUGH_AUTHENTICATION},
+	addRequest := client.NewAddPassThroughAuthenticationPluginRequest([]client.EnumpassThroughAuthenticationPluginSchemaUrn{client.ENUMPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPASS_THROUGH_AUTHENTICATION},
 		ServerSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPassThroughAuthenticationPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8090,12 +8711,12 @@ func (r *pluginResource) CreatePassThroughAuthenticationPlugin(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPassThroughAuthenticationPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8115,11 +8736,11 @@ func (r *pluginResource) CreatePassThroughAuthenticationPlugin(ctx context.Conte
 
 // Create a dn-mapper plugin
 func (r *pluginResource) CreateDnMapperPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddDnMapperPluginRequest(plan.Name.ValueString(),
-		[]client.EnumdnMapperPluginSchemaUrn{client.ENUMDNMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDN_MAPPER},
+	addRequest := client.NewAddDnMapperPluginRequest([]client.EnumdnMapperPluginSchemaUrn{client.ENUMDNMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDN_MAPPER},
 		plan.SourceDN.ValueString(),
 		plan.TargetDN.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDnMapperPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8130,12 +8751,12 @@ func (r *pluginResource) CreateDnMapperPlugin(ctx context.Context, req resource.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddDnMapperPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8157,10 +8778,10 @@ func (r *pluginResource) CreateDnMapperPlugin(ctx context.Context, req resource.
 func (r *pluginResource) CreateReferralOnUpdatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ReferralBaseURLSlice []string
 	plan.ReferralBaseURL.ElementsAs(ctx, &ReferralBaseURLSlice, false)
-	addRequest := client.NewAddReferralOnUpdatePluginRequest(plan.Name.ValueString(),
-		[]client.EnumreferralOnUpdatePluginSchemaUrn{client.ENUMREFERRALONUPDATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERRAL_ON_UPDATE},
+	addRequest := client.NewAddReferralOnUpdatePluginRequest([]client.EnumreferralOnUpdatePluginSchemaUrn{client.ENUMREFERRALONUPDATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERRAL_ON_UPDATE},
 		ReferralBaseURLSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalReferralOnUpdatePluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8171,12 +8792,12 @@ func (r *pluginResource) CreateReferralOnUpdatePlugin(ctx context.Context, req r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddReferralOnUpdatePluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8196,9 +8817,9 @@ func (r *pluginResource) CreateReferralOnUpdatePlugin(ctx context.Context, req r
 
 // Create a simple-to-external-bind plugin
 func (r *pluginResource) CreateSimpleToExternalBindPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSimpleToExternalBindPluginRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleToExternalBindPluginSchemaUrn{client.ENUMSIMPLETOEXTERNALBINDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSIMPLE_TO_EXTERNAL_BIND},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSimpleToExternalBindPluginRequest([]client.EnumsimpleToExternalBindPluginSchemaUrn{client.ENUMSIMPLETOEXTERNALBINDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSIMPLE_TO_EXTERNAL_BIND},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSimpleToExternalBindPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8209,12 +8830,12 @@ func (r *pluginResource) CreateSimpleToExternalBindPlugin(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddSimpleToExternalBindPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8234,9 +8855,9 @@ func (r *pluginResource) CreateSimpleToExternalBindPlugin(ctx context.Context, r
 
 // Create a snmp-subagent plugin
 func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSnmpSubagentPluginRequest(plan.Name.ValueString(),
-		[]client.EnumsnmpSubagentPluginSchemaUrn{client.ENUMSNMPSUBAGENTPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSNMP_SUBAGENT},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSnmpSubagentPluginRequest([]client.EnumsnmpSubagentPluginSchemaUrn{client.ENUMSNMPSUBAGENTPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSNMP_SUBAGENT},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSnmpSubagentPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8247,12 +8868,12 @@ func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resou
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddSnmpSubagentPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8272,10 +8893,10 @@ func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resou
 
 // Create a coalesce-modifications plugin
 func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCoalesceModificationsPluginRequest(plan.Name.ValueString(),
-		[]client.EnumcoalesceModificationsPluginSchemaUrn{client.ENUMCOALESCEMODIFICATIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOALESCE_MODIFICATIONS},
+	addRequest := client.NewAddCoalesceModificationsPluginRequest([]client.EnumcoalesceModificationsPluginSchemaUrn{client.ENUMCOALESCEMODIFICATIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOALESCE_MODIFICATIONS},
 		plan.RequestCriteria.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCoalesceModificationsPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8286,12 +8907,12 @@ func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddCoalesceModificationsPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8311,10 +8932,10 @@ func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, 
 
 // Create a clean-up-inactive-pingfederate-persistent-sessions plugin
 func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest(plan.Name.ValueString(),
-		[]client.EnumcleanUpInactivePingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPINACTIVEPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_INACTIVE_PINGFEDERATE_PERSISTENT_SESSIONS},
+	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest([]client.EnumcleanUpInactivePingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPINACTIVEPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_INACTIVE_PINGFEDERATE_PERSISTENT_SESSIONS},
 		plan.ExpirationOffset.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8325,12 +8946,12 @@ func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlug
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddCleanUpInactivePingfederatePersistentSessionsPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8352,11 +8973,11 @@ func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlug
 func (r *pluginResource) CreateComposedAttributePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddComposedAttributePluginRequest(plan.Name.ValueString(),
-		[]client.EnumcomposedAttributePluginSchemaUrn{client.ENUMCOMPOSEDATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOMPOSED_ATTRIBUTE},
+	addRequest := client.NewAddComposedAttributePluginRequest([]client.EnumcomposedAttributePluginSchemaUrn{client.ENUMCOMPOSEDATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOMPOSED_ATTRIBUTE},
 		plan.AttributeType.Elements()[0].(types.String).ValueString(),
 		ValuePatternSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalComposedAttributePluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8367,12 +8988,12 @@ func (r *pluginResource) CreateComposedAttributePlugin(ctx context.Context, req 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddComposedAttributePluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8392,11 +9013,11 @@ func (r *pluginResource) CreateComposedAttributePlugin(ctx context.Context, req 
 
 // Create a attribute-mapper plugin
 func (r *pluginResource) CreateAttributeMapperPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddAttributeMapperPluginRequest(plan.Name.ValueString(),
-		[]client.EnumattributeMapperPluginSchemaUrn{client.ENUMATTRIBUTEMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINATTRIBUTE_MAPPER},
+	addRequest := client.NewAddAttributeMapperPluginRequest([]client.EnumattributeMapperPluginSchemaUrn{client.ENUMATTRIBUTEMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINATTRIBUTE_MAPPER},
 		plan.SourceAttribute.ValueString(),
 		plan.TargetAttribute.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAttributeMapperPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8407,12 +9028,12 @@ func (r *pluginResource) CreateAttributeMapperPlugin(ctx context.Context, req re
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddAttributeMapperPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8432,10 +9053,10 @@ func (r *pluginResource) CreateAttributeMapperPlugin(ctx context.Context, req re
 
 // Create a delay plugin
 func (r *pluginResource) CreateDelayPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddDelayPluginRequest(plan.Name.ValueString(),
-		[]client.EnumdelayPluginSchemaUrn{client.ENUMDELAYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDELAY},
+	addRequest := client.NewAddDelayPluginRequest([]client.EnumdelayPluginSchemaUrn{client.ENUMDELAYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDELAY},
 		plan.Delay.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDelayPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8446,12 +9067,12 @@ func (r *pluginResource) CreateDelayPlugin(ctx context.Context, req resource.Cre
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddDelayPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8471,9 +9092,9 @@ func (r *pluginResource) CreateDelayPlugin(ctx context.Context, req resource.Cre
 
 // Create a clean-up-expired-pingfederate-persistent-sessions plugin
 func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentSessionsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentSessionsPluginRequest(plan.Name.ValueString(),
-		[]client.EnumcleanUpExpiredPingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_SESSIONS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentSessionsPluginRequest([]client.EnumcleanUpExpiredPingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_SESSIONS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCleanUpExpiredPingfederatePersistentSessionsPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8484,12 +9105,12 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentSessionsPlugi
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddCleanUpExpiredPingfederatePersistentSessionsPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8511,11 +9132,11 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentSessionsPlugi
 func (r *pluginResource) CreateGroovyScriptedPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var PluginTypeSlice []client.EnumpluginPluginTypeProp
 	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
-	addRequest := client.NewAddGroovyScriptedPluginRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedPluginSchemaUrn{client.ENUMGROOVYSCRIPTEDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedPluginRequest([]client.EnumgroovyScriptedPluginSchemaUrn{client.ENUMGROOVYSCRIPTEDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		PluginTypeSlice)
+		PluginTypeSlice,
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8526,12 +9147,12 @@ func (r *pluginResource) CreateGroovyScriptedPlugin(ctx context.Context, req res
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddGroovyScriptedPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8551,10 +9172,10 @@ func (r *pluginResource) CreateGroovyScriptedPlugin(ctx context.Context, req res
 
 // Create a pluggable-pass-through-authentication plugin
 func (r *pluginResource) CreatePluggablePassThroughAuthenticationPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPluggablePassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
-		[]client.EnumpluggablePassThroughAuthenticationPluginSchemaUrn{client.ENUMPLUGGABLEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPLUGGABLE_PASS_THROUGH_AUTHENTICATION},
+	addRequest := client.NewAddPluggablePassThroughAuthenticationPluginRequest([]client.EnumpluggablePassThroughAuthenticationPluginSchemaUrn{client.ENUMPLUGGABLEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPLUGGABLE_PASS_THROUGH_AUTHENTICATION},
 		plan.PassThroughAuthenticationHandler.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPluggablePassThroughAuthenticationPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8565,12 +9186,12 @@ func (r *pluginResource) CreatePluggablePassThroughAuthenticationPlugin(ctx cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddPluggablePassThroughAuthenticationPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8592,10 +9213,10 @@ func (r *pluginResource) CreatePluggablePassThroughAuthenticationPlugin(ctx cont
 func (r *pluginResource) CreateReferentialIntegrityPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
-	addRequest := client.NewAddReferentialIntegrityPluginRequest(plan.Name.ValueString(),
-		[]client.EnumreferentialIntegrityPluginSchemaUrn{client.ENUMREFERENTIALINTEGRITYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERENTIAL_INTEGRITY},
+	addRequest := client.NewAddReferentialIntegrityPluginRequest([]client.EnumreferentialIntegrityPluginSchemaUrn{client.ENUMREFERENTIALINTEGRITYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERENTIAL_INTEGRITY},
 		AttributeTypeSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalReferentialIntegrityPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8606,12 +9227,12 @@ func (r *pluginResource) CreateReferentialIntegrityPlugin(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddReferentialIntegrityPluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8633,10 +9254,10 @@ func (r *pluginResource) CreateReferentialIntegrityPlugin(ctx context.Context, r
 func (r *pluginResource) CreateUniqueAttributePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var TypeSlice []string
 	plan.Type.ElementsAs(ctx, &TypeSlice, false)
-	addRequest := client.NewAddUniqueAttributePluginRequest(plan.Name.ValueString(),
-		[]client.EnumuniqueAttributePluginSchemaUrn{client.ENUMUNIQUEATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINUNIQUE_ATTRIBUTE},
+	addRequest := client.NewAddUniqueAttributePluginRequest([]client.EnumuniqueAttributePluginSchemaUrn{client.ENUMUNIQUEATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINUNIQUE_ATTRIBUTE},
 		TypeSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalUniqueAttributePluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
@@ -8647,12 +9268,12 @@ func (r *pluginResource) CreateUniqueAttributePlugin(ctx context.Context, req re
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPluginRequest(
 		client.AddUniqueAttributePluginRequestAsAddPluginRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
 		return nil, err
@@ -8670,6 +9291,44 @@ func (r *pluginResource) CreateUniqueAttributePlugin(ctx context.Context, req re
 	return &state, nil
 }
 
+// Create a inverted-static-group-referential-integrity plugin
+func (r *pluginResource) CreateInvertedStaticGroupReferentialIntegrityPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
+	addRequest := client.NewAddInvertedStaticGroupReferentialIntegrityPluginRequest([]client.EnuminvertedStaticGroupReferentialIntegrityPluginSchemaUrn{client.ENUMINVERTEDSTATICGROUPREFERENTIALINTEGRITYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGININVERTED_STATIC_GROUP_REFERENTIAL_INTEGRITY},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	err := addOptionalInvertedStaticGroupReferentialIntegrityPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPluginRequest(
+		client.AddInvertedStaticGroupReferentialIntegrityPluginRequestAsAddPluginRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state pluginResourceModel
+	readInvertedStaticGroupReferentialIntegrityPluginResponse(ctx, addResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a new resource
 func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -8682,6 +9341,12 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state *pluginResourceModel
 	var err error
+	if plan.ResourceType.ValueString() == "traditional-static-group-support-for-inverted-static-groups" {
+		state, err = r.CreateTraditionalStaticGroupSupportForInvertedStaticGroupsPlugin(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.ResourceType.ValueString() == "internal-search-rate" {
 		state, err = r.CreateInternalSearchRatePlugin(ctx, req, resp, plan)
 		if err != nil {
@@ -8838,6 +9503,12 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 			return
 		}
 	}
+	if plan.ResourceType.ValueString() == "inverted-static-group-referential-integrity" {
+		state, err = r.CreateInvertedStaticGroupReferentialIntegrityPlugin(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 
 	// Populate Computed attribute values
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -8862,7 +9533,7 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+	readResponse, httpResp, err := r.apiClient.PluginAPI.GetPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
@@ -8882,6 +9553,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	}
 	if readResponse.StatsCollectorPluginResponse != nil {
 		readStatsCollectorPluginResponseDefault(ctx, readResponse.StatsCollectorPluginResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+		readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDefault(ctx, readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponseDefault(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
@@ -8991,16 +9665,19 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	if readResponse.UniqueAttributePluginResponse != nil {
 		readUniqueAttributePluginResponseDefault(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
+	if readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+		readInvertedStaticGroupReferentialIntegrityPluginResponseDefault(ctx, readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &state, &resp.Diagnostics)
+	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PluginAPI.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPluginOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PluginAPI.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Plugin", err, httpResp)
 			return
@@ -9018,6 +9695,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		}
 		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+			readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDefault(ctx, updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
@@ -9127,6 +9807,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+			readInvertedStaticGroupReferentialIntegrityPluginResponseDefault(ctx, updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 	}
 
 	state.setStateValuesNotReturnedByAPI(&plan)
@@ -9147,7 +9830,7 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+	readResponse, httpResp, err := r.apiClient.PluginAPI.GetPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -9166,6 +9849,9 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Read the response into the state
+	if readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+		readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx, readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponse(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -9244,6 +9930,9 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if readResponse.UniqueAttributePluginResponse != nil {
 		readUniqueAttributePluginResponse(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
+	if readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+		readInvertedStaticGroupReferentialIntegrityPluginResponse(ctx, readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &state, &resp.Diagnostics)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -9259,7 +9948,7 @@ func (r *defaultPluginResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+	readResponse, httpResp, err := r.apiClient.PluginAPI.GetPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
@@ -9328,7 +10017,7 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state pluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
+	updateRequest := r.apiClient.PluginAPI.UpdatePlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -9338,7 +10027,7 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PluginAPI.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Plugin", err, httpResp)
 			return
@@ -9351,6 +10040,9 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
+		if updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+			readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx, updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponse(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -9429,6 +10121,9 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+			readInvertedStaticGroupReferentialIntegrityPluginResponse(ctx, updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -9453,7 +10148,7 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 	// Get the current state to see how any attributes are changing
 	var state defaultPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
+	updateRequest := r.apiClient.PluginAPI.UpdatePlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -9463,7 +10158,7 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PluginAPI.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Plugin", err, httpResp)
 			return
@@ -9481,6 +10176,9 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		}
 		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+			readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDefault(ctx, updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
@@ -9590,6 +10288,9 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+			readInvertedStaticGroupReferentialIntegrityPluginResponseDefault(ctx, updateResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
@@ -9618,7 +10319,7 @@ func (r *pluginResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	httpResp, err := r.apiClient.PluginApi.DeletePluginExecute(r.apiClient.PluginApi.DeletePlugin(
+	httpResp, err := r.apiClient.PluginAPI.DeletePluginExecute(r.apiClient.PluginAPI.DeletePlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Plugin", err, httpResp)

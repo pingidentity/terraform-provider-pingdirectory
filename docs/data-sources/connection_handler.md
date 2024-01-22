@@ -46,6 +46,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `denied_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.
 - `description` (String) A description for this Connection Handler
 - `enable_multipart_mime_parameters` (Boolean) Determines whether request form parameters submitted in multipart/ form-data (RFC 2388) format should be processed as request parameters.
+- `enable_sni_hostname_checks` (Boolean) Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.
 - `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `failed_bind_response_delay` (String) Specifies the length of time that the server should delay the response to non-successful bind operations. A value of zero milliseconds indicates that non-successful bind operations should not be delayed.
 - `http_operation_log_publisher` (Set of String) Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.
@@ -76,6 +77,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `ldap`: Specifies the number of request handlers that are used to read requests from clients.
   - `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.
 - `poll_interval` (String) Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.
+- `request_handler_per_connection` (Boolean) Supported in PingDirectory product version 10.0.0.0+. Indicates whether a separate request handler thread should be created for each client connection, which can help avoid starvation of client connections for cases in which one or more clients send large numbers of concurrent asynchronous requests. This should only be used for cases in which a relatively small number of connections will be established at any given time, the connections established will generally be long-lived, and at least one client may send high volumes of asynchronous requests. This property can be used to alleviate possible blocking during long-running TLS negotiation on a single request handler which can result in it being unable to acknowledge further client requests until the TLS negotation completes or times out.
 - `response_header` (Set of String) Specifies HTTP header fields and values added to response headers for all requests.
 - `send_rejection_notice` (Boolean) Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.
 - `ssl_cert_nickname` (String) When the `type` attribute is set to:

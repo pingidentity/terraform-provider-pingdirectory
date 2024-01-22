@@ -73,7 +73,7 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.WebApplicationExtensionApi.DeleteWebApplicationExtension(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.WebApplicationExtensionAPI.DeleteWebApplicationExtension(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -116,7 +116,7 @@ func testAccCheckExpectedGenericWebApplicationExtensionAttributes(config generic
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.WebApplicationExtensionApi.GetWebApplicationExtension(ctx, config.id).Execute()
+		response, _, err := testClient.WebApplicationExtensionAPI.GetWebApplicationExtension(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func testAccCheckExpectedGenericWebApplicationExtensionAttributes(config generic
 func testAccCheckGenericWebApplicationExtensionDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.WebApplicationExtensionApi.GetWebApplicationExtension(ctx, testIdGenericWebApplicationExtension).Execute()
+	_, _, err := testClient.WebApplicationExtensionAPI.GetWebApplicationExtension(ctx, testIdGenericWebApplicationExtension).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Generic Web Application Extension", testIdGenericWebApplicationExtension)
 	}

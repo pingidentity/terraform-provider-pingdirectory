@@ -70,7 +70,7 @@ func TestAccConstructedAttribute(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ConstructedAttributeApi.DeleteConstructedAttribute(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ConstructedAttributeAPI.DeleteConstructedAttribute(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedConstructedAttributeAttributes(config constructedAttrib
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConstructedAttributeApi.GetConstructedAttribute(ctx, config.id).Execute()
+		response, _, err := testClient.ConstructedAttributeAPI.GetConstructedAttribute(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedConstructedAttributeAttributes(config constructedAttrib
 func testAccCheckConstructedAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConstructedAttributeApi.GetConstructedAttribute(ctx, testIdConstructedAttribute).Execute()
+	_, _, err := testClient.ConstructedAttributeAPI.GetConstructedAttribute(ctx, testIdConstructedAttribute).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Constructed Attribute", testIdConstructedAttribute)
 	}

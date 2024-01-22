@@ -93,7 +93,7 @@ func testAccCheckExpectedMatchingRuleAttributes(config matchingRuleTestModel) re
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.MatchingRuleApi.GetMatchingRule(ctx, config.id).Execute()
+		response, _, err := testClient.MatchingRuleAPI.GetMatchingRule(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

@@ -51,7 +51,7 @@ func TestAccServerGroup(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ServerGroupApi.DeleteServerGroup(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.ServerGroupAPI.DeleteServerGroup(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -88,7 +88,7 @@ data "pingdirectory_server_groups" "list" {
 func testAccCheckServerGroupDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ServerGroupApi.GetServerGroup(ctx, testIdServerGroup).Execute()
+	_, _, err := testClient.ServerGroupAPI.GetServerGroup(ctx, testIdServerGroup).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Server Group", testIdServerGroup)
 	}

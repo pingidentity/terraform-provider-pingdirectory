@@ -70,7 +70,7 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.GaugeDataSourceApi.DeleteGaugeDataSource(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.GaugeDataSourceAPI.DeleteGaugeDataSource(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -113,7 +113,7 @@ func testAccCheckExpectedIndicatorGaugeDataSourceAttributes(config indicatorGaug
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GaugeDataSourceApi.GetGaugeDataSource(ctx, config.id).Execute()
+		response, _, err := testClient.GaugeDataSourceAPI.GetGaugeDataSource(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func testAccCheckExpectedIndicatorGaugeDataSourceAttributes(config indicatorGaug
 func testAccCheckIndicatorGaugeDataSourceDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.GaugeDataSourceApi.GetGaugeDataSource(ctx, testIdIndicatorGaugeDataSource).Execute()
+	_, _, err := testClient.GaugeDataSourceAPI.GetGaugeDataSource(ctx, testIdIndicatorGaugeDataSource).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Indicator Gauge Data Source", testIdIndicatorGaugeDataSource)
 	}

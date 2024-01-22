@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -2705,11 +2705,11 @@ func createBackendOperationsDefault(plan defaultBackendResourceModel, state defa
 func (r *backendResource) CreateLocalDbBackend(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan backendResourceModel) (*backendResourceModel, error) {
 	var BaseDNSlice []string
 	plan.BaseDN.ElementsAs(ctx, &BaseDNSlice, false)
-	addRequest := client.NewAddLocalDbBackendRequest(plan.BackendID.ValueString(),
-		[]client.EnumlocalDbBackendSchemaUrn{client.ENUMLOCALDBBACKENDSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0BACKENDLOCAL_DB},
+	addRequest := client.NewAddLocalDbBackendRequest([]client.EnumlocalDbBackendSchemaUrn{client.ENUMLOCALDBBACKENDSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0BACKENDLOCAL_DB},
 		plan.BackendID.ValueString(),
 		plan.Enabled.ValueBool(),
-		BaseDNSlice)
+		BaseDNSlice,
+		plan.BackendID.ValueString())
 	err := addOptionalLocalDbBackendFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Backend", err.Error())
@@ -2720,11 +2720,11 @@ func (r *backendResource) CreateLocalDbBackend(ctx context.Context, req resource
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.BackendApi.AddBackend(
+	apiAddRequest := r.apiClient.BackendAPI.AddBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocalDbBackendRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.BackendApi.AddBackendExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.BackendAPI.AddBackendExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Backend", err, httpResp)
 		return nil, err
@@ -2778,7 +2778,7 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+	readResponse, httpResp, err := r.apiClient.BackendAPI.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
@@ -2837,14 +2837,14 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	updateRequest := r.apiClient.BackendAPI.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 	ops := createBackendOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.BackendAPI.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Backend", err, httpResp)
 			return
@@ -2919,7 +2919,7 @@ func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+	readResponse, httpResp, err := r.apiClient.BackendAPI.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -2956,7 +2956,7 @@ func (r *defaultBackendResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+	readResponse, httpResp, err := r.apiClient.BackendAPI.GetBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
@@ -3028,7 +3028,7 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 	// Get the current state to see how any attributes are changing
 	var state backendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
+	updateRequest := r.apiClient.BackendAPI.UpdateBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
@@ -3038,7 +3038,7 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.BackendAPI.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Backend", err, httpResp)
 			return
@@ -3077,7 +3077,7 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state defaultBackendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
+	updateRequest := r.apiClient.BackendAPI.UpdateBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
@@ -3087,7 +3087,7 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.BackendAPI.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Backend", err, httpResp)
 			return
@@ -3169,7 +3169,7 @@ func (r *backendResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	httpResp, err := r.apiClient.BackendApi.DeleteBackendExecute(r.apiClient.BackendApi.DeleteBackend(
+	httpResp, err := r.apiClient.BackendAPI.DeleteBackendExecute(r.apiClient.BackendAPI.DeleteBackend(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Backend", err, httpResp)

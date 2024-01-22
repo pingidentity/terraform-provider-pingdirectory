@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -216,20 +216,20 @@ func createConjurAuthenticationMethodOperations(plan conjurAuthenticationMethodR
 
 // Create a api-key conjur-authentication-method
 func (r *conjurAuthenticationMethodResource) CreateApiKeyConjurAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan conjurAuthenticationMethodResourceModel) (*conjurAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddApiKeyConjurAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumapiKeyConjurAuthenticationMethodSchemaUrn{client.ENUMAPIKEYCONJURAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONJUR_AUTHENTICATION_METHODAPI_KEY},
-		plan.Username.ValueString())
+	addRequest := client.NewAddApiKeyConjurAuthenticationMethodRequest([]client.EnumapiKeyConjurAuthenticationMethodSchemaUrn{client.ENUMAPIKEYCONJURAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONJUR_AUTHENTICATION_METHODAPI_KEY},
+		plan.Username.ValueString(),
+		plan.Name.ValueString())
 	addOptionalApiKeyConjurAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConjurAuthenticationMethodApi.AddConjurAuthenticationMethod(
+	apiAddRequest := r.apiClient.ConjurAuthenticationMethodAPI.AddConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddApiKeyConjurAuthenticationMethodRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.AddConjurAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.AddConjurAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Conjur Authentication Method", err, httpResp)
 		return nil, err
@@ -285,7 +285,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.GetConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Conjur Authentication Method", err, httpResp)
@@ -303,14 +303,14 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ConjurAuthenticationMethodAPI.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConjurAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.UpdateConjurAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Conjur Authentication Method", err, httpResp)
 			return
@@ -353,7 +353,7 @@ func readConjurAuthenticationMethod(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
+	readResponse, httpResp, err := apiClient.ConjurAuthenticationMethodAPI.GetConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -404,7 +404,7 @@ func updateConjurAuthenticationMethod(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state conjurAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(
+	updateRequest := apiClient.ConjurAuthenticationMethodAPI.UpdateConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -414,7 +414,7 @@ func updateConjurAuthenticationMethod(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConjurAuthenticationMethodAPI.UpdateConjurAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Conjur Authentication Method", err, httpResp)
 			return
@@ -456,7 +456,7 @@ func (r *conjurAuthenticationMethodResource) Delete(ctx context.Context, req res
 		return
 	}
 
-	httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.DeleteConjurAuthenticationMethodExecute(r.apiClient.ConjurAuthenticationMethodApi.DeleteConjurAuthenticationMethod(
+	httpResp, err := r.apiClient.ConjurAuthenticationMethodAPI.DeleteConjurAuthenticationMethodExecute(r.apiClient.ConjurAuthenticationMethodAPI.DeleteConjurAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Conjur Authentication Method", err, httpResp)

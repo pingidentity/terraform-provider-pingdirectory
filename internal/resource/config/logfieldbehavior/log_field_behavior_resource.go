@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -575,8 +575,8 @@ func createLogFieldBehaviorOperations(plan logFieldBehaviorResourceModel, state 
 
 // Create a text-access log-field-behavior
 func (r *logFieldBehaviorResource) CreateTextAccessLogFieldBehavior(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldBehaviorResourceModel) (*logFieldBehaviorResourceModel, error) {
-	addRequest := client.NewAddTextAccessLogFieldBehaviorRequest(plan.Name.ValueString(),
-		[]client.EnumtextAccessLogFieldBehaviorSchemaUrn{client.ENUMTEXTACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORTEXT_ACCESS})
+	addRequest := client.NewAddTextAccessLogFieldBehaviorRequest([]client.EnumtextAccessLogFieldBehaviorSchemaUrn{client.ENUMTEXTACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORTEXT_ACCESS},
+		plan.Name.ValueString())
 	err := addOptionalTextAccessLogFieldBehaviorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Field Behavior", err.Error())
@@ -587,12 +587,12 @@ func (r *logFieldBehaviorResource) CreateTextAccessLogFieldBehavior(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFieldBehaviorApi.AddLogFieldBehavior(
+	apiAddRequest := r.apiClient.LogFieldBehaviorAPI.AddLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFieldBehaviorRequest(
 		client.AddTextAccessLogFieldBehaviorRequestAsAddLogFieldBehaviorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.AddLogFieldBehaviorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFieldBehaviorAPI.AddLogFieldBehaviorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Field Behavior", err, httpResp)
 		return nil, err
@@ -612,8 +612,8 @@ func (r *logFieldBehaviorResource) CreateTextAccessLogFieldBehavior(ctx context.
 
 // Create a json-formatted-access log-field-behavior
 func (r *logFieldBehaviorResource) CreateJsonFormattedAccessLogFieldBehavior(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldBehaviorResourceModel) (*logFieldBehaviorResourceModel, error) {
-	addRequest := client.NewAddJsonFormattedAccessLogFieldBehaviorRequest(plan.Name.ValueString(),
-		[]client.EnumjsonFormattedAccessLogFieldBehaviorSchemaUrn{client.ENUMJSONFORMATTEDACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORJSON_FORMATTED_ACCESS})
+	addRequest := client.NewAddJsonFormattedAccessLogFieldBehaviorRequest([]client.EnumjsonFormattedAccessLogFieldBehaviorSchemaUrn{client.ENUMJSONFORMATTEDACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORJSON_FORMATTED_ACCESS},
+		plan.Name.ValueString())
 	err := addOptionalJsonFormattedAccessLogFieldBehaviorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Log Field Behavior", err.Error())
@@ -624,12 +624,12 @@ func (r *logFieldBehaviorResource) CreateJsonFormattedAccessLogFieldBehavior(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFieldBehaviorApi.AddLogFieldBehavior(
+	apiAddRequest := r.apiClient.LogFieldBehaviorAPI.AddLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFieldBehaviorRequest(
 		client.AddJsonFormattedAccessLogFieldBehaviorRequestAsAddLogFieldBehaviorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.AddLogFieldBehaviorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFieldBehaviorAPI.AddLogFieldBehaviorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Field Behavior", err, httpResp)
 		return nil, err
@@ -693,7 +693,7 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
+	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorAPI.GetLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
@@ -716,14 +716,14 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogFieldBehaviorAPI.UpdateLogFieldBehavior(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldBehaviorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehaviorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogFieldBehaviorAPI.UpdateLogFieldBehaviorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Behavior", err, httpResp)
 			return
@@ -770,7 +770,7 @@ func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
+	readResponse, httpResp, err := apiClient.LogFieldBehaviorAPI.GetLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -826,7 +826,7 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state logFieldBehaviorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(
+	updateRequest := apiClient.LogFieldBehaviorAPI.UpdateLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -836,7 +836,7 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogFieldBehaviorApi.UpdateLogFieldBehaviorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogFieldBehaviorAPI.UpdateLogFieldBehaviorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Behavior", err, httpResp)
 			return
@@ -882,7 +882,7 @@ func (r *logFieldBehaviorResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehaviorExecute(r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehavior(
+	httpResp, err := r.apiClient.LogFieldBehaviorAPI.DeleteLogFieldBehaviorExecute(r.apiClient.LogFieldBehaviorAPI.DeleteLogFieldBehavior(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Behavior", err, httpResp)

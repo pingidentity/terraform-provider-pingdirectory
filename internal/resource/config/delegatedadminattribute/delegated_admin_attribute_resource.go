@@ -18,7 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -567,8 +567,8 @@ func createDelegatedAdminAttributeOperations(plan delegatedAdminAttributeResourc
 
 // Create a certificate delegated-admin-attribute
 func (r *delegatedAdminAttributeResource) CreateCertificateDelegatedAdminAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminAttributeResourceModel) (*delegatedAdminAttributeResourceModel, error) {
-	addRequest := client.NewAddCertificateDelegatedAdminAttributeRequest(plan.AttributeType.ValueString(),
-		[]client.EnumcertificateDelegatedAdminAttributeSchemaUrn{client.ENUMCERTIFICATEDELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTECERTIFICATE},
+	addRequest := client.NewAddCertificateDelegatedAdminAttributeRequest([]client.EnumcertificateDelegatedAdminAttributeSchemaUrn{client.ENUMCERTIFICATEDELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTECERTIFICATE},
+		plan.AttributeType.ValueString(),
 		plan.DisplayName.ValueString())
 	err := addOptionalCertificateDelegatedAdminAttributeFields(ctx, addRequest, plan)
 	if err != nil {
@@ -580,12 +580,12 @@ func (r *delegatedAdminAttributeResource) CreateCertificateDelegatedAdminAttribu
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttribute(
+	apiAddRequest := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.RestResourceTypeName.ValueString())
 	apiAddRequest = apiAddRequest.AddDelegatedAdminAttributeRequest(
 		client.AddCertificateDelegatedAdminAttributeRequestAsAddDelegatedAdminAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute", err, httpResp)
 		return nil, err
@@ -605,8 +605,8 @@ func (r *delegatedAdminAttributeResource) CreateCertificateDelegatedAdminAttribu
 
 // Create a photo delegated-admin-attribute
 func (r *delegatedAdminAttributeResource) CreatePhotoDelegatedAdminAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminAttributeResourceModel) (*delegatedAdminAttributeResourceModel, error) {
-	addRequest := client.NewAddPhotoDelegatedAdminAttributeRequest(plan.AttributeType.ValueString(),
-		[]client.EnumphotoDelegatedAdminAttributeSchemaUrn{client.ENUMPHOTODELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTEPHOTO},
+	addRequest := client.NewAddPhotoDelegatedAdminAttributeRequest([]client.EnumphotoDelegatedAdminAttributeSchemaUrn{client.ENUMPHOTODELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTEPHOTO},
+		plan.AttributeType.ValueString(),
 		plan.DisplayName.ValueString())
 	err := addOptionalPhotoDelegatedAdminAttributeFields(ctx, addRequest, plan)
 	if err != nil {
@@ -618,12 +618,12 @@ func (r *delegatedAdminAttributeResource) CreatePhotoDelegatedAdminAttribute(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttribute(
+	apiAddRequest := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.RestResourceTypeName.ValueString())
 	apiAddRequest = apiAddRequest.AddDelegatedAdminAttributeRequest(
 		client.AddPhotoDelegatedAdminAttributeRequestAsAddDelegatedAdminAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute", err, httpResp)
 		return nil, err
@@ -643,8 +643,8 @@ func (r *delegatedAdminAttributeResource) CreatePhotoDelegatedAdminAttribute(ctx
 
 // Create a generic delegated-admin-attribute
 func (r *delegatedAdminAttributeResource) CreateGenericDelegatedAdminAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminAttributeResourceModel) (*delegatedAdminAttributeResourceModel, error) {
-	addRequest := client.NewAddGenericDelegatedAdminAttributeRequest(plan.AttributeType.ValueString(),
-		[]client.EnumgenericDelegatedAdminAttributeSchemaUrn{client.ENUMGENERICDELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTEGENERIC},
+	addRequest := client.NewAddGenericDelegatedAdminAttributeRequest([]client.EnumgenericDelegatedAdminAttributeSchemaUrn{client.ENUMGENERICDELEGATEDADMINATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DELEGATED_ADMIN_ATTRIBUTEGENERIC},
+		plan.AttributeType.ValueString(),
 		plan.DisplayName.ValueString())
 	err := addOptionalGenericDelegatedAdminAttributeFields(ctx, addRequest, plan)
 	if err != nil {
@@ -656,12 +656,12 @@ func (r *delegatedAdminAttributeResource) CreateGenericDelegatedAdminAttribute(c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttribute(
+	apiAddRequest := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.RestResourceTypeName.ValueString())
 	apiAddRequest = apiAddRequest.AddDelegatedAdminAttributeRequest(
 		client.AddGenericDelegatedAdminAttributeRequestAsAddDelegatedAdminAttributeRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.AddDelegatedAdminAttributeExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.AddDelegatedAdminAttributeExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute", err, httpResp)
 		return nil, err
@@ -733,7 +733,7 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)
@@ -759,14 +759,14 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminAttributeAPI.UpdateDelegatedAdminAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
 	ops := createDelegatedAdminAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.UpdateDelegatedAdminAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute", err, httpResp)
 			return
@@ -817,7 +817,7 @@ func readDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -876,7 +876,7 @@ func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateReque
 	// Get the current state to see how any attributes are changing
 	var state delegatedAdminAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
+	updateRequest := apiClient.DelegatedAdminAttributeAPI.UpdateDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
@@ -886,7 +886,7 @@ func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateReque
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeAPI.UpdateDelegatedAdminAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute", err, httpResp)
 			return
@@ -936,7 +936,7 @@ func (r *delegatedAdminAttributeResource) Delete(ctx context.Context, req resour
 		return
 	}
 
-	httpResp, err := r.apiClient.DelegatedAdminAttributeApi.DeleteDelegatedAdminAttributeExecute(r.apiClient.DelegatedAdminAttributeApi.DeleteDelegatedAdminAttribute(
+	httpResp, err := r.apiClient.DelegatedAdminAttributeAPI.DeleteDelegatedAdminAttributeExecute(r.apiClient.DelegatedAdminAttributeAPI.DeleteDelegatedAdminAttribute(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Attribute", err, httpResp)

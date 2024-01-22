@@ -88,7 +88,7 @@ func testAccCheckExpectedHighThroughputWorkQueueAttributes(config highThroughput
 		resourceType := "workqueue"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.WorkQueueApi.GetWorkQueue(ctx).Execute()
+		response, _, err := testClient.WorkQueueAPI.GetWorkQueue(ctx).Execute()
 		if err != nil {
 			return err
 		}

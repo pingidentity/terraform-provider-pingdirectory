@@ -1,3 +1,7 @@
+# 1.1.0 (Unreleased)
+### FEATURES
+* Added support for PingDirectory version `10.0.0.0` (#331)
+
 # v1.0.2 January 18, 2024
 
 ### DEPENDENCIES

@@ -99,7 +99,7 @@ func testAccCheckExpectedGeneralMonitorProviderAttributes(config generalMonitorP
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.MonitorProviderApi.GetMonitorProvider(ctx, config.id).Execute()
+		response, _, err := testClient.MonitorProviderAPI.GetMonitorProvider(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -290,7 +290,7 @@ func (r *cryptoManagerResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CryptoManagerApi.GetCryptoManager(
+	readResponse, httpResp, err := r.apiClient.CryptoManagerAPI.GetCryptoManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Crypto Manager", err, httpResp)
@@ -308,14 +308,14 @@ func (r *cryptoManagerResource) Create(ctx context.Context, req resource.CreateR
 	readCryptoManagerResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CryptoManagerApi.UpdateCryptoManager(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.CryptoManagerAPI.UpdateCryptoManager(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createCryptoManagerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CryptoManagerApi.UpdateCryptoManagerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CryptoManagerAPI.UpdateCryptoManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Crypto Manager", err, httpResp)
 			return
@@ -348,7 +348,7 @@ func (r *cryptoManagerResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CryptoManagerApi.GetCryptoManager(
+	readResponse, httpResp, err := r.apiClient.CryptoManagerAPI.GetCryptoManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Crypto Manager", err, httpResp)
@@ -382,7 +382,7 @@ func (r *cryptoManagerResource) Update(ctx context.Context, req resource.UpdateR
 	// Get the current state to see how any attributes are changing
 	var state cryptoManagerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.CryptoManagerApi.UpdateCryptoManager(
+	updateRequest := r.apiClient.CryptoManagerAPI.UpdateCryptoManager(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -392,7 +392,7 @@ func (r *cryptoManagerResource) Update(ctx context.Context, req resource.UpdateR
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CryptoManagerApi.UpdateCryptoManagerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CryptoManagerAPI.UpdateCryptoManagerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Crypto Manager", err, httpResp)
 			return

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -187,7 +187,7 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.GetMacSecretKey(
+	readResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.GetMacSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mac Secret Key", err, httpResp)
@@ -205,14 +205,14 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 	readMacSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.MacSecretKeyAPI.UpdateMacSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createMacSecretKeyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MacSecretKeyApi.UpdateMacSecretKeyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.UpdateMacSecretKeyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mac Secret Key", err, httpResp)
 			return
@@ -246,7 +246,7 @@ func (r *macSecretKeyResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.GetMacSecretKey(
+	readResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.GetMacSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mac Secret Key", err, httpResp)
@@ -280,7 +280,7 @@ func (r *macSecretKeyResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state macSecretKeyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(
+	updateRequest := r.apiClient.MacSecretKeyAPI.UpdateMacSecretKey(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
@@ -290,7 +290,7 @@ func (r *macSecretKeyResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MacSecretKeyApi.UpdateMacSecretKeyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.MacSecretKeyAPI.UpdateMacSecretKeyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mac Secret Key", err, httpResp)
 			return

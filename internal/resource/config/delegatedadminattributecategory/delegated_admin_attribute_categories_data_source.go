@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -84,12 +84,12 @@ func (r *delegatedAdminAttributeCategoriesDataSource) Read(ctx context.Context, 
 		return
 	}
 
-	listRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.ListDelegatedAdminAttributeCategories(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.DelegatedAdminAttributeCategoryAPI.ListDelegatedAdminAttributeCategories(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.ListDelegatedAdminAttributeCategoriesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.ListDelegatedAdminAttributeCategoriesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Delegated Admin Attribute Category objects", err, httpResp)
 		return

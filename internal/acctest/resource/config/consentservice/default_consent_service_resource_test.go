@@ -116,7 +116,7 @@ func testAccCheckExpectedConsentServiceAttributes(config consentServiceTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConsentServiceApi.GetConsentService(ctx).Execute()
+		response, _, err := testClient.ConsentServiceAPI.GetConsentService(ctx).Execute()
 		if err != nil {
 			return err
 		}

@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
@@ -76,7 +76,7 @@ func TestAccDelegatedAdminResourceRights(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DelegatedAdminResourceRightsApi.DeleteDelegatedAdminResourceRights(ctx, updatedResourceModel.restResourceType, updatedResourceModel.delegatedAdminRightsName).Execute()
+					_, err := testClient.DelegatedAdminResourceRightsAPI.DeleteDelegatedAdminResourceRights(ctx, updatedResourceModel.restResourceType, updatedResourceModel.delegatedAdminRightsName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -137,7 +137,7 @@ func testAccCheckExpectedDelegatedAdminResourceRightsAttributes(config delegated
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminResourceRightsApi.GetDelegatedAdminResourceRights(ctx, config.restResourceType, config.delegatedAdminRightsName).Execute()
+		response, _, err := testClient.DelegatedAdminResourceRightsAPI.GetDelegatedAdminResourceRights(ctx, config.restResourceType, config.delegatedAdminRightsName).Execute()
 		if err != nil {
 			return err
 		}
@@ -161,7 +161,7 @@ func testAccCheckExpectedDelegatedAdminResourceRightsAttributes(config delegated
 func testAccCheckDelegatedAdminResourceRightsDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminResourceRightsApi.GetDelegatedAdminResourceRights(ctx, testIdDelegatedAdminResourceRights, testDelegatedAdminRightsName).Execute()
+	_, _, err := testClient.DelegatedAdminResourceRightsAPI.GetDelegatedAdminResourceRights(ctx, testIdDelegatedAdminResourceRights, testDelegatedAdminRightsName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Delegated Admin Resource Rights", testIdDelegatedAdminResourceRights)
 	}

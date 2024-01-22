@@ -71,7 +71,7 @@ func TestAccFifoEntryCache(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.EntryCacheApi.DeleteEntryCache(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.EntryCacheAPI.DeleteEntryCache(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -113,7 +113,7 @@ func testAccCheckExpectedFifoEntryCacheAttributes(config fifoEntryCacheTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.EntryCacheApi.GetEntryCache(ctx, config.id).Execute()
+		response, _, err := testClient.EntryCacheAPI.GetEntryCache(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func testAccCheckExpectedFifoEntryCacheAttributes(config fifoEntryCacheTestModel
 func testAccCheckFifoEntryCacheDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.EntryCacheApi.GetEntryCache(ctx, testIdFifoEntryCache).Execute()
+	_, _, err := testClient.EntryCacheAPI.GetEntryCache(ctx, testIdFifoEntryCache).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Fifo Entry Cache", testIdFifoEntryCache)
 	}

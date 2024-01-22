@@ -70,7 +70,7 @@ func TestAccDelegatedAdminRights(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DelegatedAdminRightsApi.DeleteDelegatedAdminRights(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.DelegatedAdminRightsAPI.DeleteDelegatedAdminRights(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -112,7 +112,7 @@ func testAccCheckExpectedDelegatedAdminRightsAttributes(config delegatedAdminRig
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(ctx, config.id).Execute()
+		response, _, err := testClient.DelegatedAdminRightsAPI.GetDelegatedAdminRights(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedDelegatedAdminRightsAttributes(config delegatedAdminRig
 func testAccCheckDelegatedAdminRightsDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(ctx, testIdDelegatedAdminRights).Execute()
+	_, _, err := testClient.DelegatedAdminRightsAPI.GetDelegatedAdminRights(ctx, testIdDelegatedAdminRights).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Delegated Admin Rights", testIdDelegatedAdminRights)
 	}

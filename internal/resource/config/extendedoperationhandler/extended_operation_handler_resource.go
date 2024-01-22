@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1206,9 +1206,9 @@ func createExtendedOperationHandlerOperationsDefault(plan defaultExtendedOperati
 
 // Create a validate-totp-password extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateValidateTotpPasswordExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
-	addRequest := client.NewAddValidateTotpPasswordExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumvalidateTotpPasswordExtendedOperationHandlerSchemaUrn{client.ENUMVALIDATETOTPPASSWORDEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERVALIDATE_TOTP_PASSWORD},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddValidateTotpPasswordExtendedOperationHandlerRequest([]client.EnumvalidateTotpPasswordExtendedOperationHandlerSchemaUrn{client.ENUMVALIDATETOTPPASSWORDEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERVALIDATE_TOTP_PASSWORD},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalValidateTotpPasswordExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1219,12 +1219,12 @@ func (r *extendedOperationHandlerResource) CreateValidateTotpPasswordExtendedOpe
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddValidateTotpPasswordExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1246,11 +1246,11 @@ func (r *extendedOperationHandlerResource) CreateValidateTotpPasswordExtendedOpe
 func (r *extendedOperationHandlerResource) CreateSingleUseTokensExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
 	var DefaultOTPDeliveryMechanismSlice []string
 	plan.DefaultOTPDeliveryMechanism.ElementsAs(ctx, &DefaultOTPDeliveryMechanismSlice, false)
-	addRequest := client.NewAddSingleUseTokensExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumsingleUseTokensExtendedOperationHandlerSchemaUrn{client.ENUMSINGLEUSETOKENSEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERSINGLE_USE_TOKENS},
+	addRequest := client.NewAddSingleUseTokensExtendedOperationHandlerRequest([]client.EnumsingleUseTokensExtendedOperationHandlerSchemaUrn{client.ENUMSINGLEUSETOKENSEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERSINGLE_USE_TOKENS},
 		plan.PasswordGenerator.ValueString(),
 		DefaultOTPDeliveryMechanismSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSingleUseTokensExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1261,12 +1261,12 @@ func (r *extendedOperationHandlerResource) CreateSingleUseTokensExtendedOperatio
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddSingleUseTokensExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1288,11 +1288,11 @@ func (r *extendedOperationHandlerResource) CreateSingleUseTokensExtendedOperatio
 func (r *extendedOperationHandlerResource) CreateDeliverPasswordResetTokenExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
 	var DefaultTokenDeliveryMechanismSlice []string
 	plan.DefaultTokenDeliveryMechanism.ElementsAs(ctx, &DefaultTokenDeliveryMechanismSlice, false)
-	addRequest := client.NewAddDeliverPasswordResetTokenExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumdeliverPasswordResetTokenExtendedOperationHandlerSchemaUrn{client.ENUMDELIVERPASSWORDRESETTOKENEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERDELIVER_PASSWORD_RESET_TOKEN},
+	addRequest := client.NewAddDeliverPasswordResetTokenExtendedOperationHandlerRequest([]client.EnumdeliverPasswordResetTokenExtendedOperationHandlerSchemaUrn{client.ENUMDELIVERPASSWORDRESETTOKENEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERDELIVER_PASSWORD_RESET_TOKEN},
 		plan.PasswordGenerator.ValueString(),
 		DefaultTokenDeliveryMechanismSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDeliverPasswordResetTokenExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1303,12 +1303,12 @@ func (r *extendedOperationHandlerResource) CreateDeliverPasswordResetTokenExtend
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddDeliverPasswordResetTokenExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1328,9 +1328,9 @@ func (r *extendedOperationHandlerResource) CreateDeliverPasswordResetTokenExtend
 
 // Create a replace-certificate extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateReplaceCertificateExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
-	addRequest := client.NewAddReplaceCertificateExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumreplaceCertificateExtendedOperationHandlerSchemaUrn{client.ENUMREPLACECERTIFICATEEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERREPLACE_CERTIFICATE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddReplaceCertificateExtendedOperationHandlerRequest([]client.EnumreplaceCertificateExtendedOperationHandlerSchemaUrn{client.ENUMREPLACECERTIFICATEEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERREPLACE_CERTIFICATE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalReplaceCertificateExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1341,12 +1341,12 @@ func (r *extendedOperationHandlerResource) CreateReplaceCertificateExtendedOpera
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddReplaceCertificateExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1366,9 +1366,9 @@ func (r *extendedOperationHandlerResource) CreateReplaceCertificateExtendedOpera
 
 // Create a collect-support-data extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateCollectSupportDataExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
-	addRequest := client.NewAddCollectSupportDataExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumcollectSupportDataExtendedOperationHandlerSchemaUrn{client.ENUMCOLLECTSUPPORTDATAEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERCOLLECT_SUPPORT_DATA},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddCollectSupportDataExtendedOperationHandlerRequest([]client.EnumcollectSupportDataExtendedOperationHandlerSchemaUrn{client.ENUMCOLLECTSUPPORTDATAEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERCOLLECT_SUPPORT_DATA},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCollectSupportDataExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1379,12 +1379,12 @@ func (r *extendedOperationHandlerResource) CreateCollectSupportDataExtendedOpera
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddCollectSupportDataExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1404,9 +1404,9 @@ func (r *extendedOperationHandlerResource) CreateCollectSupportDataExtendedOpera
 
 // Create a export-reversible-passwords extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateExportReversiblePasswordsExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
-	addRequest := client.NewAddExportReversiblePasswordsExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumexportReversiblePasswordsExtendedOperationHandlerSchemaUrn{client.ENUMEXPORTREVERSIBLEPASSWORDSEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLEREXPORT_REVERSIBLE_PASSWORDS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddExportReversiblePasswordsExtendedOperationHandlerRequest([]client.EnumexportReversiblePasswordsExtendedOperationHandlerSchemaUrn{client.ENUMEXPORTREVERSIBLEPASSWORDSEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLEREXPORT_REVERSIBLE_PASSWORDS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalExportReversiblePasswordsExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1417,12 +1417,12 @@ func (r *extendedOperationHandlerResource) CreateExportReversiblePasswordsExtend
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddExportReversiblePasswordsExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1444,12 +1444,12 @@ func (r *extendedOperationHandlerResource) CreateExportReversiblePasswordsExtend
 func (r *extendedOperationHandlerResource) CreateDeliverOtpExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
 	var DefaultOTPDeliveryMechanismSlice []string
 	plan.DefaultOTPDeliveryMechanism.ElementsAs(ctx, &DefaultOTPDeliveryMechanismSlice, false)
-	addRequest := client.NewAddDeliverOtpExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumdeliverOtpExtendedOperationHandlerSchemaUrn{client.ENUMDELIVEROTPEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERDELIVER_OTP},
+	addRequest := client.NewAddDeliverOtpExtendedOperationHandlerRequest([]client.EnumdeliverOtpExtendedOperationHandlerSchemaUrn{client.ENUMDELIVEROTPEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERDELIVER_OTP},
 		plan.IdentityMapper.ValueString(),
 		plan.PasswordGenerator.ValueString(),
 		DefaultOTPDeliveryMechanismSlice,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDeliverOtpExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1460,12 +1460,12 @@ func (r *extendedOperationHandlerResource) CreateDeliverOtpExtendedOperationHand
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddDeliverOtpExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1485,10 +1485,10 @@ func (r *extendedOperationHandlerResource) CreateDeliverOtpExtendedOperationHand
 
 // Create a third-party extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateThirdPartyExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyExtendedOperationHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyExtendedOperationHandlerSchemaUrn{client.ENUMTHIRDPARTYEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyExtendedOperationHandlerRequest([]client.EnumthirdPartyExtendedOperationHandlerSchemaUrn{client.ENUMTHIRDPARTYEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyExtendedOperationHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
@@ -1499,12 +1499,12 @@ func (r *extendedOperationHandlerResource) CreateThirdPartyExtendedOperationHand
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandler(
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
 		client.AddThirdPartyExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.AddExtendedOperationHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
 		return nil, err
@@ -1604,7 +1604,7 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(
+	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Extended Operation Handler", err, httpResp)
@@ -1687,14 +1687,14 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createExtendedOperationHandlerOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Extended Operation Handler", err, httpResp)
 			return
@@ -1792,7 +1792,7 @@ func (r *extendedOperationHandlerResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(
+	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -1850,7 +1850,7 @@ func (r *defaultExtendedOperationHandlerResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(
+	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.GetExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Extended Operation Handler", err, httpResp)
@@ -1925,7 +1925,7 @@ func (r *extendedOperationHandlerResource) Update(ctx context.Context, req resou
 	// Get the current state to see how any attributes are changing
 	var state extendedOperationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandler(
+	updateRequest := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1935,7 +1935,7 @@ func (r *extendedOperationHandlerResource) Update(ctx context.Context, req resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Extended Operation Handler", err, httpResp)
 			return
@@ -1995,7 +1995,7 @@ func (r *defaultExtendedOperationHandlerResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state defaultExtendedOperationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandler(
+	updateRequest := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2005,7 +2005,7 @@ func (r *defaultExtendedOperationHandlerResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.UpdateExtendedOperationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.UpdateExtendedOperationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Extended Operation Handler", err, httpResp)
 			return
@@ -2111,7 +2111,7 @@ func (r *extendedOperationHandlerResource) Delete(ctx context.Context, req resou
 		return
 	}
 
-	httpResp, err := r.apiClient.ExtendedOperationHandlerApi.DeleteExtendedOperationHandlerExecute(r.apiClient.ExtendedOperationHandlerApi.DeleteExtendedOperationHandler(
+	httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.DeleteExtendedOperationHandlerExecute(r.apiClient.ExtendedOperationHandlerAPI.DeleteExtendedOperationHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Extended Operation Handler", err, httpResp)

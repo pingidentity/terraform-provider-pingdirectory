@@ -70,7 +70,7 @@ func TestAccLdapPassThroughAuthenticationHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PassThroughAuthenticationHandlerApi.DeletePassThroughAuthenticationHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PassThroughAuthenticationHandlerAPI.DeletePassThroughAuthenticationHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedLdapPassThroughAuthenticationHandlerAttributes(config l
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(ctx, config.id).Execute()
+		response, _, err := testClient.PassThroughAuthenticationHandlerAPI.GetPassThroughAuthenticationHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func testAccCheckExpectedLdapPassThroughAuthenticationHandlerAttributes(config l
 func testAccCheckLdapPassThroughAuthenticationHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(ctx, testIdLdapPassThroughAuthenticationHandler).Execute()
+	_, _, err := testClient.PassThroughAuthenticationHandlerAPI.GetPassThroughAuthenticationHandler(ctx, testIdLdapPassThroughAuthenticationHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Ldap Pass Through Authentication Handler", testIdLdapPassThroughAuthenticationHandler)
 	}

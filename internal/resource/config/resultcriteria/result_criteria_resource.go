@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1751,8 +1751,8 @@ func createResultCriteriaOperations(plan resultCriteriaResourceModel, state resu
 
 // Create a successful-bind result-criteria
 func (r *resultCriteriaResource) CreateSuccessfulBindResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddSuccessfulBindResultCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsuccessfulBindResultCriteriaSchemaUrn{client.ENUMSUCCESSFULBINDRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASUCCESSFUL_BIND})
+	addRequest := client.NewAddSuccessfulBindResultCriteriaRequest([]client.EnumsuccessfulBindResultCriteriaSchemaUrn{client.ENUMSUCCESSFULBINDRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASUCCESSFUL_BIND},
+		plan.Name.ValueString())
 	err := addOptionalSuccessfulBindResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Result Criteria", err.Error())
@@ -1763,12 +1763,12 @@ func (r *resultCriteriaResource) CreateSuccessfulBindResultCriteria(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCriteriaApi.AddResultCriteria(
+	apiAddRequest := r.apiClient.ResultCriteriaAPI.AddResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCriteriaRequest(
 		client.AddSuccessfulBindResultCriteriaRequestAsAddResultCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ResultCriteriaApi.AddResultCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.AddResultCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Criteria", err, httpResp)
 		return nil, err
@@ -1788,8 +1788,8 @@ func (r *resultCriteriaResource) CreateSuccessfulBindResultCriteria(ctx context.
 
 // Create a simple result-criteria
 func (r *resultCriteriaResource) CreateSimpleResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleResultCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleResultCriteriaSchemaUrn{client.ENUMSIMPLERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASIMPLE})
+	addRequest := client.NewAddSimpleResultCriteriaRequest([]client.EnumsimpleResultCriteriaSchemaUrn{client.ENUMSIMPLERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASIMPLE},
+		plan.Name.ValueString())
 	err := addOptionalSimpleResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Result Criteria", err.Error())
@@ -1800,12 +1800,12 @@ func (r *resultCriteriaResource) CreateSimpleResultCriteria(ctx context.Context,
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCriteriaApi.AddResultCriteria(
+	apiAddRequest := r.apiClient.ResultCriteriaAPI.AddResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCriteriaRequest(
 		client.AddSimpleResultCriteriaRequestAsAddResultCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ResultCriteriaApi.AddResultCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.AddResultCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Criteria", err, httpResp)
 		return nil, err
@@ -1825,8 +1825,8 @@ func (r *resultCriteriaResource) CreateSimpleResultCriteria(ctx context.Context,
 
 // Create a aggregate result-criteria
 func (r *resultCriteriaResource) CreateAggregateResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateResultCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumaggregateResultCriteriaSchemaUrn{client.ENUMAGGREGATERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAAGGREGATE})
+	addRequest := client.NewAddAggregateResultCriteriaRequest([]client.EnumaggregateResultCriteriaSchemaUrn{client.ENUMAGGREGATERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAAGGREGATE},
+		plan.Name.ValueString())
 	err := addOptionalAggregateResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Result Criteria", err.Error())
@@ -1837,12 +1837,12 @@ func (r *resultCriteriaResource) CreateAggregateResultCriteria(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCriteriaApi.AddResultCriteria(
+	apiAddRequest := r.apiClient.ResultCriteriaAPI.AddResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCriteriaRequest(
 		client.AddAggregateResultCriteriaRequestAsAddResultCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ResultCriteriaApi.AddResultCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.AddResultCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Criteria", err, httpResp)
 		return nil, err
@@ -1862,8 +1862,8 @@ func (r *resultCriteriaResource) CreateAggregateResultCriteria(ctx context.Conte
 
 // Create a replication-assurance result-criteria
 func (r *resultCriteriaResource) CreateReplicationAssuranceResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddReplicationAssuranceResultCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumreplicationAssuranceResultCriteriaSchemaUrn{client.ENUMREPLICATIONASSURANCERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAREPLICATION_ASSURANCE})
+	addRequest := client.NewAddReplicationAssuranceResultCriteriaRequest([]client.EnumreplicationAssuranceResultCriteriaSchemaUrn{client.ENUMREPLICATIONASSURANCERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAREPLICATION_ASSURANCE},
+		plan.Name.ValueString())
 	err := addOptionalReplicationAssuranceResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Result Criteria", err.Error())
@@ -1874,12 +1874,12 @@ func (r *resultCriteriaResource) CreateReplicationAssuranceResultCriteria(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCriteriaApi.AddResultCriteria(
+	apiAddRequest := r.apiClient.ResultCriteriaAPI.AddResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCriteriaRequest(
 		client.AddReplicationAssuranceResultCriteriaRequestAsAddResultCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ResultCriteriaApi.AddResultCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.AddResultCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Criteria", err, httpResp)
 		return nil, err
@@ -1899,9 +1899,9 @@ func (r *resultCriteriaResource) CreateReplicationAssuranceResultCriteria(ctx co
 
 // Create a third-party result-criteria
 func (r *resultCriteriaResource) CreateThirdPartyResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyResultCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyResultCriteriaSchemaUrn{client.ENUMTHIRDPARTYRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIATHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyResultCriteriaRequest([]client.EnumthirdPartyResultCriteriaSchemaUrn{client.ENUMTHIRDPARTYRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIATHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Result Criteria", err.Error())
@@ -1912,12 +1912,12 @@ func (r *resultCriteriaResource) CreateThirdPartyResultCriteria(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ResultCriteriaApi.AddResultCriteria(
+	apiAddRequest := r.apiClient.ResultCriteriaAPI.AddResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddResultCriteriaRequest(
 		client.AddThirdPartyResultCriteriaRequestAsAddResultCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ResultCriteriaApi.AddResultCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.AddResultCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Criteria", err, httpResp)
 		return nil, err
@@ -1999,7 +1999,7 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ResultCriteriaApi.GetResultCriteria(
+	readResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.GetResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)
@@ -2031,14 +2031,14 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ResultCriteriaApi.UpdateResultCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ResultCriteriaAPI.UpdateResultCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createResultCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ResultCriteriaApi.UpdateResultCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ResultCriteriaAPI.UpdateResultCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Result Criteria", err, httpResp)
 			return
@@ -2094,7 +2094,7 @@ func readResultCriteria(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ResultCriteriaApi.GetResultCriteria(
+	readResponse, httpResp, err := apiClient.ResultCriteriaAPI.GetResultCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -2159,7 +2159,7 @@ func updateResultCriteria(ctx context.Context, req resource.UpdateRequest, resp 
 	// Get the current state to see how any attributes are changing
 	var state resultCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ResultCriteriaApi.UpdateResultCriteria(
+	updateRequest := apiClient.ResultCriteriaAPI.UpdateResultCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2169,7 +2169,7 @@ func updateResultCriteria(ctx context.Context, req resource.UpdateRequest, resp 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ResultCriteriaApi.UpdateResultCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ResultCriteriaAPI.UpdateResultCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Result Criteria", err, httpResp)
 			return
@@ -2224,7 +2224,7 @@ func (r *resultCriteriaResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	httpResp, err := r.apiClient.ResultCriteriaApi.DeleteResultCriteriaExecute(r.apiClient.ResultCriteriaApi.DeleteResultCriteria(
+	httpResp, err := r.apiClient.ResultCriteriaAPI.DeleteResultCriteriaExecute(r.apiClient.ResultCriteriaAPI.DeleteResultCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Criteria", err, httpResp)

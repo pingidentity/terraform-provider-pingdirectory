@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -82,6 +82,7 @@ type recurringTaskDataSourceModel struct {
 	RetainPreviousLDIFExportCount           types.Int64  `tfsdk:"retain_previous_ldif_export_count"`
 	RetainPreviousLDIFExportAge             types.String `tfsdk:"retain_previous_ldif_export_age"`
 	IncludeBinaryFiles                      types.Bool   `tfsdk:"include_binary_files"`
+	PostLDIFExportTaskProcessor             types.Set    `tfsdk:"post_ldif_export_task_processor"`
 	IncludeExtensionSource                  types.Bool   `tfsdk:"include_extension_source"`
 	UseSequentialMode                       types.Bool   `tfsdk:"use_sequential_mode"`
 	SecurityLevel                           types.String `tfsdk:"security_level"`
@@ -337,6 +338,13 @@ func (r *recurringTaskDataSource) Schema(ctx context.Context, req datasource.Sch
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"post_ldif_export_task_processor": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. An optional set of post-LDIF-export task processors that should be invoked for the resulting LDIF export files.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"include_extension_source": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include the source code (if available) for any third-party extensions that may be installed in the server.",
@@ -778,6 +786,7 @@ func readLdifExportRecurringTaskResponseDataSource(ctx context.Context, r *clien
 	state.RetainPreviousLDIFExportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousLDIFExportCount)
 	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, false)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
+	state.PostLDIFExportTaskProcessor = internaltypes.GetStringSet(r.PostLDIFExportTaskProcessor)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
@@ -897,7 +906,7 @@ func (r *recurringTaskDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+	readResponse, httpResp, err := r.apiClient.RecurringTaskAPI.GetRecurringTask(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)

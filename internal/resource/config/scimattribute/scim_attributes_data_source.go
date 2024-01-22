@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -89,12 +89,12 @@ func (r *scimAttributesDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	listRequest := r.apiClient.ScimAttributeApi.ListScimAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimSchemaName.ValueString())
+	listRequest := r.apiClient.ScimAttributeAPI.ListScimAttributes(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimSchemaName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimAttributeApi.ListScimAttributesExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ScimAttributeAPI.ListScimAttributesExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Scim Attribute objects", err, httpResp)
 		return

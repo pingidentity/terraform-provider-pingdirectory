@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -50,6 +50,9 @@ type pluginDataSourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
 	Name                                                 types.String `tfsdk:"name"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
+	PreventAddingMembersToNonexistentGroups              types.Bool   `tfsdk:"prevent_adding_members_to_nonexistent_groups"`
+	PreventAddingGroupsAsInvertedStaticGroupMembers      types.Bool   `tfsdk:"prevent_adding_groups_as_inverted_static_group_members"`
+	PreventNestingNonexistentGroups                      types.Bool   `tfsdk:"prevent_nesting_nonexistent_groups"`
 	PassThroughAuthenticationHandler                     types.String `tfsdk:"pass_through_authentication_handler"`
 	Type                                                 types.Set    `tfsdk:"type"`
 	MultipleAttributeBehavior                            types.String `tfsdk:"multiple_attribute_behavior"`
@@ -178,6 +181,9 @@ type pluginDataSourceModel struct {
 	UpperBound                                           types.Int64  `tfsdk:"upper_bound"`
 	FilterPrefix                                         types.String `tfsdk:"filter_prefix"`
 	FilterSuffix                                         types.String `tfsdk:"filter_suffix"`
+	TraditionalStaticGroupObjectClass                    types.String `tfsdk:"traditional_static_group_object_class"`
+	MaximumMembershipUpdatesPerModify                    types.Int64  `tfsdk:"maximum_membership_updates_per_modify"`
+	ReadOperationSupport                                 types.String `tfsdk:"read_operation_support"`
 	SampleInterval                                       types.String `tfsdk:"sample_interval"`
 	CollectionInterval                                   types.String `tfsdk:"collection_interval"`
 	LdapInfo                                             types.String `tfsdk:"ldap_info"`
@@ -207,7 +213,25 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Description: "Describes a Plugin.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
-				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']",
+				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"prevent_adding_members_to_nonexistent_groups": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent updates to user entries that attempt to add them as a member of an inverted static group that does not exist.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"prevent_adding_groups_as_inverted_static_group_members": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent attempts to add a group as a regular member of an inverted static group. If the members of another group should be considered members of an inverted static group, then the other group should be added as a nested group rather than a regular member.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"prevent_nesting_nonexistent_groups": schema.BoolAttribute{
+				Description: "Indicates whether the server should prevent updates to inverted static groups that add references to nested groups that don't exist.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1035,6 +1059,24 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"traditional_static_group_object_class": schema.StringAttribute{
+				Description: "The object class that defines the type of traditional static group that this plugin will attempt to emulate for inverted static groups.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_membership_updates_per_modify": schema.Int64Attribute{
+				Description: "An integer property that specifies the maximum number of membership changes that will be supported in a single modify operation. A value of zero indicates that modify operations targeting the group entry should not be permitted to alter the set of members for the group.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"read_operation_support": schema.StringAttribute{
+				Description: "The level of support that the server should offer to allow treating search and compare operations targeting inverted static groups as if they were traditional static groups.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"sample_interval": schema.StringAttribute{
 				Description: "The duration between statistics collections. Setting this value too small can have an impact on performance. This value should be a multiple of collection-interval.",
 				Required:    false,
@@ -1217,6 +1259,21 @@ func readStatsCollectorPluginResponseDataSource(ctx context.Context, r *client.S
 	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse object into the model struct
+func readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDataSource(ctx context.Context, r *client.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("traditional-static-group-support-for-inverted-static-groups")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TraditionalStaticGroupObjectClass = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginTraditionalStaticGroupObjectClassProp(r.TraditionalStaticGroupObjectClass), false)
+	state.MaximumMembershipUpdatesPerModify = internaltypes.Int64TypeOrNil(r.MaximumMembershipUpdatesPerModify)
+	state.ReadOperationSupport = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginReadOperationSupportProp(r.ReadOperationSupport), false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -1872,6 +1929,19 @@ func readUniqueAttributePluginResponseDataSource(ctx context.Context, r *client.
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
+// Read a InvertedStaticGroupReferentialIntegrityPluginResponse object into the model struct
+func readInvertedStaticGroupReferentialIntegrityPluginResponseDataSource(ctx context.Context, r *client.InvertedStaticGroupReferentialIntegrityPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("inverted-static-group-referential-integrity")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.PreventAddingMembersToNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventAddingMembersToNonexistentGroups)
+	state.PreventAddingGroupsAsInvertedStaticGroupMembers = internaltypes.BoolTypeOrNil(r.PreventAddingGroupsAsInvertedStaticGroupMembers)
+	state.PreventNestingNonexistentGroups = internaltypes.BoolTypeOrNil(r.PreventNestingNonexistentGroups)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
 // Read resource information
 func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	// Get current state
@@ -1882,7 +1952,7 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+	readResponse, httpResp, err := r.apiClient.PluginAPI.GetPlugin(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
@@ -1901,6 +1971,9 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	if readResponse.StatsCollectorPluginResponse != nil {
 		readStatsCollectorPluginResponseDataSource(ctx, readResponse.StatsCollectorPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
+		readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponseDataSource(ctx, readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponseDataSource(ctx, readResponse.InternalSearchRatePluginResponse, &state, &resp.Diagnostics)
@@ -2009,6 +2082,9 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	if readResponse.UniqueAttributePluginResponse != nil {
 		readUniqueAttributePluginResponseDataSource(ctx, readResponse.UniqueAttributePluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse != nil {
+		readInvertedStaticGroupReferentialIntegrityPluginResponseDataSource(ctx, readResponse.InvertedStaticGroupReferentialIntegrityPluginResponse, &state, &resp.Diagnostics)
 	}
 
 	// Set refreshed state

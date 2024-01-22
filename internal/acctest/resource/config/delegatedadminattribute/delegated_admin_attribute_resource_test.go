@@ -74,7 +74,7 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.DelegatedAdminAttributeApi.DeleteDelegatedAdminAttribute(ctx, updatedResourceModel.attributeType, updatedResourceModel.restResourceTypeName).Execute()
+					_, err := testClient.DelegatedAdminAttributeAPI.DeleteDelegatedAdminAttribute(ctx, updatedResourceModel.attributeType, updatedResourceModel.restResourceTypeName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -134,7 +134,7 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, config.attributeType, config.restResourceTypeName).Execute()
+		response, _, err := testClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(ctx, config.attributeType, config.restResourceTypeName).Execute()
 
 		if err != nil {
 			return err
@@ -164,7 +164,7 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 func testAccCheckGenericDelegatedAdminAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, testAttributeType, testParentResourceType).Execute()
+	_, _, err := testClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(ctx, testAttributeType, testParentResourceType).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Generic Delegated Admin Attribute", testAttributeType)
 	}

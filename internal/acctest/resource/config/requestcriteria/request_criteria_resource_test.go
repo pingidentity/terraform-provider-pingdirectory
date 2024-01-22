@@ -67,7 +67,7 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RequestCriteriaApi.DeleteRequestCriteria(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RequestCriteriaAPI.DeleteRequestCriteria(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedRootDseRequestCriteriaAttributes(config rootDseRequestC
 		resourceType := "root dse request criteria"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.RequestCriteriaAPI.GetRequestCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedRootDseRequestCriteriaAttributes(config rootDseRequestC
 func testAccCheckRootDseRequestCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, testIdRootDseRequestCriteria).Execute()
+	_, _, err := testClient.RequestCriteriaAPI.GetRequestCriteria(ctx, testIdRootDseRequestCriteria).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Root Dse Request Criteria", testIdRootDseRequestCriteria)
 	}

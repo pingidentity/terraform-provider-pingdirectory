@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -331,21 +331,21 @@ func createFailureLockoutActionOperations(plan failureLockoutActionResourceModel
 
 // Create a delay-bind-response failure-lockout-action
 func (r *failureLockoutActionResource) CreateDelayBindResponseFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddDelayBindResponseFailureLockoutActionRequest(plan.Name.ValueString(),
-		[]client.EnumdelayBindResponseFailureLockoutActionSchemaUrn{client.ENUMDELAYBINDRESPONSEFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONDELAY_BIND_RESPONSE},
-		plan.Delay.ValueString())
+	addRequest := client.NewAddDelayBindResponseFailureLockoutActionRequest([]client.EnumdelayBindResponseFailureLockoutActionSchemaUrn{client.ENUMDELAYBINDRESPONSEFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONDELAY_BIND_RESPONSE},
+		plan.Delay.ValueString(),
+		plan.Name.ValueString())
 	addOptionalDelayBindResponseFailureLockoutActionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.FailureLockoutActionApi.AddFailureLockoutAction(
+	apiAddRequest := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddFailureLockoutActionRequest(
 		client.AddDelayBindResponseFailureLockoutActionRequestAsAddFailureLockoutActionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.AddFailureLockoutActionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutActionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Failure Lockout Action", err, httpResp)
 		return nil, err
@@ -365,20 +365,20 @@ func (r *failureLockoutActionResource) CreateDelayBindResponseFailureLockoutActi
 
 // Create a no-operation failure-lockout-action
 func (r *failureLockoutActionResource) CreateNoOperationFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddNoOperationFailureLockoutActionRequest(plan.Name.ValueString(),
-		[]client.EnumnoOperationFailureLockoutActionSchemaUrn{client.ENUMNOOPERATIONFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONNO_OPERATION})
+	addRequest := client.NewAddNoOperationFailureLockoutActionRequest([]client.EnumnoOperationFailureLockoutActionSchemaUrn{client.ENUMNOOPERATIONFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONNO_OPERATION},
+		plan.Name.ValueString())
 	addOptionalNoOperationFailureLockoutActionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.FailureLockoutActionApi.AddFailureLockoutAction(
+	apiAddRequest := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddFailureLockoutActionRequest(
 		client.AddNoOperationFailureLockoutActionRequestAsAddFailureLockoutActionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.AddFailureLockoutActionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutActionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Failure Lockout Action", err, httpResp)
 		return nil, err
@@ -398,20 +398,20 @@ func (r *failureLockoutActionResource) CreateNoOperationFailureLockoutAction(ctx
 
 // Create a lock-account failure-lockout-action
 func (r *failureLockoutActionResource) CreateLockAccountFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddLockAccountFailureLockoutActionRequest(plan.Name.ValueString(),
-		[]client.EnumlockAccountFailureLockoutActionSchemaUrn{client.ENUMLOCKACCOUNTFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONLOCK_ACCOUNT})
+	addRequest := client.NewAddLockAccountFailureLockoutActionRequest([]client.EnumlockAccountFailureLockoutActionSchemaUrn{client.ENUMLOCKACCOUNTFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONLOCK_ACCOUNT},
+		plan.Name.ValueString())
 	addOptionalLockAccountFailureLockoutActionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.FailureLockoutActionApi.AddFailureLockoutAction(
+	apiAddRequest := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddFailureLockoutActionRequest(
 		client.AddLockAccountFailureLockoutActionRequestAsAddFailureLockoutActionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.AddFailureLockoutActionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.AddFailureLockoutActionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Failure Lockout Action", err, httpResp)
 		return nil, err
@@ -481,7 +481,7 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
+	readResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.GetFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
@@ -507,14 +507,14 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.FailureLockoutActionAPI.UpdateFailureLockoutAction(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createFailureLockoutActionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutActionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.FailureLockoutActionAPI.UpdateFailureLockoutActionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Failure Lockout Action", err, httpResp)
 			return
@@ -564,7 +564,7 @@ func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
+	readResponse, httpResp, err := apiClient.FailureLockoutActionAPI.GetFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -623,7 +623,7 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state failureLockoutActionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(
+	updateRequest := apiClient.FailureLockoutActionAPI.UpdateFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -633,7 +633,7 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.FailureLockoutActionApi.UpdateFailureLockoutActionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.FailureLockoutActionAPI.UpdateFailureLockoutActionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Failure Lockout Action", err, httpResp)
 			return
@@ -682,7 +682,7 @@ func (r *failureLockoutActionResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutActionExecute(r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutAction(
+	httpResp, err := r.apiClient.FailureLockoutActionAPI.DeleteFailureLockoutActionExecute(r.apiClient.FailureLockoutActionAPI.DeleteFailureLockoutAction(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Failure Lockout Action", err, httpResp)

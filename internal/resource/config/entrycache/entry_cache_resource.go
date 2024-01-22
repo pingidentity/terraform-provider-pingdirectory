@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -288,21 +288,21 @@ func createEntryCacheOperations(plan entryCacheResourceModel, state entryCacheRe
 
 // Create a fifo entry-cache
 func (r *entryCacheResource) CreateFifoEntryCache(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan entryCacheResourceModel) (*entryCacheResourceModel, error) {
-	addRequest := client.NewAddFifoEntryCacheRequest(plan.Name.ValueString(),
-		[]client.EnumfifoEntryCacheSchemaUrn{client.ENUMFIFOENTRYCACHESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ENTRY_CACHEFIFO},
+	addRequest := client.NewAddFifoEntryCacheRequest([]client.EnumfifoEntryCacheSchemaUrn{client.ENUMFIFOENTRYCACHESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ENTRY_CACHEFIFO},
 		plan.Enabled.ValueBool(),
-		plan.CacheLevel.ValueInt64())
+		plan.CacheLevel.ValueInt64(),
+		plan.Name.ValueString())
 	addOptionalFifoEntryCacheFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.EntryCacheApi.AddEntryCache(
+	apiAddRequest := r.apiClient.EntryCacheAPI.AddEntryCache(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddFifoEntryCacheRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.EntryCacheApi.AddEntryCacheExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.EntryCacheAPI.AddEntryCacheExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Entry Cache", err, httpResp)
 		return nil, err
@@ -356,7 +356,7 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.EntryCacheApi.GetEntryCache(
+	readResponse, httpResp, err := r.apiClient.EntryCacheAPI.GetEntryCache(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Entry Cache", err, httpResp)
@@ -374,14 +374,14 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 	readFifoEntryCacheResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.EntryCacheApi.UpdateEntryCache(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.EntryCacheAPI.UpdateEntryCache(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createEntryCacheOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.EntryCacheApi.UpdateEntryCacheExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.EntryCacheAPI.UpdateEntryCacheExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Entry Cache", err, httpResp)
 			return
@@ -423,7 +423,7 @@ func readEntryCache(ctx context.Context, req resource.ReadRequest, resp *resourc
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.EntryCacheApi.GetEntryCache(
+	readResponse, httpResp, err := apiClient.EntryCacheAPI.GetEntryCache(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -474,7 +474,7 @@ func updateEntryCache(ctx context.Context, req resource.UpdateRequest, resp *res
 	// Get the current state to see how any attributes are changing
 	var state entryCacheResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.EntryCacheApi.UpdateEntryCache(
+	updateRequest := apiClient.EntryCacheAPI.UpdateEntryCache(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -484,7 +484,7 @@ func updateEntryCache(ctx context.Context, req resource.UpdateRequest, resp *res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.EntryCacheApi.UpdateEntryCacheExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.EntryCacheAPI.UpdateEntryCacheExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Entry Cache", err, httpResp)
 			return
@@ -525,7 +525,7 @@ func (r *entryCacheResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	httpResp, err := r.apiClient.EntryCacheApi.DeleteEntryCacheExecute(r.apiClient.EntryCacheApi.DeleteEntryCache(
+	httpResp, err := r.apiClient.EntryCacheAPI.DeleteEntryCacheExecute(r.apiClient.EntryCacheAPI.DeleteEntryCache(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Entry Cache", err, httpResp)

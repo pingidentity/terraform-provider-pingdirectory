@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
@@ -97,6 +97,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/pluginroot"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/postldifexporttaskprocessor"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/prometheusmonitorattributemetric"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtaskchain"
@@ -549,6 +550,8 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 		plugin.NewPluginDataSource,
 		plugin.NewPluginsDataSource,
 		pluginroot.NewPluginRootDataSource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorDataSource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorsDataSource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricDataSource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricsDataSource,
 		recurringtask.NewRecurringTaskDataSource,
@@ -774,6 +777,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		plugin.NewDefaultPluginResource,
 		plugin.NewPluginResource,
 		pluginroot.NewPluginRootResource,
+		postldifexporttaskprocessor.NewDefaultPostLdifExportTaskProcessorResource,
+		postldifexporttaskprocessor.NewPostLdifExportTaskProcessorResource,
 		prometheusmonitorattributemetric.NewDefaultPrometheusMonitorAttributeMetricResource,
 		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricResource,
 		recurringtask.NewDefaultRecurringTaskResource,

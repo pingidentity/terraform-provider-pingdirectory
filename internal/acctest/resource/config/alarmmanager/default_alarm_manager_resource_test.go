@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
@@ -86,7 +86,7 @@ func testAccCheckExpectedAlarmManagerAttributes(config alarmManagerTestModel) re
 		resourceType := "alarm manager"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AlarmManagerApi.GetAlarmManager(ctx).Execute()
+		response, _, err := testClient.AlarmManagerAPI.GetAlarmManager(ctx).Execute()
 		if err != nil {
 			return err
 		}

@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1157,8 +1157,8 @@ func createRequestCriteriaOperations(plan requestCriteriaResourceModel, state re
 
 // Create a root-dse request-criteria
 func (r *requestCriteriaResource) CreateRootDseRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddRootDseRequestCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumrootDseRequestCriteriaSchemaUrn{client.ENUMROOTDSEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAROOT_DSE})
+	addRequest := client.NewAddRootDseRequestCriteriaRequest([]client.EnumrootDseRequestCriteriaSchemaUrn{client.ENUMROOTDSEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAROOT_DSE},
+		plan.Name.ValueString())
 	err := addOptionalRootDseRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Request Criteria", err.Error())
@@ -1169,12 +1169,12 @@ func (r *requestCriteriaResource) CreateRootDseRequestCriteria(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RequestCriteriaApi.AddRequestCriteria(
+	apiAddRequest := r.apiClient.RequestCriteriaAPI.AddRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRequestCriteriaRequest(
 		client.AddRootDseRequestCriteriaRequestAsAddRequestCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RequestCriteriaApi.AddRequestCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.AddRequestCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Request Criteria", err, httpResp)
 		return nil, err
@@ -1194,8 +1194,8 @@ func (r *requestCriteriaResource) CreateRootDseRequestCriteria(ctx context.Conte
 
 // Create a simple request-criteria
 func (r *requestCriteriaResource) CreateSimpleRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleRequestCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleRequestCriteriaSchemaUrn{client.ENUMSIMPLEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIASIMPLE})
+	addRequest := client.NewAddSimpleRequestCriteriaRequest([]client.EnumsimpleRequestCriteriaSchemaUrn{client.ENUMSIMPLEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIASIMPLE},
+		plan.Name.ValueString())
 	err := addOptionalSimpleRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Request Criteria", err.Error())
@@ -1206,12 +1206,12 @@ func (r *requestCriteriaResource) CreateSimpleRequestCriteria(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RequestCriteriaApi.AddRequestCriteria(
+	apiAddRequest := r.apiClient.RequestCriteriaAPI.AddRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRequestCriteriaRequest(
 		client.AddSimpleRequestCriteriaRequestAsAddRequestCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RequestCriteriaApi.AddRequestCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.AddRequestCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Request Criteria", err, httpResp)
 		return nil, err
@@ -1231,8 +1231,8 @@ func (r *requestCriteriaResource) CreateSimpleRequestCriteria(ctx context.Contex
 
 // Create a aggregate request-criteria
 func (r *requestCriteriaResource) CreateAggregateRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateRequestCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumaggregateRequestCriteriaSchemaUrn{client.ENUMAGGREGATEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAAGGREGATE})
+	addRequest := client.NewAddAggregateRequestCriteriaRequest([]client.EnumaggregateRequestCriteriaSchemaUrn{client.ENUMAGGREGATEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAAGGREGATE},
+		plan.Name.ValueString())
 	err := addOptionalAggregateRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Request Criteria", err.Error())
@@ -1243,12 +1243,12 @@ func (r *requestCriteriaResource) CreateAggregateRequestCriteria(ctx context.Con
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RequestCriteriaApi.AddRequestCriteria(
+	apiAddRequest := r.apiClient.RequestCriteriaAPI.AddRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRequestCriteriaRequest(
 		client.AddAggregateRequestCriteriaRequestAsAddRequestCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RequestCriteriaApi.AddRequestCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.AddRequestCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Request Criteria", err, httpResp)
 		return nil, err
@@ -1268,9 +1268,9 @@ func (r *requestCriteriaResource) CreateAggregateRequestCriteria(ctx context.Con
 
 // Create a third-party request-criteria
 func (r *requestCriteriaResource) CreateThirdPartyRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyRequestCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyRequestCriteriaSchemaUrn{client.ENUMTHIRDPARTYREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIATHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyRequestCriteriaRequest([]client.EnumthirdPartyRequestCriteriaSchemaUrn{client.ENUMTHIRDPARTYREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIATHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Request Criteria", err.Error())
@@ -1281,12 +1281,12 @@ func (r *requestCriteriaResource) CreateThirdPartyRequestCriteria(ctx context.Co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RequestCriteriaApi.AddRequestCriteria(
+	apiAddRequest := r.apiClient.RequestCriteriaAPI.AddRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRequestCriteriaRequest(
 		client.AddThirdPartyRequestCriteriaRequestAsAddRequestCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.RequestCriteriaApi.AddRequestCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.AddRequestCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Request Criteria", err, httpResp)
 		return nil, err
@@ -1362,7 +1362,7 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.GetRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Request Criteria", err, httpResp)
@@ -1391,14 +1391,14 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.RequestCriteriaAPI.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRequestCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RequestCriteriaAPI.UpdateRequestCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Request Criteria", err, httpResp)
 			return
@@ -1451,7 +1451,7 @@ func readRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *re
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.RequestCriteriaApi.GetRequestCriteria(
+	readResponse, httpResp, err := apiClient.RequestCriteriaAPI.GetRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1513,7 +1513,7 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 	// Get the current state to see how any attributes are changing
 	var state requestCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.RequestCriteriaApi.UpdateRequestCriteria(
+	updateRequest := apiClient.RequestCriteriaAPI.UpdateRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1523,7 +1523,7 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RequestCriteriaAPI.UpdateRequestCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Request Criteria", err, httpResp)
 			return
@@ -1575,7 +1575,7 @@ func (r *requestCriteriaResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	httpResp, err := r.apiClient.RequestCriteriaApi.DeleteRequestCriteriaExecute(r.apiClient.RequestCriteriaApi.DeleteRequestCriteria(
+	httpResp, err := r.apiClient.RequestCriteriaAPI.DeleteRequestCriteriaExecute(r.apiClient.RequestCriteriaAPI.DeleteRequestCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Request Criteria", err, httpResp)

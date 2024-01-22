@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -124,7 +124,7 @@ func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnApi.GetRootDn(
+	readResponse, httpResp, err := r.apiClient.RootDnAPI.GetRootDn(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn", err, httpResp)
@@ -142,14 +142,14 @@ func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest,
 	readRootDnResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RootDnApi.UpdateRootDn(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.RootDnAPI.UpdateRootDn(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createRootDnOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RootDnApi.UpdateRootDnExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RootDnAPI.UpdateRootDnExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dn", err, httpResp)
 			return
@@ -182,7 +182,7 @@ func (r *rootDnResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RootDnApi.GetRootDn(
+	readResponse, httpResp, err := r.apiClient.RootDnAPI.GetRootDn(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn", err, httpResp)
@@ -216,7 +216,7 @@ func (r *rootDnResource) Update(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state rootDnResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RootDnApi.UpdateRootDn(
+	updateRequest := r.apiClient.RootDnAPI.UpdateRootDn(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -226,7 +226,7 @@ func (r *rootDnResource) Update(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RootDnApi.UpdateRootDnExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RootDnAPI.UpdateRootDnExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dn", err, httpResp)
 			return

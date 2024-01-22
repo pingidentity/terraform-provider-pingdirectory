@@ -79,7 +79,7 @@ func TestAccUserRestResourceType(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.RestResourceTypeApi.DeleteRestResourceType(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.RestResourceTypeAPI.DeleteRestResourceType(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -125,7 +125,7 @@ func testAccCheckExpectedUserRestResourceTypeAttributes(config userRestResourceT
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RestResourceTypeApi.GetRestResourceType(ctx, config.id).Execute()
+		response, _, err := testClient.RestResourceTypeAPI.GetRestResourceType(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -159,7 +159,7 @@ func testAccCheckExpectedUserRestResourceTypeAttributes(config userRestResourceT
 func testAccCheckUserRestResourceTypeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RestResourceTypeApi.GetRestResourceType(ctx, testIdUserRestResourceType).Execute()
+	_, _, err := testClient.RestResourceTypeAPI.GetRestResourceType(ctx, testIdUserRestResourceType).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("User Rest Resource Type", testIdUserRestResourceType)
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -84,12 +84,12 @@ func (r *connectionHandlersDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	listRequest := r.apiClient.ConnectionHandlerApi.ListConnectionHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ConnectionHandlerAPI.ListConnectionHandlers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.ListConnectionHandlersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.ListConnectionHandlersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Connection Handler objects", err, httpResp)
 		return

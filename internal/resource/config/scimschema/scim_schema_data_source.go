@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -106,7 +106,7 @@ func (r *scimSchemaDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimSchemaApi.GetScimSchema(
+	readResponse, httpResp, err := r.apiClient.ScimSchemaAPI.GetScimSchema(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.SchemaURN.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)

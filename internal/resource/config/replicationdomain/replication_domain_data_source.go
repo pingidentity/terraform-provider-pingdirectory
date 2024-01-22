@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -59,6 +59,7 @@ type replicationDomainDataSourceModel struct {
 	Restricted                                types.Bool   `tfsdk:"restricted"`
 	OnReplayFailureWaitForDependentOpsTimeout types.String `tfsdk:"on_replay_failure_wait_for_dependent_ops_timeout"`
 	DependentOpsReplayFailureWaitTime         types.String `tfsdk:"dependent_ops_replay_failure_wait_time"`
+	MissingChangesPolicy                      types.String `tfsdk:"missing_changes_policy"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -124,6 +125,12 @@ func (r *replicationDomainDataSource) Schema(ctx context.Context, req datasource
 				Optional:    false,
 				Computed:    true,
 			},
+			"missing_changes_policy": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Determines how the server responds when replication detects that some changes might have been missed. Each missing changes policy is a set of missing changes actions to take for a set of missing changes types. The value configured here only applies to this particular replication domain.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 		},
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, true)
@@ -143,6 +150,8 @@ func readReplicationDomainResponseDataSource(ctx context.Context, r *client.Repl
 	state.Restricted = internaltypes.BoolTypeOrNil(r.Restricted)
 	state.OnReplayFailureWaitForDependentOpsTimeout = internaltypes.StringTypeOrNil(r.OnReplayFailureWaitForDependentOpsTimeout, false)
 	state.DependentOpsReplayFailureWaitTime = internaltypes.StringTypeOrNil(r.DependentOpsReplayFailureWaitTime, false)
+	state.MissingChangesPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumreplicationDomainMissingChangesPolicyProp(r.MissingChangesPolicy), false)
 }
 
 // Read resource information
@@ -155,7 +164,7 @@ func (r *replicationDomainDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
+	readResponse, httpResp, err := r.apiClient.ReplicationDomainAPI.GetReplicationDomain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)

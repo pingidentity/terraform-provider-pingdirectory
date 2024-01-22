@@ -71,7 +71,7 @@ func TestAccOtpDeliveryMechanism(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.OtpDeliveryMechanismApi.DeleteOtpDeliveryMechanism(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.OtpDeliveryMechanismAPI.DeleteOtpDeliveryMechanism(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedOtpDeliveryMechanismAttributes(config otpDeliveryMechan
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(ctx, config.id).Execute()
+		response, _, err := testClient.OtpDeliveryMechanismAPI.GetOtpDeliveryMechanism(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func testAccCheckExpectedOtpDeliveryMechanismAttributes(config otpDeliveryMechan
 func testAccCheckOtpDeliveryMechanismDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(ctx, testIdOtpDeliveryMechanism).Execute()
+	_, _, err := testClient.OtpDeliveryMechanismAPI.GetOtpDeliveryMechanism(ctx, testIdOtpDeliveryMechanism).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Otp Delivery Mechanism", testIdOtpDeliveryMechanism)
 	}

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -348,10 +348,10 @@ func (r *recurringTaskChainResource) CreateRecurringTaskChain(ctx context.Contex
 	}
 	var ScheduledTimeOfDaySlice []string
 	plan.ScheduledTimeOfDay.ElementsAs(ctx, &ScheduledTimeOfDaySlice, false)
-	addRequest := client.NewAddRecurringTaskChainRequest(plan.Name.ValueString(),
-		RecurringTaskSlice,
+	addRequest := client.NewAddRecurringTaskChainRequest(RecurringTaskSlice,
 		*scheduledDateSelectionType,
-		ScheduledTimeOfDaySlice)
+		ScheduledTimeOfDaySlice,
+		plan.Name.ValueString())
 	err = addOptionalRecurringTaskChainFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task Chain", err.Error())
@@ -362,11 +362,11 @@ func (r *recurringTaskChainResource) CreateRecurringTaskChain(ctx context.Contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.RecurringTaskChainApi.AddRecurringTaskChain(
+	apiAddRequest := r.apiClient.RecurringTaskChainAPI.AddRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddRecurringTaskChainRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.AddRecurringTaskChainExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.RecurringTaskChainAPI.AddRecurringTaskChainExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task Chain", err, httpResp)
 		return nil, err
@@ -420,7 +420,7 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
+	readResponse, httpResp, err := r.apiClient.RecurringTaskChainAPI.GetRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
@@ -438,14 +438,14 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.RecurringTaskChainAPI.UpdateRecurringTaskChain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRecurringTaskChainOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChainExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskChainAPI.UpdateRecurringTaskChainExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task Chain", err, httpResp)
 			return
@@ -487,7 +487,7 @@ func readRecurringTaskChain(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
+	readResponse, httpResp, err := apiClient.RecurringTaskChainAPI.GetRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -538,7 +538,7 @@ func updateRecurringTaskChain(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state recurringTaskChainResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(
+	updateRequest := apiClient.RecurringTaskChainAPI.UpdateRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -548,7 +548,7 @@ func updateRecurringTaskChain(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.RecurringTaskChainApi.UpdateRecurringTaskChainExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskChainAPI.UpdateRecurringTaskChainExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task Chain", err, httpResp)
 			return
@@ -589,7 +589,7 @@ func (r *recurringTaskChainResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.RecurringTaskChainApi.DeleteRecurringTaskChainExecute(r.apiClient.RecurringTaskChainApi.DeleteRecurringTaskChain(
+	httpResp, err := r.apiClient.RecurringTaskChainAPI.DeleteRecurringTaskChainExecute(r.apiClient.RecurringTaskChainAPI.DeleteRecurringTaskChain(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task Chain", err, httpResp)

@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -336,21 +336,21 @@ func createLogRotationPolicyOperations(plan logRotationPolicyResourceModel, stat
 
 // Create a time-limit log-rotation-policy
 func (r *logRotationPolicyResource) CreateTimeLimitLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddTimeLimitLogRotationPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumtimeLimitLogRotationPolicySchemaUrn{client.ENUMTIMELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYTIME_LIMIT},
-		plan.RotationInterval.ValueString())
+	addRequest := client.NewAddTimeLimitLogRotationPolicyRequest([]client.EnumtimeLimitLogRotationPolicySchemaUrn{client.ENUMTIMELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYTIME_LIMIT},
+		plan.RotationInterval.ValueString(),
+		plan.Name.ValueString())
 	addOptionalTimeLimitLogRotationPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicy(
+	apiAddRequest := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRotationPolicyRequest(
 		client.AddTimeLimitLogRotationPolicyRequestAsAddLogRotationPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Rotation Policy", err, httpResp)
 		return nil, err
@@ -372,21 +372,21 @@ func (r *logRotationPolicyResource) CreateTimeLimitLogRotationPolicy(ctx context
 func (r *logRotationPolicyResource) CreateFixedTimeLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
 	var TimeOfDaySlice []string
 	plan.TimeOfDay.ElementsAs(ctx, &TimeOfDaySlice, false)
-	addRequest := client.NewAddFixedTimeLogRotationPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumfixedTimeLogRotationPolicySchemaUrn{client.ENUMFIXEDTIMELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYFIXED_TIME},
-		TimeOfDaySlice)
+	addRequest := client.NewAddFixedTimeLogRotationPolicyRequest([]client.EnumfixedTimeLogRotationPolicySchemaUrn{client.ENUMFIXEDTIMELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYFIXED_TIME},
+		TimeOfDaySlice,
+		plan.Name.ValueString())
 	addOptionalFixedTimeLogRotationPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicy(
+	apiAddRequest := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRotationPolicyRequest(
 		client.AddFixedTimeLogRotationPolicyRequestAsAddLogRotationPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Rotation Policy", err, httpResp)
 		return nil, err
@@ -406,20 +406,20 @@ func (r *logRotationPolicyResource) CreateFixedTimeLogRotationPolicy(ctx context
 
 // Create a never-rotate log-rotation-policy
 func (r *logRotationPolicyResource) CreateNeverRotateLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddNeverRotateLogRotationPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumneverRotateLogRotationPolicySchemaUrn{client.ENUMNEVERROTATELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYNEVER_ROTATE})
+	addRequest := client.NewAddNeverRotateLogRotationPolicyRequest([]client.EnumneverRotateLogRotationPolicySchemaUrn{client.ENUMNEVERROTATELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYNEVER_ROTATE},
+		plan.Name.ValueString())
 	addOptionalNeverRotateLogRotationPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicy(
+	apiAddRequest := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRotationPolicyRequest(
 		client.AddNeverRotateLogRotationPolicyRequestAsAddLogRotationPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Rotation Policy", err, httpResp)
 		return nil, err
@@ -439,21 +439,21 @@ func (r *logRotationPolicyResource) CreateNeverRotateLogRotationPolicy(ctx conte
 
 // Create a size-limit log-rotation-policy
 func (r *logRotationPolicyResource) CreateSizeLimitLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddSizeLimitLogRotationPolicyRequest(plan.Name.ValueString(),
-		[]client.EnumsizeLimitLogRotationPolicySchemaUrn{client.ENUMSIZELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYSIZE_LIMIT},
-		plan.FileSizeLimit.ValueString())
+	addRequest := client.NewAddSizeLimitLogRotationPolicyRequest([]client.EnumsizeLimitLogRotationPolicySchemaUrn{client.ENUMSIZELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYSIZE_LIMIT},
+		plan.FileSizeLimit.ValueString(),
+		plan.Name.ValueString())
 	addOptionalSizeLimitLogRotationPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicy(
+	apiAddRequest := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogRotationPolicyRequest(
 		client.AddSizeLimitLogRotationPolicyRequestAsAddLogRotationPolicyRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.AddLogRotationPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.AddLogRotationPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log Rotation Policy", err, httpResp)
 		return nil, err
@@ -529,7 +529,7 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
+	readResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.GetLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Rotation Policy", err, httpResp)
@@ -558,14 +558,14 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogRotationPolicyApi.UpdateLogRotationPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogRotationPolicyAPI.UpdateLogRotationPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogRotationPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.UpdateLogRotationPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogRotationPolicyAPI.UpdateLogRotationPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Rotation Policy", err, httpResp)
 			return
@@ -618,7 +618,7 @@ func readLogRotationPolicy(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
+	readResponse, httpResp, err := apiClient.LogRotationPolicyAPI.GetLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -680,7 +680,7 @@ func updateLogRotationPolicy(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state logRotationPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogRotationPolicyApi.UpdateLogRotationPolicy(
+	updateRequest := apiClient.LogRotationPolicyAPI.UpdateLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -690,7 +690,7 @@ func updateLogRotationPolicy(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogRotationPolicyApi.UpdateLogRotationPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogRotationPolicyAPI.UpdateLogRotationPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Rotation Policy", err, httpResp)
 			return
@@ -742,7 +742,7 @@ func (r *logRotationPolicyResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicyExecute(r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicy(
+	httpResp, err := r.apiClient.LogRotationPolicyAPI.DeleteLogRotationPolicyExecute(r.apiClient.LogRotationPolicyAPI.DeleteLogRotationPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Rotation Policy", err, httpResp)

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -72,7 +72,7 @@ func (r *scimResourceTypeDataSource) Schema(ctx context.Context, req datasource.
 		Description: "Describes a Scim Resource Type.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']",
+				Description: "The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'mapping', 'ldap-mapping']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -192,6 +192,28 @@ func readLdapPassThroughScimResourceTypeResponseDataSource(ctx context.Context, 
 	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, false)
 }
 
+// Read a MappingScimResourceTypeResponse object into the model struct
+func readMappingScimResourceTypeResponseDataSource(ctx context.Context, r *client.MappingScimResourceTypeResponse, state *scimResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("mapping")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.CoreSchema = types.StringValue(r.CoreSchema)
+	state.RequiredSchemaExtension = internaltypes.GetStringSet(r.RequiredSchemaExtension)
+	state.OptionalSchemaExtension = internaltypes.GetStringSet(r.OptionalSchemaExtension)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Endpoint = types.StringValue(r.Endpoint)
+	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
+	state.SchemaCheckingOption = internaltypes.GetStringSet(
+		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
+	state.StructuralLDAPObjectclass = internaltypes.StringTypeOrNil(r.StructuralLDAPObjectclass, false)
+	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
+	state.IncludeBaseDN = internaltypes.StringTypeOrNil(r.IncludeBaseDN, false)
+	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
+	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
+	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, false)
+}
+
 // Read a LdapMappingScimResourceTypeResponse object into the model struct
 func readLdapMappingScimResourceTypeResponseDataSource(ctx context.Context, r *client.LdapMappingScimResourceTypeResponse, state *scimResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapping")
@@ -224,7 +246,7 @@ func (r *scimResourceTypeDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.GetScimResourceType(
+	readResponse, httpResp, err := r.apiClient.ScimResourceTypeAPI.GetScimResourceType(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
@@ -240,6 +262,9 @@ func (r *scimResourceTypeDataSource) Read(ctx context.Context, req datasource.Re
 	// Read the response into the state
 	if readResponse.LdapPassThroughScimResourceTypeResponse != nil {
 		readLdapPassThroughScimResourceTypeResponseDataSource(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.MappingScimResourceTypeResponse != nil {
+		readMappingScimResourceTypeResponseDataSource(ctx, readResponse.MappingScimResourceTypeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponseDataSource(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &resp.Diagnostics)

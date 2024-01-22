@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -89,12 +89,12 @@ func (r *jsonFieldConstraintsListDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	listRequest := r.apiClient.JsonFieldConstraintsApi.ListJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonAttributeConstraintsName.ValueString())
+	listRequest := r.apiClient.JsonFieldConstraintsAPI.ListJsonFieldConstraints(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.JsonAttributeConstraintsName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.ListJsonFieldConstraintsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.JsonFieldConstraintsAPI.ListJsonFieldConstraintsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Json Field Constraints objects", err, httpResp)
 		return

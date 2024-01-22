@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -59,6 +59,7 @@ type passwordPolicyDataSourceModel struct {
 	PasswordAttribute                                         types.String `tfsdk:"password_attribute"`
 	DefaultPasswordStorageScheme                              types.Set    `tfsdk:"default_password_storage_scheme"`
 	DeprecatedPasswordStorageScheme                           types.Set    `tfsdk:"deprecated_password_storage_scheme"`
+	ReEncodePasswordsOnSchemeConfigChange                     types.Bool   `tfsdk:"re_encode_passwords_on_scheme_config_change"`
 	AllowMultiplePasswordValues                               types.Bool   `tfsdk:"allow_multiple_password_values"`
 	AllowPreEncodedPasswords                                  types.String `tfsdk:"allow_pre_encoded_passwords"`
 	PasswordValidator                                         types.Set    `tfsdk:"password_validator"`
@@ -169,6 +170,12 @@ func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.Sc
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
+			},
+			"re_encode_passwords_on_scheme_config_change": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether to re-encode passwords on authentication if the configuration for the underlying password storage scheme has changed.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",
@@ -442,6 +449,7 @@ func readPasswordPolicyResponseDataSource(ctx context.Context, r *client.Passwor
 	state.PasswordAttribute = types.StringValue(r.PasswordAttribute)
 	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
 	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
+	state.ReEncodePasswordsOnSchemeConfigChange = internaltypes.BoolTypeOrNil(r.ReEncodePasswordsOnSchemeConfigChange)
 	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
 	state.AllowPreEncodedPasswords = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), false)
@@ -501,7 +509,7 @@ func (r *passwordPolicyDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.GetPasswordPolicy(
+	readResponse, httpResp, err := r.apiClient.PasswordPolicyAPI.GetPasswordPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy", err, httpResp)

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -104,6 +104,8 @@ type passwordValidatorResourceModel struct {
 	DisallowedTrailingCharacters                   types.String `tfsdk:"disallowed_trailing_characters"`
 	PwnedPasswordsBaseURL                          types.String `tfsdk:"pwned_passwords_base_url"`
 	HttpProxyExternalServer                        types.String `tfsdk:"http_proxy_external_server"`
+	HttpConnectTimeout                             types.String `tfsdk:"http_connect_timeout"`
+	HttpResponseTimeout                            types.String `tfsdk:"http_response_timeout"`
 	InvokeForAdd                                   types.Bool   `tfsdk:"invoke_for_add"`
 	InvokeForSelfChange                            types.Bool   `tfsdk:"invoke_for_self_change"`
 	InvokeForAdminReset                            types.Bool   `tfsdk:"invoke_for_admin_reset"`
@@ -216,6 +218,22 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 			"http_proxy_external_server": schema.StringAttribute{
 				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
 				Optional:    true,
+			},
+			"http_connect_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"http_response_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"invoke_for_add": schema.BoolAttribute{
 				Description: "Indicates whether this password validator should be used to validate clear-text passwords provided in LDAP add requests.",
@@ -617,7 +635,7 @@ func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -628,6 +646,21 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	}
 	var model passwordValidatorResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpConnectTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_connect_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
+		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "utf-8" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"utf_8\"")
@@ -662,12 +695,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.InvokeForAdd = types.BoolNull()
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
@@ -688,12 +723,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -714,11 +751,13 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.InvokeForAdd = types.BoolNull()
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
@@ -737,11 +776,13 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -762,10 +803,12 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
@@ -783,12 +826,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -808,10 +853,12 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -832,12 +879,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -881,12 +930,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -906,12 +957,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -933,12 +986,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -960,11 +1015,13 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -986,12 +1043,14 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AcceptPasswordOnServiceError = types.BoolNull()
 		model.TestAttributeValueSubstringOfPassword = types.BoolNull()
 		model.MinimumRequiredCharacterSets = types.Int64Null()
+		model.HttpResponseTimeout = types.StringNull()
 		model.AllowedCharacterType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.StripDiacriticalMarks = types.BoolNull()
 		model.AllowNonAsciiCharacters = types.BoolNull()
 		model.MinimumAttributeValueLengthForSubstringMatches = types.Int64Null()
 		model.InvokeForAdminReset = types.BoolNull()
 		model.CaseSensitiveValidation = types.BoolNull()
+		model.HttpConnectTimeout = types.StringNull()
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
@@ -1143,6 +1202,16 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_connect_timeout"),
+			path.MatchRoot("type"),
+			[]string{"pwned-passwords"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_response_timeout"),
 			path.MatchRoot("type"),
 			[]string{"pwned-passwords"},
 		),
@@ -1536,6 +1605,14 @@ func addOptionalPwnedPasswordsPasswordValidatorFields(ctx context.Context, addRe
 	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
 		addRequest.HttpProxyExternalServer = plan.HttpProxyExternalServer.ValueStringPointer()
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpConnectTimeout) {
+		addRequest.HttpConnectTimeout = plan.HttpConnectTimeout.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpResponseTimeout) {
+		addRequest.HttpResponseTimeout = plan.HttpResponseTimeout.ValueStringPointer()
+	}
 	if internaltypes.IsDefined(plan.InvokeForAdd) {
 		addRequest.InvokeForAdd = plan.InvokeForAdd.ValueBoolPointer()
 	}
@@ -1742,11 +1819,17 @@ func (model *passwordValidatorResourceModel) populateAllComputedStringAttributes
 	if model.DisallowedCharacters.IsUnknown() || model.DisallowedCharacters.IsNull() {
 		model.DisallowedCharacters = types.StringValue("")
 	}
+	if model.HttpConnectTimeout.IsUnknown() || model.HttpConnectTimeout.IsNull() {
+		model.HttpConnectTimeout = types.StringValue("")
+	}
 	if model.KeyManagerProvider.IsUnknown() || model.KeyManagerProvider.IsNull() {
 		model.KeyManagerProvider = types.StringValue("")
 	}
 	if model.PwnedPasswordsBaseURL.IsUnknown() || model.PwnedPasswordsBaseURL.IsNull() {
 		model.PwnedPasswordsBaseURL = types.StringValue("")
+	}
+	if model.HttpResponseTimeout.IsUnknown() || model.HttpResponseTimeout.IsNull() {
+		model.HttpResponseTimeout = types.StringValue("")
 	}
 	if model.ScriptClass.IsUnknown() || model.ScriptClass.IsNull() {
 		model.ScriptClass = types.StringValue("")
@@ -1910,6 +1993,12 @@ func readPwnedPasswordsPasswordValidatorResponse(ctx context.Context, r *client.
 	state.Name = types.StringValue(r.Id)
 	state.PwnedPasswordsBaseURL = types.StringValue(r.PwnedPasswordsBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.HttpConnectTimeout = internaltypes.StringTypeOrNil(r.HttpConnectTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_connect_timeout",
+		expectedValues.HttpConnectTimeout, state.HttpConnectTimeout, diagnostics)
+	state.HttpResponseTimeout = internaltypes.StringTypeOrNil(r.HttpResponseTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("http_response_timeout",
+		expectedValues.HttpResponseTimeout, state.HttpResponseTimeout, diagnostics)
 	state.InvokeForAdd = types.BoolValue(r.InvokeForAdd)
 	state.InvokeForSelfChange = types.BoolValue(r.InvokeForSelfChange)
 	state.InvokeForAdminReset = types.BoolValue(r.InvokeForAdminReset)
@@ -2015,6 +2104,8 @@ func createPasswordValidatorOperations(plan passwordValidatorResourceModel, stat
 	operations.AddStringOperationIfNecessary(&ops, plan.DisallowedTrailingCharacters, state.DisallowedTrailingCharacters, "disallowed-trailing-characters")
 	operations.AddStringOperationIfNecessary(&ops, plan.PwnedPasswordsBaseURL, state.PwnedPasswordsBaseURL, "pwned-passwords-base-url")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpConnectTimeout, state.HttpConnectTimeout, "http-connect-timeout")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpResponseTimeout, state.HttpResponseTimeout, "http-response-timeout")
 	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForAdd, state.InvokeForAdd, "invoke-for-add")
 	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForSelfChange, state.InvokeForSelfChange, "invoke-for-self-change")
 	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForAdminReset, state.InvokeForAdminReset, "invoke-for-admin-reset")
@@ -2056,11 +2147,11 @@ func createPasswordValidatorOperations(plan passwordValidatorResourceModel, stat
 func (r *passwordValidatorResource) CreateCharacterSetPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
 	var CharacterSetSlice []string
 	plan.CharacterSet.ElementsAs(ctx, &CharacterSetSlice, false)
-	addRequest := client.NewAddCharacterSetPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumcharacterSetPasswordValidatorSchemaUrn{client.ENUMCHARACTERSETPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORCHARACTER_SET},
+	addRequest := client.NewAddCharacterSetPasswordValidatorRequest([]client.EnumcharacterSetPasswordValidatorSchemaUrn{client.ENUMCHARACTERSETPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORCHARACTER_SET},
 		CharacterSetSlice,
 		plan.AllowUnclassifiedCharacters.ValueBool(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalCharacterSetPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2071,12 +2162,12 @@ func (r *passwordValidatorResource) CreateCharacterSetPasswordValidator(ctx cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddCharacterSetPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2096,10 +2187,10 @@ func (r *passwordValidatorResource) CreateCharacterSetPasswordValidator(ctx cont
 
 // Create a similarity-based password-validator
 func (r *passwordValidatorResource) CreateSimilarityBasedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddSimilarityBasedPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumsimilarityBasedPasswordValidatorSchemaUrn{client.ENUMSIMILARITYBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORSIMILARITY_BASED},
+	addRequest := client.NewAddSimilarityBasedPasswordValidatorRequest([]client.EnumsimilarityBasedPasswordValidatorSchemaUrn{client.ENUMSIMILARITYBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORSIMILARITY_BASED},
 		plan.MinPasswordDifference.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalSimilarityBasedPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2110,12 +2201,12 @@ func (r *passwordValidatorResource) CreateSimilarityBasedPasswordValidator(ctx c
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddSimilarityBasedPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2135,10 +2226,10 @@ func (r *passwordValidatorResource) CreateSimilarityBasedPasswordValidator(ctx c
 
 // Create a attribute-value password-validator
 func (r *passwordValidatorResource) CreateAttributeValuePasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddAttributeValuePasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumattributeValuePasswordValidatorSchemaUrn{client.ENUMATTRIBUTEVALUEPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORATTRIBUTE_VALUE},
+	addRequest := client.NewAddAttributeValuePasswordValidatorRequest([]client.EnumattributeValuePasswordValidatorSchemaUrn{client.ENUMATTRIBUTEVALUEPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORATTRIBUTE_VALUE},
 		plan.TestReversedPassword.ValueBool(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalAttributeValuePasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2149,12 +2240,12 @@ func (r *passwordValidatorResource) CreateAttributeValuePasswordValidator(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddAttributeValuePasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2174,11 +2265,11 @@ func (r *passwordValidatorResource) CreateAttributeValuePasswordValidator(ctx co
 
 // Create a repeated-characters password-validator
 func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddRepeatedCharactersPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumrepeatedCharactersPasswordValidatorSchemaUrn{client.ENUMREPEATEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREPEATED_CHARACTERS},
+	addRequest := client.NewAddRepeatedCharactersPasswordValidatorRequest([]client.EnumrepeatedCharactersPasswordValidatorSchemaUrn{client.ENUMREPEATEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREPEATED_CHARACTERS},
 		plan.MaxConsecutiveLength.ValueInt64(),
 		plan.CaseSensitiveValidation.ValueBool(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalRepeatedCharactersPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2189,12 +2280,12 @@ func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ct
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddRepeatedCharactersPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2214,9 +2305,9 @@ func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ct
 
 // Create a dictionary password-validator
 func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddDictionaryPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumdictionaryPasswordValidatorSchemaUrn{client.ENUMDICTIONARYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDICTIONARY},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddDictionaryPasswordValidatorRequest([]client.EnumdictionaryPasswordValidatorSchemaUrn{client.ENUMDICTIONARYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDICTIONARY},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDictionaryPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2227,12 +2318,12 @@ func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddDictionaryPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2252,9 +2343,9 @@ func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx contex
 
 // Create a haystack password-validator
 func (r *passwordValidatorResource) CreateHaystackPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddHaystackPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumhaystackPasswordValidatorSchemaUrn{client.ENUMHAYSTACKPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORHAYSTACK},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddHaystackPasswordValidatorRequest([]client.EnumhaystackPasswordValidatorSchemaUrn{client.ENUMHAYSTACKPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORHAYSTACK},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalHaystackPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2265,12 +2356,12 @@ func (r *passwordValidatorResource) CreateHaystackPasswordValidator(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddHaystackPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2290,9 +2381,9 @@ func (r *passwordValidatorResource) CreateHaystackPasswordValidator(ctx context.
 
 // Create a utf-8 password-validator
 func (r *passwordValidatorResource) CreateUtf8PasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddUtf8PasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.Enumutf8PasswordValidatorSchemaUrn{client.ENUMUTF8PASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUTF_8},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddUtf8PasswordValidatorRequest([]client.Enumutf8PasswordValidatorSchemaUrn{client.ENUMUTF8PASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUTF_8},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalUtf8PasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2303,12 +2394,12 @@ func (r *passwordValidatorResource) CreateUtf8PasswordValidator(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddUtf8PasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2328,10 +2419,10 @@ func (r *passwordValidatorResource) CreateUtf8PasswordValidator(ctx context.Cont
 
 // Create a groovy-scripted password-validator
 func (r *passwordValidatorResource) CreateGroovyScriptedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedPasswordValidatorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedPasswordValidatorRequest([]client.EnumgroovyScriptedPasswordValidatorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2342,12 +2433,12 @@ func (r *passwordValidatorResource) CreateGroovyScriptedPasswordValidator(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddGroovyScriptedPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2367,9 +2458,9 @@ func (r *passwordValidatorResource) CreateGroovyScriptedPasswordValidator(ctx co
 
 // Create a pwned-passwords password-validator
 func (r *passwordValidatorResource) CreatePwnedPasswordsPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddPwnedPasswordsPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumpwnedPasswordsPasswordValidatorSchemaUrn{client.ENUMPWNEDPASSWORDSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORPWNED_PASSWORDS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddPwnedPasswordsPasswordValidatorRequest([]client.EnumpwnedPasswordsPasswordValidatorSchemaUrn{client.ENUMPWNEDPASSWORDSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORPWNED_PASSWORDS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalPwnedPasswordsPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2380,12 +2471,12 @@ func (r *passwordValidatorResource) CreatePwnedPasswordsPasswordValidator(ctx co
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddPwnedPasswordsPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2405,9 +2496,9 @@ func (r *passwordValidatorResource) CreatePwnedPasswordsPasswordValidator(ctx co
 
 // Create a disallowed-characters password-validator
 func (r *passwordValidatorResource) CreateDisallowedCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddDisallowedCharactersPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumdisallowedCharactersPasswordValidatorSchemaUrn{client.ENUMDISALLOWEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDISALLOWED_CHARACTERS},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddDisallowedCharactersPasswordValidatorRequest([]client.EnumdisallowedCharactersPasswordValidatorSchemaUrn{client.ENUMDISALLOWEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDISALLOWED_CHARACTERS},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalDisallowedCharactersPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2418,12 +2509,12 @@ func (r *passwordValidatorResource) CreateDisallowedCharactersPasswordValidator(
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddDisallowedCharactersPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2443,9 +2534,9 @@ func (r *passwordValidatorResource) CreateDisallowedCharactersPasswordValidator(
 
 // Create a length-based password-validator
 func (r *passwordValidatorResource) CreateLengthBasedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddLengthBasedPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumlengthBasedPasswordValidatorSchemaUrn{client.ENUMLENGTHBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORLENGTH_BASED},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddLengthBasedPasswordValidatorRequest([]client.EnumlengthBasedPasswordValidatorSchemaUrn{client.ENUMLENGTHBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORLENGTH_BASED},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalLengthBasedPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2456,12 +2547,12 @@ func (r *passwordValidatorResource) CreateLengthBasedPasswordValidator(ctx conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddLengthBasedPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2486,11 +2577,11 @@ func (r *passwordValidatorResource) CreateRegularExpressionPasswordValidator(ctx
 		resp.Diagnostics.AddError("Failed to parse enum value for MatchBehavior", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddRegularExpressionPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumregularExpressionPasswordValidatorSchemaUrn{client.ENUMREGULAREXPRESSIONPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREGULAR_EXPRESSION},
+	addRequest := client.NewAddRegularExpressionPasswordValidatorRequest([]client.EnumregularExpressionPasswordValidatorSchemaUrn{client.ENUMREGULAREXPRESSIONPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREGULAR_EXPRESSION},
 		plan.MatchPattern.ValueString(),
 		*matchBehavior,
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err = addOptionalRegularExpressionPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2501,12 +2592,12 @@ func (r *passwordValidatorResource) CreateRegularExpressionPasswordValidator(ctx
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddRegularExpressionPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2526,11 +2617,11 @@ func (r *passwordValidatorResource) CreateRegularExpressionPasswordValidator(ctx
 
 // Create a unique-characters password-validator
 func (r *passwordValidatorResource) CreateUniqueCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddUniqueCharactersPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumuniqueCharactersPasswordValidatorSchemaUrn{client.ENUMUNIQUECHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUNIQUE_CHARACTERS},
+	addRequest := client.NewAddUniqueCharactersPasswordValidatorRequest([]client.EnumuniqueCharactersPasswordValidatorSchemaUrn{client.ENUMUNIQUECHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUNIQUE_CHARACTERS},
 		plan.MinUniqueCharacters.ValueInt64(),
 		plan.CaseSensitiveValidation.ValueBool(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalUniqueCharactersPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2541,12 +2632,12 @@ func (r *passwordValidatorResource) CreateUniqueCharactersPasswordValidator(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddUniqueCharactersPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2566,10 +2657,10 @@ func (r *passwordValidatorResource) CreateUniqueCharactersPasswordValidator(ctx 
 
 // Create a third-party password-validator
 func (r *passwordValidatorResource) CreateThirdPartyPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordValidatorRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPasswordValidatorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyPasswordValidatorRequest([]client.EnumthirdPartyPasswordValidatorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyPasswordValidatorFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Validator", err.Error())
@@ -2580,12 +2671,12 @@ func (r *passwordValidatorResource) CreateThirdPartyPasswordValidator(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordValidatorApi.AddPasswordValidator(
+	apiAddRequest := r.apiClient.PasswordValidatorAPI.AddPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordValidatorRequest(
 		client.AddThirdPartyPasswordValidatorRequestAsAddPasswordValidatorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordValidatorApi.AddPasswordValidatorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.AddPasswordValidatorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Validator", err, httpResp)
 		return nil, err
@@ -2721,7 +2812,7 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordValidatorApi.GetPasswordValidator(
+	readResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.GetPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
@@ -2783,14 +2874,14 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordValidatorApi.UpdatePasswordValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PasswordValidatorAPI.UpdatePasswordValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PasswordValidatorApi.UpdatePasswordValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PasswordValidatorAPI.UpdatePasswordValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Validator", err, httpResp)
 			return
@@ -2876,7 +2967,7 @@ func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PasswordValidatorApi.GetPasswordValidator(
+	readResponse, httpResp, err := apiClient.PasswordValidatorAPI.GetPasswordValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -2971,7 +3062,7 @@ func updatePasswordValidator(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state passwordValidatorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PasswordValidatorApi.UpdatePasswordValidator(
+	updateRequest := apiClient.PasswordValidatorAPI.UpdatePasswordValidator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -2981,7 +3072,7 @@ func updatePasswordValidator(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PasswordValidatorApi.UpdatePasswordValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PasswordValidatorAPI.UpdatePasswordValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Validator", err, httpResp)
 			return
@@ -3066,7 +3157,7 @@ func (r *passwordValidatorResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.PasswordValidatorApi.DeletePasswordValidatorExecute(r.apiClient.PasswordValidatorApi.DeletePasswordValidator(
+	httpResp, err := r.apiClient.PasswordValidatorAPI.DeletePasswordValidatorExecute(r.apiClient.PasswordValidatorAPI.DeletePasswordValidator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Validator", err, httpResp)

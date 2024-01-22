@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1046,8 +1046,8 @@ func createConnectionCriteriaOperations(plan connectionCriteriaResourceModel, st
 
 // Create a simple connection-criteria
 func (r *connectionCriteriaResource) CreateSimpleConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleConnectionCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumsimpleConnectionCriteriaSchemaUrn{client.ENUMSIMPLECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIASIMPLE})
+	addRequest := client.NewAddSimpleConnectionCriteriaRequest([]client.EnumsimpleConnectionCriteriaSchemaUrn{client.ENUMSIMPLECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIASIMPLE},
+		plan.Name.ValueString())
 	err := addOptionalSimpleConnectionCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Criteria", err.Error())
@@ -1058,12 +1058,12 @@ func (r *connectionCriteriaResource) CreateSimpleConnectionCriteria(ctx context.
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteria(
+	apiAddRequest := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionCriteriaRequest(
 		client.AddSimpleConnectionCriteriaRequestAsAddConnectionCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Criteria", err, httpResp)
 		return nil, err
@@ -1083,8 +1083,8 @@ func (r *connectionCriteriaResource) CreateSimpleConnectionCriteria(ctx context.
 
 // Create a aggregate connection-criteria
 func (r *connectionCriteriaResource) CreateAggregateConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateConnectionCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumaggregateConnectionCriteriaSchemaUrn{client.ENUMAGGREGATECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIAAGGREGATE})
+	addRequest := client.NewAddAggregateConnectionCriteriaRequest([]client.EnumaggregateConnectionCriteriaSchemaUrn{client.ENUMAGGREGATECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIAAGGREGATE},
+		plan.Name.ValueString())
 	err := addOptionalAggregateConnectionCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Criteria", err.Error())
@@ -1095,12 +1095,12 @@ func (r *connectionCriteriaResource) CreateAggregateConnectionCriteria(ctx conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteria(
+	apiAddRequest := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionCriteriaRequest(
 		client.AddAggregateConnectionCriteriaRequestAsAddConnectionCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Criteria", err, httpResp)
 		return nil, err
@@ -1120,9 +1120,9 @@ func (r *connectionCriteriaResource) CreateAggregateConnectionCriteria(ctx conte
 
 // Create a third-party connection-criteria
 func (r *connectionCriteriaResource) CreateThirdPartyConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyConnectionCriteriaRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyConnectionCriteriaSchemaUrn{client.ENUMTHIRDPARTYCONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIATHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyConnectionCriteriaRequest([]client.EnumthirdPartyConnectionCriteriaSchemaUrn{client.ENUMTHIRDPARTYCONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIATHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyConnectionCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Criteria", err.Error())
@@ -1133,12 +1133,12 @@ func (r *connectionCriteriaResource) CreateThirdPartyConnectionCriteria(ctx cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteria(
+	apiAddRequest := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionCriteriaRequest(
 		client.AddThirdPartyConnectionCriteriaRequestAsAddConnectionCriteriaRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.AddConnectionCriteriaExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.AddConnectionCriteriaExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Criteria", err, httpResp)
 		return nil, err
@@ -1208,7 +1208,7 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
+	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.GetConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Criteria", err, httpResp)
@@ -1234,14 +1234,14 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ConnectionCriteriaAPI.UpdateConnectionCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConnectionCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConnectionCriteriaAPI.UpdateConnectionCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Criteria", err, httpResp)
 			return
@@ -1291,7 +1291,7 @@ func readConnectionCriteria(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
+	readResponse, httpResp, err := apiClient.ConnectionCriteriaAPI.GetConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1350,7 +1350,7 @@ func updateConnectionCriteria(ctx context.Context, req resource.UpdateRequest, r
 	// Get the current state to see how any attributes are changing
 	var state connectionCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(
+	updateRequest := apiClient.ConnectionCriteriaAPI.UpdateConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1360,7 +1360,7 @@ func updateConnectionCriteria(ctx context.Context, req resource.UpdateRequest, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConnectionCriteriaApi.UpdateConnectionCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionCriteriaAPI.UpdateConnectionCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Criteria", err, httpResp)
 			return
@@ -1409,7 +1409,7 @@ func (r *connectionCriteriaResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	httpResp, err := r.apiClient.ConnectionCriteriaApi.DeleteConnectionCriteriaExecute(r.apiClient.ConnectionCriteriaApi.DeleteConnectionCriteria(
+	httpResp, err := r.apiClient.ConnectionCriteriaAPI.DeleteConnectionCriteriaExecute(r.apiClient.ConnectionCriteriaAPI.DeleteConnectionCriteria(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Connection Criteria", err, httpResp)

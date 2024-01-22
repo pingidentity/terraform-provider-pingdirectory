@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -228,11 +228,11 @@ func (r *softDeletePolicyResource) CreateSoftDeletePolicy(ctx context.Context, r
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.SoftDeletePolicyApi.AddSoftDeletePolicy(
+	apiAddRequest := r.apiClient.SoftDeletePolicyAPI.AddSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddSoftDeletePolicyRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.AddSoftDeletePolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.SoftDeletePolicyAPI.AddSoftDeletePolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Soft Delete Policy", err, httpResp)
 		return nil, err
@@ -286,7 +286,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
+	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyAPI.GetSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
@@ -304,14 +304,14 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 	readSoftDeletePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.SoftDeletePolicyAPI.UpdateSoftDeletePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSoftDeletePolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.SoftDeletePolicyAPI.UpdateSoftDeletePolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Soft Delete Policy", err, httpResp)
 			return
@@ -353,7 +353,7 @@ func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
+	readResponse, httpResp, err := apiClient.SoftDeletePolicyAPI.GetSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -404,7 +404,7 @@ func updateSoftDeletePolicy(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state softDeletePolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(
+	updateRequest := apiClient.SoftDeletePolicyAPI.UpdateSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -414,7 +414,7 @@ func updateSoftDeletePolicy(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.SoftDeletePolicyAPI.UpdateSoftDeletePolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Soft Delete Policy", err, httpResp)
 			return
@@ -455,7 +455,7 @@ func (r *softDeletePolicyResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	httpResp, err := r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicyExecute(r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicy(
+	httpResp, err := r.apiClient.SoftDeletePolicyAPI.DeleteSoftDeletePolicyExecute(r.apiClient.SoftDeletePolicyAPI.DeleteSoftDeletePolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Soft Delete Policy", err, httpResp)

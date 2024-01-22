@@ -92,7 +92,7 @@ O153rbh1O3sXFjeKFSvpi6BM4OBaTDwtlZL+ZtDjvLX5xY278udB140n+XYdJaW7
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.TrustedCertificateApi.DeleteTrustedCertificate(ctx, initialResourceModel.id).Execute()
+					_, err := testClient.TrustedCertificateAPI.DeleteTrustedCertificate(ctx, initialResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -131,7 +131,7 @@ data "pingdirectory_trusted_certificates" "list" {
 func testAccCheckTrustedCertificateDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.TrustedCertificateApi.GetTrustedCertificate(ctx, testIdTrustedCertificate).Execute()
+	_, _, err := testClient.TrustedCertificateAPI.GetTrustedCertificate(ctx, testIdTrustedCertificate).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Trusted Certificate", testIdTrustedCertificate)
 	}

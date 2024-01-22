@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -153,7 +153,7 @@ func (r *prometheusMonitorAttributeMetricDataSource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
+	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Prometheus Monitor Attribute Metric", err, httpResp)

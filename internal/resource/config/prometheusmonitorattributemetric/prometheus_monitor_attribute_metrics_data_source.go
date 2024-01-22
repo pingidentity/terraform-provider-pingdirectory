@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -98,12 +98,12 @@ func (r *prometheusMonitorAttributeMetricsDataSource) Read(ctx context.Context, 
 		return
 	}
 
-	listRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.ListPrometheusMonitorAttributeMetrics(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
+	listRequest := r.apiClient.PrometheusMonitorAttributeMetricAPI.ListPrometheusMonitorAttributeMetrics(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.HttpServletExtensionName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.ListPrometheusMonitorAttributeMetricsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.ListPrometheusMonitorAttributeMetricsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Prometheus Monitor Attribute Metric objects", err, httpResp)
 		return

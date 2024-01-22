@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -148,7 +148,7 @@ func (r *delegatedAdminResourceRightsDataSource) Read(ctx context.Context, req d
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminResourceRightsApi.GetDelegatedAdminResourceRights(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminResourceRightsAPI.GetDelegatedAdminResourceRights(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.RestResourceType.ValueString(), state.DelegatedAdminRightsName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Resource Rights", err, httpResp)

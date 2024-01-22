@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -2465,8 +2465,8 @@ func createHttpServletExtensionOperationsDefault(plan defaultHttpServletExtensio
 
 // Create a quickstart http-servlet-extension
 func (r *httpServletExtensionResource) CreateQuickstartHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddQuickstartHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumquickstartHttpServletExtensionSchemaUrn{client.ENUMQUICKSTARTHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONQUICKSTART})
+	addRequest := client.NewAddQuickstartHttpServletExtensionRequest([]client.EnumquickstartHttpServletExtensionSchemaUrn{client.ENUMQUICKSTARTHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONQUICKSTART},
+		plan.Name.ValueString())
 	err := addOptionalQuickstartHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2477,12 +2477,12 @@ func (r *httpServletExtensionResource) CreateQuickstartHttpServletExtension(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddQuickstartHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2502,9 +2502,9 @@ func (r *httpServletExtensionResource) CreateQuickstartHttpServletExtension(ctx 
 
 // Create a groovy-scripted http-servlet-extension
 func (r *httpServletExtensionResource) CreateGroovyScriptedHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedHttpServletExtensionSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONGROOVY_SCRIPTED},
-		plan.ScriptClass.ValueString())
+	addRequest := client.NewAddGroovyScriptedHttpServletExtensionRequest([]client.EnumgroovyScriptedHttpServletExtensionSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONGROOVY_SCRIPTED},
+		plan.ScriptClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalGroovyScriptedHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2515,12 +2515,12 @@ func (r *httpServletExtensionResource) CreateGroovyScriptedHttpServletExtension(
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddGroovyScriptedHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2540,12 +2540,12 @@ func (r *httpServletExtensionResource) CreateGroovyScriptedHttpServletExtension(
 
 // Create a availability-state http-servlet-extension
 func (r *httpServletExtensionResource) CreateAvailabilityStateHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddAvailabilityStateHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumavailabilityStateHttpServletExtensionSchemaUrn{client.ENUMAVAILABILITYSTATEHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONAVAILABILITY_STATE},
+	addRequest := client.NewAddAvailabilityStateHttpServletExtensionRequest([]client.EnumavailabilityStateHttpServletExtensionSchemaUrn{client.ENUMAVAILABILITYSTATEHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONAVAILABILITY_STATE},
 		plan.BaseContextPath.ValueString(),
 		plan.AvailableStatusCode.ValueInt64(),
 		plan.DegradedStatusCode.ValueInt64(),
-		plan.UnavailableStatusCode.ValueInt64())
+		plan.UnavailableStatusCode.ValueInt64(),
+		plan.Name.ValueString())
 	err := addOptionalAvailabilityStateHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2556,12 +2556,12 @@ func (r *httpServletExtensionResource) CreateAvailabilityStateHttpServletExtensi
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddAvailabilityStateHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2581,8 +2581,8 @@ func (r *httpServletExtensionResource) CreateAvailabilityStateHttpServletExtensi
 
 // Create a prometheus-monitoring http-servlet-extension
 func (r *httpServletExtensionResource) CreatePrometheusMonitoringHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddPrometheusMonitoringHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumprometheusMonitoringHttpServletExtensionSchemaUrn{client.ENUMPROMETHEUSMONITORINGHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONPROMETHEUS_MONITORING})
+	addRequest := client.NewAddPrometheusMonitoringHttpServletExtensionRequest([]client.EnumprometheusMonitoringHttpServletExtensionSchemaUrn{client.ENUMPROMETHEUSMONITORINGHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONPROMETHEUS_MONITORING},
+		plan.Name.ValueString())
 	err := addOptionalPrometheusMonitoringHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2593,12 +2593,12 @@ func (r *httpServletExtensionResource) CreatePrometheusMonitoringHttpServletExte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddPrometheusMonitoringHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2618,10 +2618,10 @@ func (r *httpServletExtensionResource) CreatePrometheusMonitoringHttpServletExte
 
 // Create a file-server http-servlet-extension
 func (r *httpServletExtensionResource) CreateFileServerHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddFileServerHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumfileServerHttpServletExtensionSchemaUrn{client.ENUMFILESERVERHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONFILE_SERVER},
+	addRequest := client.NewAddFileServerHttpServletExtensionRequest([]client.EnumfileServerHttpServletExtensionSchemaUrn{client.ENUMFILESERVERHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONFILE_SERVER},
 		plan.BaseContextPath.ValueString(),
-		plan.DocumentRootDirectory.ValueString())
+		plan.DocumentRootDirectory.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalFileServerHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2632,12 +2632,12 @@ func (r *httpServletExtensionResource) CreateFileServerHttpServletExtension(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddFileServerHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2657,8 +2657,8 @@ func (r *httpServletExtensionResource) CreateFileServerHttpServletExtension(ctx 
 
 // Create a ldap-mapped-scim http-servlet-extension
 func (r *httpServletExtensionResource) CreateLdapMappedScimHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumldapMappedScimHttpServletExtensionSchemaUrn{client.ENUMLDAPMAPPEDSCIMHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONLDAP_MAPPED_SCIM})
+	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest([]client.EnumldapMappedScimHttpServletExtensionSchemaUrn{client.ENUMLDAPMAPPEDSCIMHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONLDAP_MAPPED_SCIM},
+		plan.Name.ValueString())
 	err := addOptionalLdapMappedScimHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2669,12 +2669,12 @@ func (r *httpServletExtensionResource) CreateLdapMappedScimHttpServletExtension(
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddLdapMappedScimHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2694,9 +2694,9 @@ func (r *httpServletExtensionResource) CreateLdapMappedScimHttpServletExtension(
 
 // Create a third-party http-servlet-extension
 func (r *httpServletExtensionResource) CreateThirdPartyHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddThirdPartyHttpServletExtensionRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyHttpServletExtensionSchemaUrn{client.ENUMTHIRDPARTYHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONTHIRD_PARTY},
-		plan.ExtensionClass.ValueString())
+	addRequest := client.NewAddThirdPartyHttpServletExtensionRequest([]client.EnumthirdPartyHttpServletExtensionSchemaUrn{client.ENUMTHIRDPARTYHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Name.ValueString())
 	err := addOptionalThirdPartyHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Http Servlet Extension", err.Error())
@@ -2707,12 +2707,12 @@ func (r *httpServletExtensionResource) CreateThirdPartyHttpServletExtension(ctx 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.HttpServletExtensionApi.AddHttpServletExtension(
+	apiAddRequest := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddHttpServletExtensionRequest(
 		client.AddThirdPartyHttpServletExtensionRequestAsAddHttpServletExtensionRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.AddHttpServletExtensionExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.AddHttpServletExtensionExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Extension", err, httpResp)
 		return nil, err
@@ -2806,7 +2806,7 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.GetHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
@@ -2862,14 +2862,14 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createHttpServletExtensionOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Extension", err, httpResp)
 			return
@@ -2940,7 +2940,7 @@ func (r *httpServletExtensionResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.GetHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
@@ -2995,7 +2995,7 @@ func (r *defaultHttpServletExtensionResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.GetHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
@@ -3046,7 +3046,7 @@ func (r *httpServletExtensionResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state httpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+	updateRequest := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -3056,7 +3056,7 @@ func (r *httpServletExtensionResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Extension", err, httpResp)
 			return
@@ -3113,7 +3113,7 @@ func (r *defaultHttpServletExtensionResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state defaultHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+	updateRequest := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -3123,7 +3123,7 @@ func (r *defaultHttpServletExtensionResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionAPI.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Extension", err, httpResp)
 			return
@@ -3202,7 +3202,7 @@ func (r *httpServletExtensionResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpResp, err := r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtensionExecute(r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtension(
+	httpResp, err := r.apiClient.HttpServletExtensionAPI.DeleteHttpServletExtensionExecute(r.apiClient.HttpServletExtensionAPI.DeleteHttpServletExtension(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Http Servlet Extension", err, httpResp)

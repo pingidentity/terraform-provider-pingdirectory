@@ -81,7 +81,7 @@ func testAccCheckExpectedIndicatorGaugeAttributes(config indicatorGaugeTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.GaugeApi.GetGauge(ctx, config.id).Execute()
+		response, _, err := testClient.GaugeAPI.GetGauge(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func testAccCheckExpectedIndicatorGaugeAttributes(config indicatorGaugeTestModel
 func testAccCheckIndicatorGaugeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.GaugeApi.GetGauge(ctx, testIdIndicatorGauge).Execute()
+	_, _, err := testClient.GaugeAPI.GetGauge(ctx, testIdIndicatorGauge).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Indicator Gauge", testIdIndicatorGauge)
 	}

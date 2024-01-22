@@ -71,7 +71,7 @@ func TestAccLocation(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LocationApi.DeleteLocation(ctx, updatedLocationName).Execute()
+					_, err := testClient.LocationAPI.DeleteLocation(ctx, updatedLocationName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -118,7 +118,7 @@ func testAccCheckLocationDestroy(s *terraform.State) error {
 	// Check for location names used in this test
 	names := []string{locationName, updatedLocationName}
 	for _, name := range names {
-		_, _, err := testClient.LocationApi.GetLocation(ctx, name).Execute()
+		_, _, err := testClient.LocationAPI.GetLocation(ctx, name).Execute()
 		if err == nil {
 			return acctest.ExpectedDestroyError("location", name)
 		}
@@ -132,7 +132,7 @@ func testAccCheckExpectedLocationAttributes(name, description string) resource.T
 		resourceType := "location"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		locationResponse, _, err := testClient.LocationApi.GetLocation(ctx, name).Execute()
+		locationResponse, _, err := testClient.LocationAPI.GetLocation(ctx, name).Execute()
 		if err != nil {
 			return err
 		}

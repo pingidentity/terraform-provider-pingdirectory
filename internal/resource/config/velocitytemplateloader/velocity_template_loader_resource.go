@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -248,19 +248,19 @@ func createVelocityTemplateLoaderOperations(plan velocityTemplateLoaderResourceM
 
 // Create a velocity-template-loader velocity-template-loader
 func (r *velocityTemplateLoaderResource) CreateVelocityTemplateLoader(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityTemplateLoaderResourceModel) (*velocityTemplateLoaderResourceModel, error) {
-	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.Name.ValueString(),
-		plan.MimeTypeMatcher.ValueString())
+	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.MimeTypeMatcher.ValueString(),
+		plan.Name.ValueString())
 	addOptionalVelocityTemplateLoaderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.VelocityTemplateLoaderApi.AddVelocityTemplateLoader(
+	apiAddRequest := r.apiClient.VelocityTemplateLoaderAPI.AddVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.HttpServletExtensionName.ValueString())
 	apiAddRequest = apiAddRequest.AddVelocityTemplateLoaderRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.AddVelocityTemplateLoaderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.AddVelocityTemplateLoaderExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Velocity Template Loader", err, httpResp)
 		return nil, err
@@ -316,7 +316,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
+	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.GetVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
@@ -334,14 +334,14 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.VelocityTemplateLoaderAPI.UpdateVelocityTemplateLoader(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 	ops := createVelocityTemplateLoaderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoaderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.UpdateVelocityTemplateLoaderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Template Loader", err, httpResp)
 			return
@@ -384,7 +384,7 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
+	readResponse, httpResp, err := apiClient.VelocityTemplateLoaderAPI.GetVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -435,7 +435,7 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state velocityTemplateLoaderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(
+	updateRequest := apiClient.VelocityTemplateLoaderAPI.UpdateVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
@@ -445,7 +445,7 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoaderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VelocityTemplateLoaderAPI.UpdateVelocityTemplateLoaderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Template Loader", err, httpResp)
 			return
@@ -487,7 +487,7 @@ func (r *velocityTemplateLoaderResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	httpResp, err := r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoaderExecute(r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoader(
+	httpResp, err := r.apiClient.VelocityTemplateLoaderAPI.DeleteVelocityTemplateLoaderExecute(r.apiClient.VelocityTemplateLoaderAPI.DeleteVelocityTemplateLoader(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Template Loader", err, httpResp)

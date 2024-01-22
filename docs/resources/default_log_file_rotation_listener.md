@@ -27,20 +27,27 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 
 ### Optional
 
+- `aws_external_server` (String) The external server with information to use when interacting with the AWS S3 service.
 - `compress_on_copy` (Boolean) Indicates whether the file should be gzip-compressed as it is copied into the destination directory.
 - `copy_to_directory` (String) The path to the directory to which log files should be copied. It must be different from the directory to which the log file is originally written, and administrators should ensure that the filesystem has sufficient space to hold files as they are copied.
 - `description` (String) A description for this Log File Rotation Listener
 - `enabled` (Boolean) Indicates whether the Log File Rotation Listener is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Log File Rotation Listener. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Log File Rotation Listener.
+- `file_retention_pattern` (String) A regular expression pattern that will be used to identify which files are candidates for automatic removal based on the maximum-file-count-to-retain and maximum-file-age-to-retain properties. By default, all files in the bucket will be eligible for removal by retention processing.
+- `maximum_concurrent_transfer_connections` (Number) The maximum number of concurrent connections that may be used when transferring data to or from S3.
+- `maximum_file_age_to_retain` (String) The maximum length of time to retain files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.
+- `maximum_file_count_to_retain` (Number) The maximum number of existing files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.
 - `output_directory` (String) The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.
+- `s3_bucket_name` (String) The name of the S3 bucket into which rotated log files should be copied.
+- `target_throughput_in_megabits_per_second` (Number) The target throughput to attempt to achieve for data transfers to or from S3, in megabits per second.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
-- `type` (String) The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']
+- `type` (String) The type of Log File Rotation Listener resource. Options are ['upload-to-s3', 'summarize', 'copy', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

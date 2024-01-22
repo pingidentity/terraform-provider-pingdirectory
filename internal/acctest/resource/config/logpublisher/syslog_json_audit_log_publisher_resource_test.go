@@ -90,7 +90,7 @@ func testAccCheckExpectedSyslogJsonAuditLogPublisherAttributes(config syslogJson
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, config.id).Execute()
+		response, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -114,7 +114,7 @@ func testAccCheckExpectedSyslogJsonAuditLogPublisherAttributes(config syslogJson
 func testAccCheckSyslogJsonAuditLogPublisherDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, testIdSyslogJsonAuditLogPublisher).Execute()
+	_, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, testIdSyslogJsonAuditLogPublisher).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Syslog Json Audit Log Publisher", testIdSyslogJsonAuditLogPublisher)
 	}

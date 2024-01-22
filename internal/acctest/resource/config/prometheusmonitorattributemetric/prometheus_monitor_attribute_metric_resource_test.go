@@ -92,7 +92,7 @@ func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetric(ctx, updatedResourceModel.metricName, updatedResourceModel.httpServletExtensionName).Execute()
+					_, err := testClient.PrometheusMonitorAttributeMetricAPI.DeletePrometheusMonitorAttributeMetric(ctx, updatedResourceModel.metricName, updatedResourceModel.httpServletExtensionName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -140,7 +140,7 @@ func testAccCheckExpectedPrometheusMonitorAttributeMetricAttributes(config prome
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(ctx, config.metricName, config.httpServletExtensionName).Execute()
+		response, _, err := testClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(ctx, config.metricName, config.httpServletExtensionName).Execute()
 		if err != nil {
 			return err
 		}
@@ -174,7 +174,7 @@ func testAccCheckExpectedPrometheusMonitorAttributeMetricAttributes(config prome
 func testAccCheckPrometheusMonitorAttributeMetricDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(ctx, testIdPrometheusMonitorAttributeMetric, testPrometheusHttpServletExtensionName).Execute()
+	_, _, err := testClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(ctx, testIdPrometheusMonitorAttributeMetric, testPrometheusHttpServletExtensionName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Prometheus Monitor Attribute Metric", testIdPrometheusMonitorAttributeMetric)
 	}

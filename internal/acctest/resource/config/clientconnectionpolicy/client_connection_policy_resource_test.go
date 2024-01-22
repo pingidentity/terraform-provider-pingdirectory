@@ -72,7 +72,7 @@ func TestAccClientConnectionPolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicy(ctx, updatedResourceModel.policyId).Execute()
+					_, err := testClient.ClientConnectionPolicyAPI.DeleteClientConnectionPolicy(ctx, updatedResourceModel.policyId).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -114,7 +114,7 @@ func testAccCheckExpectedClientConnectionPolicyAttributes(config clientConnectio
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(ctx, config.policyId).Execute()
+		response, _, err := testClient.ClientConnectionPolicyAPI.GetClientConnectionPolicy(ctx, config.policyId).Execute()
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func testAccCheckExpectedClientConnectionPolicyAttributes(config clientConnectio
 func testAccCheckClientConnectionPolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(ctx, testIdClientConnectionPolicy).Execute()
+	_, _, err := testClient.ClientConnectionPolicyAPI.GetClientConnectionPolicy(ctx, testIdClientConnectionPolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Client Connection Policy", testIdClientConnectionPolicy)
 	}

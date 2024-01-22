@@ -70,7 +70,7 @@ func TestAccSmtpExternalServer(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ExternalServerApi.DeleteExternalServer(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ExternalServerAPI.DeleteExternalServer(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -113,7 +113,7 @@ func testAccCheckExpectedSmtpExternalServerAttributes(config smtpExternalServerT
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ExternalServerApi.GetExternalServer(ctx, config.id).Execute()
+		response, _, err := testClient.ExternalServerAPI.GetExternalServer(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func testAccCheckExpectedSmtpExternalServerAttributes(config smtpExternalServerT
 func testAccCheckSmtpExternalServerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ExternalServerApi.GetExternalServer(ctx, testIdSmtpExternalServer).Execute()
+	_, _, err := testClient.ExternalServerAPI.GetExternalServer(ctx, testIdSmtpExternalServer).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Smtp External Server", testIdSmtpExternalServer)
 	}

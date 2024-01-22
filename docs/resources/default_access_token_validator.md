@@ -28,8 +28,10 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 ### Optional
 
 - `access_token_manager_id` (String) The Access Token Manager instance ID to specify when calling the PingFederate introspection endpoint. If this property is set the include-aud-parameter property is ignored.
+- `allowed_authentication_type` (Set of String) Specifies the authentication types for bind operations that may be used to generate access tokens, and for which generated access tokens will be accepted.
 - `allowed_content_encryption_algorithm` (Set of String) Specifies an allow list of JWT content encryption algorithms that will be accepted by the JWT Access Token Validator.
 - `allowed_key_encryption_algorithm` (Set of String) Specifies an allow list of JWT key encryption algorithms that will be accepted by the JWT Access Token Validator. This setting is only used if encryption-key-pair is set.
+- `allowed_sasl_mechanism` (Set of String) Specifies the names of the SASL mechanisms for which access tokens may be generated, and for which generated access tokens will be accepted.
 - `allowed_signing_algorithm` (Set of String) Specifies an allow list of JWT signing algorithms that will be accepted by the JWT Access Token Validator.
 - `authorization_server` (String) Specifies the external server that will be used to aid in validating access tokens. In most cases this will be the Authorization Server that minted the token.
 - `client_id` (String) The client identifier to use when authenticating to the PingFederate authorization server.
@@ -38,19 +40,25 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `client_secret_passphrase_provider` (String) The passphrase provider for obtaining the client secret to use when authenticating to the PingFederate authorization server.
 - `clock_skew_grace_period` (String) Specifies the amount of clock skew that is tolerated by the JWT Access Token Validator when evaluating whether a token is within its valid time interval. The duration specified by this parameter will be subtracted from the token's not-before (nbf) time and added to the token's expiration (exp) time, if present, to allow for any time difference between the local server's clock and the token issuer's clock.
 - `description` (String) A description for this Access Token Validator
-- `enabled` (Boolean) Indicates whether this Access Token Validator is enabled for use in Directory Server.
+- `enabled` (Boolean) When the `type` attribute is set to:
+  - One of [`ping-federate`, `jwt`, `mock`, `third-party`]: Indicates whether this Access Token Validator is enabled for use in Directory Server.
+  - `bind`: Indicates whether this Bind Access Token Validator is enabled for use in Directory Server.
 - `encryption_key_pair` (String) The public-private key pair that is used to encrypt the JWT payload. If specified, the JWT Access Token Validator will use the private key to decrypt the JWT payload, and the public key must be exported to the Authorization Server that is issuing access tokens.
 - `endpoint_cache_refresh` (String) How often the Access Token Validator should refresh its stored value of the PingFederate server's token introspection endpoint.
 - `evaluation_order_index` (Number) When the `type` attribute is set to:
+  - One of [`bind`, `third-party`]: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
   - `ping-federate`: When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
   - `jwt`: When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
   - `mock`: When multiple Mock Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Mock Access Token Validators defined within Directory Server but not necessarily contiguous. Mock Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
-  - `third-party`: When multiple Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Access Token Validators defined within Directory Server but not necessarily contiguous. Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Access Token Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Access Token Validator.
+- `generate_token_result_criteria` (String) A reference to a request criteria object that may be used to identify the types of bind operations for which access tokens may be generated. If no criteria is specified, then access tokens may be generated for any bind operations that satisfy the other requirements configured in this validator.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.
 - `include_aud_parameter` (Boolean) Whether to include the incoming request URL as the "aud" parameter when calling the PingFederate introspection endpoint. This property is ignored if the access-token-manager-id property is set.
+- `included_scope` (Set of String) Specifies the names of any scopes that should be granted to a client that authenticates with a bind access token. By default, no scopes will be granted.
 - `jwks_endpoint_path` (String) The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.
+- `maximum_token_lifetime` (String) Specifies the maximum length of time that a generated token should be considered valid. If this is not specified, then generated access tokens will not expire.
+- `persist_access_tokens` (Boolean) Indicates whether access tokens should be persisted in user entries.
 - `scope_claim_name` (String) The name of the token claim that contains the scopes granted by the token.
 - `signing_certificate` (Set of String) Specifies the locally stored certificates that may be used to validate the signature of an incoming JWT access token. If this property is specified, the JWT Access Token Validator will not use a JWKS endpoint to retrieve public keys.
 - `subject_claim_name` (String) The name of the token claim that contains the subject, i.e. the logged-in user in an access token. This property goes hand-in-hand with the identity-mapper property and tells the Identity Mapper which field to use to look up the user entry on the server.
@@ -60,7 +68,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `id` (String) The ID of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
-- `type` (String) The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']
+- `type` (String) The type of Access Token Validator resource. Options are ['bind', 'ping-federate', 'jwt', 'mock', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -390,22 +390,22 @@ func (r *customLoggedStatsResource) CreateCustomLoggedStats(ctx context.Context,
 	plan.AttributeToLog.ElementsAs(ctx, &AttributeToLogSlice, false)
 	var StatisticTypeSlice []client.EnumcustomLoggedStatsStatisticTypeProp
 	plan.StatisticType.ElementsAs(ctx, &StatisticTypeSlice, false)
-	addRequest := client.NewAddCustomLoggedStatsRequest(plan.Name.ValueString(),
-		[]client.EnumcustomLoggedStatsSchemaUrn{client.ENUMCUSTOMLOGGEDSTATSSCHEMAURN_STATSCUSTOM},
+	addRequest := client.NewAddCustomLoggedStatsRequest([]client.EnumcustomLoggedStatsSchemaUrn{client.ENUMCUSTOMLOGGEDSTATSSCHEMAURN_STATSCUSTOM},
 		plan.MonitorObjectclass.ValueString(),
 		AttributeToLogSlice,
-		StatisticTypeSlice)
+		StatisticTypeSlice,
+		plan.Name.ValueString())
 	addOptionalCustomLoggedStatsFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CustomLoggedStatsApi.AddCustomLoggedStats(
+	apiAddRequest := r.apiClient.CustomLoggedStatsAPI.AddCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.PluginName.ValueString())
 	apiAddRequest = apiAddRequest.AddCustomLoggedStatsRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.AddCustomLoggedStatsExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CustomLoggedStatsAPI.AddCustomLoggedStatsExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Custom Logged Stats", err, httpResp)
 		return nil, err
@@ -461,7 +461,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
+	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsAPI.GetCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)
@@ -479,14 +479,14 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 	readCustomLoggedStatsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString())
+	updateRequest := r.apiClient.CustomLoggedStatsAPI.UpdateCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString())
 	ops := createCustomLoggedStatsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStatsExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CustomLoggedStatsAPI.UpdateCustomLoggedStatsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Custom Logged Stats", err, httpResp)
 			return
@@ -529,7 +529,7 @@ func readCustomLoggedStats(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
+	readResponse, httpResp, err := apiClient.CustomLoggedStatsAPI.GetCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.PluginName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -580,7 +580,7 @@ func updateCustomLoggedStats(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state customLoggedStatsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(
+	updateRequest := apiClient.CustomLoggedStatsAPI.UpdateCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString())
 
 	// Determine what update operations are necessary
@@ -590,7 +590,7 @@ func updateCustomLoggedStats(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStatsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.CustomLoggedStatsAPI.UpdateCustomLoggedStatsExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Custom Logged Stats", err, httpResp)
 			return
@@ -632,7 +632,7 @@ func (r *customLoggedStatsResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStatsExecute(r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStats(
+	httpResp, err := r.apiClient.CustomLoggedStatsAPI.DeleteCustomLoggedStatsExecute(r.apiClient.CustomLoggedStatsAPI.DeleteCustomLoggedStats(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.PluginName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Custom Logged Stats", err, httpResp)

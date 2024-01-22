@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -112,7 +112,7 @@ func (r *ldapCorrelationAttributePairDataSource) Read(ctx context.Context, req d
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(
+	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairAPI.GetLdapCorrelationAttributePair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Correlation Attribute Pair", err, httpResp)

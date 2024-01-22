@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -198,11 +198,11 @@ func (r *delegatedAdminAttributeCategoryResource) CreateDelegatedAdminAttributeC
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.AddDelegatedAdminAttributeCategory(
+	apiAddRequest := r.apiClient.DelegatedAdminAttributeCategoryAPI.AddDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddDelegatedAdminAttributeCategoryRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.AddDelegatedAdminAttributeCategoryExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.AddDelegatedAdminAttributeCategoryExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute Category", err, httpResp)
 		return nil, err
@@ -256,7 +256,7 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.GetDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute Category", err, httpResp)
@@ -274,14 +274,14 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 	readDelegatedAdminAttributeCategoryResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryAPI.UpdateDelegatedAdminAttributeCategory(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())
 	ops := createDelegatedAdminAttributeCategoryOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute Category", err, httpResp)
 			return
@@ -323,7 +323,7 @@ func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
+	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryAPI.GetDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.DisplayName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -374,7 +374,7 @@ func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state delegatedAdminAttributeCategoryResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(
+	updateRequest := apiClient.DelegatedAdminAttributeCategoryAPI.UpdateDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.DisplayName.ValueString())
 
 	// Determine what update operations are necessary
@@ -384,7 +384,7 @@ func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryAPI.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute Category", err, httpResp)
 			return
@@ -425,7 +425,7 @@ func (r *delegatedAdminAttributeCategoryResource) Delete(ctx context.Context, re
 		return
 	}
 
-	httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.DeleteDelegatedAdminAttributeCategoryExecute(r.apiClient.DelegatedAdminAttributeCategoryApi.DeleteDelegatedAdminAttributeCategory(
+	httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryAPI.DeleteDelegatedAdminAttributeCategoryExecute(r.apiClient.DelegatedAdminAttributeCategoryAPI.DeleteDelegatedAdminAttributeCategory(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DisplayName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Attribute Category", err, httpResp)

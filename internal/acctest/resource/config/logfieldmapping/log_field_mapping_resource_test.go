@@ -68,7 +68,7 @@ func TestAccAccessLogFieldMapping(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogFieldMappingApi.DeleteLogFieldMapping(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogFieldMappingAPI.DeleteLogFieldMapping(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -111,7 +111,7 @@ func testAccCheckExpectedAccessLogFieldMappingAttributes(config accessLogFieldMa
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogFieldMappingApi.GetLogFieldMapping(ctx, config.id).Execute()
+		response, _, err := testClient.LogFieldMappingAPI.GetLogFieldMapping(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedAccessLogFieldMappingAttributes(config accessLogFieldMa
 func testAccCheckAccessLogFieldMappingDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogFieldMappingApi.GetLogFieldMapping(ctx, testIdAccessLogFieldMapping).Execute()
+	_, _, err := testClient.LogFieldMappingAPI.GetLogFieldMapping(ctx, testIdAccessLogFieldMapping).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Access Log Field Mapping", testIdAccessLogFieldMapping)
 	}

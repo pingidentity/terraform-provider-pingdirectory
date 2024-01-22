@@ -14,11 +14,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -83,18 +84,25 @@ func (r *defaultLogFileRotationListenerResource) Configure(_ context.Context, re
 }
 
 type logFileRotationListenerResourceModel struct {
-	Id                types.String `tfsdk:"id"`
-	Name              types.String `tfsdk:"name"`
-	Notifications     types.Set    `tfsdk:"notifications"`
-	RequiredActions   types.Set    `tfsdk:"required_actions"`
-	Type              types.String `tfsdk:"type"`
-	ExtensionClass    types.String `tfsdk:"extension_class"`
-	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
-	CopyToDirectory   types.String `tfsdk:"copy_to_directory"`
-	CompressOnCopy    types.Bool   `tfsdk:"compress_on_copy"`
-	OutputDirectory   types.String `tfsdk:"output_directory"`
-	Description       types.String `tfsdk:"description"`
-	Enabled           types.Bool   `tfsdk:"enabled"`
+	Id                                   types.String `tfsdk:"id"`
+	Name                                 types.String `tfsdk:"name"`
+	Notifications                        types.Set    `tfsdk:"notifications"`
+	RequiredActions                      types.Set    `tfsdk:"required_actions"`
+	Type                                 types.String `tfsdk:"type"`
+	ExtensionClass                       types.String `tfsdk:"extension_class"`
+	ExtensionArgument                    types.Set    `tfsdk:"extension_argument"`
+	CopyToDirectory                      types.String `tfsdk:"copy_to_directory"`
+	CompressOnCopy                       types.Bool   `tfsdk:"compress_on_copy"`
+	OutputDirectory                      types.String `tfsdk:"output_directory"`
+	AwsExternalServer                    types.String `tfsdk:"aws_external_server"`
+	S3BucketName                         types.String `tfsdk:"s3_bucket_name"`
+	TargetThroughputInMegabitsPerSecond  types.Int64  `tfsdk:"target_throughput_in_megabits_per_second"`
+	MaximumConcurrentTransferConnections types.Int64  `tfsdk:"maximum_concurrent_transfer_connections"`
+	MaximumFileCountToRetain             types.Int64  `tfsdk:"maximum_file_count_to_retain"`
+	MaximumFileAgeToRetain               types.String `tfsdk:"maximum_file_age_to_retain"`
+	FileRetentionPattern                 types.String `tfsdk:"file_retention_pattern"`
+	Description                          types.String `tfsdk:"description"`
+	Enabled                              types.Bool   `tfsdk:"enabled"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -111,13 +119,13 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 		Description: "Manages a Log File Rotation Listener.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']",
+				Description: "The type of Log File Rotation Listener resource. Options are ['upload-to-s3', 'summarize', 'copy', 'third-party']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"summarize", "copy", "third-party"}...),
+					stringvalidator.OneOf([]string{"upload-to-s3", "summarize", "copy", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -143,6 +151,35 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 			"output_directory": schema.StringAttribute{
 				Description: "The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.",
 				Optional:    true,
+			},
+			"aws_external_server": schema.StringAttribute{
+				Description: "The external server with information to use when interacting with the AWS S3 service.",
+				Optional:    true,
+			},
+			"s3_bucket_name": schema.StringAttribute{
+				Description: "The name of the S3 bucket into which rotated log files should be copied.",
+				Optional:    true,
+			},
+			"target_throughput_in_megabits_per_second": schema.Int64Attribute{
+				Description: "The target throughput to attempt to achieve for data transfers to or from S3, in megabits per second.",
+				Optional:    true,
+			},
+			"maximum_concurrent_transfer_connections": schema.Int64Attribute{
+				Description: "The maximum number of concurrent connections that may be used when transferring data to or from S3.",
+				Optional:    true,
+			},
+			"maximum_file_count_to_retain": schema.Int64Attribute{
+				Description: "The maximum number of existing files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.",
+				Optional:    true,
+			},
+			"maximum_file_age_to_retain": schema.StringAttribute{
+				Description: "The maximum length of time to retain files matching the file retention pattern that should be retained in the S3 bucket after successfully uploading a newly rotated file.",
+				Optional:    true,
+			},
+			"file_retention_pattern": schema.StringAttribute{
+				Description: "A regular expression pattern that will be used to identify which files are candidates for automatic removal based on the maximum-file-count-to-retain and maximum-file-age-to-retain properties. By default, all files in the bucket will be eligible for removal by retention processing.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Log File Rotation Listener",
@@ -177,11 +214,22 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_log_file_rotation_listener")
 	var planModel, configModel logFileRotationListenerResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
 	resourceType := planModel.Type.ValueString()
 	anyDefaultsSet := false
+	// Set defaults for upload-to-s3 type
+	if resourceType == "upload-to-s3" {
+		if !internaltypes.IsDefined(configModel.FileRetentionPattern) {
+			defaultVal := types.StringValue(".*")
+			if !planModel.FileRetentionPattern.Equal(defaultVal) {
+				planModel.FileRetentionPattern = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
 	// Set defaults for copy type
 	if resourceType == "copy" {
 		if !internaltypes.IsDefined(configModel.CompressOnCopy) {
@@ -200,13 +248,43 @@ func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req re
 	resp.Plan.Set(ctx, &planModel)
 }
 
+func (r *defaultLogFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_log_file_rotation_listener")
+}
+
+func modifyPlanLogFileRotationListener(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model logFileRotationListenerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "upload-to-s3" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
+			providerConfig.ProductVersion, resourceName+" with type \"upload_to_s3\"")
+	}
+}
+
 func (model *logFileRotationListenerResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
-	if resourceType == "summarize" {
+	if resourceType == "upload-to-s3" {
 		model.CompressOnCopy = types.BoolNull()
 	}
+	if resourceType == "summarize" {
+		model.FileRetentionPattern = types.StringNull()
+		model.CompressOnCopy = types.BoolNull()
+	}
+	if resourceType == "copy" {
+		model.FileRetentionPattern = types.StringNull()
+	}
 	if resourceType == "third-party" {
+		model.FileRetentionPattern = types.StringNull()
 		model.CompressOnCopy = types.BoolNull()
 	}
 }
@@ -214,6 +292,41 @@ func (model *logFileRotationListenerResourceModel) setNotApplicableAttrsNull() {
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("s3_bucket_name"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_throughput_in_megabits_per_second"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_concurrent_transfer_connections"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_file_count_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_file_age_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("file_retention_pattern"),
+			path.MatchRoot("type"),
+			[]string{"upload-to-s3"},
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("output_directory"),
 			path.MatchRoot("type"),
@@ -241,6 +354,11 @@ func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
+			"upload-to-s3",
+			[]path.Expression{path.MatchRoot("aws_external_server"), path.MatchRoot("s3_bucket_name")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
 			"copy",
 			[]path.Expression{path.MatchRoot("copy_to_directory")},
 		),
@@ -260,6 +378,31 @@ func (r logFileRotationListenerResource) ConfigValidators(ctx context.Context) [
 // Add config validators
 func (r defaultLogFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return configValidatorsLogFileRotationListener()
+}
+
+// Add optional fields to create request for upload-to-s3 log-file-rotation-listener
+func addOptionalUploadToS3LogFileRotationListenerFields(ctx context.Context, addRequest *client.AddUploadToS3LogFileRotationListenerRequest, plan logFileRotationListenerResourceModel) {
+	if internaltypes.IsDefined(plan.TargetThroughputInMegabitsPerSecond) {
+		addRequest.TargetThroughputInMegabitsPerSecond = plan.TargetThroughputInMegabitsPerSecond.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.MaximumConcurrentTransferConnections) {
+		addRequest.MaximumConcurrentTransferConnections = plan.MaximumConcurrentTransferConnections.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.MaximumFileCountToRetain) {
+		addRequest.MaximumFileCountToRetain = plan.MaximumFileCountToRetain.ValueInt64Pointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MaximumFileAgeToRetain) {
+		addRequest.MaximumFileAgeToRetain = plan.MaximumFileAgeToRetain.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.FileRetentionPattern) {
+		addRequest.FileRetentionPattern = plan.FileRetentionPattern.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
 }
 
 // Add optional fields to create request for summarize log-file-rotation-listener
@@ -307,6 +450,9 @@ func populateLogFileRotationListenerUnknownValues(model *logFileRotationListener
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *logFileRotationListenerResourceModel) populateAllComputedStringAttributes() {
+	if model.MaximumFileAgeToRetain.IsUnknown() || model.MaximumFileAgeToRetain.IsNull() {
+		model.MaximumFileAgeToRetain = types.StringValue("")
+	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
@@ -316,9 +462,38 @@ func (model *logFileRotationListenerResourceModel) populateAllComputedStringAttr
 	if model.ExtensionClass.IsUnknown() || model.ExtensionClass.IsNull() {
 		model.ExtensionClass = types.StringValue("")
 	}
+	if model.AwsExternalServer.IsUnknown() || model.AwsExternalServer.IsNull() {
+		model.AwsExternalServer = types.StringValue("")
+	}
+	if model.S3BucketName.IsUnknown() || model.S3BucketName.IsNull() {
+		model.S3BucketName = types.StringValue("")
+	}
 	if model.CopyToDirectory.IsUnknown() || model.CopyToDirectory.IsNull() {
 		model.CopyToDirectory = types.StringValue("")
 	}
+	if model.FileRetentionPattern.IsUnknown() || model.FileRetentionPattern.IsNull() {
+		model.FileRetentionPattern = types.StringValue("")
+	}
+}
+
+// Read a UploadToS3LogFileRotationListenerResponse object into the model struct
+func readUploadToS3LogFileRotationListenerResponse(ctx context.Context, r *client.UploadToS3LogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("upload-to-s3")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
+	state.S3BucketName = types.StringValue(r.S3BucketName)
+	state.TargetThroughputInMegabitsPerSecond = internaltypes.Int64TypeOrNil(r.TargetThroughputInMegabitsPerSecond)
+	state.MaximumConcurrentTransferConnections = internaltypes.Int64TypeOrNil(r.MaximumConcurrentTransferConnections)
+	state.MaximumFileCountToRetain = internaltypes.Int64TypeOrNil(r.MaximumFileCountToRetain)
+	state.MaximumFileAgeToRetain = internaltypes.StringTypeOrNil(r.MaximumFileAgeToRetain, internaltypes.IsEmptyString(expectedValues.MaximumFileAgeToRetain))
+	config.CheckMismatchedPDFormattedAttributes("maximum_file_age_to_retain",
+		expectedValues.MaximumFileAgeToRetain, state.MaximumFileAgeToRetain, diagnostics)
+	state.FileRetentionPattern = internaltypes.StringTypeOrNil(r.FileRetentionPattern, true)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateLogFileRotationListenerUnknownValues(state)
 }
 
 // Read a SummarizeLogFileRotationListenerResponse object into the model struct
@@ -367,28 +542,71 @@ func createLogFileRotationListenerOperations(plan logFileRotationListenerResourc
 	operations.AddStringOperationIfNecessary(&ops, plan.CopyToDirectory, state.CopyToDirectory, "copy-to-directory")
 	operations.AddBoolOperationIfNecessary(&ops, plan.CompressOnCopy, state.CompressOnCopy, "compress-on-copy")
 	operations.AddStringOperationIfNecessary(&ops, plan.OutputDirectory, state.OutputDirectory, "output-directory")
+	operations.AddStringOperationIfNecessary(&ops, plan.AwsExternalServer, state.AwsExternalServer, "aws-external-server")
+	operations.AddStringOperationIfNecessary(&ops, plan.S3BucketName, state.S3BucketName, "s3-bucket-name")
+	operations.AddInt64OperationIfNecessary(&ops, plan.TargetThroughputInMegabitsPerSecond, state.TargetThroughputInMegabitsPerSecond, "target-throughput-in-megabits-per-second")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentTransferConnections, state.MaximumConcurrentTransferConnections, "maximum-concurrent-transfer-connections")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumFileCountToRetain, state.MaximumFileCountToRetain, "maximum-file-count-to-retain")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaximumFileAgeToRetain, state.MaximumFileAgeToRetain, "maximum-file-age-to-retain")
+	operations.AddStringOperationIfNecessary(&ops, plan.FileRetentionPattern, state.FileRetentionPattern, "file-retention-pattern")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
 }
 
+// Create a upload-to-s3 log-file-rotation-listener
+func (r *logFileRotationListenerResource) CreateUploadToS3LogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
+	addRequest := client.NewAddUploadToS3LogFileRotationListenerRequest([]client.EnumuploadToS3LogFileRotationListenerSchemaUrn{client.ENUMUPLOADTOS3LOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERUPLOAD_TO_S3},
+		plan.AwsExternalServer.ValueString(),
+		plan.S3BucketName.ValueString(),
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	addOptionalUploadToS3LogFileRotationListenerFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
+		client.AddUploadToS3LogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListenerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state logFileRotationListenerResourceModel
+	readUploadToS3LogFileRotationListenerResponse(ctx, addResponse.UploadToS3LogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a summarize log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateSummarizeLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddSummarizeLogFileRotationListenerRequest(plan.Name.ValueString(),
-		[]client.EnumsummarizeLogFileRotationListenerSchemaUrn{client.ENUMSUMMARIZELOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERSUMMARIZE},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddSummarizeLogFileRotationListenerRequest([]client.EnumsummarizeLogFileRotationListenerSchemaUrn{client.ENUMSUMMARIZELOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERSUMMARIZE},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalSummarizeLogFileRotationListenerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+	apiAddRequest := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
 		client.AddSummarizeLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListenerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
 		return nil, err
@@ -408,22 +626,22 @@ func (r *logFileRotationListenerResource) CreateSummarizeLogFileRotationListener
 
 // Create a copy log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateCopyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddCopyLogFileRotationListenerRequest(plan.Name.ValueString(),
-		[]client.EnumcopyLogFileRotationListenerSchemaUrn{client.ENUMCOPYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERCOPY},
+	addRequest := client.NewAddCopyLogFileRotationListenerRequest([]client.EnumcopyLogFileRotationListenerSchemaUrn{client.ENUMCOPYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERCOPY},
 		plan.CopyToDirectory.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalCopyLogFileRotationListenerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+	apiAddRequest := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
 		client.AddCopyLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListenerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
 		return nil, err
@@ -443,22 +661,22 @@ func (r *logFileRotationListenerResource) CreateCopyLogFileRotationListener(ctx 
 
 // Create a third-party log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateThirdPartyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyLogFileRotationListenerRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyLogFileRotationListenerSchemaUrn{client.ENUMTHIRDPARTYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyLogFileRotationListenerRequest([]client.EnumthirdPartyLogFileRotationListenerSchemaUrn{client.ENUMTHIRDPARTYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyLogFileRotationListenerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+	apiAddRequest := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
 		client.AddThirdPartyLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.AddLogFileRotationListenerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
 		return nil, err
@@ -488,6 +706,12 @@ func (r *logFileRotationListenerResource) Create(ctx context.Context, req resour
 
 	var state *logFileRotationListenerResourceModel
 	var err error
+	if plan.Type.ValueString() == "upload-to-s3" {
+		state, err = r.CreateUploadToS3LogFileRotationListener(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.Type.ValueString() == "summarize" {
 		state, err = r.CreateSummarizeLogFileRotationListener(ctx, req, resp, plan)
 		if err != nil {
@@ -528,7 +752,7 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
+	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.GetLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
@@ -543,6 +767,9 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state logFileRotationListenerResourceModel
+	if readResponse.UploadToS3LogFileRotationListenerResponse != nil {
+		readUploadToS3LogFileRotationListenerResponse(ctx, readResponse.UploadToS3LogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
 		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -554,14 +781,14 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LogFileRotationListenerAPI.UpdateLogFileRotationListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFileRotationListenerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListenerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LogFileRotationListenerAPI.UpdateLogFileRotationListenerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log File Rotation Listener", err, httpResp)
 			return
@@ -574,6 +801,9 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
+		if updateResponse.UploadToS3LogFileRotationListenerResponse != nil {
+			readUploadToS3LogFileRotationListenerResponse(ctx, updateResponse.UploadToS3LogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -611,7 +841,7 @@ func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
+	readResponse, httpResp, err := apiClient.LogFileRotationListenerAPI.GetLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -630,6 +860,9 @@ func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	// Read the response into the state
+	if readResponse.UploadToS3LogFileRotationListenerResponse != nil {
+		readUploadToS3LogFileRotationListenerResponse(ctx, readResponse.UploadToS3LogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
 		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -670,7 +903,7 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 	// Get the current state to see how any attributes are changing
 	var state logFileRotationListenerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(
+	updateRequest := apiClient.LogFileRotationListenerAPI.UpdateLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -680,7 +913,7 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListenerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogFileRotationListenerAPI.UpdateLogFileRotationListenerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log File Rotation Listener", err, httpResp)
 			return
@@ -693,6 +926,9 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
+		if updateResponse.UploadToS3LogFileRotationListenerResponse != nil {
+			readUploadToS3LogFileRotationListenerResponse(ctx, updateResponse.UploadToS3LogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -729,7 +965,7 @@ func (r *logFileRotationListenerResource) Delete(ctx context.Context, req resour
 		return
 	}
 
-	httpResp, err := r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListenerExecute(r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListener(
+	httpResp, err := r.apiClient.LogFileRotationListenerAPI.DeleteLogFileRotationListenerExecute(r.apiClient.LogFileRotationListenerAPI.DeleteLogFileRotationListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log File Rotation Listener", err, httpResp)

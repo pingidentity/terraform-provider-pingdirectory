@@ -66,7 +66,7 @@ func TestAccDelayBindResponseFailureLockoutAction(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.FailureLockoutActionApi.DeleteFailureLockoutAction(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.FailureLockoutActionAPI.DeleteFailureLockoutAction(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedDelayBindResponseFailureLockoutActionAttributes(config 
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.FailureLockoutActionApi.GetFailureLockoutAction(ctx, config.id).Execute()
+		response, _, err := testClient.FailureLockoutActionAPI.GetFailureLockoutAction(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func testAccCheckExpectedDelayBindResponseFailureLockoutActionAttributes(config 
 func testAccCheckDelayBindResponseFailureLockoutActionDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.FailureLockoutActionApi.GetFailureLockoutAction(ctx, testIdDelayBindResponseFailureLockoutAction).Execute()
+	_, _, err := testClient.FailureLockoutActionAPI.GetFailureLockoutAction(ctx, testIdDelayBindResponseFailureLockoutAction).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Delay Bind Response Failure Lockout Action", testIdDelayBindResponseFailureLockoutAction)
 	}

@@ -73,7 +73,7 @@ func TestAccConjurAuthenticationMethod(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ConjurAuthenticationMethodApi.DeleteConjurAuthenticationMethod(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ConjurAuthenticationMethodAPI.DeleteConjurAuthenticationMethod(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -115,7 +115,7 @@ func testAccCheckExpectedConjurAuthenticationMethodAttributes(config conjurAuthe
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(ctx, config.id).Execute()
+		response, _, err := testClient.ConjurAuthenticationMethodAPI.GetConjurAuthenticationMethod(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func testAccCheckExpectedConjurAuthenticationMethodAttributes(config conjurAuthe
 func testAccCheckConjurAuthenticationMethodDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(ctx, testIdConjurAuthenticationMethod).Execute()
+	_, _, err := testClient.ConjurAuthenticationMethodAPI.GetConjurAuthenticationMethod(ctx, testIdConjurAuthenticationMethod).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Conjur Authentication Method", testIdConjurAuthenticationMethod)
 	}

@@ -81,7 +81,7 @@ func testAccCheckExpectedDefaultLocationAttributes(config defaultLocationTestMod
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LocationApi.GetLocation(ctx, config.id).Execute()
+		response, _, err := testClient.LocationAPI.GetLocation(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -100,7 +100,7 @@ func testAccCheckExpectedDefaultLocationAttributes(config defaultLocationTestMod
 func testAccCheckDefaultLocationDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LocationApi.GetLocation(ctx, defaultLocationId).Execute()
+	_, _, err := testClient.LocationAPI.GetLocation(ctx, defaultLocationId).Execute()
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func testAccCheckExpectedDefaultLogPublisherAttributes(config defaultLogPublishe
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, config.id).Execute()
+		response, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ func testAccCheckExpectedDefaultLogPublisherAttributes(config defaultLogPublishe
 func testAccCheckDefaultLogPublisherDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogPublisherApi.GetLogPublisher(ctx, defaultLogPublisherId).Execute()
+	_, _, err := testClient.LogPublisherAPI.GetLogPublisher(ctx, defaultLogPublisherId).Execute()
 	if err != nil {
 		return err
 	}

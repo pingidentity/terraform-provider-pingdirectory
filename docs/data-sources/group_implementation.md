@@ -31,5 +31,5 @@ data "pingdirectory_group_implementation" "myGroupImplementation" {
 - `description` (String) A description for this Group Implementation
 - `enabled` (Boolean) Indicates whether the Group Implementation is enabled.
 - `id` (String) The ID of this resource.
-- `type` (String) The type of Group Implementation resource. Options are ['static', 'virtual-static', 'dynamic']
+- `type` (String) The type of Group Implementation resource. Options are ['static', 'inverted-static', 'virtual-static', 'dynamic']
 

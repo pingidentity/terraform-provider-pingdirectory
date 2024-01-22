@@ -75,7 +75,7 @@ func TestAccSmtpAlertHandler(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.AlertHandlerApi.DeleteAlertHandler(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.AlertHandlerAPI.DeleteAlertHandler(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedSmtpAlertHandlerAttributes(config smtpAlertHandlerTestM
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.AlertHandlerApi.GetAlertHandler(ctx, config.id).Execute()
+		response, _, err := testClient.AlertHandlerAPI.GetAlertHandler(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,7 @@ func testAccCheckExpectedSmtpAlertHandlerAttributes(config smtpAlertHandlerTestM
 func testAccCheckSmtpAlertHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AlertHandlerApi.GetAlertHandler(ctx, testIdSmtpAlertHandler).Execute()
+	_, _, err := testClient.AlertHandlerAPI.GetAlertHandler(ctx, testIdSmtpAlertHandler).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Smtp Alert Handler", testIdSmtpAlertHandler)
 	}

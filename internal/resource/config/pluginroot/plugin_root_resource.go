@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -660,7 +660,7 @@ func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginRootApi.GetPluginRoot(
+	readResponse, httpResp, err := r.apiClient.PluginRootAPI.GetPluginRoot(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin Root", err, httpResp)
@@ -678,14 +678,14 @@ func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequ
 	readPluginRootResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PluginRootApi.UpdatePluginRoot(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.PluginRootAPI.UpdatePluginRoot(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createPluginRootOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginRootApi.UpdatePluginRootExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PluginRootAPI.UpdatePluginRootExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Plugin Root", err, httpResp)
 			return
@@ -718,7 +718,7 @@ func (r *pluginRootResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginRootApi.GetPluginRoot(
+	readResponse, httpResp, err := r.apiClient.PluginRootAPI.GetPluginRoot(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin Root", err, httpResp)
@@ -752,7 +752,7 @@ func (r *pluginRootResource) Update(ctx context.Context, req resource.UpdateRequ
 	// Get the current state to see how any attributes are changing
 	var state pluginRootResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginRootApi.UpdatePluginRoot(
+	updateRequest := r.apiClient.PluginRootAPI.UpdatePluginRoot(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -762,7 +762,7 @@ func (r *pluginRootResource) Update(ctx context.Context, req resource.UpdateRequ
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginRootApi.UpdatePluginRootExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PluginRootAPI.UpdatePluginRootExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Plugin Root", err, httpResp)
 			return

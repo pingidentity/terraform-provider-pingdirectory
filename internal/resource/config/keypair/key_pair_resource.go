@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -275,11 +275,11 @@ func (r *keyPairResource) CreateKeyPair(ctx context.Context, req resource.Create
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.KeyPairApi.AddKeyPair(
+	apiAddRequest := r.apiClient.KeyPairAPI.AddKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddKeyPairRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.KeyPairApi.AddKeyPairExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.KeyPairAPI.AddKeyPairExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Key Pair", err, httpResp)
 		return nil, err
@@ -335,7 +335,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.KeyPairApi.GetKeyPair(
+	readResponse, httpResp, err := r.apiClient.KeyPairAPI.GetKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
@@ -353,14 +353,14 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 	readKeyPairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.KeyPairApi.UpdateKeyPair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.KeyPairAPI.UpdateKeyPair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createKeyPairOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.KeyPairApi.UpdateKeyPairExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.KeyPairAPI.UpdateKeyPairExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Pair", err, httpResp)
 			return
@@ -403,7 +403,7 @@ func readKeyPair(ctx context.Context, req resource.ReadRequest, resp *resource.R
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.KeyPairApi.GetKeyPair(
+	readResponse, httpResp, err := apiClient.KeyPairAPI.GetKeyPair(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -454,7 +454,7 @@ func updateKeyPair(ctx context.Context, req resource.UpdateRequest, resp *resour
 	// Get the current state to see how any attributes are changing
 	var state keyPairResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.KeyPairApi.UpdateKeyPair(
+	updateRequest := apiClient.KeyPairAPI.UpdateKeyPair(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -464,7 +464,7 @@ func updateKeyPair(ctx context.Context, req resource.UpdateRequest, resp *resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.KeyPairApi.UpdateKeyPairExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.KeyPairAPI.UpdateKeyPairExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Pair", err, httpResp)
 			return
@@ -506,7 +506,7 @@ func (r *keyPairResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	httpResp, err := r.apiClient.KeyPairApi.DeleteKeyPairExecute(r.apiClient.KeyPairApi.DeleteKeyPair(
+	httpResp, err := r.apiClient.KeyPairAPI.DeleteKeyPairExecute(r.apiClient.KeyPairAPI.DeleteKeyPair(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Pair", err, httpResp)

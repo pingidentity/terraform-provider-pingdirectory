@@ -16,11 +16,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -116,12 +117,14 @@ type connectionHandlerResourceModel struct {
 	CorrelationIDResponseHeader            types.String `tfsdk:"correlation_id_response_header"`
 	CorrelationIDRequestHeader             types.Set    `tfsdk:"correlation_id_request_header"`
 	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
+	EnableSniHostnameChecks                types.Bool   `tfsdk:"enable_sni_hostname_checks"`
 	SendRejectionNotice                    types.Bool   `tfsdk:"send_rejection_notice"`
 	FailedBindResponseDelay                types.String `tfsdk:"failed_bind_response_delay"`
 	MaxRequestSize                         types.String `tfsdk:"max_request_size"`
 	MaxCancelHandlers                      types.Int64  `tfsdk:"max_cancel_handlers"`
 	NumAcceptHandlers                      types.Int64  `tfsdk:"num_accept_handlers"`
 	NumRequestHandlers                     types.Int64  `tfsdk:"num_request_handlers"`
+	RequestHandlerPerConnection            types.Bool   `tfsdk:"request_handler_per_connection"`
 	SslClientAuthPolicy                    types.String `tfsdk:"ssl_client_auth_policy"`
 	AcceptBacklog                          types.Int64  `tfsdk:"accept_backlog"`
 	SslProtocol                            types.Set    `tfsdk:"ssl_protocol"`
@@ -314,6 +317,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 			},
+			"enable_sni_hostname_checks": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"send_rejection_notice": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.",
 				Optional:    true,
@@ -347,6 +355,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ldap`: Specifies the number of request handlers that are used to read requests from clients.\n  - `http`: Specifies the number of threads that will be used for accepting connections and reading requests from clients.",
 				Optional:            true,
 				Computed:            true,
+			},
+			"request_handler_per_connection": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether a separate request handler thread should be created for each client connection, which can help avoid starvation of client connections for cases in which one or more clients send large numbers of concurrent asynchronous requests. This should only be used for cases in which a relatively small number of connections will be established at any given time, the connections established will generally be long-lived, and at least one client may send high volumes of asynchronous requests. This property can be used to alleviate possible blocking during long-running TLS negotiation on a single request handler which can result in it being unable to acknowledge further client requests until the TLS negotation completes or times out.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"ssl_client_auth_policy": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates. When the `type` attribute is set to `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.",
@@ -441,6 +454,7 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel connectionHandlerResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -518,6 +532,13 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 			defaultVal := types.Int64Value(0)
 			if !planModel.NumRequestHandlers.Equal(defaultVal) {
 				planModel.NumRequestHandlers = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.RequestHandlerPerConnection) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.RequestHandlerPerConnection.Equal(defaultVal) {
+				planModel.RequestHandlerPerConnection = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -646,6 +667,13 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 				anyDefaultsSet = true
 			}
 		}
+		if !internaltypes.IsDefined(configModel.EnableSniHostnameChecks) {
+			defaultVal := types.BoolValue(false)
+			if !planModel.EnableSniHostnameChecks.Equal(defaultVal) {
+				planModel.EnableSniHostnameChecks = defaultVal
+				anyDefaultsSet = true
+			}
+		}
 	}
 	if anyDefaultsSet {
 		planModel.Notifications = types.SetUnknown(types.StringType)
@@ -655,6 +683,30 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 	resp.Plan.Set(ctx, &planModel)
 }
 
+func (r *defaultConnectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanConnectionHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model connectionHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.RequestHandlerPerConnection) {
+		resp.Diagnostics.AddError("Attribute 'request_handler_per_connection' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.EnableSniHostnameChecks) {
+		resp.Diagnostics.AddError("Attribute 'enable_sni_hostname_checks' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
 func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
@@ -662,6 +714,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
 		model.AllowLDAPV2 = types.BoolNull()
+		model.EnableSniHostnameChecks = types.BoolNull()
 		model.NumAcceptHandlers = types.Int64Null()
 		model.SendRejectionNotice = types.BoolNull()
 		model.PollInterval = types.StringNull()
@@ -681,6 +734,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.AllowStartTLS = types.BoolNull()
 		model.UseTCPKeepAlive = types.BoolNull()
 		model.LdifDirectory = types.StringNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
 		model.UseCorrelationIDHeader = types.BoolNull()
 		model.IdleTimeLimit = types.StringNull()
 		model.HttpRequestHeaderSize = types.Int64Null()
@@ -691,6 +745,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 	if resourceType == "ldap" {
 		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.EnableSniHostnameChecks = types.BoolNull()
 		model.PollInterval = types.StringNull()
 		model.AllowTCPReuseAddress = types.BoolNull()
 		model.LowResourcesIdleTimeLimit = types.StringNull()
@@ -706,6 +761,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
 		model.AllowLDAPV2 = types.BoolNull()
+		model.EnableSniHostnameChecks = types.BoolNull()
 		model.NumAcceptHandlers = types.Int64Null()
 		model.SendRejectionNotice = types.BoolNull()
 		model.AcceptBacklog = types.Int64Null()
@@ -724,6 +780,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.UseForwardedHeaders = types.BoolNull()
 		model.AllowStartTLS = types.BoolNull()
 		model.UseTCPKeepAlive = types.BoolNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
 		model.UseCorrelationIDHeader = types.BoolNull()
 		model.IdleTimeLimit = types.StringNull()
 		model.HttpRequestHeaderSize = types.Int64Null()
@@ -744,6 +801,7 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.AllowStartTLS = types.BoolNull()
 		model.UseTCPKeepAlive = types.BoolNull()
 		model.LdifDirectory = types.StringNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
 		model.FailedBindResponseDelay = types.StringNull()
 		model.CloseConnectionsOnExplicitGC = types.BoolNull()
 	}
@@ -844,6 +902,11 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			path.MatchRoot("num_request_handlers"),
 			path.MatchRoot("type"),
 			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_handler_per_connection"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ssl_client_auth_policy"),
@@ -970,6 +1033,11 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_sni_hostname_checks"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
 			"jmx",
@@ -1078,6 +1146,9 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	if internaltypes.IsDefined(plan.NumRequestHandlers) {
 		addRequest.NumRequestHandlers = plan.NumRequestHandlers.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.RequestHandlerPerConnection) {
+		addRequest.RequestHandlerPerConnection = plan.RequestHandlerPerConnection.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslClientAuthPolicy) {
@@ -1260,6 +1331,9 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		}
 		addRequest.SslClientAuthPolicy = sslClientAuthPolicy
 	}
+	if internaltypes.IsDefined(plan.EnableSniHostnameChecks) {
+		addRequest.EnableSniHostnameChecks = plan.EnableSniHostnameChecks.ValueBoolPointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -1385,6 +1459,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
 	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
 	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
+	state.RequestHandlerPerConnection = internaltypes.BoolTypeOrNil(r.RequestHandlerPerConnection)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
@@ -1462,6 +1537,7 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
+	state.EnableSniHostnameChecks = internaltypes.BoolTypeOrNil(r.EnableSniHostnameChecks)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1497,12 +1573,14 @@ func createConnectionHandlerOperations(plan connectionHandlerResourceModel, stat
 	operations.AddStringOperationIfNecessary(&ops, plan.CorrelationIDResponseHeader, state.CorrelationIDResponseHeader, "correlation-id-response-header")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorrelationIDRequestHeader, state.CorrelationIDRequestHeader, "correlation-id-request-header")
 	operations.AddBoolOperationIfNecessary(&ops, plan.UseTCPKeepAlive, state.UseTCPKeepAlive, "use-tcp-keep-alive")
+	operations.AddBoolOperationIfNecessary(&ops, plan.EnableSniHostnameChecks, state.EnableSniHostnameChecks, "enable-sni-hostname-checks")
 	operations.AddBoolOperationIfNecessary(&ops, plan.SendRejectionNotice, state.SendRejectionNotice, "send-rejection-notice")
 	operations.AddStringOperationIfNecessary(&ops, plan.FailedBindResponseDelay, state.FailedBindResponseDelay, "failed-bind-response-delay")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaxRequestSize, state.MaxRequestSize, "max-request-size")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaxCancelHandlers, state.MaxCancelHandlers, "max-cancel-handlers")
 	operations.AddInt64OperationIfNecessary(&ops, plan.NumAcceptHandlers, state.NumAcceptHandlers, "num-accept-handlers")
 	operations.AddInt64OperationIfNecessary(&ops, plan.NumRequestHandlers, state.NumRequestHandlers, "num-request-handlers")
+	operations.AddBoolOperationIfNecessary(&ops, plan.RequestHandlerPerConnection, state.RequestHandlerPerConnection, "request-handler-per-connection")
 	operations.AddStringOperationIfNecessary(&ops, plan.SslClientAuthPolicy, state.SslClientAuthPolicy, "ssl-client-auth-policy")
 	operations.AddInt64OperationIfNecessary(&ops, plan.AcceptBacklog, state.AcceptBacklog, "accept-backlog")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.SslProtocol, state.SslProtocol, "ssl-protocol")
@@ -1520,10 +1598,10 @@ func createConnectionHandlerOperations(plan connectionHandlerResourceModel, stat
 
 // Create a jmx connection-handler
 func (r *connectionHandlerResource) CreateJmxConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddJmxConnectionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumjmxConnectionHandlerSchemaUrn{client.ENUMJMXCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERJMX},
+	addRequest := client.NewAddJmxConnectionHandlerRequest([]client.EnumjmxConnectionHandlerSchemaUrn{client.ENUMJMXCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERJMX},
 		plan.ListenPort.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalJmxConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Handler", err.Error())
@@ -1534,12 +1612,12 @@ func (r *connectionHandlerResource) CreateJmxConnectionHandler(ctx context.Conte
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionHandlerApi.AddConnectionHandler(
+	apiAddRequest := r.apiClient.ConnectionHandlerAPI.AddConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionHandlerRequest(
 		client.AddJmxConnectionHandlerRequestAsAddConnectionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.AddConnectionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.AddConnectionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Handler", err, httpResp)
 		return nil, err
@@ -1559,10 +1637,10 @@ func (r *connectionHandlerResource) CreateJmxConnectionHandler(ctx context.Conte
 
 // Create a ldap connection-handler
 func (r *connectionHandlerResource) CreateLdapConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddLdapConnectionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumldapConnectionHandlerSchemaUrn{client.ENUMLDAPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDAP},
+	addRequest := client.NewAddLdapConnectionHandlerRequest([]client.EnumldapConnectionHandlerSchemaUrn{client.ENUMLDAPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDAP},
 		plan.ListenPort.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalLdapConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Handler", err.Error())
@@ -1573,12 +1651,12 @@ func (r *connectionHandlerResource) CreateLdapConnectionHandler(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionHandlerApi.AddConnectionHandler(
+	apiAddRequest := r.apiClient.ConnectionHandlerAPI.AddConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionHandlerRequest(
 		client.AddLdapConnectionHandlerRequestAsAddConnectionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.AddConnectionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.AddConnectionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Handler", err, httpResp)
 		return nil, err
@@ -1598,9 +1676,9 @@ func (r *connectionHandlerResource) CreateLdapConnectionHandler(ctx context.Cont
 
 // Create a ldif connection-handler
 func (r *connectionHandlerResource) CreateLdifConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddLdifConnectionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumldifConnectionHandlerSchemaUrn{client.ENUMLDIFCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDIF},
-		plan.Enabled.ValueBool())
+	addRequest := client.NewAddLdifConnectionHandlerRequest([]client.EnumldifConnectionHandlerSchemaUrn{client.ENUMLDIFCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDIF},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalLdifConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Handler", err.Error())
@@ -1611,12 +1689,12 @@ func (r *connectionHandlerResource) CreateLdifConnectionHandler(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionHandlerApi.AddConnectionHandler(
+	apiAddRequest := r.apiClient.ConnectionHandlerAPI.AddConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionHandlerRequest(
 		client.AddLdifConnectionHandlerRequestAsAddConnectionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.AddConnectionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.AddConnectionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Handler", err, httpResp)
 		return nil, err
@@ -1636,10 +1714,10 @@ func (r *connectionHandlerResource) CreateLdifConnectionHandler(ctx context.Cont
 
 // Create a http connection-handler
 func (r *connectionHandlerResource) CreateHttpConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddHttpConnectionHandlerRequest(plan.Name.ValueString(),
-		[]client.EnumhttpConnectionHandlerSchemaUrn{client.ENUMHTTPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERHTTP},
+	addRequest := client.NewAddHttpConnectionHandlerRequest([]client.EnumhttpConnectionHandlerSchemaUrn{client.ENUMHTTPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERHTTP},
 		plan.ListenPort.ValueInt64(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	err := addOptionalHttpConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Connection Handler", err.Error())
@@ -1650,12 +1728,12 @@ func (r *connectionHandlerResource) CreateHttpConnectionHandler(ctx context.Cont
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConnectionHandlerApi.AddConnectionHandler(
+	apiAddRequest := r.apiClient.ConnectionHandlerAPI.AddConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddConnectionHandlerRequest(
 		client.AddHttpConnectionHandlerRequestAsAddConnectionHandlerRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.AddConnectionHandlerExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.AddConnectionHandlerExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Connection Handler", err, httpResp)
 		return nil, err
@@ -1731,7 +1809,7 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
+	readResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.GetConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
@@ -1760,14 +1838,14 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.ConnectionHandlerAPI.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConnectionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerAPI.UpdateConnectionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Handler", err, httpResp)
 			return
@@ -1820,7 +1898,7 @@ func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
+	readResponse, httpResp, err := apiClient.ConnectionHandlerAPI.GetConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -1882,7 +1960,7 @@ func updateConnectionHandler(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state connectionHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
+	updateRequest := apiClient.ConnectionHandlerAPI.UpdateConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -1892,7 +1970,7 @@ func updateConnectionHandler(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionHandlerAPI.UpdateConnectionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Handler", err, httpResp)
 			return
@@ -1944,7 +2022,7 @@ func (r *connectionHandlerResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.ConnectionHandlerApi.DeleteConnectionHandlerExecute(r.apiClient.ConnectionHandlerApi.DeleteConnectionHandler(
+	httpResp, err := r.apiClient.ConnectionHandlerAPI.DeleteConnectionHandlerExecute(r.apiClient.ConnectionHandlerAPI.DeleteConnectionHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Connection Handler", err, httpResp)

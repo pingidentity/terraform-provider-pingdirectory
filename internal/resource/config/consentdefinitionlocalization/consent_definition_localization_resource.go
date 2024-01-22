@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -231,21 +231,21 @@ func createConsentDefinitionLocalizationOperations(plan consentDefinitionLocaliz
 // Create a consent-definition-localization consent-definition-localization
 func (r *consentDefinitionLocalizationResource) CreateConsentDefinitionLocalization(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan consentDefinitionLocalizationResourceModel) (*consentDefinitionLocalizationResourceModel, error) {
 	addRequest := client.NewAddConsentDefinitionLocalizationRequest(plan.Locale.ValueString(),
-		plan.Locale.ValueString(),
 		plan.Version.ValueString(),
 		plan.DataText.ValueString(),
-		plan.PurposeText.ValueString())
+		plan.PurposeText.ValueString(),
+		plan.Locale.ValueString())
 	addOptionalConsentDefinitionLocalizationFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ConsentDefinitionLocalizationApi.AddConsentDefinitionLocalization(
+	apiAddRequest := r.apiClient.ConsentDefinitionLocalizationAPI.AddConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ConsentDefinitionName.ValueString())
 	apiAddRequest = apiAddRequest.AddConsentDefinitionLocalizationRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.AddConsentDefinitionLocalizationExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.AddConsentDefinitionLocalizationExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Consent Definition Localization", err, httpResp)
 		return nil, err
@@ -301,7 +301,7 @@ func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.GetConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
@@ -319,14 +319,14 @@ func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Contex
 	readConsentDefinitionLocalizationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
+	updateRequest := r.apiClient.ConsentDefinitionLocalizationAPI.UpdateConsentDefinitionLocalization(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
 	ops := createConsentDefinitionLocalizationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalizationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.UpdateConsentDefinitionLocalizationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition Localization", err, httpResp)
 			return
@@ -369,7 +369,7 @@ func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
+	readResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationAPI.GetConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -420,7 +420,7 @@ func updateConsentDefinitionLocalization(ctx context.Context, req resource.Updat
 	// Get the current state to see how any attributes are changing
 	var state consentDefinitionLocalizationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(
+	updateRequest := apiClient.ConsentDefinitionLocalizationAPI.UpdateConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
 
 	// Determine what update operations are necessary
@@ -430,7 +430,7 @@ func updateConsentDefinitionLocalization(ctx context.Context, req resource.Updat
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalizationExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationAPI.UpdateConsentDefinitionLocalizationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition Localization", err, httpResp)
 			return
@@ -472,7 +472,7 @@ func (r *consentDefinitionLocalizationResource) Delete(ctx context.Context, req 
 		return
 	}
 
-	httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalizationExecute(r.apiClient.ConsentDefinitionLocalizationApi.DeleteConsentDefinitionLocalization(
+	httpResp, err := r.apiClient.ConsentDefinitionLocalizationAPI.DeleteConsentDefinitionLocalizationExecute(r.apiClient.ConsentDefinitionLocalizationAPI.DeleteConsentDefinitionLocalization(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition Localization", err, httpResp)

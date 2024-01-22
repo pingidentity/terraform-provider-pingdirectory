@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -84,12 +84,12 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	listRequest := r.apiClient.ExternalServerApi.ListExternalServers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.ExternalServerAPI.ListExternalServers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.ListExternalServersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ExternalServerAPI.ListExternalServersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the External Server objects", err, httpResp)
 		return

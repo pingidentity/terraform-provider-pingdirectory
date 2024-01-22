@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -520,23 +520,23 @@ func createPasswordGeneratorOperations(plan passwordGeneratorResourceModel, stat
 func (r *passwordGeneratorResource) CreateRandomPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
 	var PasswordCharacterSetSlice []string
 	plan.PasswordCharacterSet.ElementsAs(ctx, &PasswordCharacterSetSlice, false)
-	addRequest := client.NewAddRandomPasswordGeneratorRequest(plan.Name.ValueString(),
-		[]client.EnumrandomPasswordGeneratorSchemaUrn{client.ENUMRANDOMPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORRANDOM},
+	addRequest := client.NewAddRandomPasswordGeneratorRequest([]client.EnumrandomPasswordGeneratorSchemaUrn{client.ENUMRANDOMPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORRANDOM},
 		PasswordCharacterSetSlice,
 		plan.PasswordFormat.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalRandomPasswordGeneratorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordGeneratorApi.AddPasswordGenerator(
+	apiAddRequest := r.apiClient.PasswordGeneratorAPI.AddPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordGeneratorRequest(
 		client.AddRandomPasswordGeneratorRequestAsAddPasswordGeneratorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.AddPasswordGeneratorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.AddPasswordGeneratorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Generator", err, httpResp)
 		return nil, err
@@ -556,22 +556,22 @@ func (r *passwordGeneratorResource) CreateRandomPasswordGenerator(ctx context.Co
 
 // Create a groovy-scripted password-generator
 func (r *passwordGeneratorResource) CreateGroovyScriptedPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedPasswordGeneratorRequest(plan.Name.ValueString(),
-		[]client.EnumgroovyScriptedPasswordGeneratorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORGROOVY_SCRIPTED},
+	addRequest := client.NewAddGroovyScriptedPasswordGeneratorRequest([]client.EnumgroovyScriptedPasswordGeneratorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalGroovyScriptedPasswordGeneratorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordGeneratorApi.AddPasswordGenerator(
+	apiAddRequest := r.apiClient.PasswordGeneratorAPI.AddPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordGeneratorRequest(
 		client.AddGroovyScriptedPasswordGeneratorRequestAsAddPasswordGeneratorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.AddPasswordGeneratorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.AddPasswordGeneratorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Generator", err, httpResp)
 		return nil, err
@@ -591,22 +591,22 @@ func (r *passwordGeneratorResource) CreateGroovyScriptedPasswordGenerator(ctx co
 
 // Create a passphrase password-generator
 func (r *passwordGeneratorResource) CreatePassphrasePasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddPassphrasePasswordGeneratorRequest(plan.Name.ValueString(),
-		[]client.EnumpassphrasePasswordGeneratorSchemaUrn{client.ENUMPASSPHRASEPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORPASSPHRASE},
+	addRequest := client.NewAddPassphrasePasswordGeneratorRequest([]client.EnumpassphrasePasswordGeneratorSchemaUrn{client.ENUMPASSPHRASEPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORPASSPHRASE},
 		plan.DictionaryFile.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalPassphrasePasswordGeneratorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordGeneratorApi.AddPasswordGenerator(
+	apiAddRequest := r.apiClient.PasswordGeneratorAPI.AddPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordGeneratorRequest(
 		client.AddPassphrasePasswordGeneratorRequestAsAddPasswordGeneratorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.AddPasswordGeneratorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.AddPasswordGeneratorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Generator", err, httpResp)
 		return nil, err
@@ -626,22 +626,22 @@ func (r *passwordGeneratorResource) CreatePassphrasePasswordGenerator(ctx contex
 
 // Create a third-party password-generator
 func (r *passwordGeneratorResource) CreateThirdPartyPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordGeneratorRequest(plan.Name.ValueString(),
-		[]client.EnumthirdPartyPasswordGeneratorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORTHIRD_PARTY},
+	addRequest := client.NewAddThirdPartyPasswordGeneratorRequest([]client.EnumthirdPartyPasswordGeneratorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
-		plan.Enabled.ValueBool())
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
 	addOptionalThirdPartyPasswordGeneratorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PasswordGeneratorApi.AddPasswordGenerator(
+	apiAddRequest := r.apiClient.PasswordGeneratorAPI.AddPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddPasswordGeneratorRequest(
 		client.AddThirdPartyPasswordGeneratorRequestAsAddPasswordGeneratorRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.AddPasswordGeneratorExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.AddPasswordGeneratorExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Generator", err, httpResp)
 		return nil, err
@@ -717,7 +717,7 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.GetPasswordGenerator(
+	readResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.GetPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Generator", err, httpResp)
@@ -746,14 +746,14 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordGeneratorApi.UpdatePasswordGenerator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.PasswordGeneratorAPI.UpdatePasswordGenerator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordGeneratorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.UpdatePasswordGeneratorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PasswordGeneratorAPI.UpdatePasswordGeneratorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Generator", err, httpResp)
 			return
@@ -806,7 +806,7 @@ func readPasswordGenerator(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PasswordGeneratorApi.GetPasswordGenerator(
+	readResponse, httpResp, err := apiClient.PasswordGeneratorAPI.GetPasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -868,7 +868,7 @@ func updatePasswordGenerator(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state passwordGeneratorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PasswordGeneratorApi.UpdatePasswordGenerator(
+	updateRequest := apiClient.PasswordGeneratorAPI.UpdatePasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -878,7 +878,7 @@ func updatePasswordGenerator(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PasswordGeneratorApi.UpdatePasswordGeneratorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PasswordGeneratorAPI.UpdatePasswordGeneratorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Generator", err, httpResp)
 			return
@@ -930,7 +930,7 @@ func (r *passwordGeneratorResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	httpResp, err := r.apiClient.PasswordGeneratorApi.DeletePasswordGeneratorExecute(r.apiClient.PasswordGeneratorApi.DeletePasswordGenerator(
+	httpResp, err := r.apiClient.PasswordGeneratorAPI.DeletePasswordGeneratorExecute(r.apiClient.PasswordGeneratorAPI.DeletePasswordGenerator(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Generator", err, httpResp)

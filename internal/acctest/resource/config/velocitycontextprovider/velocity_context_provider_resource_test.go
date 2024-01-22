@@ -72,7 +72,7 @@ func TestAccVelocityContextProvider(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.VelocityContextProviderApi.DeleteVelocityContextProvider(ctx, updatedResourceModel.id, updatedResourceModel.httpServletExtensionName).Execute()
+					_, err := testClient.VelocityContextProviderAPI.DeleteVelocityContextProvider(ctx, updatedResourceModel.id, updatedResourceModel.httpServletExtensionName).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -117,7 +117,7 @@ func testAccCheckExpectedVelocityContextProviderAttributes(config velocityContex
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.VelocityContextProviderApi.GetVelocityContextProvider(ctx, config.id, config.httpServletExtensionName).Execute()
+		response, _, err := testClient.VelocityContextProviderAPI.GetVelocityContextProvider(ctx, config.id, config.httpServletExtensionName).Execute()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckExpectedVelocityContextProviderAttributes(config velocityContex
 func testAccCheckVelocityContextProviderDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.VelocityContextProviderApi.GetVelocityContextProvider(ctx, testIdVelocityContextProvider, testHttpServletExtensionName).Execute()
+	_, _, err := testClient.VelocityContextProviderAPI.GetVelocityContextProvider(ctx, testIdVelocityContextProvider, testHttpServletExtensionName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Velocity Context Provider", testIdVelocityContextProvider)
 	}

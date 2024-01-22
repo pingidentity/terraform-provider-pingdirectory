@@ -87,7 +87,7 @@ func TestAccPasswordStorageScheme(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PasswordStorageSchemeApi.DeletePasswordStorageScheme(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PasswordStorageSchemeAPI.DeletePasswordStorageScheme(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -138,7 +138,7 @@ func testAccCheckExpectedPasswordStorageSchemeAttributes(config passwordStorageS
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(ctx, config.id).Execute()
+		response, _, err := testClient.PasswordStorageSchemeAPI.GetPasswordStorageScheme(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -182,7 +182,7 @@ func testAccCheckExpectedPasswordStorageSchemeAttributes(config passwordStorageS
 func testAccCheckPasswordStorageSchemeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(ctx, testIdPasswordStorageScheme).Execute()
+	_, _, err := testClient.PasswordStorageSchemeAPI.GetPasswordStorageScheme(ctx, testIdPasswordStorageScheme).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Password Storage Scheme", testIdPasswordStorageScheme)
 	}

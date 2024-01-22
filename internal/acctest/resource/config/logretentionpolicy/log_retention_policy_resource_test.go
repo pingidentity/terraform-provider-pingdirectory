@@ -66,7 +66,7 @@ func TestAccTimeLimitLogRetentionPolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.LogRetentionPolicyApi.DeleteLogRetentionPolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.LogRetentionPolicyAPI.DeleteLogRetentionPolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedTimeLimitLogRetentionPolicyAttributes(config timeLimitL
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.LogRetentionPolicyApi.GetLogRetentionPolicy(ctx, config.id).Execute()
+		response, _, err := testClient.LogRetentionPolicyAPI.GetLogRetentionPolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func testAccCheckExpectedTimeLimitLogRetentionPolicyAttributes(config timeLimitL
 func testAccCheckTimeLimitLogRetentionPolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.LogRetentionPolicyApi.GetLogRetentionPolicy(ctx, testIdTimeLimitLogRetentionPolicy).Execute()
+	_, _, err := testClient.LogRetentionPolicyAPI.GetLogRetentionPolicy(ctx, testIdTimeLimitLogRetentionPolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Time Limit Log Retention Policy", testIdTimeLimitLogRetentionPolicy)
 	}

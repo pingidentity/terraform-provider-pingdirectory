@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -89,12 +89,12 @@ func (r *scimAttributeMappingsDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	listRequest := r.apiClient.ScimAttributeMappingApi.ListScimAttributeMappings(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimResourceTypeName.ValueString())
+	listRequest := r.apiClient.ScimAttributeMappingAPI.ListScimAttributeMappings(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ScimResourceTypeName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.ListScimAttributeMappingsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingAPI.ListScimAttributeMappingsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Scim Attribute Mapping objects", err, httpResp)
 		return

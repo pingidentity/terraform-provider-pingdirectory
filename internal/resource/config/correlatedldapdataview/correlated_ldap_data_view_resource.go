@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -269,22 +269,22 @@ func createCorrelatedLdapDataViewOperations(plan correlatedLdapDataViewResourceM
 
 // Create a correlated-ldap-data-view correlated-ldap-data-view
 func (r *correlatedLdapDataViewResource) CreateCorrelatedLdapDataView(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan correlatedLdapDataViewResourceModel) (*correlatedLdapDataViewResourceModel, error) {
-	addRequest := client.NewAddCorrelatedLdapDataViewRequest(plan.Name.ValueString(),
-		plan.StructuralLDAPObjectclass.ValueString(),
+	addRequest := client.NewAddCorrelatedLdapDataViewRequest(plan.StructuralLDAPObjectclass.ValueString(),
 		plan.IncludeBaseDN.ValueString(),
 		plan.PrimaryCorrelationAttribute.ValueString(),
-		plan.SecondaryCorrelationAttribute.ValueString())
+		plan.SecondaryCorrelationAttribute.ValueString(),
+		plan.Name.ValueString())
 	addOptionalCorrelatedLdapDataViewFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.CorrelatedLdapDataViewApi.AddCorrelatedLdapDataView(
+	apiAddRequest := r.apiClient.CorrelatedLdapDataViewAPI.AddCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ScimResourceTypeName.ValueString())
 	apiAddRequest = apiAddRequest.AddCorrelatedLdapDataViewRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.AddCorrelatedLdapDataViewExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.AddCorrelatedLdapDataViewExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Correlated Ldap Data View", err, httpResp)
 		return nil, err
@@ -340,7 +340,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
+	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.GetCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Correlated Ldap Data View", err, httpResp)
@@ -358,14 +358,14 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
+	updateRequest := r.apiClient.CorrelatedLdapDataViewAPI.UpdateCorrelatedLdapDataView(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 	ops := createCorrelatedLdapDataViewOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataViewExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.UpdateCorrelatedLdapDataViewExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Correlated Ldap Data View", err, httpResp)
 			return
@@ -408,7 +408,7 @@ func readCorrelatedLdapDataView(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
+	readResponse, httpResp, err := apiClient.CorrelatedLdapDataViewAPI.GetCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -459,7 +459,7 @@ func updateCorrelatedLdapDataView(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state correlatedLdapDataViewResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(
+	updateRequest := apiClient.CorrelatedLdapDataViewAPI.UpdateCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
@@ -469,7 +469,7 @@ func updateCorrelatedLdapDataView(ctx context.Context, req resource.UpdateReques
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataViewExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.CorrelatedLdapDataViewAPI.UpdateCorrelatedLdapDataViewExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Correlated Ldap Data View", err, httpResp)
 			return
@@ -511,7 +511,7 @@ func (r *correlatedLdapDataViewResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataViewExecute(r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataView(
+	httpResp, err := r.apiClient.CorrelatedLdapDataViewAPI.DeleteCorrelatedLdapDataViewExecute(r.apiClient.CorrelatedLdapDataViewAPI.DeleteCorrelatedLdapDataView(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Correlated Ldap Data View", err, httpResp)

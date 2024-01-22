@@ -92,7 +92,7 @@ func testAccCheckExpectedCertificateDelegatedAdminAttributeAttributes(config cer
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, config.attributeType, config.restResourceTypeName).Execute()
+		response, _, err := testClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(ctx, config.attributeType, config.restResourceTypeName).Execute()
 		if err != nil {
 			return err
 		}
@@ -116,7 +116,7 @@ func testAccCheckExpectedCertificateDelegatedAdminAttributeAttributes(config cer
 func testAccCheckCertificateDelegatedAdminAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, testCertificateDAAttributeType, testCertificateDARestResourceTypeName).Execute()
+	_, _, err := testClient.DelegatedAdminAttributeAPI.GetDelegatedAdminAttribute(ctx, testCertificateDAAttributeType, testCertificateDARestResourceTypeName).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Certificate Delegated Admin Attribute", testCertificateDAAttributeType)
 	}

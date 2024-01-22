@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
@@ -85,7 +85,7 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PluginApi.DeletePlugin(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PluginAPI.DeletePlugin(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -136,7 +136,7 @@ func testAccCheckExpectedInternalSearchRatePluginAttributes(config internalSearc
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PluginApi.GetPlugin(ctx, config.id).Execute()
+		response, _, err := testClient.PluginAPI.GetPlugin(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func testAccCheckExpectedInternalSearchRatePluginAttributes(config internalSearc
 func testAccCheckInternalSearchRatePluginDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PluginApi.GetPlugin(ctx, testIdInternalSearchRatePlugin).Execute()
+	_, _, err := testClient.PluginAPI.GetPlugin(ctx, testIdInternalSearchRatePlugin).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Internal Search Rate Plugin", testIdInternalSearchRatePlugin)
 	}

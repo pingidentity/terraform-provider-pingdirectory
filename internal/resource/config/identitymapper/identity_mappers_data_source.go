@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -84,12 +84,12 @@ func (r *identityMappersDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	listRequest := r.apiClient.IdentityMapperApi.ListIdentityMappers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	listRequest := r.apiClient.IdentityMapperAPI.ListIdentityMappers(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.ListIdentityMappersExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.IdentityMapperAPI.ListIdentityMappersExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Identity Mapper objects", err, httpResp)
 		return
@@ -109,13 +109,17 @@ func (r *identityMappersDataSource) Read(ctx context.Context, req datasource.Rea
 			attributes["id"] = types.StringValue(response.ExactMatchIdentityMapperResponse.Id)
 			attributes["type"] = types.StringValue("exact-match")
 		}
-		if response.RegularExpressionIdentityMapperResponse != nil {
-			attributes["id"] = types.StringValue(response.RegularExpressionIdentityMapperResponse.Id)
-			attributes["type"] = types.StringValue("regular-expression")
-		}
 		if response.GroovyScriptedIdentityMapperResponse != nil {
 			attributes["id"] = types.StringValue(response.GroovyScriptedIdentityMapperResponse.Id)
 			attributes["type"] = types.StringValue("groovy-scripted")
+		}
+		if response.DnIdentityMapperResponse != nil {
+			attributes["id"] = types.StringValue(response.DnIdentityMapperResponse.Id)
+			attributes["type"] = types.StringValue("dn")
+		}
+		if response.RegularExpressionIdentityMapperResponse != nil {
+			attributes["id"] = types.StringValue(response.RegularExpressionIdentityMapperResponse.Id)
+			attributes["type"] = types.StringValue("regular-expression")
 		}
 		if response.AggregateIdentityMapperResponse != nil {
 			attributes["id"] = types.StringValue(response.AggregateIdentityMapperResponse.Id)

@@ -66,7 +66,7 @@ func TestAccSoftDeletePolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.SoftDeletePolicyApi.DeleteSoftDeletePolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.SoftDeletePolicyAPI.DeleteSoftDeletePolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedSoftDeletePolicyAttributes(config softDeletePolicyTestM
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SoftDeletePolicyApi.GetSoftDeletePolicy(ctx, config.id).Execute()
+		response, _, err := testClient.SoftDeletePolicyAPI.GetSoftDeletePolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedSoftDeletePolicyAttributes(config softDeletePolicyTestM
 func testAccCheckSoftDeletePolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SoftDeletePolicyApi.GetSoftDeletePolicy(ctx, testIdSoftDeletePolicy).Execute()
+	_, _, err := testClient.SoftDeletePolicyAPI.GetSoftDeletePolicy(ctx, testIdSoftDeletePolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Soft Delete Policy", testIdSoftDeletePolicy)
 	}

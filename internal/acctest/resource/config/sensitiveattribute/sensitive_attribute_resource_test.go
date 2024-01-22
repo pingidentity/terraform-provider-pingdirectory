@@ -66,7 +66,7 @@ func TestAccSensitiveAttribute(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.SensitiveAttributeApi.DeleteSensitiveAttribute(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.SensitiveAttributeAPI.DeleteSensitiveAttribute(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -106,7 +106,7 @@ func testAccCheckExpectedSensitiveAttributeAttributes(config sensitiveAttributeT
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.SensitiveAttributeApi.GetSensitiveAttribute(ctx, config.id).Execute()
+		response, _, err := testClient.SensitiveAttributeAPI.GetSensitiveAttribute(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedSensitiveAttributeAttributes(config sensitiveAttributeT
 func testAccCheckSensitiveAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SensitiveAttributeApi.GetSensitiveAttribute(ctx, testIdSensitiveAttribute).Execute()
+	_, _, err := testClient.SensitiveAttributeAPI.GetSensitiveAttribute(ctx, testIdSensitiveAttribute).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Sensitive Attribute", testIdSensitiveAttribute)
 	}

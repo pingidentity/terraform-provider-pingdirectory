@@ -75,7 +75,7 @@ func TestAccPasswordGenerator(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.PasswordGeneratorApi.DeletePasswordGenerator(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.PasswordGeneratorAPI.DeletePasswordGenerator(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -120,7 +120,7 @@ func testAccCheckExpectedPasswordGeneratorAttributes(config passwordGeneratorTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.PasswordGeneratorApi.GetPasswordGenerator(ctx, config.id).Execute()
+		response, _, err := testClient.PasswordGeneratorAPI.GetPasswordGenerator(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,7 @@ func testAccCheckExpectedPasswordGeneratorAttributes(config passwordGeneratorTes
 func testAccCheckPasswordGeneratorDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.PasswordGeneratorApi.GetPasswordGenerator(ctx, testIdPasswordGenerator).Execute()
+	_, _, err := testClient.PasswordGeneratorAPI.GetPasswordGenerator(ctx, testIdPasswordGenerator).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Password Generator", testIdPasswordGenerator)
 	}

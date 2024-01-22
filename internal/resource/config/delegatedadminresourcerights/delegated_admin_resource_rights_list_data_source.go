@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -89,12 +89,12 @@ func (r *delegatedAdminResourceRightsListDataSource) Read(ctx context.Context, r
 		return
 	}
 
-	listRequest := r.apiClient.DelegatedAdminResourceRightsApi.ListDelegatedAdminResourceRights(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DelegatedAdminRightsName.ValueString())
+	listRequest := r.apiClient.DelegatedAdminResourceRightsAPI.ListDelegatedAdminResourceRights(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.DelegatedAdminRightsName.ValueString())
 	if internaltypes.IsDefined(state.Filter) {
 		listRequest = listRequest.Filter(state.Filter.ValueString())
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminResourceRightsApi.ListDelegatedAdminResourceRightsExecute(listRequest)
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminResourceRightsAPI.ListDelegatedAdminResourceRightsExecute(listRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while listing the Delegated Admin Resource Rights objects", err, httpResp)
 		return

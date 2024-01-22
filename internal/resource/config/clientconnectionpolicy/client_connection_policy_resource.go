@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -795,9 +795,9 @@ func createClientConnectionPolicyOperations(plan clientConnectionPolicyResourceM
 // Create a client-connection-policy client-connection-policy
 func (r *clientConnectionPolicyResource) CreateClientConnectionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan clientConnectionPolicyResourceModel) (*clientConnectionPolicyResourceModel, error) {
 	addRequest := client.NewAddClientConnectionPolicyRequest(plan.PolicyID.ValueString(),
-		plan.PolicyID.ValueString(),
 		plan.Enabled.ValueBool(),
-		plan.EvaluationOrderIndex.ValueInt64())
+		plan.EvaluationOrderIndex.ValueInt64(),
+		plan.PolicyID.ValueString())
 	err := addOptionalClientConnectionPolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Client Connection Policy", err.Error())
@@ -808,11 +808,11 @@ func (r *clientConnectionPolicyResource) CreateClientConnectionPolicy(ctx contex
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.ClientConnectionPolicyApi.AddClientConnectionPolicy(
+	apiAddRequest := r.apiClient.ClientConnectionPolicyAPI.AddClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddClientConnectionPolicyRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.AddClientConnectionPolicyExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.ClientConnectionPolicyAPI.AddClientConnectionPolicyExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Client Connection Policy", err, httpResp)
 		return nil, err
@@ -866,7 +866,7 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(
+	readResponse, httpResp, err := r.apiClient.ClientConnectionPolicyAPI.GetClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.PolicyID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Client Connection Policy", err, httpResp)
@@ -884,14 +884,14 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 	readClientConnectionPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ClientConnectionPolicyApi.UpdateClientConnectionPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.PolicyID.ValueString())
+	updateRequest := r.apiClient.ClientConnectionPolicyAPI.UpdateClientConnectionPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.PolicyID.ValueString())
 	ops := createClientConnectionPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.UpdateClientConnectionPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ClientConnectionPolicyAPI.UpdateClientConnectionPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Client Connection Policy", err, httpResp)
 			return
@@ -933,7 +933,7 @@ func readClientConnectionPolicy(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ClientConnectionPolicyApi.GetClientConnectionPolicy(
+	readResponse, httpResp, err := apiClient.ClientConnectionPolicyAPI.GetClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.PolicyID.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -984,7 +984,7 @@ func updateClientConnectionPolicy(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state clientConnectionPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ClientConnectionPolicyApi.UpdateClientConnectionPolicy(
+	updateRequest := apiClient.ClientConnectionPolicyAPI.UpdateClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.PolicyID.ValueString())
 
 	// Determine what update operations are necessary
@@ -994,7 +994,7 @@ func updateClientConnectionPolicy(ctx context.Context, req resource.UpdateReques
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ClientConnectionPolicyApi.UpdateClientConnectionPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ClientConnectionPolicyAPI.UpdateClientConnectionPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Client Connection Policy", err, httpResp)
 			return
@@ -1035,7 +1035,7 @@ func (r *clientConnectionPolicyResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	httpResp, err := r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicyExecute(r.apiClient.ClientConnectionPolicyApi.DeleteClientConnectionPolicy(
+	httpResp, err := r.apiClient.ClientConnectionPolicyAPI.DeleteClientConnectionPolicyExecute(r.apiClient.ClientConnectionPolicyAPI.DeleteClientConnectionPolicy(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.PolicyID.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Client Connection Policy", err, httpResp)

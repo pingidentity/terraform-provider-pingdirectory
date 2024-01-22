@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -367,7 +367,7 @@ func (r *ldapSdkDebugLoggerResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerApi.GetLdapSdkDebugLogger(
+	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerAPI.GetLdapSdkDebugLogger(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Sdk Debug Logger", err, httpResp)
@@ -385,14 +385,14 @@ func (r *ldapSdkDebugLoggerResource) Create(ctx context.Context, req resource.Cr
 	readLdapSdkDebugLoggerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LdapSdkDebugLoggerApi.UpdateLdapSdkDebugLogger(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.LdapSdkDebugLoggerAPI.UpdateLdapSdkDebugLogger(config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createLdapSdkDebugLoggerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerApi.UpdateLdapSdkDebugLoggerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerAPI.UpdateLdapSdkDebugLoggerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldap Sdk Debug Logger", err, httpResp)
 			return
@@ -425,7 +425,7 @@ func (r *ldapSdkDebugLoggerResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerApi.GetLdapSdkDebugLogger(
+	readResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerAPI.GetLdapSdkDebugLogger(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Sdk Debug Logger", err, httpResp)
@@ -459,7 +459,7 @@ func (r *ldapSdkDebugLoggerResource) Update(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state ldapSdkDebugLoggerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LdapSdkDebugLoggerApi.UpdateLdapSdkDebugLogger(
+	updateRequest := r.apiClient.LdapSdkDebugLoggerAPI.UpdateLdapSdkDebugLogger(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
@@ -469,7 +469,7 @@ func (r *ldapSdkDebugLoggerResource) Update(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerApi.UpdateLdapSdkDebugLoggerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LdapSdkDebugLoggerAPI.UpdateLdapSdkDebugLoggerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldap Sdk Debug Logger", err, httpResp)
 			return

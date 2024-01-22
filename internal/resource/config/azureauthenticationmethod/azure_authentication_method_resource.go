@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -318,20 +318,20 @@ func createAzureAuthenticationMethodOperations(plan azureAuthenticationMethodRes
 
 // Create a default azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateDefaultAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddDefaultAzureAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumdefaultAzureAuthenticationMethodSchemaUrn{client.ENUMDEFAULTAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODDEFAULT})
+	addRequest := client.NewAddDefaultAzureAuthenticationMethodRequest([]client.EnumdefaultAzureAuthenticationMethodSchemaUrn{client.ENUMDEFAULTAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODDEFAULT},
+		plan.Name.ValueString())
 	addOptionalDefaultAzureAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethod(
+	apiAddRequest := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAzureAuthenticationMethodRequest(
 		client.AddDefaultAzureAuthenticationMethodRequestAsAddAzureAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Azure Authentication Method", err, httpResp)
 		return nil, err
@@ -351,23 +351,23 @@ func (r *azureAuthenticationMethodResource) CreateDefaultAzureAuthenticationMeth
 
 // Create a client-secret azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateClientSecretAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddClientSecretAzureAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumclientSecretAzureAuthenticationMethodSchemaUrn{client.ENUMCLIENTSECRETAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODCLIENT_SECRET},
+	addRequest := client.NewAddClientSecretAzureAuthenticationMethodRequest([]client.EnumclientSecretAzureAuthenticationMethodSchemaUrn{client.ENUMCLIENTSECRETAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODCLIENT_SECRET},
 		plan.TenantID.ValueString(),
 		plan.ClientID.ValueString(),
-		plan.ClientSecret.ValueString())
+		plan.ClientSecret.ValueString(),
+		plan.Name.ValueString())
 	addOptionalClientSecretAzureAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethod(
+	apiAddRequest := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAzureAuthenticationMethodRequest(
 		client.AddClientSecretAzureAuthenticationMethodRequestAsAddAzureAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Azure Authentication Method", err, httpResp)
 		return nil, err
@@ -387,24 +387,24 @@ func (r *azureAuthenticationMethodResource) CreateClientSecretAzureAuthenticatio
 
 // Create a username-password azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateUsernamePasswordAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddUsernamePasswordAzureAuthenticationMethodRequest(plan.Name.ValueString(),
-		[]client.EnumusernamePasswordAzureAuthenticationMethodSchemaUrn{client.ENUMUSERNAMEPASSWORDAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODUSERNAME_PASSWORD},
+	addRequest := client.NewAddUsernamePasswordAzureAuthenticationMethodRequest([]client.EnumusernamePasswordAzureAuthenticationMethodSchemaUrn{client.ENUMUSERNAMEPASSWORDAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODUSERNAME_PASSWORD},
 		plan.TenantID.ValueString(),
 		plan.ClientID.ValueString(),
 		plan.Username.ValueString(),
-		plan.Password.ValueString())
+		plan.Password.ValueString(),
+		plan.Name.ValueString())
 	addOptionalUsernamePasswordAzureAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethod(
+	apiAddRequest := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddAzureAuthenticationMethodRequest(
 		client.AddUsernamePasswordAzureAuthenticationMethodRequestAsAddAzureAuthenticationMethodRequest(addRequest))
 
-	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.AddAzureAuthenticationMethodExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.AddAzureAuthenticationMethodExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Azure Authentication Method", err, httpResp)
 		return nil, err
@@ -476,7 +476,7 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
+	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.GetAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)
@@ -502,14 +502,14 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.AzureAuthenticationMethodAPI.UpdateAzureAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAzureAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.UpdateAzureAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Azure Authentication Method", err, httpResp)
 			return
@@ -560,7 +560,7 @@ func readAzureAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
+	readResponse, httpResp, err := apiClient.AzureAuthenticationMethodAPI.GetAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -619,7 +619,7 @@ func updateAzureAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state azureAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethod(
+	updateRequest := apiClient.AzureAuthenticationMethodAPI.UpdateAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
@@ -629,7 +629,7 @@ func updateAzureAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethodExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AzureAuthenticationMethodAPI.UpdateAzureAuthenticationMethodExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Azure Authentication Method", err, httpResp)
 			return
@@ -679,7 +679,7 @@ func (r *azureAuthenticationMethodResource) Delete(ctx context.Context, req reso
 		return
 	}
 
-	httpResp, err := r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethodExecute(r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethod(
+	httpResp, err := r.apiClient.AzureAuthenticationMethodAPI.DeleteAzureAuthenticationMethodExecute(r.apiClient.AzureAuthenticationMethodAPI.DeleteAzureAuthenticationMethod(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Azure Authentication Method", err, httpResp)

@@ -66,7 +66,7 @@ func TestAccSimpleResultCriteria(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.ResultCriteriaApi.DeleteResultCriteria(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.ResultCriteriaAPI.DeleteResultCriteria(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -107,7 +107,7 @@ func testAccCheckExpectedSimpleResultCriteriaAttributes(config simpleResultCrite
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.ResultCriteriaAPI.GetResultCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedSimpleResultCriteriaAttributes(config simpleResultCrite
 func testAccCheckSimpleResultCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, testIdSimpleResultCriteria).Execute()
+	_, _, err := testClient.ResultCriteriaAPI.GetResultCriteria(ctx, testIdSimpleResultCriteria).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Simple Result Criteria", testIdSimpleResultCriteria)
 	}

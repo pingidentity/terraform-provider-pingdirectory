@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -238,7 +238,7 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.GetServerInstanceListener(
+	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerAPI.GetServerInstanceListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance Listener", err, httpResp)
@@ -261,14 +261,14 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceListenerAPI.UpdateServerInstanceListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createServerInstanceListenerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListenerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ServerInstanceListenerAPI.UpdateServerInstanceListenerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance Listener", err, httpResp)
 			return
@@ -307,7 +307,7 @@ func (r *serverInstanceListenerResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.GetServerInstanceListener(
+	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerAPI.GetServerInstanceListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance Listener", err, httpResp)
@@ -346,7 +346,7 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state serverInstanceListenerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListener(
+	updateRequest := r.apiClient.ServerInstanceListenerAPI.UpdateServerInstanceListener(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
@@ -356,7 +356,7 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListenerExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ServerInstanceListenerAPI.UpdateServerInstanceListenerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance Listener", err, httpResp)
 			return

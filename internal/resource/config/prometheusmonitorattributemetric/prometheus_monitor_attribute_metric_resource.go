@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -292,11 +292,11 @@ func (r *prometheusMonitorAttributeMetricResource) CreatePrometheusMonitorAttrib
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.AddPrometheusMonitorAttributeMetric(
+	apiAddRequest := r.apiClient.PrometheusMonitorAttributeMetricAPI.AddPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.HttpServletExtensionName.ValueString())
 	apiAddRequest = apiAddRequest.AddPrometheusMonitorAttributeMetricRequest(*addRequest)
 
-	addResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.AddPrometheusMonitorAttributeMetricExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.AddPrometheusMonitorAttributeMetricExecute(apiAddRequest)
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Prometheus Monitor Attribute Metric", err, httpResp)
 		return nil, err
@@ -352,7 +352,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
+	readResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Prometheus Monitor Attribute Metric", err, httpResp)
@@ -370,14 +370,14 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetric(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.PrometheusMonitorAttributeMetricAPI.UpdatePrometheusMonitorAttributeMetric(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString())
 	ops := createPrometheusMonitorAttributeMetricOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetricExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.UpdatePrometheusMonitorAttributeMetricExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Prometheus Monitor Attribute Metric", err, httpResp)
 			return
@@ -420,7 +420,7 @@ func readPrometheusMonitorAttributeMetric(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricApi.GetPrometheusMonitorAttributeMetric(
+	readResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricAPI.GetPrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 && !isDefault {
@@ -471,7 +471,7 @@ func updatePrometheusMonitorAttributeMetric(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state prometheusMonitorAttributeMetricResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetric(
+	updateRequest := apiClient.PrometheusMonitorAttributeMetricAPI.UpdatePrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
@@ -481,7 +481,7 @@ func updatePrometheusMonitorAttributeMetric(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetricExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PrometheusMonitorAttributeMetricAPI.UpdatePrometheusMonitorAttributeMetricExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Prometheus Monitor Attribute Metric", err, httpResp)
 			return
@@ -523,7 +523,7 @@ func (r *prometheusMonitorAttributeMetricResource) Delete(ctx context.Context, r
 		return
 	}
 
-	httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetricExecute(r.apiClient.PrometheusMonitorAttributeMetricApi.DeletePrometheusMonitorAttributeMetric(
+	httpResp, err := r.apiClient.PrometheusMonitorAttributeMetricAPI.DeletePrometheusMonitorAttributeMetricExecute(r.apiClient.PrometheusMonitorAttributeMetricAPI.DeletePrometheusMonitorAttributeMetric(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.MetricName.ValueString(), state.HttpServletExtensionName.ValueString()))
 	if err != nil && (httpResp == nil || httpResp.StatusCode != 404) {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Prometheus Monitor Attribute Metric", err, httpResp)

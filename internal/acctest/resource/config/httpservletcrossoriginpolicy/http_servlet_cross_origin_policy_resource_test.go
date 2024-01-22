@@ -67,7 +67,7 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 				PreConfig: func() {
 					testClient := acctest.TestClient()
 					ctx := acctest.TestBasicAuthContext()
-					_, err := testClient.HttpServletCrossOriginPolicyApi.DeleteHttpServletCrossOriginPolicy(ctx, updatedResourceModel.id).Execute()
+					_, err := testClient.HttpServletCrossOriginPolicyAPI.DeleteHttpServletCrossOriginPolicy(ctx, updatedResourceModel.id).Execute()
 					if err != nil {
 						t.Fatalf("Failed to delete config: %v", err)
 					}
@@ -108,7 +108,7 @@ func testAccCheckExpectedHttpServletCrossOriginPolicyAttributes(config httpServl
 		resourceType := "http servlet cross origin policy"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(ctx, config.id).Execute()
+		response, _, err := testClient.HttpServletCrossOriginPolicyAPI.GetHttpServletCrossOriginPolicy(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func testAccCheckExpectedHttpServletCrossOriginPolicyAttributes(config httpServl
 func testAccCheckHttpServletCrossOriginPolicyDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(ctx, testIdHttpServletCrossOriginPolicy).Execute()
+	_, _, err := testClient.HttpServletCrossOriginPolicyAPI.GetHttpServletCrossOriginPolicy(ctx, testIdHttpServletCrossOriginPolicy).Execute()
 	if err == nil {
 		return acctest.ExpectedDestroyError("Http Servlet Cross Origin Policy", testIdHttpServletCrossOriginPolicy)
 	}

@@ -77,7 +77,7 @@ func testAccCheckExpectedRootDseBackendAttributes(config rootDseBackendTestModel
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.RootDseBackendApi.GetRootDseBackend(ctx).Execute()
+		response, _, err := testClient.RootDseBackendAPI.GetRootDseBackend(ctx).Execute()
 		if err != nil {
 			return err
 		}
