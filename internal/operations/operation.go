@@ -3,7 +3,6 @@ package operations
 import (
 	"context"
 	"strconv"
-	"unicode"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -26,24 +25,12 @@ func LogUpdateOperations(ctx context.Context, ops []client.Operation) {
 	}
 }
 
-// Validate that the path for a given operation is valid
-func validateOperationPath(path string) {
-	// Paths must only contain lowercase letters, dashes and digits
-	for _, c := range path {
-		if !unicode.IsLower(c) && c != '-' && !unicode.IsDigit(c) {
-			//lintignore:R009
-			panic("Non-lowercase, non-dash character and non-digit '" + string(c) + "' included in Operation path: '" + path + "'")
-		}
-	}
-}
-
 // Add boolean operation if the plan doesn't match the state
 func AddBoolOperationIfNecessary(ops *[]client.Operation, plan types.Bool, state types.Bool, path string) {
 	// If plan is unknown, then just take whatever's in the state - no operation needed
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		var op *client.Operation
@@ -63,7 +50,6 @@ func AddInt64OperationIfNecessary(ops *[]client.Operation, plan types.Int64, sta
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		var op *client.Operation
@@ -83,7 +69,6 @@ func AddFloat64OperationIfNecessary(ops *[]client.Operation, plan types.Float64,
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		var op *client.Operation
@@ -103,7 +88,6 @@ func AddStringOperationIfNecessary(ops *[]client.Operation, plan types.String, s
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		var op *client.Operation
@@ -131,7 +115,6 @@ func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, 
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		planElements := plan.Elements()
@@ -162,7 +145,6 @@ func AddInt64SetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, s
 	if plan.IsUnknown() {
 		return
 	}
-	validateOperationPath(path)
 
 	if !plan.Equal(state) {
 		planElements := plan.Elements()
