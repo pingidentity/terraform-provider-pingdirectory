@@ -17,6 +17,11 @@ func IsNonEmptyString(str types.String) bool {
 	return !str.IsNull() && !str.IsUnknown() && str.ValueString() != ""
 }
 
+// Return true if this types.Set represents a non-empty, non-null, non-unknown set
+func IsNonEmptySet(set types.Set) bool {
+	return !set.IsNull() && !set.IsUnknown() && len(set.Elements()) > 0
+}
+
 // Return true if this value represents a defined (non-null and non-unknown) value
 func IsDefined(value attr.Value) bool {
 	return !value.IsNull() && !value.IsUnknown()

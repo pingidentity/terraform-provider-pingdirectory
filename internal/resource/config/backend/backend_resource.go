@@ -1095,7 +1095,7 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
+	if internaltypes.IsNonEmptySet(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
