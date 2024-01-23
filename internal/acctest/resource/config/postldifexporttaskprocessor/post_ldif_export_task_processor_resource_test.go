@@ -3,6 +3,7 @@ package postldifexporttaskprocessor_test
 import (
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"testing"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 const testIdPostLdifExportTaskProcessor = "MyPostLdifProcessor"
@@ -25,6 +27,17 @@ type postLdifExportTaskProcessorTestModel struct {
 }
 
 func TestAccPostLdifExportTaskProcessor(t *testing.T) {
+	pdVersion := os.Getenv("PINGDIRECTORY_PROVIDER_PRODUCT_VERSION")
+	compare, err := version.Compare(pdVersion, version.PingDirectory10000)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+	if compare < 0 {
+		// This resource only exists in PD version 10.0 and later
+		return
+	}
+
 	resourceName := "MyPostLdifProcessorResource"
 	initialResourceModel := postLdifExportTaskProcessorTestModel{
 		name:                 testIdPostLdifExportTaskProcessor,
