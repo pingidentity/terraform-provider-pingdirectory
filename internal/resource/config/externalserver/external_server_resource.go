@@ -1491,18 +1491,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("password"),
-				path.MatchRoot("passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-aws"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

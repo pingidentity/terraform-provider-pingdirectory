@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -220,7 +221,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether to re-encode passwords on authentication if the configuration for the underlying password storage scheme has changed.",
 				Optional:    true,
 				Computed:    true,
-				Default:     booldefault.StaticBool(false),
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",

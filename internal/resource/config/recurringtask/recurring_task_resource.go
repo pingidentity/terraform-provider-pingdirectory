@@ -777,7 +777,7 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 	}
 	var model recurringTaskResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PostLDIFExportTaskProcessor) {
+	if internaltypes.IsNonEmptySet(model.PostLDIFExportTaskProcessor) {
 		resp.Diagnostics.AddError("Attribute 'post_ldif_export_task_processor' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
@@ -1035,27 +1035,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1069,10 +1052,27 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup"},
+			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("included_backend_id"),
-				path.MatchRoot("excluded_backend_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

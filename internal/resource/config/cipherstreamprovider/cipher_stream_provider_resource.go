@@ -325,6 +325,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Cipher Stream Provider",
@@ -416,23 +419,6 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 				anyDefaultsSet = true
 			}
 		}
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-	}
-	// Set defaults for amazon-secrets-manager type
-	if resourceType == "amazon-secrets-manager" {
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
-				anyDefaultsSet = true
-			}
-		}
 	}
 	// Set defaults for azure-key-vault type
 	if resourceType == "azure-key-vault" {
@@ -440,13 +426,6 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			defaultVal := types.StringValue("config/azure-key-vault-encryption-metadata.json")
 			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
 				planModel.EncryptionMetadataFile = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -461,43 +440,12 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			}
 		}
 	}
-	// Set defaults for conjur type
-	if resourceType == "conjur" {
-		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
-			defaultVal := types.StringValue("config/conjur-encryption-metadata.json")
-			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
-				planModel.EncryptionMetadataFile = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-	}
 	// Set defaults for pkcs11 type
 	if resourceType == "pkcs11" {
 		if !internaltypes.IsDefined(configModel.Pkcs11KeyStoreType) {
 			defaultVal := types.StringValue("PKCS11")
 			if !planModel.Pkcs11KeyStoreType.Equal(defaultVal) {
 				planModel.Pkcs11KeyStoreType = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
-			defaultVal := types.StringValue("config/pkcs11-cipher-stream-provider-encryption-metadata.json")
-			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
-				planModel.EncryptionMetadataFile = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -515,13 +463,6 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			defaultVal := types.StringValue("JKS")
 			if !planModel.TrustStoreType.Equal(defaultVal) {
 				planModel.TrustStoreType = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.IterationCount) {
-			defaultVal := types.Int64Value(600000)
-			if !planModel.IterationCount.Equal(defaultVal) {
-				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}

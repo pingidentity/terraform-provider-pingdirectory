@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -321,6 +322,9 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"send_rejection_notice": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.",
@@ -360,6 +364,9 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Supported in PingDirectory product version 10.0.0.0+. Indicates whether a separate request handler thread should be created for each client connection, which can help avoid starvation of client connections for cases in which one or more clients send large numbers of concurrent asynchronous requests. This should only be used for cases in which a relatively small number of connections will be established at any given time, the connections established will generally be long-lived, and at least one client may send high volumes of asynchronous requests. This property can be used to alleviate possible blocking during long-running TLS negotiation on a single request handler which can result in it being unable to acknowledge further client requests until the TLS negotation completes or times out.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ssl_client_auth_policy": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ldap`: Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates. When the `type` attribute is set to `http`: Specifies the policy that the HTTP Connection Handler should use regarding client SSL certificates. In order for a client certificate to be accepted it must be known to the trust-manager-provider associated with this HTTP Connection Handler. Client certificates received by the HTTP Connection Handler are by default used for TLS mutual authentication only, as there is no support for user authentication.",
@@ -535,13 +542,6 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 				anyDefaultsSet = true
 			}
 		}
-		if !internaltypes.IsDefined(configModel.RequestHandlerPerConnection) {
-			defaultVal := types.BoolValue(false)
-			if !planModel.RequestHandlerPerConnection.Equal(defaultVal) {
-				planModel.RequestHandlerPerConnection = defaultVal
-				anyDefaultsSet = true
-			}
-		}
 		if !internaltypes.IsDefined(configModel.AcceptBacklog) {
 			defaultVal := types.Int64Value(128)
 			if !planModel.AcceptBacklog.Equal(defaultVal) {
@@ -664,13 +664,6 @@ func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource
 			defaultVal := types.StringValue("disabled")
 			if !planModel.SslClientAuthPolicy.Equal(defaultVal) {
 				planModel.SslClientAuthPolicy = defaultVal
-				anyDefaultsSet = true
-			}
-		}
-		if !internaltypes.IsDefined(configModel.EnableSniHostnameChecks) {
-			defaultVal := types.BoolValue(false)
-			if !planModel.EnableSniHostnameChecks.Equal(defaultVal) {
-				planModel.EnableSniHostnameChecks = defaultVal
 				anyDefaultsSet = true
 			}
 		}
