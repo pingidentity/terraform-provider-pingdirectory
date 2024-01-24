@@ -93,7 +93,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 		// If more attribute types are used by this provider, this method will need to be updated
 		if !internaltypes.StringSliceContains(exemptAttributes, key) {
 			stringAttr, ok := attribute.(schema.StringAttribute)
-			anyOk := ok
 			if ok {
 				stringAttr.Required = false
 				stringAttr.Optional = true
@@ -104,7 +103,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 				continue
 			}
 			setAttr, ok := attribute.(schema.SetAttribute)
-			anyOk = ok || anyOk
 			if ok {
 				setAttr.Required = false
 				setAttr.Optional = true
@@ -115,7 +113,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 				continue
 			}
 			boolAttr, ok := attribute.(schema.BoolAttribute)
-			anyOk = ok || anyOk
 			if ok {
 				boolAttr.Required = false
 				boolAttr.Optional = true
@@ -126,7 +123,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 				continue
 			}
 			intAttr, ok := attribute.(schema.Int64Attribute)
-			anyOk = ok || anyOk
 			if ok {
 				intAttr.Required = false
 				intAttr.Optional = true
@@ -137,7 +133,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 				continue
 			}
 			floatAttr, ok := attribute.(schema.Float64Attribute)
-			anyOk = ok || anyOk
 			if ok {
 				floatAttr.Required = false
 				floatAttr.Optional = true
@@ -146,10 +141,6 @@ func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemp
 				floatAttr.PlanModifiers = append(floatAttr.PlanModifiers, float64planmodifier.UseStateForUnknown())
 				s.Attributes[key] = floatAttr
 				continue
-			}
-			if !anyOk {
-				//lintignore:R009
-				panic("No valid schema attribute type found when setting attributes to computed: " + key)
 			}
 		}
 	}
