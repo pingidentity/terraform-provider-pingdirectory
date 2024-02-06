@@ -19,7 +19,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -130,7 +129,6 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"listener_certificate": schema.StringAttribute{

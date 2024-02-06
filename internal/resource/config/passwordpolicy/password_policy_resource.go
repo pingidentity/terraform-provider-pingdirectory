@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -198,9 +197,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ignore", "reactive", "proactive"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"enable_debug": schema.BoolAttribute{
 				Description: "Indicates whether to enable debugging for the password policy state.",
@@ -246,9 +242,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"false", "add-only", "admin-reset-only", "add-and-admin-reset-only", "true"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
@@ -279,9 +272,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Default:     stringdefault.StaticString("force-password-change"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"reject-bind", "force-password-change", "generate-account-status-notification"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"password_generator": schema.StringAttribute{
@@ -339,9 +329,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Default:     stringdefault.StaticString("unless-password-policy-control-is-used"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"unless-password-policy-control-is-used", "always", "never"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"allow_expired_password_changes": schema.BoolAttribute{
@@ -483,9 +470,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Default:     stringdefault.StaticString("collapse-similar-attempts-on-the-same-date"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"collapse-similar-attempts-on-the-same-date", "maintain-every-attempt", "update-at-most-once-per-day"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"last_login_ip_address_attribute": schema.StringAttribute{

@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -136,7 +135,6 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"debug_type": schema.SetAttribute{
@@ -248,7 +246,6 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"sign_log": schema.BoolAttribute{
@@ -284,7 +281,6 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"logging_error_behavior": schema.StringAttribute{
@@ -296,7 +292,6 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 		},

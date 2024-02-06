@@ -21,7 +21,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -167,9 +166,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"read-only", "read-write"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"include_in_summary": schema.BoolAttribute{
 				Description: "Indicates whether this Delegated Admin Attribute is to be included in the summary display for a resource.",
@@ -201,9 +197,6 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"default", "custom"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"date_time_format": schema.StringAttribute{

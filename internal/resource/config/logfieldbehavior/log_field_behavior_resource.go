@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -219,9 +218,6 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"preserve", "omit", "redact-entire-value", "redact-value-components", "tokenize-entire-value", "tokenize-value-components"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 		},

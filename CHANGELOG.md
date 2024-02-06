@@ -1,3 +1,7 @@
+# v1.2.0 (Unreleased)
+### ENHANCEMENTS
+* Added validators for enum string attributes (#337)
+
 # v1.1.0 February 1, 2024
 ### FEATURES
 * Added support for PingDirectory version `10.0.0.0` (#331)

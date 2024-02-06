@@ -18,7 +18,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -215,9 +214,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"validate-only-the-id-token", "validate-both-tokens-but-only-map-the-id-token", "validate-and-map-both-tokens"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"alternate_authorization_identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `oauth-bearer`: The identity mapper that will be used to map an alternate authorization identity (provided in the GS2 header of the encoded OAUTHBEARER bind request credentials) to the corresponding local entry. When the `type` attribute is set to `gssapi`: Specifies the name of the identity mapper that is to be used with this SASL mechanism handler to map the alternate authorization identity (if provided, and if different from the Kerberos principal used as the authentication identity) to the corresponding user in the directory. If no value is specified, then the mapper specified in the identity-mapper configuration property will be used.",
@@ -300,9 +296,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"acceptor", "initiator"}...),
 			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
-			},
 		}
 		schemaDef.Attributes["jaas_config_file"] = schema.StringAttribute{
 			Description: "Specifies the path to a JAAS (Java Authentication and Authorization Service) configuration file that provides the information that the JVM should use for Kerberos processing.",
@@ -318,9 +311,6 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			Description: "Indicates whether to attempt to validate the peer certificate against a certificate held in the user's entry.",
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"always", "ifpresent", "never"}...),
-			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
 			},
 		}
 		schemaDef.Attributes["certificate_attribute"] = schema.StringAttribute{

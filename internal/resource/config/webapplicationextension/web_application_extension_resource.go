@@ -17,7 +17,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -248,9 +247,6 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 			Description: "Specifies the maximum complexity level for managed configuration elements.",
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"basic", "standard", "advanced", "expert"}...),
-			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
 			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})

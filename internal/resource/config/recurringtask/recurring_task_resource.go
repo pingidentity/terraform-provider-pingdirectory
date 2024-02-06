@@ -21,7 +21,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -222,9 +221,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"generalized-time-utc-with-milliseconds", "generalized-time-utc-with-seconds", "generalized-time-utc-with-minutes", "local-time-with-milliseconds", "local-time-with-seconds", "local-time-with-minutes", "local-date"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"retain_file_count": schema.Int64Attribute{
 				Description: "The minimum number of files matching the pattern that will be retained.",
@@ -269,9 +265,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"working_directory": schema.StringAttribute{
@@ -386,9 +379,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "obscure-secrets", "maximum"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"jstack_count": schema.Int64Attribute{
 				Description: "The number of times to invoke the jstack utility to obtain a stack trace of all threads running in the JVM. A value of zero indicates that the jstack utility should not be invoked.",
@@ -482,9 +472,6 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"backup_directory": schema.StringAttribute{

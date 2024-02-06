@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -143,9 +142,6 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "received-any-server", "processed-all-servers"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"remote_level": schema.StringAttribute{
 				Description: "Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.",
@@ -154,9 +150,6 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Default:     stringdefault.StaticString("none"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "received-any-remote-location", "received-all-remote-locations", "processed-all-remote-servers"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"timeout": schema.StringAttribute{

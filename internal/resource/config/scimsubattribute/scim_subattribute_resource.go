@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -151,9 +150,6 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"string", "boolean", "datetime", "decimal", "integer", "binary", "reference"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"required": schema.BoolAttribute{
 				Description: "Specifies whether this sub-attribute is required.",
@@ -188,9 +184,6 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"read-only", "read-write", "immutable", "write-only"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"returned": schema.StringAttribute{
 				Description: "Specifies the circumstances under which the values of the sub-attribute are returned in response to a request.",
@@ -199,9 +192,6 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Default:     stringdefault.StaticString("by-default"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"by-default", "upon-request", "always", "never"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"reference_type": schema.SetAttribute{

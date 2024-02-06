@@ -20,7 +20,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -187,9 +186,6 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 				Default:     stringdefault.StaticString("application"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"application", "session", "request"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"included_view": schema.SetAttribute{

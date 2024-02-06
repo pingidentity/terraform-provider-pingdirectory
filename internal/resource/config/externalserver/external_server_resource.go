@@ -20,7 +20,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -263,18 +262,12 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"allow-all", "strict"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"jdbc_driver_type": schema.StringAttribute{
 				Description: "Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"oraclethin", "oracleoci", "mysql", "db2", "sqlserver", "postgres", "other"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"jdbc_driver_url": schema.StringAttribute{
@@ -308,9 +301,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"unencrypted-udp", "unencrypted-tcp", "tls-encrypted-tcp"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"database_name": schema.StringAttribute{
 				Description: "Specifies which database to connect to. This is ignored if jdbc-driver-url is specified.",
@@ -322,9 +312,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"separate-connections", "retain-identity-control", "bind-on-existing-connections"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"use_administrative_operation_control": schema.BoolAttribute{
@@ -373,9 +360,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"read-committed", "read-uncommitted", "repeatable-read", "serializable"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"bind_dn": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required. When the `type` attribute is set to `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.",
@@ -388,9 +372,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "starttls", "ssl"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"user_name": schema.StringAttribute{
@@ -405,9 +386,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"authentication_method": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server. When the `type` attribute is set to `amazon-aws`: The mechanism to use to authenticate to AWS.",
@@ -416,9 +394,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "simple", "external", "inter-server"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"health_check_connect_timeout": schema.StringAttribute{

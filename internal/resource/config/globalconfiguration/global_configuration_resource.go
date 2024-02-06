@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -529,7 +528,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"permit_syntax_violations_for_attribute": schema.SetAttribute{
@@ -550,7 +548,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"attributes_modifiable_with_ignore_no_user_modification_request_control": schema.SetAttribute{
@@ -587,7 +584,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"exit_on_jvm_error": schema.BoolAttribute{
@@ -671,7 +667,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"use_shared_database_cache_across_all_local_db_backends": schema.BoolAttribute{
@@ -699,7 +694,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"database_on_virtualized_or_network_storage": schema.BoolAttribute{
@@ -922,7 +916,6 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"jmx_use_legacy_mbean_names": schema.BoolAttribute{

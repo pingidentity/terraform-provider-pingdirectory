@@ -20,7 +20,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -193,18 +192,12 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"normal", "warning", "minor", "major", "critical"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by this Gauge.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"always", "warning-and-above", "minor-and-above", "major-and-above", "critical-only", "never"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"update_interval": schema.StringAttribute{
@@ -243,9 +236,6 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"critical", "major", "minor", "warning", "none"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"server_degraded_severity_level": schema.StringAttribute{
 				Description: "Specifies the alarm severity level at or above which the server is considered degraded.",
@@ -254,9 +244,6 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Default:     stringdefault.StaticString("none"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"critical", "major", "minor", "warning", "none"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 		},

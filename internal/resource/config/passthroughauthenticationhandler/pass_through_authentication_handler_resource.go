@@ -20,7 +20,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -190,9 +189,6 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"dn_map": schema.SetAttribute{

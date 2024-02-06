@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -156,9 +155,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"every-day", "selected-days-of-the-week", "selected-days-of-the-month"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"scheduled_day_of_the_week": schema.SetAttribute{
 				Description: "The specific days of the week on which instances of this Recurring Task Chain may be scheduled to start. If the scheduled-day-selection-type property has a value of selected-days-of-the-week, then this property must have one or more values; otherwise, it must be left undefined.",
@@ -191,9 +187,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"cancel-interrupted-task-and-dependencies", "cancel-only-interrupted-task-but-preserve-dependencies"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"server_offline_at_start_time_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if it is offline when the start time arrives for the tasks in this Recurring Task Chain.",
@@ -202,9 +195,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Default:     stringdefault.StaticString("cancel-iteration-and-wait-for-next-scheduled-start-time"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"run-immediately-upon-server-startup", "cancel-iteration-and-wait-for-next-scheduled-start-time"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 		},

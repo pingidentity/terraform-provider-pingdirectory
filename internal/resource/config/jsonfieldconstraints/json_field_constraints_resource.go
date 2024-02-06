@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -158,9 +157,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"any", "boolean", "integer", "null", "number", "object", "string"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"is_required": schema.BoolAttribute{
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",
@@ -175,9 +171,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Default:     stringdefault.StaticString("prohibited"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"required", "optional", "prohibited"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"allow_null_value": schema.BoolAttribute{
@@ -213,9 +206,6 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"tokenize_values": schema.BoolAttribute{

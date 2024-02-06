@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -156,9 +155,6 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Default:     stringdefault.StaticString("resources-in-specific-subtrees"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"resources-in-specific-groups", "resources-in-specific-subtrees", "all-resources-in-base"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"resource_subtree": schema.SetAttribute{

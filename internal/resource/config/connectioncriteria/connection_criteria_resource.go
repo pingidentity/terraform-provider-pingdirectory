@@ -17,7 +17,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -234,9 +233,6 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"any", "secure-only", "insecure-only"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"user_auth_type": schema.SetAttribute{
 				Description: "Specifies the authentication types for client connections that may be included in this Simple Connection Criteria.",
@@ -250,9 +246,6 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"any", "secure-only", "insecure-only"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"included_user_sasl_mechanism": schema.SetAttribute{

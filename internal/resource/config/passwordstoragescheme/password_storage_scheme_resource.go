@@ -17,7 +17,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -191,9 +190,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"sha-1", "sha-256", "sha-384", "sha-512"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"extension_class": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
@@ -222,9 +218,6 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"crypt", "md5", "sha-2-256", "sha-2-512"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"num_digest_rounds": schema.Int64Attribute{

@@ -19,7 +19,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -447,9 +446,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"unique-within-each-attribute", "unique-across-all-attributes-including-in-same-entry", "unique-across-all-attributes-except-in-same-entry"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Plugin.",
@@ -503,9 +499,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject", "use-first-non-rejected-value-pattern-with-non-empty-values-and-never-reject", "use-first-rejection-or-first-value-pattern-with-non-empty-values", "use-all-non-rejected-value-patterns-with-non-empty-values-but-may-reject", "use-all-non-rejected-value-patterns-with-non-empty-values-and-never-reject", "use-first-rejection-or-all-value-patterns-with-non-empty-values"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"multi_valued_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for source attributes that have multiple values.",
@@ -513,9 +506,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"use-first-value", "reject-entries-with-any-multivalued-source-attribute", "use-all-values-if-possible-but-reject-if-not", "use-all-values-if-possible-but-only-first-value-if-not"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"target_attribute_exists_during_initial_population_behavior": schema.StringAttribute{
@@ -525,9 +515,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"preserve-existing-values", "overwrite-existing-values", "merge-existing-and-composed-values", "reject-existing-values-in-add-but-preserve-in-ldif-import", "reject-existing-values-in-add-but-overwrite-in-ldif-import", "reject-existing-values-in-add-but-merge-in-ldif-import"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"update_source_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update one or more of the source attributes used in any of the value patterns.",
@@ -535,9 +522,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"replace-composed-values", "replace-all-values", "preserve-existing-values"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"source_attribute_removal_behavior": schema.StringAttribute{
@@ -547,9 +531,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"preserve-non-composed-values", "preserve-all-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"update_target_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that attempt to update the set of values for the target attribute.",
@@ -557,9 +538,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"always-allow", "allow-only-for-non-composed-values", "never-allow"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"include_base_dn": schema.SetAttribute{
@@ -597,9 +575,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"preserve-existing-values-without-composing-new-values", "preserve-existing-values-or-compose-new-values", "preserve-existing-values-and-compose-new-values", "compose-new-values-without-preserving-existing-values"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"updated_entry_no_longer_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously satisfied the base DN and filter criteria, but now no longer satisfies that criteria.",
@@ -607,9 +582,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"preserve-all-values", "preserve-non-composed-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"context_name": schema.StringAttribute{
@@ -738,9 +710,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"num_most_expensive_phases_shown": schema.Int64Attribute{
 				Description: "This controls how many of the most expensive phases are included per operation type in the monitor entry.",
@@ -753,9 +722,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"generalized-time", "java-system-time-millis", "custom"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"custom_datetime_format": schema.StringAttribute{
@@ -805,9 +771,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"delete-entries", "subtree-delete-entries", "delete-json-attribute-values"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"log_interval": schema.StringAttribute{
@@ -860,9 +823,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"count", "aggregate-percentage"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"histogram_op_type": schema.SetAttribute{
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
@@ -876,9 +836,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"base", "one", "sub", "subordinate-subtree"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"include_attribute": schema.SetAttribute{
@@ -896,9 +853,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"log_file_format": schema.StringAttribute{
 				Description: "Specifies the format to use when logging server statistics.",
@@ -906,9 +860,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"csv", "json"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"log_file": schema.StringAttribute{
@@ -956,9 +907,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"standard-error", "lockdown-mode"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"output_file": schema.StringAttribute{
@@ -1195,9 +1143,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"disabled", "enabled-without-support-for-retrieving-membership", "enabled-with-support-for-retrieving-direct-membership", "enabled-with-support-for-retrieving-nested-membership"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"collection_interval": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `stats-collector`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered, and setting this value too small can have an adverse impact on performance. When the `type` attribute is set to `periodic-stats-logger`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered. It should be a multiple of the log-interval.",
@@ -1215,9 +1160,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"aggregate-only", "per-application-only"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"ldap_changelog_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for the LDAP changelog.",
@@ -1225,9 +1167,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"status_summary_info": schema.StringAttribute{
@@ -1237,9 +1176,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "verbose"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"local_db_backend_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the Local DB Backends.",
@@ -1247,9 +1183,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"replication_info": schema.StringAttribute{
@@ -1259,9 +1192,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"entry_cache_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for each entry cache.",
@@ -1269,9 +1199,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"host_info": schema.SetAttribute{
@@ -1339,9 +1266,6 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"none", "start", "stop", "cancel"}...),
 			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
-			},
 		}
 		schemaDef.Attributes["default_user_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of the password storage schemes to be used for encoding passwords contained in attributes with the user password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy is to be used to govern them.",
@@ -1385,17 +1309,11 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
 			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
-			},
 		}
 		schemaDef.Attributes["server_info"] = schema.StringAttribute{
 			Description: "Specifies whether statistics related to resource utilization such as JVM memory and CPU/Network/Disk utilization.",
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
-			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
 			},
 		}
 		schemaDef.Attributes["generate_collector_files"] = schema.BoolAttribute{

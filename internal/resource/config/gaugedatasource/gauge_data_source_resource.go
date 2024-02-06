@@ -17,7 +17,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -134,9 +133,6 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"lower-is-better", "higher-is-better"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"statistic_type": schema.StringAttribute{
 				Description: "Specifies the type of statistic to include in the output for the monitored attribute.",
@@ -144,9 +140,6 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"count-per-second", "average", "minimum", "maximum"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"divide_value_by": schema.Float64Attribute{

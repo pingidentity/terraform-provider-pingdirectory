@@ -19,7 +19,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -240,9 +239,6 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"truncate", "send-as-multiple-messages"}...),
 				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
-				},
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the address of the SNMP agent to which traps will be sent.",
@@ -347,17 +343,11 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"server-out-file", "standard-output", "standard-error"}...),
 			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
-			},
 		}
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
 			Validators: []validator.String{
 				stringvalidator.OneOf([]string{"legacy-text", "single-line-json", "multi-line-json"}...),
-			},
-			PlanModifiers: []planmodifier.String{
-				planmodifiers.ToLowercasePlanModifier(),
 			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
