@@ -1060,27 +1060,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup"},
+			[]string{"ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("included_backend_id"),
-				path.MatchRoot("excluded_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"delay"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("sleep_duration"),
-				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
-				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1094,10 +1077,27 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"delay"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("sleep_duration"),
+				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

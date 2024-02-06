@@ -1180,10 +1180,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"groupofnames", "groupofuniquenames", "groupofentries"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
+					stringvalidator.OneOf([]string{"groupOfNames", "groupOfUniqueNames", "groupOfEntries"}...),
 				},
 			},
 			"maximum_membership_updates_per_modify": schema.Int64Attribute{
@@ -4195,18 +4192,10 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+			[]string{"ping-one-pass-through-authentication"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret"),
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4215,6 +4204,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
 				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4227,18 +4224,18 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("oauth_client_secret"),
-				path.MatchRoot("oauth_client_secret_passphrase_provider"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

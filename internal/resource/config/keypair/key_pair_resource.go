@@ -123,10 +123,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"rsa-2048", "rsa-3072", "rsa-4096", "ec-256", "ec-384", "ec-521"}...),
-				},
-				PlanModifiers: []planmodifier.String{
-					planmodifiers.ToLowercasePlanModifier(),
+					stringvalidator.OneOf([]string{"RSA-2048", "RSA-3072", "RSA-4096", "EC-256", "EC-384", "EC-521"}...),
 				},
 			},
 			"self_signed_certificate_validity": schema.StringAttribute{
