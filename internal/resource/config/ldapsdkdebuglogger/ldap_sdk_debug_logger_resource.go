@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -130,8 +131,12 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The minimum debug level that should be used for messages to be logged.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"severe", "warning", "info", "config", "fine", "finer", "finest"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"debug_type": schema.SetAttribute{
@@ -238,8 +243,12 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "gzip"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"sign_log": schema.BoolAttribute{
@@ -270,16 +279,24 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "Specifies the smallest time unit to be included in timestamps.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"seconds", "milliseconds"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"logging_error_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"standard_error", "lockdown_mode"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 		},

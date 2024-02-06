@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -147,6 +148,12 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("individual"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"individual", "matched_operations", "all_operations"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"monitor_entries_enabled": schema.BoolAttribute{
 				Description: "Enables monitor entries for this Notification Manager.",

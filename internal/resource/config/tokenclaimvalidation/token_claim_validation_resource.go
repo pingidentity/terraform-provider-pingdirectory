@@ -19,6 +19,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -131,6 +132,12 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 			"required_value": schema.StringAttribute{
 				Description: "Specifies the boolean claim's required value.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"true", "false"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"all_required_value": schema.SetAttribute{
 				Description: "The set of all values that the claim must have to be considered valid.",

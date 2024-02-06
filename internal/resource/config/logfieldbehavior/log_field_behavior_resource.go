@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -216,6 +217,12 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 			"default_behavior": schema.StringAttribute{
 				Description: "The default behavior that the server should exhibit for fields for which no explicit behavior is defined. If no default behavior is defined, the server will fall back to using the default behavior configured for the syntax used for each log field.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve", "omit", "redact_entire_value", "redact_value_components", "tokenize_entire_value", "tokenize_value_components"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 		},
 	}

@@ -19,6 +19,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -124,8 +125,12 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the mechanism to use for securing connections to the server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"listener_certificate": schema.StringAttribute{

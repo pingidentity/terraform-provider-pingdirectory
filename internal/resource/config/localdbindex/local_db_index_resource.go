@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -197,6 +198,12 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index. This controls how much database cache memory can be consumed by this index.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 		},
 	}

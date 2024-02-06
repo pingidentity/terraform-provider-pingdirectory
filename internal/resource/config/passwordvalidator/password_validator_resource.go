@@ -20,6 +20,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -187,6 +188,12 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 			"match_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit if a user's proposed password matches the regular expression defined in the match-pattern property.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"require_match", "reject_match"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"max_password_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of characters that can be included in a proposed password.",

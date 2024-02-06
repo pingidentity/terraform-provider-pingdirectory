@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -135,6 +136,12 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"scope": schema.StringAttribute{
 				Description: "Specifies the LDAP scope of the query that is being indexed.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"base_object", "single_level", "whole_subtree", "subordinate_subtree"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"filter": schema.StringAttribute{
 				Description: "Specifies the LDAP filter used in the query that is being indexed.",
@@ -160,6 +167,12 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 		},
 	}

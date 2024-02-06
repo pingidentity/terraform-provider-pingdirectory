@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -152,6 +153,12 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 			"scheduled_date_selection_type": schema.StringAttribute{
 				Description: "The mechanism used to determine the dates on which instances of this Recurring Task Chain may be scheduled to start.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"every_day", "selected_days_of_the_week", "selected_days_of_the_month"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"scheduled_day_of_the_week": schema.SetAttribute{
 				Description: "The specific days of the week on which instances of this Recurring Task Chain may be scheduled to start. If the scheduled-day-selection-type property has a value of selected-days-of-the-week, then this property must have one or more values; otherwise, it must be left undefined.",
@@ -181,12 +188,24 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("cancel-only-interrupted-task-but-preserve-dependencies"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cancel_interrupted_task_and_dependencies", "cancel_only_interrupted_task_but_preserve_dependencies"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"server_offline_at_start_time_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit if it is offline when the start time arrives for the tasks in this Recurring Task Chain.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("cancel-iteration-and-wait-for-next-scheduled-start-time"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"run_immediately_upon_server_startup", "cancel_iteration_and_wait_for_next_scheduled_start_time"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 		},
 	}

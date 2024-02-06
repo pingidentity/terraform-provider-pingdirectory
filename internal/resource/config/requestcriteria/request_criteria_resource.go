@@ -18,6 +18,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -363,6 +364,12 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Indicates whether operations being processed using a dedicated administrative session worker thread should be included in this Simple Request Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"true", "false", "any"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"included_application_name": schema.SetAttribute{
 				Description: "Specifies an application name for requests included in this Simple Request Criteria.",

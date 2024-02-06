@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -153,6 +154,12 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("resources-in-specific-subtrees"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"resources_in_specific_groups", "resources_in_specific_subtrees", "all_resources_in_base"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"resource_subtree": schema.SetAttribute{
 				Description: "Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.",

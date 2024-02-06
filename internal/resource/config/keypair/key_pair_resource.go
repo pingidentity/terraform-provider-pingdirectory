@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -121,6 +122,12 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"rsa_2048", "rsa_3072", "rsa_4096", "ec_256", "ec_384", "ec_521"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"self_signed_certificate_validity": schema.StringAttribute{
 				Description: "The validity period for a self-signed certificate. If not specified, the self-signed certificate will be valid for approximately 20 years. This is not used when importing an existing key-pair. The system will not automatically rotate expired certificates. It is up to the administrator to do that when that happens.",

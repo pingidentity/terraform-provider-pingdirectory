@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -139,12 +140,24 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "received_any_server", "processed_all_servers"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"remote_level": schema.StringAttribute{
 				Description: "Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "received_any_remote_location", "received_all_remote_locations", "processed_all_remote_servers"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for the replication assurance requirements to be met before timing out and replying to the client.",

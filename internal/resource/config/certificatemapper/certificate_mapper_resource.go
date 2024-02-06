@@ -18,6 +18,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -144,6 +145,12 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 			"fingerprint_algorithm": schema.StringAttribute{
 				Description: "Specifies the name of the digest algorithm to compute the fingerprint of client certificates.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"md5", "sha1", "sha256"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"subject_attribute_mapping": schema.SetAttribute{
 				Description: "Specifies a mapping between certificate attributes and user attributes.",

@@ -20,6 +20,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -110,8 +111,12 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the type of server installation.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ds", "proxy", "authorize", "metrics", "sync"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"replication_set_name": schema.StringAttribute{
@@ -264,8 +269,12 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"start_tls_enabled": schema.BoolAttribute{

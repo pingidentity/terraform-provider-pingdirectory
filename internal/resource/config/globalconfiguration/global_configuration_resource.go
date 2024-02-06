@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -523,8 +524,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the Directory Server should handle operations whenever an attribute value violates the associated attribute syntax.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"accept", "reject", "warn"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"permit_syntax_violations_for_attribute": schema.SetAttribute{
@@ -540,8 +545,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"accept", "reject", "warn"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"attributes_modifiable_with_ignore_no_user_modification_request_control": schema.SetAttribute{
@@ -573,8 +582,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the server should handle error log messages (which may include errors, warnings, and notices) generated during startup. All of these messages will be written to all configured error loggers, but they may also be written to other locations (like standard output, standard error, or the server.out log file) so that they are displayed on the console when the server is starting.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"standard_output", "standard_error", "server_out_file", "standard_output_and_server_out_file", "standard_error_and_server_out_file", "disabled"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"exit_on_jvm_error": schema.BoolAttribute{
@@ -653,8 +666,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the kinds of write operations the Directory Server can process.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"enabled", "disabled", "internal_only"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"use_shared_database_cache_across_all_local_db_backends": schema.BoolAttribute{
@@ -677,8 +694,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"enter_lockdown_mode", "raise_unavailable_alarm", "initiate_server_shutdown"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"database_on_virtualized_or_network_storage": schema.BoolAttribute{
@@ -896,8 +917,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"inferred", "string"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.ToLowercasePlanModifier(),
 				},
 			},
 			"jmx_use_legacy_mbean_names": schema.BoolAttribute{

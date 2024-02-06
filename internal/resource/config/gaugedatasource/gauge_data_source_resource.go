@@ -17,6 +17,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -130,11 +131,23 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Indicates whether a higher or lower value is a more severe condition.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"lower_is_better", "higher_is_better"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"statistic_type": schema.StringAttribute{
 				Description: "Specifies the type of statistic to include in the output for the monitored attribute.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"count_per_second", "average", "minimum", "maximum"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"divide_value_by": schema.Float64Attribute{
 				Description: "An optional floating point value that can be used to scale the resulting value.",

@@ -17,6 +17,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -191,6 +192,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The criteria to use when performing matching based on the assurance timeout.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"assurance_timeout_value": schema.StringAttribute{
 				Description: "The value to use for performing matching based on the assurance timeout. This will be ignored if the assurance-timeout-criteria is \"any\".",
@@ -204,16 +211,34 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the response to the client was delayed by assurance processing.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "true", "false"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"assurance_behavior_altered_by_control": schema.StringAttribute{
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the assurance requirements were altered by a control included in the request from the client.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "true", "false"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"assurance_satisfied": schema.StringAttribute{
 				Description: "Indicates whether this Replication Assurance Result Criteria should match operations based on whether the assurance requirements have been satisfied.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "both_satisfied", "either_satisfied", "at_least_local_satisfied", "at_least_remote_satisfied", "only_local_satisfied", "only_remote_satisfied", "either_not_satisfied", "at_least_local_not_satisfied", "at_least_remote_not_satisfied", "neither_satisfied"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"all_included_result_criteria": schema.SetAttribute{
 				Description: "Specifies a result criteria object that must match the associated operation result in order to match the aggregate result criteria. If one or more all-included result criteria objects are provided, then an operation result must match all of them in order to match the aggregate result criteria.",
@@ -252,6 +277,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies which operation result codes are allowed for operations included in this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"all_result_codes", "non_failure_result_codes", "failure_result_codes", "selected_result_codes"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"result_code_value": schema.SetAttribute{
 				Description: "Specifies the operation result code values for results included in this Simple Result Criteria. This will only be taken into account if the \"result-code-criteria\" property has a value of \"selected-result-codes\".",
@@ -264,6 +295,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the time required to process the operation should be taken into consideration when determining whether to include the operation in this Simple Result Criteria. If the processing time should be taken into account, then the \"processing-time-value\" property should contain the boundary value.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"processing_time_value": schema.StringAttribute{
 				Description: "Specifies the boundary value to use for the operation processing time when determining whether to include that operation in this Simple Result Criteria. This will be ignored if the \"processing-time-criteria\" property has a value of \"any\".",
@@ -277,6 +314,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the time the operation was required to wait on the work queue should be taken into consideration when determining whether to include the operation in this Simple Result Criteria. If the queue time should be taken into account, then the \"queue-time-value\" property should contain the boundary value. This property should only be given a value other than \"any\" if the work queue has been configured to monitor the time operations have spent on the work queue.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"queue_time_value": schema.StringAttribute{
 				Description: "Specifies the boundary value to use for the time an operation spent on the work queue when determining whether to include that operation in this Simple Result Criteria. This will be ignored if the \"queue-time-criteria\" property has a value of \"any\".",
@@ -290,6 +333,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operation results which include one or more referral URLs should be included in this Simple Result Criteria. If no value is provided, then whether an operation includes any referral URLs will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"required", "prohibited", "optional"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"all_included_response_control": schema.SetAttribute{
 				Description: "Specifies the OID of a control that must be present in the response to the client for operations included in this Simple Result Criteria. If any control OIDs are provided, then the response must contain all of those controls.",
@@ -323,11 +372,23 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operation results in which the associated operation used an authorization identity that is different from the authentication identity (e.g., as the result of using a proxied authorization control) should be included in this Simple Result Criteria. If no value is provided, then whether an operation used an alternate authorization identity will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"required", "prohibited", "optional"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"used_any_privilege": schema.StringAttribute{
 				Description: "Indicates whether operations in which one or more privileges were used should be included in this Simple Result Criteria. If no value is provided, then whether an operation used any privileges will not be considered when determining whether it matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"required", "prohibited", "optional"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"used_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that must have been used during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have used at least one of those privileges. If no privilege names were provided, then the set of privileges used will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
@@ -340,6 +401,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether operations in which one or more privileges were missing should be included in this Simple Result Criteria. If no value is provided, then whether there were any missing privileges will not be considered when determining whether an operation matches this Simple Result Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"required", "prohibited", "optional"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"missing_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that must have been missing during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have been missing at least one of those privileges. If no privilege names were provided, then the set of privileges missing will not be considered when determining whether an operation should be included in this Simple Result Criteria.",
@@ -352,11 +419,23 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the use of a retired password for authentication should be considered when determining whether a bind operation should be included in this Simple Result Criteria. This will be ignored for all operations other than bind.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "retired_password_used", "retired_password_not_used"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"search_entry_returned_criteria": schema.StringAttribute{
 				Description: "Indicates whether the number of entries returned should be considered when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "equal_to", "not_equal_to", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"search_entry_returned_count": schema.Int64Attribute{
 				Description: "Specifies the target number of entries returned for use when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search, and it will be ignored for search operations if the \"search-entry-criteria\" property has a value of \"any\".",
@@ -367,6 +446,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether the number of references returned should be considered when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "equal_to", "not_equal_to", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"search_reference_returned_count": schema.Int64Attribute{
 				Description: "Specifies the target number of references returned for use when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search, and it will be ignored for search operations if the \"search-reference-criteria\" property has a value of \"any\".",
@@ -377,6 +462,12 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Indicates whether a search operation should be matched by this Simple Result Criteria based on whether it is considered indexed by the server. This will be ignored for all operations other than search.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "indexed", "unindexed"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"included_authz_user_base_dn": schema.SetAttribute{
 				Description: "Specifies a base DN below which authorization user entries may exist for operations included in this Simple Result Criteria. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.",

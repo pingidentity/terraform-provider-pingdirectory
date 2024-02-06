@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -146,6 +147,12 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("string"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"string", "boolean", "datetime", "decimal", "integer", "binary", "reference", "complex"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"required": schema.BoolAttribute{
 				Description: "Specifies whether this attribute is required.",
@@ -177,12 +184,24 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("read-write"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"read_only", "read_write", "immutable", "write_only"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"returned": schema.StringAttribute{
 				Description: "Specifies the circumstances under which the values of the attribute are returned in response to a request.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("by-default"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"by_default", "upon_request", "always", "never"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"reference_type": schema.SetAttribute{
 				Description: "Specifies the SCIM resource types that may be referenced. This property is only applicable for attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).",

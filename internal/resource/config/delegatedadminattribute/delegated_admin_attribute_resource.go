@@ -21,6 +21,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -163,6 +164,12 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("read-write"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"read_only", "read_write"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"include_in_summary": schema.BoolAttribute{
 				Description: "Indicates whether this Delegated Admin Attribute is to be included in the summary display for a resource.",
@@ -192,6 +199,12 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_presentation": schema.StringAttribute{
 				Description: "Indicates how the attribute is presented to the user of the app.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"default", "custom"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"date_time_format": schema.StringAttribute{
 				Description: "Specifies the format string that is used to present a date and/or time value to the user of the app. This property only applies to LDAP attribute types whose LDAP syntax is GeneralizedTime and is ignored if the attribute type has any other syntax.",

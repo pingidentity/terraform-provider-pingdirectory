@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -361,6 +362,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"maximum_connection_operation_rate": schema.SetAttribute{
 				Description: "Specifies the maximum rate at which a client associated with this Client Connection Policy may issue requests to the Directory Server. If any client attempts to request operations at a rate higher than this limit, then the server will exhibit the behavior described in the connection-operation-rate-exceeded-behavior property.",
@@ -374,6 +381,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"maximum_policy_operation_rate": schema.SetAttribute{
 				Description: "Specifies the maximum rate at which all clients associated with this Client Connection Policy, as a collective set, may issue requests to the Directory Server. If this limit is exceeded, then the server will exhibit the behavior described in the policy-operation-rate-exceeded-behavior property.",
@@ -387,6 +400,12 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"maximum_search_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be returned for a search performed by a client associated with this Client Connection Policy.",

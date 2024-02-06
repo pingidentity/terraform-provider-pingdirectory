@@ -19,6 +19,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/planmodifiers"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -236,6 +237,12 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The behavior to use for alert messages that are longer than the 160-character size limit for SMS messages.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"truncate", "send_as_multiple_messages"}...),
+				},
+				PlanModifiers: []planmodifier.String{
+					planmodifiers.ToLowercasePlanModifier(),
+				},
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the address of the SNMP agent to which traps will be sent.",
@@ -337,9 +344,21 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"server_out_file", "standard_output", "standard_error"}...),
+			},
+			PlanModifiers: []planmodifier.String{
+				planmodifiers.ToLowercasePlanModifier(),
+			},
 		}
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"legacy_text", "single_line_json", "multi_line_json"}...),
+			},
+			PlanModifiers: []planmodifier.String{
+				planmodifiers.ToLowercasePlanModifier(),
+			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	} else {
