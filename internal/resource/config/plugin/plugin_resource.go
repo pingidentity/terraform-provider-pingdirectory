@@ -4192,18 +4192,10 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("oauth_client_secret"),
-				path.MatchRoot("oauth_client_secret_passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
 				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4212,6 +4204,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
 				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4224,18 +4224,18 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 			configvalidators.Implies(
 				path.MatchRoot("datetime_json_field"),
 				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret"),
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
