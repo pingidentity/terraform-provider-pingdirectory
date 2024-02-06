@@ -124,6 +124,9 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the mechanism to use for securing connections to the server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

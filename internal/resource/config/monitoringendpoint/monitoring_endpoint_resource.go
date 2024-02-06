@@ -133,6 +133,9 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("unencrypted-udp"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"unencrypted-udp", "unencrypted-tcp", "ssl-over-tcp"}...),
+				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL over TCP is to be used for connection-level security.",

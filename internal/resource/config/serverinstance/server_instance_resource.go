@@ -110,6 +110,9 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the type of server installation.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ds", "proxy", "authorize", "metrics", "sync"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -264,6 +267,9 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

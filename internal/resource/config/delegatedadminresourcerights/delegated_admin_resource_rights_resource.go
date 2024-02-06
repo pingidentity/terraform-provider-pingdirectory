@@ -153,6 +153,9 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("resources-in-specific-subtrees"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"resources-in-specific-groups", "resources-in-specific-subtrees", "all-resources-in-base"}...),
+				},
 			},
 			"resource_subtree": schema.SetAttribute{
 				Description: "Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.",

@@ -154,6 +154,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"value_type": schema.StringAttribute{
 				Description: "The data type that will be required for values of the target field.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"any", "boolean", "integer", "null", "number", "object", "string"}...),
+				},
 			},
 			"is_required": schema.BoolAttribute{
 				Description: "Indicates whether the target field must be present in JSON objects stored as values of the associated attribute type.",
@@ -166,6 +169,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("prohibited"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"required", "optional", "prohibited"}...),
+				},
 			},
 			"allow_null_value": schema.BoolAttribute{
 				Description: "Indicates whether the target field may have a value that is the JSON null value as an alternative to a value (or array of values) of the specified value-type.",
@@ -198,6 +204,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching"}...),
+				},
 			},
 			"tokenize_values": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to assign a compact token for each distinct value for the target field in an attempt to reduce the encoded size of the field in JSON objects. These tokens would be assigned prior to using any from the token set used for automatic compaction of some JSON string values.",

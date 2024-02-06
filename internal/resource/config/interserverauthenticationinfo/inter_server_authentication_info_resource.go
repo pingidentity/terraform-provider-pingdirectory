@@ -106,6 +106,9 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 				Description: "Identifies the type of password authentication that will be used.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"simple", "sasl-plain"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

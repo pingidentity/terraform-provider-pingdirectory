@@ -139,12 +139,18 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "received-any-server", "processed-all-servers"}...),
+				},
 			},
 			"remote_level": schema.StringAttribute{
 				Description: "Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "received-any-remote-location", "received-all-remote-locations", "processed-all-remote-servers"}...),
+				},
 			},
 			"timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for the replication assurance requirements to be met before timing out and replying to the client.",

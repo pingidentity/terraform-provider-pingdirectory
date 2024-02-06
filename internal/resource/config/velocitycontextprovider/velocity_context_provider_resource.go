@@ -184,6 +184,9 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("application"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"application", "session", "request"}...),
+				},
 			},
 			"included_view": schema.SetAttribute{
 				Description: "The name of a view for which this Velocity Context Provider will contribute content.",

@@ -140,30 +140,45 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow", "suppress", "secure-only"}...),
+				},
 			},
 			"allow_in_filter": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to include sensitive attributes in search filters. This also includes filters that may be used in other forms, including assertion and LDAP join request controls.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
+				},
 			},
 			"allow_in_add": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to include sensitive attributes in add requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
+				},
 			},
 			"allow_in_compare": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to target sensitive attributes with compare requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
+				},
 			},
 			"allow_in_modify": schema.StringAttribute{
 				Description: "Indicates whether clients will be allowed to target sensitive attributes with modify requests.",
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
+				},
 			},
 		},
 	}

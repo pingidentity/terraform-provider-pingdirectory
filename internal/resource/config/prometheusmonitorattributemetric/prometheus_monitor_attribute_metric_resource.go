@@ -145,6 +145,9 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 			"metric_type": schema.StringAttribute{
 				Description: "The metric type that should be used for the value of the specified monitor attribute.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"counter", "gauge"}...),
+				},
 			},
 			"filter": schema.StringAttribute{
 				Description: "A filter that may be used to restrict the set of monitor entries for which the metric should be generated.",

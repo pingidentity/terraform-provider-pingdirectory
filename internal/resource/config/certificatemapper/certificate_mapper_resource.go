@@ -144,6 +144,9 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 			"fingerprint_algorithm": schema.StringAttribute{
 				Description: "Specifies the name of the digest algorithm to compute the fingerprint of client certificates.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"md5", "sha1", "sha256"}...),
+				},
 			},
 			"subject_attribute_mapping": schema.SetAttribute{
 				Description: "Specifies a mapping between certificate attributes and user attributes.",

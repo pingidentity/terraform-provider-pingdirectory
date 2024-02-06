@@ -236,6 +236,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "The behavior to use for alert messages that are longer than the 160-character size limit for SMS messages.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"truncate", "send-as-multiple-messages"}...),
+				},
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the address of the SNMP agent to which traps will be sent.",
@@ -337,9 +340,15 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"server-out-file", "standard-output", "standard-error"}...),
+			},
 		}
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"legacy-text", "single-line-json", "multi-line-json"}...),
+			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	} else {

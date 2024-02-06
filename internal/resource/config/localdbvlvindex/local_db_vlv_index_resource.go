@@ -135,6 +135,9 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"scope": schema.StringAttribute{
 				Description: "Specifies the LDAP scope of the query that is being indexed.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"base-object", "single-level", "whole-subtree", "subordinate-subtree"}...),
+				},
 			},
 			"filter": schema.StringAttribute{
 				Description: "Specifies the LDAP filter used in the query that is being indexed.",
@@ -160,6 +163,9 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 			"cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
+				},
 			},
 		},
 	}

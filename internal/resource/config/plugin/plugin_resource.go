@@ -443,6 +443,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit if multiple attribute types are specified.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"unique-within-each-attribute", "unique-across-all-attributes-including-in-same-entry", "unique-across-all-attributes-except-in-same-entry"}...),
+				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Plugin.",
@@ -493,31 +496,49 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit if the plugin is configured with multiple value patterns.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject", "use-first-non-rejected-value-pattern-with-non-empty-values-and-never-reject", "use-first-rejection-or-first-value-pattern-with-non-empty-values", "use-all-non-rejected-value-patterns-with-non-empty-values-but-may-reject", "use-all-non-rejected-value-patterns-with-non-empty-values-and-never-reject", "use-first-rejection-or-all-value-patterns-with-non-empty-values"}...),
+				},
 			},
 			"multi_valued_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for source attributes that have multiple values.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"use-first-value", "reject-entries-with-any-multivalued-source-attribute", "use-all-values-if-possible-but-reject-if-not", "use-all-values-if-possible-but-only-first-value-if-not"}...),
+				},
 			},
 			"target_attribute_exists_during_initial_population_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit if the target attribute exists when initially populating the entry with composed values (whether during an LDIF import, an add operation, or an invocation of the populate composed attribute values task).",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve-existing-values", "overwrite-existing-values", "merge-existing-and-composed-values", "reject-existing-values-in-add-but-preserve-in-ldif-import", "reject-existing-values-in-add-but-overwrite-in-ldif-import", "reject-existing-values-in-add-but-merge-in-ldif-import"}...),
+				},
 			},
 			"update_source_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update one or more of the source attributes used in any of the value patterns.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"replace-composed-values", "replace-all-values", "preserve-existing-values"}...),
+				},
 			},
 			"source_attribute_removal_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update an entry to remove source attributes in such a way that this plugin would no longer generate any composed values for that entry.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve-non-composed-values", "preserve-all-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
+				},
 			},
 			"update_target_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that attempt to update the set of values for the target attribute.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"always-allow", "allow-only-for-non-composed-values", "never-allow"}...),
+				},
 			},
 			"include_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values may be generated.",
@@ -551,11 +572,17 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve-existing-values-without-composing-new-values", "preserve-existing-values-or-compose-new-values", "preserve-existing-values-and-compose-new-values", "compose-new-values-without-preserving-existing-values"}...),
+				},
 			},
 			"updated_entry_no_longer_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously satisfied the base DN and filter criteria, but now no longer satisfies that criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve-all-values", "preserve-non-composed-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
+				},
 			},
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
@@ -680,6 +707,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
+				},
 			},
 			"num_most_expensive_phases_shown": schema.Int64Attribute{
 				Description: "This controls how many of the most expensive phases are included per operation type in the monitor entry.",
@@ -690,6 +720,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the format of the datetime stored within the entry that determines when data should be purged.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"generalized-time", "java-system-time-millis", "custom"}...),
+				},
 			},
 			"custom_datetime_format": schema.StringAttribute{
 				Description: "When the datetime-format property is configured with a value of \"custom\", this specifies the format (using a string compatible with the java.text.SimpleDateFormat class) that will be used to search for expired data.",
@@ -736,6 +769,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"purge_behavior": schema.StringAttribute{
 				Description: "Specifies whether to delete expired entries or attribute values. By default entries are deleted.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"delete-entries", "subtree-delete-entries", "delete-json-attribute-values"}...),
+				},
 			},
 			"log_interval": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The duration between statistics collection and logging. A new line is logged to the output for each interval. Setting this value too small can have an impact on performance. When the `type` attribute is set to `monitor-history`: The duration between logging dumps of cn=monitor to a file.",
@@ -784,6 +820,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The format of the data in the processing time histogram.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"count", "aggregate-percentage"}...),
+				},
 			},
 			"histogram_op_type": schema.SetAttribute{
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
@@ -795,6 +834,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"scope": schema.StringAttribute{
 				Description: "The scope to use for the search.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"base", "one", "sub", "subordinate-subtree"}...),
+				},
 			},
 			"include_attribute": schema.SetAttribute{
 				Description:         "When the `type` attribute is set to `search-shutdown`: The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded). When the `type` attribute is set to `last-mod`: Specifies the name or OID of an attribute type that must be updated in order for the modifiersName and modifyTimestamp attributes to be updated in the target entry.",
@@ -808,11 +850,17 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the level of detail to include for Gauges.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
+				},
 			},
 			"log_file_format": schema.StringAttribute{
 				Description: "Specifies the format to use when logging server statistics.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"csv", "json"}...),
+				},
 			},
 			"log_file": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `periodic-stats-logger`: The file name to use for the log files generated by the Periodic Stats Logger Plugin. The path to the file can be specified either as relative to the server root or as an absolute path. When the `type` attribute is set to `monitor-history`: The file name to use for the log files generated by the Monitor History Plugin. The path to the file can be specified either as relative to the server root or as an absolute path. When the `type` attribute is set to `referential-integrity`: Specifies the log file location where the update records are written when the plug-in is in background-mode processing.",
@@ -857,6 +905,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"standard-error", "lockdown-mode"}...),
+				},
 			},
 			"output_file": schema.StringAttribute{
 				Description: "The path of an LDIF file that should be created with the results of the search.",
@@ -1076,6 +1127,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The object class that defines the type of traditional static group that this plugin will attempt to emulate for inverted static groups.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"groupOfNames", "groupOfUniqueNames", "groupOfEntries"}...),
+				},
 			},
 			"maximum_membership_updates_per_modify": schema.Int64Attribute{
 				Description: "An integer property that specifies the maximum number of membership changes that will be supported in a single modify operation. A value of zero indicates that modify operations targeting the group entry should not be permitted to alter the set of members for the group.",
@@ -1086,6 +1140,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The level of support that the server should offer to allow treating search and compare operations targeting inverted static groups as if they were traditional static groups.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"disabled", "enabled-without-support-for-retrieving-membership", "enabled-with-support-for-retrieving-direct-membership", "enabled-with-support-for-retrieving-nested-membership"}...),
+				},
 			},
 			"collection_interval": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `stats-collector`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered, and setting this value too small can have an adverse impact on performance. When the `type` attribute is set to `periodic-stats-logger`: Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered. It should be a multiple of the log-interval.",
@@ -1100,31 +1157,49 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Controls whether per application LDAP statistics are included in the output for selected LDAP operation statistics.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"aggregate-only", "per-application-only"}...),
+				},
 			},
 			"ldap_changelog_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for the LDAP changelog.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
+				},
 			},
 			"status_summary_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the status summary monitor entry.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "verbose"}...),
+				},
 			},
 			"local_db_backend_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the Local DB Backends.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
+				},
 			},
 			"replication_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about replication.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "extended", "verbose"}...),
+				},
 			},
 			"entry_cache_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include for each entry cache.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
+				},
 			},
 			"host_info": schema.SetAttribute{
 				Description: "Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.",
@@ -1188,6 +1263,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		}
 		schemaDef.Attributes["profile_action"] = schema.StringAttribute{
 			Description: "Specifies the action that should be taken by the profiler.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"none", "start", "stop", "cancel"}...),
+			},
 		}
 		schemaDef.Attributes["default_user_password_storage_scheme"] = schema.SetAttribute{
 			Description: "Specifies the names of the password storage schemes to be used for encoding passwords contained in attributes with the user password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy is to be used to govern them.",
@@ -1228,9 +1306,15 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		}
 		schemaDef.Attributes["ldap_info"] = schema.StringAttribute{
 			Description: "Specifies the level of detail to include about the LDAP connection handlers.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
+			},
 		}
 		schemaDef.Attributes["server_info"] = schema.StringAttribute{
 			Description: "Specifies whether statistics related to resource utilization such as JVM memory and CPU/Network/Disk utilization.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
+			},
 		}
 		schemaDef.Attributes["generate_collector_files"] = schema.BoolAttribute{
 			Description: "Indicates whether this plugin should store metric samples on disk for use by the Data Metrics Server. If the Stats Collector Plugin is only being used to collect metrics for one or more StatsD Monitoring Endpoints, then this can be set to false to prevent unnecessary I/O.",

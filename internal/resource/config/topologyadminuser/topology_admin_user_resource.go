@@ -310,6 +310,9 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("allowed"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allowed", "prohibited", "required"}...),
+				},
 			},
 			"is_proxyable_by_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",

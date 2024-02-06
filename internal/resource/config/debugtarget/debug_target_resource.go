@@ -139,6 +139,9 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 			"debug_level": schema.StringAttribute{
 				Description: "Specifies the lowest severity level of debug messages to log.",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"disabled", "error", "warning", "info", "verbose", "all"}...),
+				},
 			},
 			"debug_category": schema.SetAttribute{
 				Description: "Specifies the debug message categories to be logged.",

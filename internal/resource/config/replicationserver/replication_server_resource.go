@@ -166,6 +166,9 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				Description: "Specifies when the replication traffic should be compressed.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"always", "remote", "never"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -215,6 +218,9 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				Description: "Supported in PingDirectory product version 10.0.0.0+. Determines how the server responds when replication detects that some changes might have been missed. Each missing changes policy is a set of missing changes actions to take for a set of missing changes types. The value configured here acts as a default for all replication domains on this replication server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"maximum-integrity", "favor-integrity", "favor-availability", "maximum-availability"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

@@ -177,6 +177,9 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "issue-alert", "enter-lockdown-mode", "shut-down-server"}...),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Monitor Provider",

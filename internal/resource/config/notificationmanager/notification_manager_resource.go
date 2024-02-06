@@ -147,6 +147,9 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("individual"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"individual", "matched-operations", "all-operations"}...),
+				},
 			},
 			"monitor_entries_enabled": schema.BoolAttribute{
 				Description: "Enables monitor entries for this Notification Manager.",

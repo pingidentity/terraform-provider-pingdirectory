@@ -187,6 +187,9 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 			"match_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit if a user's proposed password matches the regular expression defined in the match-pattern property.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"require-match", "reject-match"}...),
+				},
 			},
 			"max_password_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of characters that can be included in a proposed password.",

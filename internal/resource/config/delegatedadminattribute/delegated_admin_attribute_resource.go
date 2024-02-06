@@ -163,6 +163,9 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("read-write"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"read-only", "read-write"}...),
+				},
 			},
 			"include_in_summary": schema.BoolAttribute{
 				Description: "Indicates whether this Delegated Admin Attribute is to be included in the summary display for a resource.",
@@ -192,6 +195,9 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 			"attribute_presentation": schema.StringAttribute{
 				Description: "Indicates how the attribute is presented to the user of the app.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"default", "custom"}...),
+				},
 			},
 			"date_time_format": schema.StringAttribute{
 				Description: "Specifies the format string that is used to present a date and/or time value to the user of the app. This property only applies to LDAP attribute types whose LDAP syntax is GeneralizedTime and is ignored if the attribute type has any other syntax.",

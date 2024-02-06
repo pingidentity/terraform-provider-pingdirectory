@@ -131,6 +131,9 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 			"required_value": schema.StringAttribute{
 				Description: "Specifies the boolean claim's required value.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"true", "false"}...),
+				},
 			},
 			"all_required_value": schema.SetAttribute{
 				Description: "The set of all values that the claim must have to be considered valid.",

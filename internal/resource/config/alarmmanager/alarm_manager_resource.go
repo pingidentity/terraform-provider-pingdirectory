@@ -85,6 +85,9 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies the level at which alerts are sent for alarms raised by the Alarm Manager.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"always", "warning-and-above", "minor-and-above", "major-and-above", "critical-only", "never"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

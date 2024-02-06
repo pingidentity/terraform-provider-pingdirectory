@@ -218,6 +218,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			"timestamp_format": schema.StringAttribute{
 				Description: "The format to use for the timestamp represented by the \"${timestamp}\" token in the filename pattern.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"generalized-time-utc-with-milliseconds", "generalized-time-utc-with-seconds", "generalized-time-utc-with-minutes", "local-time-with-milliseconds", "local-time-with-seconds", "local-time-with-minutes", "local-date"}...),
+				},
 			},
 			"retain_file_count": schema.Int64Attribute{
 				Description: "The minimum number of files matching the pattern that will be retained.",
@@ -260,6 +263,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The final task state that a task instance should have if the task executes the specified command and that command completes with a nonzero exit code, which generally means that the command did not complete successfully.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
+				},
 			},
 			"working_directory": schema.StringAttribute{
 				Description: "The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.",
@@ -370,6 +376,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The security level to use when deciding which information to include in or exclude from the support data archive, and which included data should be obscured or redacted.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "obscure-secrets", "maximum"}...),
+				},
 			},
 			"jstack_count": schema.Int64Attribute{
 				Description: "The number of times to invoke the jstack utility to obtain a stack trace of all threads running in the JVM. A value of zero indicates that the jstack utility should not be invoked.",
@@ -461,6 +470,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The return state to use if a timeout is encountered while waiting for the server work queue to become idle (if the duration-to-wait-for-work-queue-idle property has a value), or if the time specified by the duration-to-wait-for-search-to-return-entries elapses without the associated search returning any entries.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
+				},
 			},
 			"backup_directory": schema.StringAttribute{
 				Description: "The directory in which backup files will be placed. When backing up a single backend, the backup files will be placed directly in this directory. When backing up multiple backends, the backup files for each backend will be placed in a subdirectory whose name is the corresponding backend ID.",

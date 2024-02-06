@@ -187,6 +187,9 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
+				},
 			},
 			"dn_map": schema.SetAttribute{
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",

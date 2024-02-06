@@ -523,6 +523,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the Directory Server should handle operations whenever an attribute value violates the associated attribute syntax.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"accept", "reject", "warn"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -540,6 +543,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"accept", "reject", "warn"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -573,6 +579,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how the server should handle error log messages (which may include errors, warnings, and notices) generated during startup. All of these messages will be written to all configured error loggers, but they may also be written to other locations (like standard output, standard error, or the server.out log file) so that they are displayed on the console when the server is starting.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"standard-output", "standard-error", "server-out-file", "standard-output-and-server-out-file", "standard-error-and-server-out-file", "disabled"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -653,6 +662,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the kinds of write operations the Directory Server can process.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"enabled", "disabled", "internal-only"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -677,6 +689,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"enter-lockdown-mode", "raise-unavailable-alarm", "initiate-server-shutdown"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -896,6 +911,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"inferred", "string"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

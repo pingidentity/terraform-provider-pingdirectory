@@ -399,6 +399,9 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The minimum debug level that should be used for messages to be logged.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"severe", "warning", "info", "config", "fine", "finer", "finest"}...),
+				},
 			},
 			"debug_type": schema.SetAttribute{
 				Description: "The types of debug messages that should be logged.",
@@ -550,6 +553,9 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["map_access_tokens_to_local_users"] = schema.StringAttribute{
 			Description: "Indicates whether the SCIM2 servlet should attempt to map the presented access token to a local user.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"disabled", "optional", "required"}...),
+			},
 		}
 		schemaDef.Attributes["max_page_size"] = schema.Int64Attribute{
 			Description: "The maximum number of entries to be returned in one page of search results.",

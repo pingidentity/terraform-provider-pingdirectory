@@ -231,6 +231,9 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("notice"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"error", "warning", "notice", "verbose"}...),
+				},
 			},
 		},
 	}

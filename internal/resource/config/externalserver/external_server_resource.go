@@ -259,10 +259,16 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-http`: The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.\n  - `http`: The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.",
 				Optional:            true,
 				Computed:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"allow-all", "strict"}...),
+				},
 			},
 			"jdbc_driver_type": schema.StringAttribute{
 				Description: "Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"oraclethin", "oracleoci", "mysql", "db2", "sqlserver", "postgres", "other"}...),
+				},
 			},
 			"jdbc_driver_url": schema.StringAttribute{
 				Description: "Specify the complete JDBC URL which will be used instead of the automatic URL format. You must select type 'other' for the jdbc-driver-type.",
@@ -292,6 +298,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"unencrypted-udp", "unencrypted-tcp", "tls-encrypted-tcp"}...),
+				},
 			},
 			"database_name": schema.StringAttribute{
 				Description: "Specifies which database to connect to. This is ignored if jdbc-driver-url is specified.",
@@ -301,6 +310,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The mechanism to use to verify user credentials while ensuring that the ability to process other operations is not impacted by an alternate authorization identity.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"separate-connections", "retain-identity-control", "bind-on-existing-connections"}...),
+				},
 			},
 			"use_administrative_operation_control": schema.BoolAttribute{
 				Description: "Indicates whether to include the administrative operation request control in requests sent to this server which are intended for administrative operations (e.g., health checking) rather than requests directly from clients.",
@@ -345,6 +357,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "This property specifies the default transaction isolation level for connections to this JDBC External Server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"read-committed", "read-uncommitted", "repeatable-read", "serializable"}...),
+				},
 			},
 			"bind_dn": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The DN to use to bind to the target LDAP server if simple authentication is required. When the `type` attribute is set to `active-directory`: The DN to use to bind to the target LDAP server if simple authentication is required. The authentication identity can also be specified in User-Principal-Name (UPN) format.",
@@ -355,6 +370,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "This property specifies type of connection security to use when connecting to the outgoing mail server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "starttls", "ssl"}...),
+				},
 			},
 			"user_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `smtp`: The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set. When the `type` attribute is set to `jdbc`: The name of the login account to use when connecting to the database server.",
@@ -365,12 +383,18 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The mechanism to use to secure communication with the directory server.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "ssl", "starttls"}...),
+				},
 			},
 			"authentication_method": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to  one of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server. When the `type` attribute is set to `amazon-aws`: The mechanism to use to authenticate to AWS.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server.\n  - `amazon-aws`: The mechanism to use to authenticate to AWS.",
 				Optional:            true,
 				Computed:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"none", "simple", "external", "inter-server"}...),
+				},
 			},
 			"health_check_connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.",

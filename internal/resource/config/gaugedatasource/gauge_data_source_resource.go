@@ -130,11 +130,17 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Indicates whether a higher or lower value is a more severe condition.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"lower-is-better", "higher-is-better"}...),
+				},
 			},
 			"statistic_type": schema.StringAttribute{
 				Description: "Specifies the type of statistic to include in the output for the monitored attribute.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"count-per-second", "average", "minimum", "maximum"}...),
+				},
 			},
 			"divide_value_by": schema.Float64Attribute{
 				Description: "An optional floating point value that can be used to scale the resulting value.",

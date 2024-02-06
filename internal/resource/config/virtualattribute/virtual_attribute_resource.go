@@ -277,6 +277,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"join_base_dn_type": schema.StringAttribute{
 				Description: "Specifies how server should determine the base DN for the internal searches used to identify joined entries.",
 				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"use-search-base-dn", "use-source-entry-dn", "use-custom-base-dn"}...),
+				},
 			},
 			"join_custom_base_dn": schema.StringAttribute{
 				Description: "The fixed, administrator-specified base DN for the internal searches used to identify joined entries.",
@@ -286,6 +289,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The scope for searches used to identify joined entries.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"base-object", "single-level", "whole-subtree", "subordinate-subtree"}...),
+				},
 			},
 			"join_size_limit": schema.Int64Attribute{
 				Description: "The maximum number of entries that may be joined with the source entry, which also corresponds to the maximum number of values that the virtual attribute provider will generate for an entry.",
@@ -316,6 +322,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"real-overrides-virtual", "virtual-overrides-real", "merge-real-and-virtual"}...),
+				},
 			},
 			"direct_memberships_only": schema.BoolAttribute{
 				Description: "Specifies whether to only include groups in which the user is directly associated with and the membership maybe modified via the group entry. Groups in which the user's membership is derived dynamically or through nested groups will not be included.",
@@ -330,6 +339,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Search filters that include Is Member Of Virtual Attribute searches on dynamic groups can be updated to include the dynamic group filter in the search filter itself. This can allow the backend to more efficiently process the search filter by using attribute indexes sooner in the search processing.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"always", "within-group-scope", "never"}...),
+				},
 			},
 			"source_attribute": schema.StringAttribute{
 				Description: "Specifies the source attribute containing the values to use for this virtual attribute.",
@@ -402,6 +414,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the behavior that will be exhibited for cases in which multiple virtual attribute definitions apply to the same multivalued attribute type. This will be ignored for single-valued attribute types.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"use-first-definition", "use-only-definitions-with-the-lowest-evaluation-order-index", "use-all-definitions"}...),
+				},
 			},
 			"allow_index_conflicts": schema.BoolAttribute{
 				Description: "Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.",

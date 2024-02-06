@@ -363,6 +363,9 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Indicates whether operations being processed using a dedicated administrative session worker thread should be included in this Simple Request Criteria.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"true", "false", "any"}...),
+				},
 			},
 			"included_application_name": schema.SetAttribute{
 				Description: "Specifies an application name for requests included in this Simple Request Criteria.",

@@ -135,6 +135,9 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 				Description: "The default behavior that the server should exhibit when logging fields with this syntax. This may be overridden on a per-field basis.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"preserve", "omit", "redact-entire-value", "redact-value-components", "tokenize-entire-value", "tokenize-value-components"}...),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

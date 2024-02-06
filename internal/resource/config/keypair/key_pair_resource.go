@@ -121,6 +121,9 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"RSA_2048", "RSA_3072", "RSA_4096", "EC_256", "EC_384", "EC_521"}...),
+				},
 			},
 			"self_signed_certificate_validity": schema.StringAttribute{
 				Description: "The validity period for a self-signed certificate. If not specified, the self-signed certificate will be valid for approximately 20 years. This is not used when importing an existing key-pair. The system will not automatically rotate expired certificates. It is up to the administrator to do that when that happens.",

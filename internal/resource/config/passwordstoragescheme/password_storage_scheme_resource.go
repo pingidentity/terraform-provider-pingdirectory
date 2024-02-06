@@ -187,6 +187,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the digest algorithm that will be used when encoding passwords.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"sha-1", "sha-256", "sha-384", "sha-512"}...),
+				},
 			},
 			"extension_class": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme. When the `type` attribute is set to `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.",
@@ -213,6 +216,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "Specifies the mechanism that should be used to encode clear-text passwords for use with this scheme.",
 				Optional:    true,
 				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"crypt", "md5", "sha-2-256", "sha-2-512"}...),
+				},
 			},
 			"num_digest_rounds": schema.Int64Attribute{
 				Description: "Specifies the number of digest rounds to use for the SHA-2 encodings. This will not be used for the legacy or MD5-based encodings.",

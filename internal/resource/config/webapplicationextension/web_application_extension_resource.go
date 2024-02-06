@@ -245,6 +245,9 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		}
 		schemaDef.Attributes["complexity"] = schema.StringAttribute{
 			Description: "Specifies the maximum complexity level for managed configuration elements.",
+			Validators: []validator.String{
+				stringvalidator.OneOf([]string{"basic", "standard", "advanced", "expert"}...),
+			},
 		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}

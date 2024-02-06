@@ -194,6 +194,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("reactive"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ignore", "reactive", "proactive"}...),
+				},
 			},
 			"enable_debug": schema.BoolAttribute{
 				Description: "Indicates whether to enable debugging for the password policy state.",
@@ -236,6 +239,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("false"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"false", "add-only", "admin-reset-only", "add-and-admin-reset-only", "true"}...),
+				},
 			},
 			"password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
@@ -264,6 +270,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("force-password-change"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"reject-bind", "force-password-change", "generate-account-status-notification"}...),
+				},
 			},
 			"password_generator": schema.StringAttribute{
 				Description: "Specifies the name of the password generator that is used with the associated password policy.",
@@ -318,6 +327,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("unless-password-policy-control-is-used"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"unless-password-policy-control-is-used", "always", "never"}...),
+				},
 			},
 			"allow_expired_password_changes": schema.BoolAttribute{
 				Description: "Indicates whether a user whose password is expired is still allowed to change that password using the password modify extended operation.",
@@ -456,6 +468,9 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Default:     stringdefault.StaticString("collapse-similar-attempts-on-the-same-date"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"collapse-similar-attempts-on-the-same-date", "maintain-every-attempt", "update-at-most-once-per-day"}...),
+				},
 			},
 			"last_login_ip_address_attribute": schema.StringAttribute{
 				Description: "Specifies the name or OID of the attribute type that is used to hold the IP address of the client from which the user last authenticated.",
