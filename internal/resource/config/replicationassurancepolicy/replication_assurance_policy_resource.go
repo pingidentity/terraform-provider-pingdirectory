@@ -141,7 +141,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "received_any_server", "processed_all_servers"}...),
+					stringvalidator.OneOf([]string{"none", "received-any-server", "processed-all-servers"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -153,7 +153,7 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				Default:     stringdefault.StaticString("none"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "received_any_remote_location", "received_all_remote_locations", "processed_all_remote_servers"}...),
+					stringvalidator.OneOf([]string{"none", "received-any-remote-location", "received-all-remote-locations", "processed-all-remote-servers"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

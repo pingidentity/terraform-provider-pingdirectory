@@ -185,7 +185,7 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     stringdefault.StaticString("read-write"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"read_only", "read_write", "immutable", "write_only"}...),
+					stringvalidator.OneOf([]string{"read-only", "read-write", "immutable", "write-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -197,7 +197,7 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Computed:    true,
 				Default:     stringdefault.StaticString("by-default"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"by_default", "upon_request", "always", "never"}...),
+					stringvalidator.OneOf([]string{"by-default", "upon-request", "always", "never"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

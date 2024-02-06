@@ -87,7 +87,7 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"always", "warning_and_above", "minor_and_above", "major_and_above", "critical_only", "never"}...),
+					stringvalidator.OneOf([]string{"always", "warning-and-above", "minor-and-above", "major-and-above", "critical-only", "never"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

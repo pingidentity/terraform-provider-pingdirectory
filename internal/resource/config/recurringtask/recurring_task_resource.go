@@ -220,7 +220,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "The format to use for the timestamp represented by the \"${timestamp}\" token in the filename pattern.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"generalized_time_utc_with_milliseconds", "generalized_time_utc_with_seconds", "generalized_time_utc_with_minutes", "local_time_with_milliseconds", "local_time_with_seconds", "local_time_with_minutes", "local_date"}...),
+					stringvalidator.OneOf([]string{"generalized-time-utc-with-milliseconds", "generalized-time-utc-with-seconds", "generalized-time-utc-with-minutes", "local-time-with-milliseconds", "local-time-with-seconds", "local-time-with-minutes", "local-date"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -268,7 +268,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"stopped_by_error", "completed_with_errors", "completed_successfully"}...),
+					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -384,7 +384,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "obscure_secrets", "maximum"}...),
+					stringvalidator.OneOf([]string{"none", "obscure-secrets", "maximum"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -481,7 +481,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"stopped_by_error", "completed_with_errors", "completed_successfully"}...),
+					stringvalidator.OneOf([]string{"stopped-by-error", "completed-with-errors", "completed-successfully"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -1060,27 +1060,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1094,10 +1077,27 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup"},
+			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("included_backend_id"),
-				path.MatchRoot("excluded_backend_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

@@ -154,7 +154,7 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The mechanism used to determine the dates on which instances of this Recurring Task Chain may be scheduled to start.",
 				Required:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"every_day", "selected_days_of_the_week", "selected_days_of_the_month"}...),
+					stringvalidator.OneOf([]string{"every-day", "selected-days-of-the-week", "selected-days-of-the-month"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -189,7 +189,7 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("cancel-only-interrupted-task-but-preserve-dependencies"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cancel_interrupted_task_and_dependencies", "cancel_only_interrupted_task_but_preserve_dependencies"}...),
+					stringvalidator.OneOf([]string{"cancel-interrupted-task-and-dependencies", "cancel-only-interrupted-task-but-preserve-dependencies"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -201,7 +201,7 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("cancel-iteration-and-wait-for-next-scheduled-start-time"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"run_immediately_upon_server_startup", "cancel_iteration_and_wait_for_next_scheduled_start_time"}...),
+					stringvalidator.OneOf([]string{"run-immediately-upon-server-startup", "cancel-iteration-and-wait-for-next-scheduled-start-time"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

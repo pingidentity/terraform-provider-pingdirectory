@@ -244,7 +244,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     stringdefault.StaticString("false"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"false", "add_only", "admin_reset_only", "add_and_admin_reset_only", "true"}...),
+					stringvalidator.OneOf([]string{"false", "add-only", "admin-reset-only", "add-and-admin-reset-only", "true"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -278,7 +278,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     stringdefault.StaticString("force-password-change"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"reject_bind", "force_password_change", "generate_account_status_notification"}...),
+					stringvalidator.OneOf([]string{"reject-bind", "force-password-change", "generate-account-status-notification"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -338,7 +338,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     stringdefault.StaticString("unless-password-policy-control-is-used"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"unless_password_policy_control_is_used", "always", "never"}...),
+					stringvalidator.OneOf([]string{"unless-password-policy-control-is-used", "always", "never"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -482,7 +482,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Computed:    true,
 				Default:     stringdefault.StaticString("collapse-similar-attempts-on-the-same-date"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"collapse_similar_attempts_on_the_same_date", "maintain_every_attempt", "update_at_most_once_per_day"}...),
+					stringvalidator.OneOf([]string{"collapse-similar-attempts-on-the-same-date", "maintain-every-attempt", "update-at-most-once-per-day"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

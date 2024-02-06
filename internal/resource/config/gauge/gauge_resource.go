@@ -201,7 +201,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Description: "Specifies the level at which alerts are sent for alarms raised by this Gauge.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"always", "warning_and_above", "minor_and_above", "major_and_above", "critical_only", "never"}...),
+					stringvalidator.OneOf([]string{"always", "warning-and-above", "minor-and-above", "major-and-above", "critical-only", "never"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

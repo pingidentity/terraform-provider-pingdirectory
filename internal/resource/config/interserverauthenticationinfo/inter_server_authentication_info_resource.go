@@ -108,7 +108,7 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"simple", "sasl_plain"}...),
+					stringvalidator.OneOf([]string{"simple", "sasl-plain"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

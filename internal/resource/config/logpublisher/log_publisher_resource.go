@@ -255,7 +255,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"standard_output", "standard_error"}...),
+					stringvalidator.OneOf([]string{"standard-output", "standard-error"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -375,7 +375,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "header_names", "header_names_and_values"}...),
+					stringvalidator.OneOf([]string{"none", "header-names", "header-names-and-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -392,7 +392,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "header_names", "header_names_and_values"}...),
+					stringvalidator.OneOf([]string{"none", "header-names", "header-names-and-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -424,7 +424,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "parameter_names", "parameter_names_and_values"}...),
+					stringvalidator.OneOf([]string{"none", "parameter-names", "parameter-names-and-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -671,7 +671,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"user_level_messages", "system_daemons", "security_and_authorization", "security_and_authorization_alternative", "log_audit", "log_alert", "local_use_0", "local_use_1", "local_use_2", "local_use_3", "local_use_4", "local_use_5", "local_use_6", "local_use_7", "kernel_messages", "mail_system", "syslogd_internal_messages", "line_printer", "network_news", "uucp", "clock_daemon", "ftp_daemon", "ntp_daemon", "clock_daemon_alternative"}...),
+					stringvalidator.OneOf([]string{"user-level-messages", "system-daemons", "security-and-authorization", "security-and-authorization-alternative", "log-audit", "log-alert", "local-use-0", "local-use-1", "local-use-2", "local-use-3", "local-use-4", "local-use-5", "local-use-6", "local-use-7", "kernel-messages", "mail-system", "syslogd-internal-messages", "line-printer", "network-news", "uucp", "clock-daemon", "ftp-daemon", "ntp-daemon", "clock-daemon-alternative"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -912,7 +912,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Computed:    true,
 				Default:     stringdefault.StaticString("standard-error"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"standard_error", "lockdown_mode"}...),
+					stringvalidator.OneOf([]string{"standard-error", "lockdown-mode"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

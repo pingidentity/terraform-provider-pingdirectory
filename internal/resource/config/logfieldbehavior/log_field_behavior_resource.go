@@ -218,7 +218,7 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The default behavior that the server should exhibit for fields for which no explicit behavior is defined. If no default behavior is defined, the server will fall back to using the default behavior configured for the syntax used for each log field.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve", "omit", "redact_entire_value", "redact_value_components", "tokenize_entire_value", "tokenize_value_components"}...),
+					stringvalidator.OneOf([]string{"preserve", "omit", "redact-entire-value", "redact-value-components", "tokenize-entire-value", "tokenize-value-components"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

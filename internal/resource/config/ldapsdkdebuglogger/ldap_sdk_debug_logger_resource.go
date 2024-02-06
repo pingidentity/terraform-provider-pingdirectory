@@ -292,7 +292,7 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"standard_error", "lockdown_mode"}...),
+					stringvalidator.OneOf([]string{"standard-error", "lockdown-mode"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

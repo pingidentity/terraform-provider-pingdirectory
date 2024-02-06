@@ -165,7 +165,7 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 				Computed:    true,
 				Default:     stringdefault.StaticString("read-write"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"read_only", "read_write"}...),
+					stringvalidator.OneOf([]string{"read-only", "read-write"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

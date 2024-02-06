@@ -193,7 +193,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+					stringvalidator.OneOf([]string{"any", "less-than-or-equal-to", "greater-than-or-equal-to"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -234,7 +234,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "both_satisfied", "either_satisfied", "at_least_local_satisfied", "at_least_remote_satisfied", "only_local_satisfied", "only_remote_satisfied", "either_not_satisfied", "at_least_local_not_satisfied", "at_least_remote_not_satisfied", "neither_satisfied"}...),
+					stringvalidator.OneOf([]string{"any", "both-satisfied", "either-satisfied", "at-least-local-satisfied", "at-least-remote-satisfied", "only-local-satisfied", "only-remote-satisfied", "either-not-satisfied", "at-least-local-not-satisfied", "at-least-remote-not-satisfied", "neither-satisfied"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -278,7 +278,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"all_result_codes", "non_failure_result_codes", "failure_result_codes", "selected_result_codes"}...),
+					stringvalidator.OneOf([]string{"all-result-codes", "non-failure-result-codes", "failure-result-codes", "selected-result-codes"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -296,7 +296,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+					stringvalidator.OneOf([]string{"any", "less-than-or-equal-to", "greater-than-or-equal-to"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -315,7 +315,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+					stringvalidator.OneOf([]string{"any", "less-than-or-equal-to", "greater-than-or-equal-to"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -420,7 +420,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "retired_password_used", "retired_password_not_used"}...),
+					stringvalidator.OneOf([]string{"any", "retired-password-used", "retired-password-not-used"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -431,7 +431,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "equal_to", "not_equal_to", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+					stringvalidator.OneOf([]string{"any", "equal-to", "not-equal-to", "less-than-or-equal-to", "greater-than-or-equal-to"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -447,7 +447,7 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "equal_to", "not_equal_to", "less_than_or_equal_to", "greater_than_or_equal_to"}...),
+					stringvalidator.OneOf([]string{"any", "equal-to", "not-equal-to", "less-than-or-equal-to", "greater-than-or-equal-to"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

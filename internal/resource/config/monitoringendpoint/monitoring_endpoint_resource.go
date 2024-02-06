@@ -135,7 +135,7 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("unencrypted-udp"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"unencrypted_udp", "unencrypted_tcp", "ssl_over_tcp"}...),
+					stringvalidator.OneOf([]string{"unencrypted-udp", "unencrypted-tcp", "ssl-over-tcp"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

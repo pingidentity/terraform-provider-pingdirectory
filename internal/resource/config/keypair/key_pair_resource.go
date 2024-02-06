@@ -123,7 +123,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				Default:     stringdefault.StaticString("RSA_2048"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"rsa_2048", "rsa_3072", "rsa_4096", "ec_256", "ec_384", "ec_521"}...),
+					stringvalidator.OneOf([]string{"rsa-2048", "rsa-3072", "rsa-4096", "ec-256", "ec-384", "ec-521"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

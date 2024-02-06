@@ -261,7 +261,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow_all", "strict"}...),
+					stringvalidator.OneOf([]string{"allow-all", "strict"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -306,7 +306,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"unencrypted_udp", "unencrypted_tcp", "tls_encrypted_tcp"}...),
+					stringvalidator.OneOf([]string{"unencrypted-udp", "unencrypted-tcp", "tls-encrypted-tcp"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -321,7 +321,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"separate_connections", "retain_identity_control", "bind_on_existing_connections"}...),
+					stringvalidator.OneOf([]string{"separate-connections", "retain-identity-control", "bind-on-existing-connections"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -371,7 +371,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"read_committed", "read_uncommitted", "repeatable_read", "serializable"}...),
+					stringvalidator.OneOf([]string{"read-committed", "read-uncommitted", "repeatable-read", "serializable"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -415,7 +415,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "simple", "external", "inter_server"}...),
+					stringvalidator.OneOf([]string{"none", "simple", "external", "inter-server"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -1540,18 +1540,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("password"),
-				path.MatchRoot("passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-aws"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

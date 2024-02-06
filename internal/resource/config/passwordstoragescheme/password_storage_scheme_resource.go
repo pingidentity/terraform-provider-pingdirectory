@@ -189,7 +189,7 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"sha_1", "sha_256", "sha_384", "sha_512"}...),
+					stringvalidator.OneOf([]string{"sha-1", "sha-256", "sha-384", "sha-512"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -221,7 +221,7 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"crypt", "md5", "sha_2_256", "sha_2_512"}...),
+					stringvalidator.OneOf([]string{"crypt", "md5", "sha-2-256", "sha-2-512"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

@@ -155,7 +155,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Computed:    true,
 				Default:     stringdefault.StaticString("resources-in-specific-subtrees"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"resources_in_specific_groups", "resources_in_specific_subtrees", "all_resources_in_base"}...),
+					stringvalidator.OneOf([]string{"resources-in-specific-groups", "resources-in-specific-subtrees", "all-resources-in-base"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

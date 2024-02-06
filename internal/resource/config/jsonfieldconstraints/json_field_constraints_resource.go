@@ -212,7 +212,7 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

@@ -279,7 +279,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies how server should determine the base DN for the internal searches used to identify joined entries.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"use_search_base_dn", "use_source_entry_dn", "use_custom_base_dn"}...),
+					stringvalidator.OneOf([]string{"use-search-base-dn", "use-source-entry-dn", "use-custom-base-dn"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -294,7 +294,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"base_object", "single_level", "whole_subtree", "subordinate_subtree"}...),
+					stringvalidator.OneOf([]string{"base-object", "single-level", "whole-subtree", "subordinate-subtree"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -330,7 +330,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"real_overrides_virtual", "virtual_overrides_real", "merge_real_and_virtual"}...),
+					stringvalidator.OneOf([]string{"real-overrides-virtual", "virtual-overrides-real", "merge-real-and-virtual"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -350,7 +350,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"always", "within_group_scope", "never"}...),
+					stringvalidator.OneOf([]string{"always", "within-group-scope", "never"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -428,7 +428,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"use_first_definition", "use_only_definitions_with_the_lowest_evaluation_order_index", "use_all_definitions"}...),
+					stringvalidator.OneOf([]string{"use-first-definition", "use-only-definitions-with-the-lowest-evaluation-order-index", "use-all-definitions"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

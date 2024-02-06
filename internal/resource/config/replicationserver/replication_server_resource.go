@@ -221,7 +221,7 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"maximum_integrity", "favor_integrity", "favor_availability", "maximum_availability"}...),
+					stringvalidator.OneOf([]string{"maximum-integrity", "favor-integrity", "favor-availability", "maximum-availability"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

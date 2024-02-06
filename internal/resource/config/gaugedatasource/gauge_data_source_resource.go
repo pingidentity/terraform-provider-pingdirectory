@@ -132,7 +132,7 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"lower_is_better", "higher_is_better"}...),
+					stringvalidator.OneOf([]string{"lower-is-better", "higher-is-better"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -143,7 +143,7 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"count_per_second", "average", "minimum", "maximum"}...),
+					stringvalidator.OneOf([]string{"count-per-second", "average", "minimum", "maximum"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

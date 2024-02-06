@@ -142,7 +142,7 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow", "suppress", "secure_only"}...),
+					stringvalidator.OneOf([]string{"allow", "suppress", "secure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -154,7 +154,7 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow", "reject", "secure_only"}...),
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -166,7 +166,7 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow", "reject", "secure_only"}...),
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -178,7 +178,7 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow", "reject", "secure_only"}...),
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -190,7 +190,7 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 				Default:     stringdefault.StaticString("secure-only"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"allow", "reject", "secure_only"}...),
+					stringvalidator.OneOf([]string{"allow", "reject", "secure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

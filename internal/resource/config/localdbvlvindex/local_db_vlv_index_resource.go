@@ -137,7 +137,7 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Specifies the LDAP scope of the query that is being indexed.",
 				Required:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"base_object", "single_level", "whole_subtree", "subordinate_subtree"}...),
+					stringvalidator.OneOf([]string{"base-object", "single-level", "whole-subtree", "subordinate-subtree"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -168,7 +168,7 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

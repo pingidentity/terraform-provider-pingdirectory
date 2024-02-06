@@ -445,7 +445,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"unique_within_each_attribute", "unique_across_all_attributes_including_in_same_entry", "unique_across_all_attributes_except_in_same_entry"}...),
+					stringvalidator.OneOf([]string{"unique-within-each-attribute", "unique-across-all-attributes-including-in-same-entry", "unique-across-all-attributes-except-in-same-entry"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -501,7 +501,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"use_first_non_rejected_value_pattern_with_non_empty_values_but_may_reject", "use_first_non_rejected_value_pattern_with_non_empty_values_and_never_reject", "use_first_rejection_or_first_value_pattern_with_non_empty_values", "use_all_non_rejected_value_patterns_with_non_empty_values_but_may_reject", "use_all_non_rejected_value_patterns_with_non_empty_values_and_never_reject", "use_first_rejection_or_all_value_patterns_with_non_empty_values"}...),
+					stringvalidator.OneOf([]string{"use-first-non-rejected-value-pattern-with-non-empty-values-but-may-reject", "use-first-non-rejected-value-pattern-with-non-empty-values-and-never-reject", "use-first-rejection-or-first-value-pattern-with-non-empty-values", "use-all-non-rejected-value-patterns-with-non-empty-values-but-may-reject", "use-all-non-rejected-value-patterns-with-non-empty-values-and-never-reject", "use-first-rejection-or-all-value-patterns-with-non-empty-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -512,7 +512,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"use_first_value", "reject_entries_with_any_multivalued_source_attribute", "use_all_values_if_possible_but_reject_if_not", "use_all_values_if_possible_but_only_first_value_if_not"}...),
+					stringvalidator.OneOf([]string{"use-first-value", "reject-entries-with-any-multivalued-source-attribute", "use-all-values-if-possible-but-reject-if-not", "use-all-values-if-possible-but-only-first-value-if-not"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -523,7 +523,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve_existing_values", "overwrite_existing_values", "merge_existing_and_composed_values", "reject_existing_values_in_add_but_preserve_in_ldif_import", "reject_existing_values_in_add_but_overwrite_in_ldif_import", "reject_existing_values_in_add_but_merge_in_ldif_import"}...),
+					stringvalidator.OneOf([]string{"preserve-existing-values", "overwrite-existing-values", "merge-existing-and-composed-values", "reject-existing-values-in-add-but-preserve-in-ldif-import", "reject-existing-values-in-add-but-overwrite-in-ldif-import", "reject-existing-values-in-add-but-merge-in-ldif-import"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -534,7 +534,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"replace_composed_values", "replace_all_values", "preserve_existing_values"}...),
+					stringvalidator.OneOf([]string{"replace-composed-values", "replace-all-values", "preserve-existing-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -545,7 +545,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve_non_composed_values", "preserve_all_values", "remove_all_values_but_preserve_all_if_required", "remove_all_values_but_preserve_non_composed_if_required"}...),
+					stringvalidator.OneOf([]string{"preserve-non-composed-values", "preserve-all-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -556,7 +556,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"always_allow", "allow_only_for_non_composed_values", "never_allow"}...),
+					stringvalidator.OneOf([]string{"always-allow", "allow-only-for-non-composed-values", "never-allow"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -595,7 +595,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve_existing_values_without_composing_new_values", "preserve_existing_values_or_compose_new_values", "preserve_existing_values_and_compose_new_values", "compose_new_values_without_preserving_existing_values"}...),
+					stringvalidator.OneOf([]string{"preserve-existing-values-without-composing-new-values", "preserve-existing-values-or-compose-new-values", "preserve-existing-values-and-compose-new-values", "compose-new-values-without-preserving-existing-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -606,7 +606,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve_all_values", "preserve_non_composed_values", "remove_all_values_but_preserve_all_if_required", "remove_all_values_but_preserve_non_composed_if_required"}...),
+					stringvalidator.OneOf([]string{"preserve-all-values", "preserve-non-composed-values", "remove-all-values-but-preserve-all-if-required", "remove-all-values-but-preserve-non-composed-if-required"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -736,7 +736,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"round_robin", "failover_on_unavailable", "failover_on_any_failure"}...),
+					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -752,7 +752,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"generalized_time", "java_system_time_millis", "custom"}...),
+					stringvalidator.OneOf([]string{"generalized-time", "java-system-time-millis", "custom"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -804,7 +804,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "Specifies whether to delete expired entries or attribute values. By default entries are deleted.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"delete_entries", "subtree_delete_entries", "delete_json_attribute_values"}...),
+					stringvalidator.OneOf([]string{"delete-entries", "subtree-delete-entries", "delete-json-attribute-values"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -858,7 +858,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"count", "aggregate_percentage"}...),
+					stringvalidator.OneOf([]string{"count", "aggregate-percentage"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -875,7 +875,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Description: "The scope to use for the search.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"base", "one", "sub", "subordinate_subtree"}...),
+					stringvalidator.OneOf([]string{"base", "one", "sub", "subordinate-subtree"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -955,7 +955,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"standard_error", "lockdown_mode"}...),
+					stringvalidator.OneOf([]string{"standard-error", "lockdown-mode"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -1196,7 +1196,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"disabled", "enabled_without_support_for_retrieving_membership", "enabled_with_support_for_retrieving_direct_membership", "enabled_with_support_for_retrieving_nested_membership"}...),
+					stringvalidator.OneOf([]string{"disabled", "enabled-without-support-for-retrieving-membership", "enabled-with-support-for-retrieving-direct-membership", "enabled-with-support-for-retrieving-nested-membership"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -1216,7 +1216,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"aggregate_only", "per_application_only"}...),
+					stringvalidator.OneOf([]string{"aggregate-only", "per-application-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -4195,18 +4195,10 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"ping-one-pass-through-authentication"},
-			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("oauth_client_secret"),
-				path.MatchRoot("oauth_client_secret_passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
 				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4215,6 +4207,14 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
 				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4227,18 +4227,18 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
 			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 			configvalidators.Implies(
 				path.MatchRoot("datetime_json_field"),
 				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"ping-one-pass-through-authentication"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret"),
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

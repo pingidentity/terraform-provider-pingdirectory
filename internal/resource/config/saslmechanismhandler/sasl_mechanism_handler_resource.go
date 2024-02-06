@@ -213,7 +213,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"validate_only_the_id_token", "validate_both_tokens_but_only_map_the_id_token", "validate_and_map_both_tokens"}...),
+					stringvalidator.OneOf([]string{"validate-only-the-id-token", "validate-both-tokens-but-only-map-the-id-token", "validate-and-map-both-tokens"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

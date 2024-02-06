@@ -137,7 +137,7 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"preserve", "omit", "redact_entire_value", "redact_value_components", "tokenize_entire_value", "tokenize_value_components"}...),
+					stringvalidator.OneOf([]string{"preserve", "omit", "redact-entire-value", "redact-value-components", "tokenize-entire-value", "tokenize-value-components"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

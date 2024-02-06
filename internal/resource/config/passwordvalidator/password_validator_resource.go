@@ -189,7 +189,7 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The behavior to exhibit if a user's proposed password matches the regular expression defined in the match-pattern property.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"require_match", "reject_match"}...),
+					stringvalidator.OneOf([]string{"require-match", "reject-match"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

@@ -166,7 +166,7 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 				Description: "The behavior that the server should exhibit when storing information from this index in the database cache.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

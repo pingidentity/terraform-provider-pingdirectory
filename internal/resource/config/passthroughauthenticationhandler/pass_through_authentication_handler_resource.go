@@ -189,7 +189,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"round_robin", "failover_on_unavailable", "failover_on_any_failure"}...),
+					stringvalidator.OneOf([]string{"round-robin", "failover-on-unavailable", "failover-on-any-failure"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

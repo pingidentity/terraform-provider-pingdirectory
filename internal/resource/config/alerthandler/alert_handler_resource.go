@@ -238,7 +238,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"truncate", "send_as_multiple_messages"}...),
+					stringvalidator.OneOf([]string{"truncate", "send-as-multiple-messages"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -345,7 +345,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",
 			Validators: []validator.String{
-				stringvalidator.OneOf([]string{"server_out_file", "standard_output", "standard_error"}...),
+				stringvalidator.OneOf([]string{"server-out-file", "standard-output", "standard-error"}...),
 			},
 			PlanModifiers: []planmodifier.String{
 				planmodifiers.ToLowercasePlanModifier(),
@@ -354,7 +354,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		schemaDef.Attributes["output_format"] = schema.StringAttribute{
 			Description: "The format to use when writing the alert messages.",
 			Validators: []validator.String{
-				stringvalidator.OneOf([]string{"legacy_text", "single_line_json", "multi_line_json"}...),
+				stringvalidator.OneOf([]string{"legacy-text", "single-line-json", "multi-line-json"}...),
 			},
 			PlanModifiers: []planmodifier.String{
 				planmodifiers.ToLowercasePlanModifier(),

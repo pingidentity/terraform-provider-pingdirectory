@@ -363,7 +363,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+					stringvalidator.OneOf([]string{"disconnect", "reject-admin-limit-exceeded", "reject-constraint-violation", "reject-busy", "reject-unavailable", "reject-unwilling-to-perform", "reject-other"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -382,7 +382,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+					stringvalidator.OneOf([]string{"disconnect", "reject-admin-limit-exceeded", "reject-constraint-violation", "reject-busy", "reject-unavailable", "reject-unwilling-to-perform", "reject-other"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -401,7 +401,7 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Computed:    true,
 				Default:     stringdefault.StaticString("reject-busy"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"disconnect", "reject_admin_limit_exceeded", "reject_constraint_violation", "reject_busy", "reject_unavailable", "reject_unwilling_to_perform", "reject_other"}...),
+					stringvalidator.OneOf([]string{"disconnect", "reject-admin-limit-exceeded", "reject-constraint-violation", "reject-busy", "reject-unavailable", "reject-unwilling-to-perform", "reject-other"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

@@ -232,7 +232,7 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "secure_only", "insecure_only"}...),
+					stringvalidator.OneOf([]string{"any", "secure-only", "insecure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -249,7 +249,7 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"any", "secure_only", "insecure_only"}...),
+					stringvalidator.OneOf([]string{"any", "secure-only", "insecure-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

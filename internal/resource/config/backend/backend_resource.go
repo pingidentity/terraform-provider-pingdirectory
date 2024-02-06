@@ -299,7 +299,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -428,7 +428,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -438,7 +438,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -448,7 +448,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -458,7 +458,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2children database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its immediate children. This index may be used when performing searches with a single-level scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -468,7 +468,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -478,7 +478,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -580,7 +580,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"do_not_acquire", "acquire_after_retries", "acquire_before_retries", "acquire_before_initial_attempt"}...),
+					stringvalidator.OneOf([]string{"do-not-acquire", "acquire-after-retries", "acquire-before-retries", "acquire-before-initial-attempt"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -591,7 +591,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"never_acquire", "acquire_on_retry", "always_acquire"}...),
+					stringvalidator.OneOf([]string{"never-acquire", "acquire-on-retry", "always-acquire"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -635,7 +635,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"enabled", "disabled", "internal_only"}...),
+					stringvalidator.OneOf([]string{"enabled", "disabled", "internal-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
@@ -824,7 +824,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["report_excluded_changelog_attributes"] = schema.StringAttribute{
 			Description: "Indicates whether changelog entries that have been altered by applying access controls should include additional information about any attributes that may have been removed.",
 			Validators: []validator.String{
-				stringvalidator.OneOf([]string{"none", "attribute_counts", "attribute_names"}...),
+				stringvalidator.OneOf([]string{"none", "attribute-counts", "attribute-names"}...),
 			},
 			PlanModifiers: []planmodifier.String{
 				planmodifiers.ToLowercasePlanModifier(),

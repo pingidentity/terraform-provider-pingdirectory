@@ -179,7 +179,7 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"none", "issue_alert", "enter_lockdown_mode", "shut_down_server"}...),
+					stringvalidator.OneOf([]string{"none", "issue-alert", "enter-lockdown-mode", "shut-down-server"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

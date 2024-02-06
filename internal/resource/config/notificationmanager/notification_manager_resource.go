@@ -149,7 +149,7 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 				Computed:    true,
 				Default:     stringdefault.StaticString("individual"),
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"individual", "matched_operations", "all_operations"}...),
+					stringvalidator.OneOf([]string{"individual", "matched-operations", "all-operations"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),

@@ -583,7 +583,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"standard_output", "standard_error", "server_out_file", "standard_output_and_server_out_file", "standard_error_and_server_out_file", "disabled"}...),
+					stringvalidator.OneOf([]string{"standard-output", "standard-error", "server-out-file", "standard-output-and-server-out-file", "standard-error-and-server-out-file", "disabled"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -667,7 +667,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"enabled", "disabled", "internal_only"}...),
+					stringvalidator.OneOf([]string{"enabled", "disabled", "internal-only"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -695,7 +695,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"enter_lockdown_mode", "raise_unavailable_alarm", "initiate_server_shutdown"}...),
+					stringvalidator.OneOf([]string{"enter-lockdown-mode", "raise-unavailable-alarm", "initiate-server-shutdown"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

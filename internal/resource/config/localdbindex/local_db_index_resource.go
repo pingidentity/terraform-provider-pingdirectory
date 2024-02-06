@@ -199,7 +199,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "Specifies the cache mode that should be used when accessing the records in the database for this index. This controls how much database cache memory can be consumed by this index.",
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"cache_keys_and_values", "cache_keys_only", "no_caching", "keep_hot", "default", "make_cold", "evict_leaf_immediately", "evict_bin_immediately"}...),
+					stringvalidator.OneOf([]string{"cache-keys-and-values", "cache-keys-only", "no-caching", "keep-hot", "default", "make-cold", "evict-leaf-immediately", "evict-bin-immediately"}...),
 				},
 				PlanModifiers: []planmodifier.String{
 					planmodifiers.ToLowercasePlanModifier(),
