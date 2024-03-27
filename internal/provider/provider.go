@@ -308,10 +308,8 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		)
 	} else {
 		// Validate the PingDirectory version
-		productVersion, err = version.Parse(productVersion)
-		if err != nil {
-			resp.Diagnostics.AddError("Failed to parse PingDirectory version", err.Error())
-		}
+		productVersion, diags = version.Parse(productVersion)
+		resp.Diagnostics.Append(diags...)
 	}
 
 	// Optional attributes
