@@ -1,6 +1,12 @@
 # v1.2.0 (Unreleased)
 ### ENHANCEMENTS
 * Added validators for enum string attributes (#337)
+* Allow `product_version` values that are not explicitly supported as long as the major-minor version is supported. For example, version `10.0.0.10` would be allowed, but version `20.0.0.0` would not be allowed. (#349)
+* Added support for PingDirectory patch versions (#350)
+  * `9.1.0.3` - `9.1.0.4`
+  * `9.2.0.2` - `9.2.0.5`
+  * `9.3.0.1` - `9.3.0.5`
+  * `10.0.0.1` - `10.0.0.2`
 
 # v1.1.0 February 1, 2024
 ### FEATURES
