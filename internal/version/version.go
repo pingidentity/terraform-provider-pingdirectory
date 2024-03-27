@@ -43,6 +43,17 @@ func getSortedVersions() []string {
 	}
 }
 
+func getSortedVersionsMessage() string {
+	message := "Supported versions are: "
+	for i, version := range getSortedVersions() {
+		message += version
+		if i < len(getSortedVersions())-1 {
+			message += ", "
+		}
+	}
+	return message
+}
+
 // Compare two PingDirectory versions. Returns a negative number if the first argument is less than the second,
 // zero if they are equal, and a positive number if the first argument is greater than the second
 func Compare(version1, version2 string) (int, error) {
@@ -58,25 +69,57 @@ func Compare(version1, version2 string) (int, error) {
 	return version1Index - version2Index, nil
 }
 
-func Parse(versionString string) (string, error) {
+func Parse(versionString string) (string, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if len(versionString) == 0 {
-		return versionString, errors.New("failed to parse PingDirectory version: empty version string")
+		diags.AddError("failed to parse PingDirectory version", "empty version string")
+		return "", diags
 	}
 
-	var err error
 	versionDigits := strings.Split(versionString, ".")
 	// Expect a version like "x.x" or "x.x.x.x"
 	// If only two digits are supplied, the last two will be assumed to be "0.0"
 	if len(versionDigits) != 2 && len(versionDigits) != 4 {
-		return versionString, errors.New("failed to parse PingDirectory version '" + versionString + "', Expected either two digits (e.g. '9.1') or four digits (e.g. '9.1.0.0')")
+		diags.AddError("failed to parse PingDirectory version '"+versionString+"'", "Expected either two digits (e.g. '9.1') or four digits (e.g. '9.1.0.0')")
+		return "", diags
 	}
 	if len(versionDigits) == 2 {
 		versionString += ".0.0"
 	}
 	if !IsValid(versionString) {
-		err = errors.New("unsupported PingDirectory version: " + versionString)
+		// Check if the major-minor version is valid
+		majorMinorVersionString := versionDigits[0] + "." + versionDigits[1] + ".0.0"
+		if !IsValid(majorMinorVersionString) {
+			diags.AddError("unsupported PingDirectory version '"+versionString+"'", getSortedVersionsMessage())
+			return "", diags
+		}
+		// The major-minor version is valid, only the patch is invalid. Warn but do not fail, assume the lastest patch version
+		sortedVersions := getSortedVersions()
+		versionIndex := -1
+		switch majorMinorVersionString {
+		case "9.1.0.0":
+			// Use the first version prior to 9.2.0.0
+			versionIndex = getSortedVersionIndex(PingDirectory9200) - 1
+		case "9.2.0.0":
+			// Use the first version prior to 9.3.0.0
+			versionIndex = getSortedVersionIndex(PingDirectory9300) - 1
+		case "9.3.0.0":
+			// Use the first version prior to 10.0.0.0
+			versionIndex = getSortedVersionIndex(PingDirectory10000) - 1
+		case "10.0.0.0":
+			// This is the latest major-minor version, so just use the latest patch version available
+			versionIndex = len(sortedVersions) - 1
+		}
+		if versionIndex < 0 || versionIndex >= len(sortedVersions) {
+			// This should never happen
+			diags.AddError("Unexpected failure determining major-minor PingDirectory version", "")
+			return "", diags
+		}
+		assumedVersion := string(sortedVersions[versionIndex])
+		diags.AddWarning("Unrecognized PingDirectory version '"+versionString+"'", "Assuming the latest patch version available: '"+assumedVersion+"'")
+		versionString = assumedVersion
 	}
-	return versionString, err
+	return versionString, diags
 }
 
 func CheckResourceSupported(diagnostics *diag.Diagnostics, minimumVersion, actualVersion, resourceName string) {
