@@ -697,7 +697,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
-			Description: "Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
+			Description: "Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
@@ -1128,14 +1128,23 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptySet(model.InsignificantConfigArchiveBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9203)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptySet(model.InsignificantConfigArchiveBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

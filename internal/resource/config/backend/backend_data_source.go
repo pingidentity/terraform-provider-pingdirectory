@@ -287,7 +287,7 @@ func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				ElementType: types.StringType,
 			},
 			"insignificant_config_archive_base_dn": schema.SetAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
+				Description: "Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

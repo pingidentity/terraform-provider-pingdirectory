@@ -1047,14 +1047,6 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("included_backend_id"),
-				path.MatchRoot("excluded_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"delay"},
 			resourcevalidator.AtLeastOneOf(
 				path.MatchRoot("sleep_duration"),
@@ -1064,10 +1056,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
+			[]string{"ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1081,10 +1073,18 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
+			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

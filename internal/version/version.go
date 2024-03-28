@@ -12,10 +12,23 @@ const (
 	PingDirectory9100  = "9.1.0.0"
 	PingDirectory9101  = "9.1.0.1"
 	PingDirectory9102  = "9.1.0.2"
+	PingDirectory9103  = "9.1.0.3"
+	PingDirectory9104  = "9.1.0.4"
 	PingDirectory9200  = "9.2.0.0"
 	PingDirectory9201  = "9.2.0.1"
+	PingDirectory9202  = "9.2.0.2"
+	PingDirectory9203  = "9.2.0.3"
+	PingDirectory9204  = "9.2.0.4"
+	PingDirectory9205  = "9.2.0.5"
 	PingDirectory9300  = "9.3.0.0"
+	PingDirectory9301  = "9.3.0.1"
+	PingDirectory9302  = "9.3.0.2"
+	PingDirectory9303  = "9.3.0.3"
+	PingDirectory9304  = "9.3.0.4"
+	PingDirectory9305  = "9.3.0.5"
 	PingDirectory10000 = "10.0.0.0"
+	PingDirectory10001 = "10.0.0.1"
+	PingDirectory10002 = "10.0.0.2"
 )
 
 func IsValid(versionString string) bool {
@@ -36,10 +49,23 @@ func getSortedVersions() []string {
 		PingDirectory9100,
 		PingDirectory9101,
 		PingDirectory9102,
+		PingDirectory9103,
+		PingDirectory9104,
 		PingDirectory9200,
 		PingDirectory9201,
+		PingDirectory9202,
+		PingDirectory9203,
+		PingDirectory9204,
+		PingDirectory9205,
 		PingDirectory9300,
+		PingDirectory9301,
+		PingDirectory9302,
+		PingDirectory9303,
+		PingDirectory9304,
+		PingDirectory9305,
 		PingDirectory10000,
+		PingDirectory10001,
+		PingDirectory10002,
 	}
 }
 

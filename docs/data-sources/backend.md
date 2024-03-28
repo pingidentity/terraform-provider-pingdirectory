@@ -91,7 +91,7 @@ data "pingdirectory_backend" "myBackend" {
 - `index_exclude_attribute` (Set of String) Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values "*" and "+".
 - `index_include_attribute` (Set of String) Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.
 - `insignificant_config_archive_attribute` (Set of String) The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.
-- `insignificant_config_archive_base_dn` (Set of String) Supported in PingDirectory product version 9.3.0.0+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.
+- `insignificant_config_archive_base_dn` (Set of String) Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.
 - `is_private_backend` (Boolean) When the `type` attribute is set to:
   - `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.
   - `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.
