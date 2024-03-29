@@ -1,4 +1,4 @@
-# v1.2.0 (Unreleased)
+# v1.2.0 March 29, 2024
 ### ENHANCEMENTS
 * Added validators for enum string attributes (#337)
 * Allow `product_version` values that are not explicitly supported as long as the major-minor version is supported. For example, version `10.0.0.10` would be allowed, but version `20.0.0.0` would not be allowed. (#349)
@@ -7,6 +7,10 @@
   * `9.2.0.2` - `9.2.0.5`
   * `9.3.0.1` - `9.3.0.5`
   * `10.0.0.1` - `10.0.0.2`
+
+### DEPENDENCIES
+* Bump `github.com/hashicorp/terraform-plugin-go` from `0.20.0` to `0.22.1` (#343)
+* Bump `github.com/hashicorp/terraform-plugin-framework` from `1.5.0` to `1.7.0` (#345, #347)
 
 # v1.1.0 February 1, 2024
 ### FEATURES
