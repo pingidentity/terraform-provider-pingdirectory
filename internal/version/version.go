@@ -116,7 +116,7 @@ func Parse(versionString string) (string, diag.Diagnostics) {
 		// Check if the major-minor version is valid
 		majorMinorVersionString := versionDigits[0] + "." + versionDigits[1] + ".0.0"
 		if !IsValid(majorMinorVersionString) {
-			diags.AddError("unsupported PingDirectory version '"+versionString+"'", getSortedVersionsMessage())
+			diags.AddError("PingDirectory version '"+versionString+"' is not supported in this version of the PingDirectory terraform provider", getSortedVersionsMessage())
 			return "", diags
 		}
 		// The major-minor version is valid, only the patch is invalid. Warn but do not fail, assume the lastest patch version
@@ -142,7 +142,8 @@ func Parse(versionString string) (string, diag.Diagnostics) {
 			return "", diags
 		}
 		assumedVersion := string(sortedVersions[versionIndex])
-		diags.AddWarning("Unrecognized PingDirectory version '"+versionString+"'", "Assuming the latest patch version available: '"+assumedVersion+"'")
+		diags.AddWarning("PingDirectory patch version '"+versionString+"' is not recognized by this version of the PingDirectory terraform provider",
+			"Assuming the latest patch version supported by the provider: '"+assumedVersion+"'")
 		versionString = assumedVersion
 	}
 	return versionString, diags
