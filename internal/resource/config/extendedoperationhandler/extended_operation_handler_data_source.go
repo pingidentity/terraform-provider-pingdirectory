@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -61,6 +61,7 @@ type extendedOperationHandlerDataSourceModel struct {
 	PasswordGenerator                     types.String `tfsdk:"password_generator"`
 	DefaultOTPDeliveryMechanism           types.Set    `tfsdk:"default_otp_delivery_mechanism"`
 	DefaultSingleUseTokenValidityDuration types.String `tfsdk:"default_single_use_token_validity_duration"`
+	RejectInsecureRequests                types.Bool   `tfsdk:"reject_insecure_requests"`
 	IdentityMapper                        types.String `tfsdk:"identity_mapper"`
 	AllowRemotelyProvidedCertificates     types.Bool   `tfsdk:"allow_remotely_provided_certificates"`
 	AllowedOperation                      types.Set    `tfsdk:"allowed_operation"`
@@ -80,7 +81,7 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 		Description: "Describes a Extended Operation Handler.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']",
+				Description: "The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'verify-password', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -152,6 +153,12 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 			},
 			"default_single_use_token_validity_duration": schema.StringAttribute{
 				Description: "The default length of time that a single-use token will be considered valid by the server if the client doesn't specify a duration in the deliver single-use token request.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"reject_insecure_requests": schema.BoolAttribute{
+				Description: "Indicates whether the server should reject attempts to use this extended operation over an insecure connection.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -357,6 +364,16 @@ func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSo
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a VerifyPasswordExtendedOperationHandlerResponse object into the model struct
+func readVerifyPasswordExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.VerifyPasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("verify-password")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.RejectInsecureRequests = internaltypes.BoolTypeOrNil(r.RejectInsecureRequests)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
 func readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.SingleUseTokensExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("single-use-tokens")
@@ -515,6 +532,9 @@ func (r *extendedOperationHandlerDataSource) Read(ctx context.Context, req datas
 	}
 	if readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSource(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+		readVerifyPasswordExtendedOperationHandlerResponseDataSource(ctx, readResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 		readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &resp.Diagnostics)

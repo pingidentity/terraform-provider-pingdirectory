@@ -18,7 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1064,15 +1064,6 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"backup", "ldif-export"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("encryption_passphrase_file"),
@@ -1085,6 +1076,15 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 			resourcevalidator.Conflicting(
 				path.MatchRoot("included_backend_id"),
 				path.MatchRoot("excluded_backend_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

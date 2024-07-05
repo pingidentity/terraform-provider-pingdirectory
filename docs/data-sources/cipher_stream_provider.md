@@ -58,6 +58,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `key_store_pin_environment_variable` (String) The name of an environment variable whose value is the user PIN needed to interact with the PKCS #11 token. The environment variable must be defined and must contain a clear-text representation of the PIN.
 - `key_store_pin_file` (String) The path to a file containing the user PIN needed to interact with the PKCS #11 token. The file must exist and must contain exactly one line with a clear-text representation of the PIN.
 - `key_vault_uri` (String) The URI that identifies the Azure Key Vault from which the secret is to be retrieved.
+- `key_wrapping_transformation` (String) Supported in PingDirectory product version 10.1.0.0+. The cipher transformation that will be used to wrap and unwrap the encryption key. If no key wrapping transformation is defined, then the server will select a transformation based on the type of certificate being used.
 - `kms_encryption_key_arn` (String) The Amazon resource name (ARN) for the KMS key that will be used to encrypt the contents of the passphrase file. This key must exist, and the AWS client must have access to encrypt and decrypt data using this key.
 - `password_file` (String) The path to the file containing the password to use when generating ciphers.
 - `pkcs11_key_store_type` (String) The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.

@@ -50,6 +50,7 @@ Since this is a 'default' resource, the managed object must already exist in the
   - `deliver-otp`: The password generator that will be used to create the one-time password values to be delivered to the end user.
 - `password_reset_token_validity_duration` (String) The maximum length of time that a password reset token should be considered valid.
 - `prevent_totp_reuse` (Boolean) Indicates whether to prevent clients from re-using TOTP passwords.
+- `reject_insecure_requests` (Boolean) Indicates whether the server should reject attempts to use this extended operation over an insecure connection.
 - `request_criteria` (String) A set of criteria that the extended requests must satisfy before they will be processed by the server.
 - `shared_secret_attribute_type` (String) The name or OID of the attribute that will be used to hold the shared secret key used during TOTP processing.
 - `time_interval_duration` (String) The duration of the time interval used for TOTP processing.
@@ -59,7 +60,7 @@ Since this is a 'default' resource, the managed object must already exist in the
 - `id` (String) The ID of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
-- `type` (String) The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']
+- `type` (String) The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'verify-password', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

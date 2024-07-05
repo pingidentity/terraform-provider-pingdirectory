@@ -105,6 +105,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `http_message_type` (Set of String) Specifies the HTTP message types which can be logged.
 - `id_token_validator_message_type` (Set of String) Specifies the ID token validator message types that can be logged.
 - `include_add_attribute_names` (Boolean) Indicates whether log messages for add requests should include a list of the names of the attributes included in the entry to add.
+- `include_connection_details_in_request_messages` (Boolean) Supported in PingDirectory product version 10.1.0.0+. Indicates whether to log connection details in request messages, including, where applicable, the client IP address and port, the server IP address and port, and the communication protocol.
 - `include_extended_search_request_details` (Boolean) Indicates whether log messages for search requests should include extended information from the request, including the requested size limit, time limit, alias dereferencing behavior, and types only behavior.
 - `include_instance_name` (Boolean) Indicates whether log messages should include the instance name for the Directory Server.
 - `include_intermediate_client_request_control` (Boolean) Indicates whether to include information about any intermediate client request control that may have been included in the request.
@@ -172,6 +173,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `file-based-access`: The UNIX permissions of the log files created by this File Based Access Log Publisher.
   - `file-based-json-http-operation`: The UNIX permissions of the log files created by this File Based JSON HTTP Operation Log Publisher.
 - `log_intermediate_responses` (Boolean) Indicates whether to log information about intermediate responses sent to the client.
+- `log_message_exclusion_policy` (Set of String) Supported in PingDirectory product version 10.1.0.0+. Policy to determine whether the Error Log Publisher should print a message to the log.
 - `log_redirect_uri` (Boolean) Indicates whether the redirect URI (i.e., the value of the "Location" header from responses) should be included in response log messages.
 - `log_request_authorization_type` (Boolean) Indicates whether to log the type of credentials given if an "Authorization" header was included in the request. Logging the authorization type may be useful, and is much more secure than logging the entire value of the "Authorization" header.
 - `log_request_cookie_names` (Boolean) Indicates whether to log the names of any cookies included in an HTTP request. Logging cookie names may be useful and is much more secure than logging the entire content of the cookies (which may include sensitive information).

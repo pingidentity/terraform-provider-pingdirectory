@@ -18,11 +18,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -160,6 +161,7 @@ type logPublisherResourceModel struct {
 	LogConnects                                         types.Bool   `tfsdk:"log_connects"`
 	LogDisconnects                                      types.Bool   `tfsdk:"log_disconnects"`
 	MaxStringLength                                     types.Int64  `tfsdk:"max_string_length"`
+	IncludeConnectionDetailsInRequestMessages           types.Bool   `tfsdk:"include_connection_details_in_request_messages"`
 	GenerifyMessageStringsWhenPossible                  types.Bool   `tfsdk:"generify_message_strings_when_possible"`
 	SyslogFacility                                      types.String `tfsdk:"syslog_facility"`
 	LogFieldBehavior                                    types.String `tfsdk:"log_field_behavior"`
@@ -177,6 +179,7 @@ type logPublisherResourceModel struct {
 	OverrideSeverity                                    types.Set    `tfsdk:"override_severity"`
 	SearchEntryCriteria                                 types.String `tfsdk:"search_entry_criteria"`
 	SearchReferenceCriteria                             types.String `tfsdk:"search_reference_criteria"`
+	LogMessageExclusionPolicy                           types.Set    `tfsdk:"log_message_exclusion_policy"`
 	SyslogMessageHostName                               types.String `tfsdk:"syslog_message_host_name"`
 	SyslogMessageApplicationName                        types.String `tfsdk:"syslog_message_application_name"`
 	QueueSize                                           types.Int64  `tfsdk:"queue_size"`
@@ -637,6 +640,14 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Optional:            true,
 				Computed:            true,
 			},
+			"include_connection_details_in_request_messages": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Indicates whether to log connection details in request messages, including, where applicable, the client IP address and port, the server IP address and port, and the communication protocol.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"generify_message_strings_when_possible": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to  one of [`admin-alert-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `syslog-json-access`, `console-json-access`, `file-based-access`]: Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values. When the `type` attribute is set to  one of [`console-json-error`, `syslog-text-error`, `file-based-error`, `json-error`, `syslog-json-error`]: Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`admin-alert-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `syslog-json-access`, `console-json-access`, `file-based-access`]: Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values.\n  - One of [`console-json-error`, `syslog-text-error`, `file-based-error`, `json-error`, `syslog-json-error`]: Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.",
@@ -735,6 +746,13 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description:         "When the `type` attribute is set to  one of [`third-party-file-based-access`, `jdbc-based-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `debug-access`, `third-party-access`, `groovy-scripted-file-based-access`, `syslog-json-access`, `groovy-scripted-access`, `console-json-access`, `file-based-access`]: Specifies a set of search reference criteria that must match the associated search result reference in order for that it to be logged by this Access Log Publisher. When the `type` attribute is set to `admin-alert-access`: Specifies a set of search reference criteria that must match the associated search result reference in order for that it to be logged by this Admin Alert Access Log Publisher.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`third-party-file-based-access`, `jdbc-based-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `debug-access`, `third-party-access`, `groovy-scripted-file-based-access`, `syslog-json-access`, `groovy-scripted-access`, `console-json-access`, `file-based-access`]: Specifies a set of search reference criteria that must match the associated search result reference in order for that it to be logged by this Access Log Publisher.\n  - `admin-alert-access`: Specifies a set of search reference criteria that must match the associated search result reference in order for that it to be logged by this Admin Alert Access Log Publisher.",
 				Optional:            true,
+			},
+			"log_message_exclusion_policy": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Policy to determine whether the Error Log Publisher should print a message to the log.",
+				Optional:    true,
+				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
+				ElementType: types.StringType,
 			},
 			"syslog_message_host_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
@@ -915,6 +933,7 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel logPublisherResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -5482,6 +5501,30 @@ func (r *logPublisherResource) ModifyPlan(ctx context.Context, req resource.Modi
 	resp.Plan.Set(ctx, &planModel)
 }
 
+func (r *defaultLogPublisherResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanLogPublisher(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model logPublisherResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptySet(model.LogMessageExclusionPolicy) {
+		resp.Diagnostics.AddError("Attribute 'log_message_exclusion_policy' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludeConnectionDetailsInRequestMessages) {
+		resp.Diagnostics.AddError("Attribute 'include_connection_details_in_request_messages' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
 func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
@@ -5534,6 +5577,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.Asynchronous = types.BoolNull()
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -5605,6 +5649,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -5664,6 +5709,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
 	}
@@ -5720,6 +5766,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -5794,6 +5841,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -5907,6 +5955,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -5980,6 +6029,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -6045,6 +6095,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AutoFlush = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6115,6 +6166,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6180,6 +6232,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6270,6 +6323,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureSensitiveContent = types.BoolNull()
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6332,6 +6386,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6393,6 +6448,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6466,6 +6522,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -6558,6 +6615,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6645,6 +6703,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
 	}
@@ -6698,6 +6757,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6763,6 +6823,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AutoFlush = types.BoolNull()
 		model.QueueSize = types.Int64Null()
@@ -6815,6 +6876,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureSensitiveContent = types.BoolNull()
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6876,6 +6938,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -6933,6 +6996,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
 	}
@@ -6999,6 +7063,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -7103,6 +7168,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AutoFlush = types.BoolNull()
 		model.QueueSize = types.Int64Null()
@@ -7173,6 +7239,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -7227,6 +7294,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.Asynchronous = types.BoolNull()
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -7286,6 +7354,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -7397,6 +7466,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -7451,6 +7521,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -7517,6 +7588,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeModifyAttributeNames = types.BoolNull()
 		model.DefaultIncludeThrowableCause = types.BoolNull()
 		model.IncludeReplicationChangeID = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
 		model.IncludeRequestDetailsInIntermediateResponseMessages = types.BoolNull()
@@ -7593,6 +7665,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.IncludeReplicationChangeID = types.BoolNull()
 		model.IncludeProductName = types.BoolNull()
 		model.IncludeInstanceName = types.BoolNull()
+		model.IncludeConnectionDetailsInRequestMessages = types.BoolNull()
 		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogDisconnects = types.BoolNull()
 		model.AutoFlush = types.BoolNull()
@@ -7773,6 +7846,11 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("override_severity"),
+			path.MatchRoot("type"),
+			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("log_message_exclusion_policy"),
 			path.MatchRoot("type"),
 			[]string{"syslog-based-error", "jdbc-based-error", "console-json-error", "syslog-text-error", "file-based-error", "third-party-error", "json-error", "groovy-scripted-file-based-error", "third-party-file-based-error", "groovy-scripted-error", "syslog-json-error"},
 		),
@@ -7963,6 +8041,11 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_search_entry_attribute_names"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_connection_details_in_request_messages"),
 			path.MatchRoot("type"),
 			[]string{"admin-alert-access", "syslog-based-access", "syslog-text-access", "json-access", "syslog-json-access", "console-json-access", "file-based-access"},
 		),
@@ -8514,6 +8597,11 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -8912,6 +9000,9 @@ func addOptionalAdminAlertAccessLogPublisherFields(ctx context.Context, addReque
 	if internaltypes.IsDefined(plan.IncludeReplicationChangeID) {
 		addRequest.IncludeReplicationChangeID = plan.IncludeReplicationChangeID.ValueBoolPointer()
 	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		addRequest.GenerifyMessageStringsWhenPossible = plan.GenerifyMessageStringsWhenPossible.ValueBoolPointer()
 	}
@@ -9176,6 +9267,11 @@ func addOptionalJdbcBasedErrorLogPublisherFields(ctx context.Context, addRequest
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -9415,6 +9511,11 @@ func addOptionalSyslogTextErrorLogPublisherFields(ctx context.Context, addReques
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -9514,6 +9615,9 @@ func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequ
 	}
 	if internaltypes.IsDefined(plan.IncludeReplicationChangeID) {
 		addRequest.IncludeReplicationChangeID = plan.IncludeReplicationChangeID.ValueBoolPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		addRequest.GenerifyMessageStringsWhenPossible = plan.GenerifyMessageStringsWhenPossible.ValueBoolPointer()
@@ -9960,6 +10064,11 @@ func addOptionalFileBasedErrorLogPublisherFields(ctx context.Context, addRequest
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -9999,6 +10108,11 @@ func addOptionalThirdPartyErrorLogPublisherFields(ctx context.Context, addReques
 		var slice []string
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
+	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -10147,6 +10261,9 @@ func addOptionalSyslogTextAccessLogPublisherFields(ctx context.Context, addReque
 			return err
 		}
 		addRequest.TimestampPrecision = timestampPrecision
+	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		addRequest.GenerifyMessageStringsWhenPossible = plan.GenerifyMessageStringsWhenPossible.ValueBoolPointer()
@@ -10451,6 +10568,9 @@ func addOptionalJsonAccessLogPublisherFields(ctx context.Context, addRequest *cl
 	}
 	if internaltypes.IsDefined(plan.IncludeRequestDetailsInIntermediateResponseMessages) {
 		addRequest.IncludeRequestDetailsInIntermediateResponseMessages = plan.IncludeRequestDetailsInIntermediateResponseMessages.ValueBoolPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeResultCodeNames) {
 		addRequest.IncludeResultCodeNames = plan.IncludeResultCodeNames.ValueBoolPointer()
@@ -11144,6 +11264,11 @@ func addOptionalJsonErrorLogPublisherFields(ctx context.Context, addRequest *cli
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -11376,6 +11501,11 @@ func addOptionalGroovyScriptedFileBasedErrorLogPublisherFields(ctx context.Conte
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -11512,6 +11642,9 @@ func addOptionalSyslogJsonAccessLogPublisherFields(ctx context.Context, addReque
 	}
 	if internaltypes.IsDefined(plan.IncludeReplicationChangeID) {
 		addRequest.IncludeReplicationChangeID = plan.IncludeReplicationChangeID.ValueBoolPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		addRequest.GenerifyMessageStringsWhenPossible = plan.GenerifyMessageStringsWhenPossible.ValueBoolPointer()
@@ -11717,6 +11850,11 @@ func addOptionalThirdPartyFileBasedErrorLogPublisherFields(ctx context.Context, 
 		var slice []string
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
+	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -12063,6 +12201,9 @@ func addOptionalFileBasedAccessLogPublisherFields(ctx context.Context, addReques
 	if internaltypes.IsDefined(plan.IncludeReplicationChangeID) {
 		addRequest.IncludeReplicationChangeID = plan.IncludeReplicationChangeID.ValueBoolPointer()
 	}
+	if internaltypes.IsDefined(plan.IncludeConnectionDetailsInRequestMessages) {
+		addRequest.IncludeConnectionDetailsInRequestMessages = plan.IncludeConnectionDetailsInRequestMessages.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		addRequest.GenerifyMessageStringsWhenPossible = plan.GenerifyMessageStringsWhenPossible.ValueBoolPointer()
 	}
@@ -12168,6 +12309,11 @@ func addOptionalGroovyScriptedErrorLogPublisherFields(ctx context.Context, addRe
 		var slice []string
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
+	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -12398,6 +12544,11 @@ func addOptionalSyslogJsonErrorLogPublisherFields(ctx context.Context, addReques
 		plan.OverrideSeverity.ElementsAs(ctx, &slice, false)
 		addRequest.OverrideSeverity = slice
 	}
+	if internaltypes.IsDefined(plan.LogMessageExclusionPolicy) {
+		var slice []string
+		plan.LogMessageExclusionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.LogMessageExclusionPolicy = slice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -12449,20 +12600,38 @@ func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
 	if model.ScimMessageType.IsUnknown() || model.ScimMessageType.IsNull() {
 		model.ScimMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
-		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.RotationPolicy.IsUnknown() || model.RotationPolicy.IsNull() {
 		model.RotationPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
-		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.SuppressedRequestHeaderName.IsUnknown() || model.SuppressedRequestHeaderName.IsNull() {
 		model.SuppressedRequestHeaderName, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.IncludePathPattern.IsUnknown() || model.IncludePathPattern.IsNull() {
 		model.IncludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
+		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ExtensionMessageType.IsUnknown() || model.ExtensionMessageType.IsNull() {
+		model.ExtensionMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
+		model.OverrideSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ObscureAttribute.IsUnknown() || model.ObscureAttribute.IsNull() {
+		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.SyslogExternalServer.IsUnknown() || model.SyslogExternalServer.IsNull() {
+		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.DebugMessageType.IsUnknown() || model.DebugMessageType.IsNull() {
+		model.DebugMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.ExtensionArgument.IsUnknown() || model.ExtensionArgument.IsNull() {
+		model.ExtensionArgument, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
+	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
+		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -12476,17 +12645,11 @@ func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
 	if model.DefaultSeverity.IsUnknown() || model.DefaultSeverity.IsNull() {
 		model.DefaultSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.RotationListener.IsUnknown() || model.RotationListener.IsNull() {
-		model.RotationListener, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.ExcludePathPattern.IsUnknown() || model.ExcludePathPattern.IsNull() {
 		model.ExcludePathPattern, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.AccessTokenValidatorMessageType.IsUnknown() || model.AccessTokenValidatorMessageType.IsNull() {
 		model.AccessTokenValidatorMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.ExtensionMessageType.IsUnknown() || model.ExtensionMessageType.IsNull() {
-		model.ExtensionMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if model.SuppressedRequestParameterName.IsUnknown() || model.SuppressedRequestParameterName.IsNull() {
 		model.SuppressedRequestParameterName, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -12494,20 +12657,11 @@ func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
 	if model.ConsentMessageType.IsUnknown() || model.ConsentMessageType.IsNull() {
 		model.ConsentMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.OverrideSeverity.IsUnknown() || model.OverrideSeverity.IsNull() {
-		model.OverrideSeverity, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
 	if model.DirectoryRESTAPIMessageType.IsUnknown() || model.DirectoryRESTAPIMessageType.IsNull() {
 		model.DirectoryRESTAPIMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
-	if model.ObscureAttribute.IsUnknown() || model.ObscureAttribute.IsNull() {
-		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.SyslogExternalServer.IsUnknown() || model.SyslogExternalServer.IsNull() {
-		model.SyslogExternalServer, _ = types.SetValue(types.StringType, []attr.Value{})
-	}
-	if model.DebugMessageType.IsUnknown() || model.DebugMessageType.IsNull() {
-		model.DebugMessageType, _ = types.SetValue(types.StringType, []attr.Value{})
+	if model.LogMessageExclusionPolicy.IsUnknown() || model.LogMessageExclusionPolicy.IsNull() {
+		model.LogMessageExclusionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
 
@@ -12668,6 +12822,7 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
@@ -12830,6 +12985,7 @@ func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.Adm
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.LogFieldBehavior = internaltypes.StringTypeOrNil(r.LogFieldBehavior, internaltypes.IsEmptyString(expectedValues.LogFieldBehavior))
@@ -12911,6 +13067,7 @@ func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcB
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13003,6 +13160,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), true)
@@ -13032,6 +13190,7 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13072,6 +13231,7 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -13231,6 +13391,7 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13249,6 +13410,7 @@ func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.Thir
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13302,6 +13464,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), true)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -13414,6 +13577,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 	state.IncludeRequestDetailsInSearchEntryMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchEntryMessages)
 	state.IncludeRequestDetailsInSearchReferenceMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchReferenceMessages)
 	state.IncludeRequestDetailsInIntermediateResponseMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInIntermediateResponseMessages)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.IncludeResultCodeNames = internaltypes.BoolTypeOrNil(r.IncludeResultCodeNames)
 	state.IncludeExtendedSearchRequestDetails = internaltypes.BoolTypeOrNil(r.IncludeExtendedSearchRequestDetails)
 	state.IncludeAddAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeAddAttributeNames)
@@ -13665,6 +13829,7 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13755,6 +13920,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13805,6 +13971,7 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.LogFieldBehavior = internaltypes.StringTypeOrNil(r.LogFieldBehavior, internaltypes.IsEmptyString(expectedValues.LogFieldBehavior))
@@ -13883,6 +14050,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -13985,6 +14153,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 	state.IncludeRequestDetailsInSearchEntryMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchEntryMessages)
 	state.IncludeRequestDetailsInSearchReferenceMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchReferenceMessages)
 	state.IncludeRequestDetailsInIntermediateResponseMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInIntermediateResponseMessages)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.IncludeResultCodeNames = internaltypes.BoolTypeOrNil(r.IncludeResultCodeNames)
 	state.IncludeExtendedSearchRequestDetails = internaltypes.BoolTypeOrNil(r.IncludeExtendedSearchRequestDetails)
 	state.IncludeAddAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeAddAttributeNames)
@@ -14066,6 +14235,7 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -14104,6 +14274,7 @@ func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -14187,6 +14358,7 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -14281,6 +14453,7 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 	operations.AddBoolOperationIfNecessary(&ops, plan.LogConnects, state.LogConnects, "log-connects")
 	operations.AddBoolOperationIfNecessary(&ops, plan.LogDisconnects, state.LogDisconnects, "log-disconnects")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaxStringLength, state.MaxStringLength, "max-string-length")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeConnectionDetailsInRequestMessages, state.IncludeConnectionDetailsInRequestMessages, "include-connection-details-in-request-messages")
 	operations.AddBoolOperationIfNecessary(&ops, plan.GenerifyMessageStringsWhenPossible, state.GenerifyMessageStringsWhenPossible, "generify-message-strings-when-possible")
 	operations.AddStringOperationIfNecessary(&ops, plan.SyslogFacility, state.SyslogFacility, "syslog-facility")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldBehavior, state.LogFieldBehavior, "log-field-behavior")
@@ -14298,6 +14471,7 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.OverrideSeverity, state.OverrideSeverity, "override-severity")
 	operations.AddStringOperationIfNecessary(&ops, plan.SearchEntryCriteria, state.SearchEntryCriteria, "search-entry-criteria")
 	operations.AddStringOperationIfNecessary(&ops, plan.SearchReferenceCriteria, state.SearchReferenceCriteria, "search-reference-criteria")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.LogMessageExclusionPolicy, state.LogMessageExclusionPolicy, "log-message-exclusion-policy")
 	operations.AddStringOperationIfNecessary(&ops, plan.SyslogMessageHostName, state.SyslogMessageHostName, "syslog-message-host-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.SyslogMessageApplicationName, state.SyslogMessageApplicationName, "syslog-message-application-name")
 	operations.AddInt64OperationIfNecessary(&ops, plan.QueueSize, state.QueueSize, "queue-size")

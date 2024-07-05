@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -119,6 +119,7 @@ type logPublisherDataSourceModel struct {
 	LogConnects                                         types.Bool   `tfsdk:"log_connects"`
 	LogDisconnects                                      types.Bool   `tfsdk:"log_disconnects"`
 	MaxStringLength                                     types.Int64  `tfsdk:"max_string_length"`
+	IncludeConnectionDetailsInRequestMessages           types.Bool   `tfsdk:"include_connection_details_in_request_messages"`
 	GenerifyMessageStringsWhenPossible                  types.Bool   `tfsdk:"generify_message_strings_when_possible"`
 	SyslogFacility                                      types.String `tfsdk:"syslog_facility"`
 	LogFieldBehavior                                    types.String `tfsdk:"log_field_behavior"`
@@ -136,6 +137,7 @@ type logPublisherDataSourceModel struct {
 	OverrideSeverity                                    types.Set    `tfsdk:"override_severity"`
 	SearchEntryCriteria                                 types.String `tfsdk:"search_entry_criteria"`
 	SearchReferenceCriteria                             types.String `tfsdk:"search_reference_criteria"`
+	LogMessageExclusionPolicy                           types.Set    `tfsdk:"log_message_exclusion_policy"`
 	SyslogMessageHostName                               types.String `tfsdk:"syslog_message_host_name"`
 	SyslogMessageApplicationName                        types.String `tfsdk:"syslog_message_application_name"`
 	QueueSize                                           types.Int64  `tfsdk:"queue_size"`
@@ -616,6 +618,12 @@ func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            false,
 				Computed:            true,
 			},
+			"include_connection_details_in_request_messages": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Indicates whether to log connection details in request messages, including, where applicable, the client IP address and port, the server IP address and port, and the communication protocol.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"generify_message_strings_when_possible": schema.BoolAttribute{
 				Description:         "When the `type` attribute is set to  one of [`admin-alert-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `syslog-json-access`, `console-json-access`, `file-based-access`]: Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values. When the `type` attribute is set to  one of [`console-json-error`, `syslog-text-error`, `file-based-error`, `json-error`, `syslog-json-error`]: Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`admin-alert-access`, `syslog-based-access`, `syslog-text-access`, `json-access`, `syslog-json-access`, `console-json-access`, `file-based-access`]: Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values.\n  - One of [`console-json-error`, `syslog-text-error`, `file-based-error`, `json-error`, `syslog-json-error`]: Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.",
@@ -727,6 +735,13 @@ func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.Sche
 				Required:            false,
 				Optional:            false,
 				Computed:            true,
+			},
+			"log_message_exclusion_policy": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Policy to determine whether the Error Log Publisher should print a message to the log.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"syslog_message_host_name": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `syslog-json-audit`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Audit Log Publisher. When the `type` attribute is set to `syslog-text-error`: The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher. When the `type` attribute is set to `syslog-text-access`: The local host name that will be included in syslog messages that are logged by this Syslog Text Access Log Publisher. When the `type` attribute is set to `syslog-json-http-operation`: The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher. When the `type` attribute is set to `syslog-json-access`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Access Log Publisher. When the `type` attribute is set to `syslog-json-error`: The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
@@ -965,6 +980,7 @@ func readSyslogBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), false)
@@ -1109,6 +1125,7 @@ func readAdminAlertAccessLogPublisherResponseDataSource(ctx context.Context, r *
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.LogFieldBehavior = internaltypes.StringTypeOrNil(r.LogFieldBehavior, false)
@@ -1182,6 +1199,7 @@ func readJdbcBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *cl
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1264,6 +1282,7 @@ func readConsoleJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherLoggingErrorBehaviorProp(r.LoggingErrorBehavior), false)
@@ -1291,6 +1310,7 @@ func readSyslogTextErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), false)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1329,6 +1349,7 @@ func readSyslogBasedAccessLogPublisherResponseDataSource(ctx context.Context, r 
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -1470,6 +1491,7 @@ func readFileBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *cl
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1486,6 +1508,7 @@ func readThirdPartyErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1537,6 +1560,7 @@ func readSyslogTextAccessLogPublisherResponseDataSource(ctx context.Context, r *
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.TimestampPrecision = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherTimestampPrecisionProp(r.TimestampPrecision), false)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -1637,6 +1661,7 @@ func readJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *client
 	state.IncludeRequestDetailsInSearchEntryMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchEntryMessages)
 	state.IncludeRequestDetailsInSearchReferenceMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchReferenceMessages)
 	state.IncludeRequestDetailsInIntermediateResponseMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInIntermediateResponseMessages)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.IncludeResultCodeNames = internaltypes.BoolTypeOrNil(r.IncludeResultCodeNames)
 	state.IncludeExtendedSearchRequestDetails = internaltypes.BoolTypeOrNil(r.IncludeExtendedSearchRequestDetails)
 	state.IncludeAddAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeAddAttributeNames)
@@ -1866,6 +1891,7 @@ func readJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *client.
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1944,6 +1970,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponseDataSource(ctx context.
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -1992,6 +2019,7 @@ func readSyslogJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.LogFieldBehavior = internaltypes.StringTypeOrNil(r.LogFieldBehavior, false)
@@ -2062,6 +2090,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponseDataSource(ctx context.Cont
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -2158,6 +2187,7 @@ func readConsoleJsonAccessLogPublisherResponseDataSource(ctx context.Context, r 
 	state.IncludeRequestDetailsInSearchEntryMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchEntryMessages)
 	state.IncludeRequestDetailsInSearchReferenceMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInSearchReferenceMessages)
 	state.IncludeRequestDetailsInIntermediateResponseMessages = internaltypes.BoolTypeOrNil(r.IncludeRequestDetailsInIntermediateResponseMessages)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.IncludeResultCodeNames = internaltypes.BoolTypeOrNil(r.IncludeResultCodeNames)
 	state.IncludeExtendedSearchRequestDetails = internaltypes.BoolTypeOrNil(r.IncludeExtendedSearchRequestDetails)
 	state.IncludeAddAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeAddAttributeNames)
@@ -2233,6 +2263,7 @@ func readFileBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *c
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeResponseControls = internaltypes.BoolTypeOrNil(r.IncludeResponseControls)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
+	state.IncludeConnectionDetailsInRequestMessages = internaltypes.BoolTypeOrNil(r.IncludeConnectionDetailsInRequestMessages)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
@@ -2269,6 +2300,7 @@ func readGroovyScriptedErrorLogPublisherResponseDataSource(ctx context.Context, 
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
@@ -2344,6 +2376,7 @@ func readSyslogJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 	state.IncludeThreadID = internaltypes.BoolTypeOrNil(r.IncludeThreadID)
 	state.GenerifyMessageStringsWhenPossible = internaltypes.BoolTypeOrNil(r.GenerifyMessageStringsWhenPossible)
 	state.OverrideSeverity = internaltypes.GetStringSet(r.OverrideSeverity)
+	state.LogMessageExclusionPolicy = internaltypes.GetStringSet(r.LogMessageExclusionPolicy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(

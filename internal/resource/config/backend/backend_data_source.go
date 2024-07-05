@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -99,6 +99,7 @@ type backendDataSourceModel struct {
 	Id2childrenCacheMode                        types.String `tfsdk:"id2children_cache_mode"`
 	Id2subtreeCacheMode                         types.String `tfsdk:"id2subtree_cache_mode"`
 	Dn2uriCacheMode                             types.String `tfsdk:"dn2uri_cache_mode"`
+	SimplePagedResultsIDSetCacheDuration        types.String `tfsdk:"simple_paged_results_id_set_cache_duration"`
 	PrimeMethod                                 types.Set    `tfsdk:"prime_method"`
 	PrimeThreadCount                            types.Int64  `tfsdk:"prime_thread_count"`
 	PrimeTimeLimit                              types.String `tfsdk:"prime_time_limit"`
@@ -118,6 +119,7 @@ type backendDataSourceModel struct {
 	DeadlockRetryLimit                          types.Int64  `tfsdk:"deadlock_retry_limit"`
 	ExternalTxnDefaultBackendLockBehavior       types.String `tfsdk:"external_txn_default_backend_lock_behavior"`
 	SingleWriterLockBehavior                    types.String `tfsdk:"single_writer_lock_behavior"`
+	SubtreeModifyDNSizeLimit                    types.Int64  `tfsdk:"subtree_modify_dn_size_limit"`
 	SubtreeDeleteSizeLimit                      types.Int64  `tfsdk:"subtree_delete_size_limit"`
 	NumRecentChanges                            types.Int64  `tfsdk:"num_recent_changes"`
 	OfflineProcessDatabaseOpenTimeout           types.String `tfsdk:"offline_process_database_open_timeout"`
@@ -482,6 +484,12 @@ func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Optional:    false,
 				Computed:    true,
 			},
+			"simple_paged_results_id_set_cache_duration": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Specifies the length of time to cache the candidate ID set used for indexed search operations including the simple paged results control.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"prime_method": schema.SetAttribute{
 				Description: "Specifies the method that should be used to prime caches with data for this backend.",
 				Required:    false,
@@ -595,6 +603,12 @@ func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"single_writer_lock_behavior": schema.StringAttribute{
 				Description: "Specifies the condition under which to acquire a single-writer lock to ensure that the associated operation will be the only write in progress at the time the lock is held. The single-writer lock can help avoid problems that result from database lock conflicts that arise between two write operations being processed at the same time in the same backend. This will not have any effect on the read operations processed while the write is in progress.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"subtree_modify_dn_size_limit": schema.Int64Attribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Specifies the maximum number of entries that may exist below an entry targeted by a modify DN operation. This includes both direct and indirect subordinates (to any depth), although the entry at the top of the subtree (the one directly targeted by the modify DN operation) is not included in this count.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1083,6 +1097,7 @@ func readLocalDbBackendResponseDataSource(ctx context.Context, r *client.LocalDb
 		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), false)
 	state.Dn2uriCacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), false)
+	state.SimplePagedResultsIDSetCacheDuration = internaltypes.StringTypeOrNil(r.SimplePagedResultsIDSetCacheDuration, false)
 	state.PrimeMethod = internaltypes.GetStringSet(
 		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
 	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
@@ -1107,6 +1122,7 @@ func readLocalDbBackendResponseDataSource(ctx context.Context, r *client.LocalDb
 		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), false)
 	state.SingleWriterLockBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), false)
+	state.SubtreeModifyDNSizeLimit = internaltypes.Int64TypeOrNil(r.SubtreeModifyDNSizeLimit)
 	state.SubtreeDeleteSizeLimit = internaltypes.Int64TypeOrNil(r.SubtreeDeleteSizeLimit)
 	state.NumRecentChanges = internaltypes.Int64TypeOrNil(r.NumRecentChanges)
 	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, false)
