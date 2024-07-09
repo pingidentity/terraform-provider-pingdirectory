@@ -29,6 +29,7 @@ const (
 	PingDirectory10000 = "10.0.0.0"
 	PingDirectory10001 = "10.0.0.1"
 	PingDirectory10002 = "10.0.0.2"
+	PingDirectory10100 = "10.1.0.0"
 )
 
 func IsValid(versionString string) bool {
@@ -66,6 +67,7 @@ func getSortedVersions() []string {
 		PingDirectory10000,
 		PingDirectory10001,
 		PingDirectory10002,
+		PingDirectory10100,
 	}
 }
 

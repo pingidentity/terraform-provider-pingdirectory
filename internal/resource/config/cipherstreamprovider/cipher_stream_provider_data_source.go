@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -68,6 +68,7 @@ type cipherStreamProviderDataSourceModel struct {
 	KeyStorePinEnvironmentVariable  types.String `tfsdk:"key_store_pin_environment_variable"`
 	Pkcs11KeyStoreType              types.String `tfsdk:"pkcs11_key_store_type"`
 	SslCertNickname                 types.String `tfsdk:"ssl_cert_nickname"`
+	KeyWrappingTransformation       types.String `tfsdk:"key_wrapping_transformation"`
 	ConjurExternalServer            types.String `tfsdk:"conjur_external_server"`
 	ConjurSecretRelativePath        types.String `tfsdk:"conjur_secret_relative_path"`
 	PasswordFile                    types.String `tfsdk:"password_file"`
@@ -211,6 +212,12 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The alias for the certificate in the PKCS #11 token that will be used to wrap the encryption key. The target certificate must exist in the PKCS #11 token, and it must have an RSA key pair because the JVM does not currently provide adequate key wrapping support for elliptic curve key pairs.  If you have also configured the server to use a PKCS #11 token for accessing listener certificates, we strongly recommend that you use a different certificate to protect the contents of the encryption settings database than you use for negotiating TLS sessions with clients. It is imperative that the certificate used by this PKCS11 Cipher Stream Provider remain constant for the life of the provider because if the certificate were to be replaced, then the contents of the encryption settings database could become inaccessible. Unlike with listener certificates used for TLS negotiation that need to be replaced on a regular basis, this PKCS11 Cipher Stream Provider does not consider the validity period for the associated certificate, and it will continue to function even after the certificate has expired.  If you need to rotate the certificate used to protect the server's encryption settings database, you should first install the desired new certificate in the PKCS #11 token under a different alias. Then, you should create a new instance of this PKCS11 Cipher Stream Provider that is configured to use that certificate, and that also uses a different value for the encryption-metadata-file because the information in that file is tied to the certificate used to generate it. Finally, you will need to update the global configuration so that the encryption-settings-cipher-stream-provider property references the new cipher stream provider rather than this one. The update to the global configuration must be done with the server online so that it can properly re-encrypt the contents of the encryption settings database with the correct key tied to the new certificate.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"key_wrapping_transformation": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. The cipher transformation that will be used to wrap and unwrap the encryption key. If no key wrapping transformation is defined, then the server will select a transformation based on the type of certificate being used.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -448,6 +455,7 @@ func readPkcs11CipherStreamProviderResponseDataSource(ctx context.Context, r *cl
 	state.KeyStorePinEnvironmentVariable = internaltypes.StringTypeOrNil(r.KeyStorePinEnvironmentVariable, false)
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, false)
 	state.SslCertNickname = types.StringValue(r.SslCertNickname)
+	state.KeyWrappingTransformation = internaltypes.StringTypeOrNil(r.KeyWrappingTransformation, false)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

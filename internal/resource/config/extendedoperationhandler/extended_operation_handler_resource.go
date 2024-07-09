@@ -15,11 +15,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -96,6 +97,7 @@ type extendedOperationHandlerResourceModel struct {
 	PasswordGenerator                     types.String `tfsdk:"password_generator"`
 	DefaultOTPDeliveryMechanism           types.Set    `tfsdk:"default_otp_delivery_mechanism"`
 	DefaultSingleUseTokenValidityDuration types.String `tfsdk:"default_single_use_token_validity_duration"`
+	RejectInsecureRequests                types.Bool   `tfsdk:"reject_insecure_requests"`
 	IdentityMapper                        types.String `tfsdk:"identity_mapper"`
 	AllowRemotelyProvidedCertificates     types.Bool   `tfsdk:"allow_remotely_provided_certificates"`
 	AllowedOperation                      types.Set    `tfsdk:"allowed_operation"`
@@ -126,6 +128,7 @@ type defaultExtendedOperationHandlerResourceModel struct {
 	PasswordGenerator                     types.String `tfsdk:"password_generator"`
 	DefaultOTPDeliveryMechanism           types.Set    `tfsdk:"default_otp_delivery_mechanism"`
 	DefaultSingleUseTokenValidityDuration types.String `tfsdk:"default_single_use_token_validity_duration"`
+	RejectInsecureRequests                types.Bool   `tfsdk:"reject_insecure_requests"`
 	IdentityMapper                        types.String `tfsdk:"identity_mapper"`
 	AllowRemotelyProvidedCertificates     types.Bool   `tfsdk:"allow_remotely_provided_certificates"`
 	AllowedOperation                      types.Set    `tfsdk:"allowed_operation"`
@@ -153,13 +156,13 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 		Description: "Manages a Extended Operation Handler.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']",
+				Description: "The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'verify-password', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"validate-totp-password", "replace-certificate", "collect-support-data", "export-reversible-passwords", "single-use-tokens", "deliver-password-reset-token", "deliver-otp", "third-party"}...),
+					stringvalidator.OneOf([]string{"validate-totp-password", "replace-certificate", "collect-support-data", "export-reversible-passwords", "verify-password", "single-use-tokens", "deliver-password-reset-token", "deliver-otp", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -212,6 +215,11 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"reject_insecure_requests": schema.BoolAttribute{
+				Description: "Indicates whether the server should reject attempts to use this extended operation over an insecure connection.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `password-modify`: Specifies the name of the identity mapper that should be used in conjunction with the password modify extended operation. When the `type` attribute is set to `deliver-otp`: The identity mapper that should be used to identify the user(s) targeted by the authentication identity contained in the extended request. This will only be used for \"u:\"-style authentication identities.",
@@ -279,7 +287,7 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 			stringplanmodifier.UseStateForUnknown(),
 		}
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"cancel", "validate-totp-password", "replace-certificate", "get-connection-id", "multi-update", "notification-subscription", "password-modify", "custom", "collect-support-data", "export-reversible-passwords", "batched-transactions", "get-changelog-batch", "get-supported-otp-delivery-mechanisms", "single-use-tokens", "generate-password", "who-am-i", "start-tls", "deliver-password-reset-token", "password-policy-state", "get-password-quality-requirements", "deliver-otp", "third-party"}...),
+			stringvalidator.OneOf([]string{"cancel", "validate-totp-password", "replace-certificate", "get-connection-id", "multi-update", "notification-subscription", "password-modify", "custom", "collect-support-data", "export-reversible-passwords", "batched-transactions", "get-changelog-batch", "get-supported-otp-delivery-mechanisms", "verify-password", "single-use-tokens", "generate-password", "who-am-i", "start-tls", "deliver-password-reset-token", "password-policy-state", "get-password-quality-requirements", "deliver-otp", "third-party"}...),
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
@@ -308,6 +316,7 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanExtendedOperationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_extended_operation_handler")
 	var planModel, configModel extendedOperationHandlerResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -354,12 +363,44 @@ func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req r
 			}
 		}
 	}
+	// Set defaults for verify-password type
+	if resourceType == "verify-password" {
+		if !internaltypes.IsDefined(configModel.RejectInsecureRequests) {
+			defaultVal := types.BoolValue(true)
+			if !planModel.RejectInsecureRequests.Equal(defaultVal) {
+				planModel.RejectInsecureRequests = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
 	if anyDefaultsSet {
 		planModel.Notifications = types.SetUnknown(types.StringType)
 		planModel.RequiredActions = types.SetUnknown(config.GetRequiredActionsObjectType())
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
+}
+
+func (r *defaultExtendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanExtendedOperationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_extended_operation_handler")
+}
+
+func modifyPlanExtendedOperationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model defaultExtendedOperationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "verify-password" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10100,
+			providerConfig.ProductVersion, resourceName+" with type \"verify_password\"")
+	}
 }
 
 func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() {
@@ -372,6 +413,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 	}
 	if resourceType == "replace-certificate" {
 		model.AdjacentIntervalsToCheck = types.Int64Null()
@@ -381,6 +423,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.TimeIntervalDuration = types.StringNull()
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 	if resourceType == "collect-support-data" {
@@ -393,9 +436,23 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 	if resourceType == "export-reversible-passwords" {
+		model.AdjacentIntervalsToCheck = types.Int64Null()
+		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
+		model.PreventTOTPReuse = types.BoolNull()
+		model.DefaultOTPDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.TimeIntervalDuration = types.StringNull()
+		model.AllowRemotelyProvidedCertificates = types.BoolNull()
+		model.PasswordResetTokenValidityDuration = types.StringNull()
+		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
+		model.SharedSecretAttributeType = types.StringNull()
+	}
+	if resourceType == "verify-password" {
 		model.AdjacentIntervalsToCheck = types.Int64Null()
 		model.DefaultSingleUseTokenValidityDuration = types.StringNull()
 		model.PreventTOTPReuse = types.BoolNull()
@@ -415,6 +472,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 	if resourceType == "deliver-password-reset-token" {
@@ -425,6 +483,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.TimeIntervalDuration = types.StringNull()
 		model.AllowRemotelyProvidedCertificates = types.BoolNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 	if resourceType == "deliver-otp" {
@@ -436,6 +495,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 	if resourceType == "third-party" {
@@ -448,6 +508,7 @@ func (model *extendedOperationHandlerResourceModel) setNotApplicableAttrsNull() 
 		model.PasswordResetTokenValidityDuration = types.StringNull()
 		model.AllowedOperation, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DefaultTokenDeliveryMechanism, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.RejectInsecureRequests = types.BoolNull()
 		model.SharedSecretAttributeType = types.StringNull()
 	}
 }
@@ -499,6 +560,11 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
 			[]string{"password-modify", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("reject_insecure_requests"),
+			path.MatchRoot("type"),
+			[]string{"verify-password"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_generator"),
@@ -553,6 +619,11 @@ func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
 			"export-reversible-passwords",
+			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("type"),
+			"verify-password",
 			[]path.Expression{path.MatchRoot("enabled")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
@@ -677,6 +748,18 @@ func addOptionalCollectSupportDataExtendedOperationHandlerFields(ctx context.Con
 
 // Add optional fields to create request for export-reversible-passwords extended-operation-handler
 func addOptionalExportReversiblePasswordsExtendedOperationHandlerFields(ctx context.Context, addRequest *client.AddExportReversiblePasswordsExtendedOperationHandlerRequest, plan extendedOperationHandlerResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	return nil
+}
+
+// Add optional fields to create request for verify-password extended-operation-handler
+func addOptionalVerifyPasswordExtendedOperationHandlerFields(ctx context.Context, addRequest *client.AddVerifyPasswordExtendedOperationHandlerRequest, plan extendedOperationHandlerResourceModel) error {
+	if internaltypes.IsDefined(plan.RejectInsecureRequests) {
+		addRequest.RejectInsecureRequests = plan.RejectInsecureRequests.ValueBoolPointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -975,6 +1058,30 @@ func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefaul
 	populateExtendedOperationHandlerUnknownValuesDefault(state)
 }
 
+// Read a VerifyPasswordExtendedOperationHandlerResponse object into the model struct
+func readVerifyPasswordExtendedOperationHandlerResponse(ctx context.Context, r *client.VerifyPasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerResourceModel, expectedValues *extendedOperationHandlerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("verify-password")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.RejectInsecureRequests = internaltypes.BoolTypeOrNil(r.RejectInsecureRequests)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateExtendedOperationHandlerUnknownValues(state)
+}
+
+// Read a VerifyPasswordExtendedOperationHandlerResponse object into the model struct
+func readVerifyPasswordExtendedOperationHandlerResponseDefault(ctx context.Context, r *client.VerifyPasswordExtendedOperationHandlerResponse, state *defaultExtendedOperationHandlerResourceModel, expectedValues *defaultExtendedOperationHandlerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("verify-password")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.RejectInsecureRequests = internaltypes.BoolTypeOrNil(r.RejectInsecureRequests)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateExtendedOperationHandlerUnknownValuesDefault(state)
+}
+
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
 func readSingleUseTokensExtendedOperationHandlerResponse(ctx context.Context, r *client.SingleUseTokensExtendedOperationHandlerResponse, state *extendedOperationHandlerResourceModel, expectedValues *extendedOperationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("single-use-tokens")
@@ -1162,6 +1269,7 @@ func createExtendedOperationHandlerOperations(plan extendedOperationHandlerResou
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordGenerator, state.PasswordGenerator, "password-generator")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultOTPDeliveryMechanism, state.DefaultOTPDeliveryMechanism, "default-otp-delivery-mechanism")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultSingleUseTokenValidityDuration, state.DefaultSingleUseTokenValidityDuration, "default-single-use-token-validity-duration")
+	operations.AddBoolOperationIfNecessary(&ops, plan.RejectInsecureRequests, state.RejectInsecureRequests, "reject-insecure-requests")
 	operations.AddStringOperationIfNecessary(&ops, plan.IdentityMapper, state.IdentityMapper, "identity-mapper")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowRemotelyProvidedCertificates, state.AllowRemotelyProvidedCertificates, "allow-remotely-provided-certificates")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedOperation, state.AllowedOperation, "allowed-operation")
@@ -1190,6 +1298,7 @@ func createExtendedOperationHandlerOperationsDefault(plan defaultExtendedOperati
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordGenerator, state.PasswordGenerator, "password-generator")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultOTPDeliveryMechanism, state.DefaultOTPDeliveryMechanism, "default-otp-delivery-mechanism")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultSingleUseTokenValidityDuration, state.DefaultSingleUseTokenValidityDuration, "default-single-use-token-validity-duration")
+	operations.AddBoolOperationIfNecessary(&ops, plan.RejectInsecureRequests, state.RejectInsecureRequests, "reject-insecure-requests")
 	operations.AddStringOperationIfNecessary(&ops, plan.IdentityMapper, state.IdentityMapper, "identity-mapper")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowRemotelyProvidedCertificates, state.AllowRemotelyProvidedCertificates, "allow-remotely-provided-certificates")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedOperation, state.AllowedOperation, "allowed-operation")
@@ -1483,6 +1592,44 @@ func (r *extendedOperationHandlerResource) CreateDeliverOtpExtendedOperationHand
 	return &state, nil
 }
 
+// Create a verify-password extended-operation-handler
+func (r *extendedOperationHandlerResource) CreateVerifyPasswordExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
+	addRequest := client.NewAddVerifyPasswordExtendedOperationHandlerRequest([]client.EnumverifyPasswordExtendedOperationHandlerSchemaUrn{client.ENUMVERIFYPASSWORDEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERVERIFY_PASSWORD},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	err := addOptionalVerifyPasswordExtendedOperationHandlerFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Extended Operation Handler", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddExtendedOperationHandlerRequest(
+		client.AddVerifyPasswordExtendedOperationHandlerRequestAsAddExtendedOperationHandlerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerAPI.AddExtendedOperationHandlerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Extended Operation Handler", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state extendedOperationHandlerResourceModel
+	readVerifyPasswordExtendedOperationHandlerResponse(ctx, addResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a third-party extended-operation-handler
 func (r *extendedOperationHandlerResource) CreateThirdPartyExtendedOperationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan extendedOperationHandlerResourceModel) (*extendedOperationHandlerResourceModel, error) {
 	addRequest := client.NewAddThirdPartyExtendedOperationHandlerRequest([]client.EnumthirdPartyExtendedOperationHandlerSchemaUrn{client.ENUMTHIRDPARTYEXTENDEDOPERATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTENDED_OPERATION_HANDLERTHIRD_PARTY},
@@ -1576,6 +1723,12 @@ func (r *extendedOperationHandlerResource) Create(ctx context.Context, req resou
 			return
 		}
 	}
+	if plan.Type.ValueString() == "verify-password" {
+		state, err = r.CreateVerifyPasswordExtendedOperationHandler(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.Type.ValueString() == "third-party" {
 		state, err = r.CreateThirdPartyExtendedOperationHandler(ctx, req, resp, plan)
 		if err != nil {
@@ -1657,6 +1810,9 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 	}
 	if readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+		readVerifyPasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 		readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
@@ -1746,6 +1902,9 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 		if updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 			readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if updateResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+			readVerifyPasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -1822,6 +1981,9 @@ func (r *extendedOperationHandlerResource) Read(ctx context.Context, req resourc
 	}
 	if readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 		readExportReversiblePasswordsExtendedOperationHandlerResponse(ctx, readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+		readVerifyPasswordExtendedOperationHandlerResponse(ctx, readResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 		readSingleUseTokensExtendedOperationHandlerResponse(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
@@ -1960,6 +2122,9 @@ func (r *extendedOperationHandlerResource) Update(ctx context.Context, req resou
 		if updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 			readExportReversiblePasswordsExtendedOperationHandlerResponse(ctx, updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if updateResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+			readVerifyPasswordExtendedOperationHandlerResponse(ctx, updateResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponse(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -2056,6 +2221,9 @@ func (r *defaultExtendedOperationHandlerResource) Update(ctx context.Context, re
 		}
 		if updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 			readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if updateResponse.VerifyPasswordExtendedOperationHandlerResponse != nil {
+			readVerifyPasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.VerifyPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)

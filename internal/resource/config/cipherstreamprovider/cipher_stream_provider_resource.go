@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -109,6 +109,7 @@ type cipherStreamProviderResourceModel struct {
 	KeyStorePinEnvironmentVariable  types.String `tfsdk:"key_store_pin_environment_variable"`
 	Pkcs11KeyStoreType              types.String `tfsdk:"pkcs11_key_store_type"`
 	SslCertNickname                 types.String `tfsdk:"ssl_cert_nickname"`
+	KeyWrappingTransformation       types.String `tfsdk:"key_wrapping_transformation"`
 	ConjurExternalServer            types.String `tfsdk:"conjur_external_server"`
 	ConjurSecretRelativePath        types.String `tfsdk:"conjur_secret_relative_path"`
 	PasswordFile                    types.String `tfsdk:"password_file"`
@@ -237,6 +238,10 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The alias for the certificate in the PKCS #11 token that will be used to wrap the encryption key. The target certificate must exist in the PKCS #11 token, and it must have an RSA key pair because the JVM does not currently provide adequate key wrapping support for elliptic curve key pairs.  If you have also configured the server to use a PKCS #11 token for accessing listener certificates, we strongly recommend that you use a different certificate to protect the contents of the encryption settings database than you use for negotiating TLS sessions with clients. It is imperative that the certificate used by this PKCS11 Cipher Stream Provider remain constant for the life of the provider because if the certificate were to be replaced, then the contents of the encryption settings database could become inaccessible. Unlike with listener certificates used for TLS negotiation that need to be replaced on a regular basis, this PKCS11 Cipher Stream Provider does not consider the validity period for the associated certificate, and it will continue to function even after the certificate has expired.  If you need to rotate the certificate used to protect the server's encryption settings database, you should first install the desired new certificate in the PKCS #11 token under a different alias. Then, you should create a new instance of this PKCS11 Cipher Stream Provider that is configured to use that certificate, and that also uses a different value for the encryption-metadata-file because the information in that file is tied to the certificate used to generate it. Finally, you will need to update the global configuration so that the encryption-settings-cipher-stream-provider property references the new cipher stream provider rather than this one. The update to the global configuration must be done with the server online so that it can properly re-encrypt the contents of the encryption settings database with the correct key tied to the new certificate.",
+				Optional:    true,
+			},
+			"key_wrapping_transformation": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. The cipher transformation that will be used to wrap and unwrap the encryption key. If no key wrapping transformation is defined, then the server will select a transformation based on the type of certificate being used.",
 				Optional:    true,
 			},
 			"conjur_external_server": schema.StringAttribute{
@@ -385,6 +390,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		sslCertNicknameAttr := schemaDef.Attributes["ssl_cert_nickname"].(schema.StringAttribute)
 		sslCertNicknameAttr.PlanModifiers = append(sslCertNicknameAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
 		schemaDef.Attributes["ssl_cert_nickname"] = sslCertNicknameAttr
+		keyWrappingTransformationAttr := schemaDef.Attributes["key_wrapping_transformation"].(schema.StringAttribute)
+		keyWrappingTransformationAttr.PlanModifiers = append(keyWrappingTransformationAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
+		schemaDef.Attributes["key_wrapping_transformation"] = keyWrappingTransformationAttr
 		vaultSecretPathAttr := schemaDef.Attributes["vault_secret_path"].(schema.StringAttribute)
 		vaultSecretPathAttr.PlanModifiers = append(vaultSecretPathAttr.PlanModifiers, stringplanmodifier.RequiresReplace())
 		schemaDef.Attributes["vault_secret_path"] = vaultSecretPathAttr
@@ -480,7 +488,7 @@ func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -491,6 +499,18 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	}
 	var model cipherStreamProviderResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.KeyWrappingTransformation) {
+		resp.Diagnostics.AddError("Attribute 'key_wrapping_transformation' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.IterationCount) {
 		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -728,6 +748,11 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_wrapping_transformation"),
 			path.MatchRoot("type"),
 			[]string{"pkcs11"},
 		),
@@ -980,6 +1005,10 @@ func addOptionalPkcs11CipherStreamProviderFields(ctx context.Context, addRequest
 		addRequest.Pkcs11KeyStoreType = plan.Pkcs11KeyStoreType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.KeyWrappingTransformation) {
+		addRequest.KeyWrappingTransformation = plan.KeyWrappingTransformation.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
 		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
 	}
@@ -1071,6 +1100,9 @@ func (model *cipherStreamProviderResourceModel) populateAllComputedStringAttribu
 	}
 	if model.PasswordFile.IsUnknown() || model.PasswordFile.IsNull() {
 		model.PasswordFile = types.StringValue("")
+	}
+	if model.KeyWrappingTransformation.IsUnknown() || model.KeyWrappingTransformation.IsNull() {
+		model.KeyWrappingTransformation = types.StringValue("")
 	}
 	if model.Pkcs11KeyStoreType.IsUnknown() || model.Pkcs11KeyStoreType.IsNull() {
 		model.Pkcs11KeyStoreType = types.StringValue("")
@@ -1268,6 +1300,7 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.KeyStorePinEnvironmentVariable = internaltypes.StringTypeOrNil(r.KeyStorePinEnvironmentVariable, internaltypes.IsEmptyString(expectedValues.KeyStorePinEnvironmentVariable))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, true)
 	state.SslCertNickname = types.StringValue(r.SslCertNickname)
+	state.KeyWrappingTransformation = internaltypes.StringTypeOrNil(r.KeyWrappingTransformation, internaltypes.IsEmptyString(expectedValues.KeyWrappingTransformation))
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1344,6 +1377,7 @@ func createCipherStreamProviderOperations(plan cipherStreamProviderResourceModel
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyStorePinEnvironmentVariable, state.KeyStorePinEnvironmentVariable, "key-store-pin-environment-variable")
 	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11KeyStoreType, state.Pkcs11KeyStoreType, "pkcs11-key-store-type")
 	operations.AddStringOperationIfNecessary(&ops, plan.SslCertNickname, state.SslCertNickname, "ssl-cert-nickname")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyWrappingTransformation, state.KeyWrappingTransformation, "key-wrapping-transformation")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConjurExternalServer, state.ConjurExternalServer, "conjur-external-server")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConjurSecretRelativePath, state.ConjurSecretRelativePath, "conjur-secret-relative-path")
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordFile, state.PasswordFile, "password-file")

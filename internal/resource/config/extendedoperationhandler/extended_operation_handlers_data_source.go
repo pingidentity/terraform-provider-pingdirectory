@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -208,6 +208,10 @@ func (r *extendedOperationHandlersDataSource) Read(ctx context.Context, req data
 		if response.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse.Id)
 			attributes["type"] = types.StringValue("get-supported-otp-delivery-mechanisms")
+		}
+		if response.VerifyPasswordExtendedOperationHandlerResponse != nil {
+			attributes["id"] = types.StringValue(response.VerifyPasswordExtendedOperationHandlerResponse.Id)
+			attributes["type"] = types.StringValue("verify-password")
 		}
 		if response.GeneratePasswordExtendedOperationHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.GeneratePasswordExtendedOperationHandlerResponse.Id)

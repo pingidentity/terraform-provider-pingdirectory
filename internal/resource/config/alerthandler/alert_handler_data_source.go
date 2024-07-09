@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -53,6 +53,7 @@ type alertHandlerDataSourceModel struct {
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
 	Command                           types.String `tfsdk:"command"`
+	CommandTimeout                    types.String `tfsdk:"command_timeout"`
 	ScriptClass                       types.String `tfsdk:"script_class"`
 	HttpProxyExternalServer           types.String `tfsdk:"http_proxy_external_server"`
 	TwilioAccountSID                  types.String `tfsdk:"twilio_account_sid"`
@@ -106,6 +107,12 @@ func (r *alertHandlerDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 			"command": schema.StringAttribute{
 				Description: "Specifies the path of the command to execute, without any arguments. It must be an absolute path for reasons of security and reliability.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"command_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. The maximum length of time this server will wait for the executed command to finish executing before forcibly terminating it.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -445,6 +452,7 @@ func readExecAlertHandlerResponseDataSource(ctx context.Context, r *client.ExecA
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
+	state.CommandTimeout = internaltypes.StringTypeOrNil(r.CommandTimeout, false)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)

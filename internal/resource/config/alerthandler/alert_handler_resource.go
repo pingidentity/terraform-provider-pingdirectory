@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -94,6 +94,7 @@ type alertHandlerResourceModel struct {
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
 	Command                           types.String `tfsdk:"command"`
+	CommandTimeout                    types.String `tfsdk:"command_timeout"`
 	ScriptClass                       types.String `tfsdk:"script_class"`
 	HttpProxyExternalServer           types.String `tfsdk:"http_proxy_external_server"`
 	TwilioAccountSID                  types.String `tfsdk:"twilio_account_sid"`
@@ -128,6 +129,7 @@ type defaultAlertHandlerResourceModel struct {
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
 	Command                           types.String `tfsdk:"command"`
+	CommandTimeout                    types.String `tfsdk:"command_timeout"`
 	ScriptClass                       types.String `tfsdk:"script_class"`
 	HttpProxyExternalServer           types.String `tfsdk:"http_proxy_external_server"`
 	TwilioAccountSID                  types.String `tfsdk:"twilio_account_sid"`
@@ -192,6 +194,14 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			"command": schema.StringAttribute{
 				Description: "Specifies the path of the command to execute, without any arguments. It must be an absolute path for reasons of security and reliability.",
 				Optional:    true,
+			},
+			"command_timeout": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. The maximum length of time this server will wait for the executed command to finish executing before forcibly terminating it.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"script_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Alert Handler.",
@@ -507,7 +517,7 @@ func (r *defaultAlertHandlerResource) ModifyPlan(ctx context.Context, req resour
 }
 
 func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -518,6 +528,18 @@ func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest,
 	}
 	var model defaultAlertHandlerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.CommandTimeout) {
+		resp.Diagnostics.AddError("Attribute 'command_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -531,6 +553,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.ServerPort = types.Int64Null()
 		model.LongMessageBehavior = types.StringNull()
 		model.SenderPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "jmx" {
@@ -541,6 +564,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "groovy-scripted" {
@@ -551,6 +575,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "snmp" {
@@ -559,6 +584,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "twilio" {
@@ -567,6 +593,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 	}
 	if resourceType == "error-log" {
 		model.CommunityName = types.StringNull()
@@ -576,6 +603,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "snmp-sub-agent" {
@@ -586,6 +614,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if resourceType == "exec" {
@@ -606,6 +635,7 @@ func (model *alertHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.MessageBody = types.StringNull()
 		model.RecipientAddress, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.MessageSubject = types.StringNull()
+		model.CommandTimeout = types.StringNull()
 		model.RecipientPhoneNumber, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 }
@@ -708,6 +738,11 @@ func configValidatorsAlertHandler() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("command"),
+			path.MatchRoot("type"),
+			[]string{"exec"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("command_timeout"),
 			path.MatchRoot("type"),
 			[]string{"exec"},
 		),
@@ -1194,6 +1229,10 @@ func addOptionalSnmpSubAgentAlertHandlerFields(ctx context.Context, addRequest *
 
 // Add optional fields to create request for exec alert-handler
 func addOptionalExecAlertHandlerFields(ctx context.Context, addRequest *client.AddExecAlertHandlerRequest, plan alertHandlerResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.CommandTimeout) {
+		addRequest.CommandTimeout = plan.CommandTimeout.ValueStringPointer()
+	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
@@ -1667,6 +1706,9 @@ func readExecAlertHandlerResponse(ctx context.Context, r *client.ExecAlertHandle
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
+	state.CommandTimeout = internaltypes.StringTypeOrNil(r.CommandTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("command_timeout",
+		expectedValues.CommandTimeout, state.CommandTimeout, diagnostics)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1686,6 +1728,9 @@ func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAler
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
+	state.CommandTimeout = internaltypes.StringTypeOrNil(r.CommandTimeout, true)
+	config.CheckMismatchedPDFormattedAttributes("command_timeout",
+		expectedValues.CommandTimeout, state.CommandTimeout, diagnostics)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1759,6 +1804,7 @@ func createAlertHandlerOperations(plan alertHandlerResourceModel, state alertHan
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	operations.AddStringOperationIfNecessary(&ops, plan.Command, state.Command, "command")
+	operations.AddStringOperationIfNecessary(&ops, plan.CommandTimeout, state.CommandTimeout, "command-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.ScriptClass, state.ScriptClass, "script-class")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
 	operations.AddStringOperationIfNecessary(&ops, plan.TwilioAccountSID, state.TwilioAccountSID, "twilio-account-sid")
@@ -1791,6 +1837,7 @@ func createAlertHandlerOperationsDefault(plan defaultAlertHandlerResourceModel, 
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	operations.AddStringOperationIfNecessary(&ops, plan.Command, state.Command, "command")
+	operations.AddStringOperationIfNecessary(&ops, plan.CommandTimeout, state.CommandTimeout, "command-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.ScriptClass, state.ScriptClass, "script-class")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
 	operations.AddStringOperationIfNecessary(&ops, plan.TwilioAccountSID, state.TwilioAccountSID, "twilio-account-sid")

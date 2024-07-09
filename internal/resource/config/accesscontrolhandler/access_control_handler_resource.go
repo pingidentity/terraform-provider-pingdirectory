@@ -15,10 +15,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10000/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -56,14 +57,15 @@ func (r *accessControlHandlerResource) Configure(_ context.Context, req resource
 }
 
 type accessControlHandlerResourceModel struct {
-	Id                    types.String `tfsdk:"id"`
-	Notifications         types.Set    `tfsdk:"notifications"`
-	RequiredActions       types.Set    `tfsdk:"required_actions"`
-	Type                  types.String `tfsdk:"type"`
-	GlobalACI             types.Set    `tfsdk:"global_aci"`
-	AllowedBindControl    types.Set    `tfsdk:"allowed_bind_control"`
-	AllowedBindControlOID types.Set    `tfsdk:"allowed_bind_control_oid"`
-	Enabled               types.Bool   `tfsdk:"enabled"`
+	Id                                            types.String `tfsdk:"id"`
+	Notifications                                 types.Set    `tfsdk:"notifications"`
+	RequiredActions                               types.Set    `tfsdk:"required_actions"`
+	Type                                          types.String `tfsdk:"type"`
+	GlobalACI                                     types.Set    `tfsdk:"global_aci"`
+	AllowedBindControl                            types.Set    `tfsdk:"allowed_bind_control"`
+	AllowedBindControlOID                         types.Set    `tfsdk:"allowed_bind_control_oid"`
+	EvaluateTargetAttributeRightsForAddOperations types.Bool   `tfsdk:"evaluate_target_attribute_rights_for_add_operations"`
+	Enabled                                       types.Bool   `tfsdk:"enabled"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -110,6 +112,14 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 					setplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"evaluate_target_attribute_rights_for_add_operations": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.1.0.0+. Indicates whether the server should ensure that the requester has the \"add\" right for each attribute included in an add request, and is not denied \"add\" rights for any attributes in the request. Historically, any user who has been granted the \"add\" right has been allowed to create an entry of any type, even for add requests that include attributes for which they do not have the \"add\" right (that is, the \"targetattr\" portion of an access control rule was not considered when evaluating access control rights for add operations). This is still the default behavior in order to preserve backward compatibility, but setting the value of this property to true will cause the server to only permit add operations in which the requester has the \"add\" right for each of the attributes included in the add request, and deny add operations if the requester is denied \"add\" rights for any attributes included in the add request. It is strongly recommended that you thoroughly test your existing access control configuration before enabling this setting in a production environment to identify any cases in which you may need to add or augment access control rules to ensure that authorized users are allowed to add the entries they need to be able to create.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether this Access Control Handler is enabled. If set to FALSE, then no access control is enforced, and any client (including unauthenticated or anonymous clients) could be allowed to perform any operation if not subject to other restrictions, such as those enforced by the privilege subsystem.",
 				Optional:    true,
@@ -124,6 +134,24 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *accessControlHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10100)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model accessControlHandlerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.EvaluateTargetAttributeRightsForAddOperations) {
+		resp.Diagnostics.AddError("Attribute 'evaluate_target_attribute_rights_for_add_operations' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+}
+
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct
 func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.DseeCompatAccessControlHandlerResponse, state *accessControlHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dsee-compat")
@@ -133,6 +161,7 @@ func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.D
 	state.AllowedBindControl = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessControlHandlerAllowedBindControlProp(r.AllowedBindControl))
 	state.AllowedBindControlOID = internaltypes.GetStringSet(r.AllowedBindControlOID)
+	state.EvaluateTargetAttributeRightsForAddOperations = internaltypes.BoolTypeOrNil(r.EvaluateTargetAttributeRightsForAddOperations)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -143,6 +172,7 @@ func createAccessControlHandlerOperations(plan accessControlHandlerResourceModel
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.GlobalACI, state.GlobalACI, "global-aci")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedBindControl, state.AllowedBindControl, "allowed-bind-control")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedBindControlOID, state.AllowedBindControlOID, "allowed-bind-control-oid")
+	operations.AddBoolOperationIfNecessary(&ops, plan.EvaluateTargetAttributeRightsForAddOperations, state.EvaluateTargetAttributeRightsForAddOperations, "evaluate-target-attribute-rights-for-add-operations")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
 }
