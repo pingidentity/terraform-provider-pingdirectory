@@ -135,6 +135,9 @@ func Parse(versionString string) (string, diag.Diagnostics) {
 			// Use the first version prior to 10.0.0.0
 			versionIndex = getSortedVersionIndex(PingDirectory10000) - 1
 		case "10.0.0.0":
+			// Use the first version prior to 10.1.0.0
+			versionIndex = getSortedVersionIndex(PingDirectory10100) - 1
+		case "10.1.0.0":
 			// This is the latest major-minor version, so just use the latest patch version available
 			versionIndex = len(sortedVersions) - 1
 		}

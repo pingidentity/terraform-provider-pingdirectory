@@ -2,6 +2,7 @@ package gauge_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -10,9 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 const testIdIndicatorGauge = "MyId"
+const pre101InitialDataSource = "Strong Encryption Not Available"
+const post101InitialDataSource = "Strong Encryption Available"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type indicatorGaugeTestModel struct {
@@ -22,10 +26,22 @@ type indicatorGaugeTestModel struct {
 }
 
 func TestAccIndicatorGauge(t *testing.T) {
+	initialGaugeDataSource := post101InitialDataSource
+	pdVersion := os.Getenv("PINGDIRECTORY_PROVIDER_PRODUCT_VERSION")
+	compare, err := version.Compare(pdVersion, version.PingDirectory10100)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+	if compare < 0 {
+		// The strong encryption data source was changed in version 10.1
+		initialGaugeDataSource = pre101InitialDataSource
+	}
+
 	resourceName := "myresource"
 	initialResourceModel := indicatorGaugeTestModel{
 		id:              testIdIndicatorGauge,
-		gaugeDataSource: "Strong Encryption Not Available",
+		gaugeDataSource: initialGaugeDataSource,
 		enabled:         true,
 	}
 	updatedResourceModel := indicatorGaugeTestModel{
