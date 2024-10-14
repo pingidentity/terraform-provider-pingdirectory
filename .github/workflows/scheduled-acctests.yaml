@@ -41,7 +41,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "9.3.0.0"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "9.3.0.5"
   ping_directory_ten_zero:
     name: Ping Directory 10.0.0.0
     runs-on: ubuntu-latest
