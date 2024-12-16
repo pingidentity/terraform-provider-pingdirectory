@@ -1,4 +1,4 @@
-# v1.3.1 (Unreleased)
+# v1.3.1 December 16, 2024
 ### Notes
 * bump `github.com/hashicorp/terraform-plugin-framework` 1.11.0 => 1.13.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
 * bump `github.com/hashicorp/terraform-plugin-framework-validators` 0.13.0 => 0.16.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
