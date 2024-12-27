@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -220,9 +220,10 @@ type pluginResourceModel struct {
 	HostInfo                                             types.Set    `tfsdk:"host_info"`
 	IncludedLDAPApplication                              types.Set    `tfsdk:"included_ldap_application"`
 	RequestCriteria                                      types.String `tfsdk:"request_criteria"`
-	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
+	TimeBetweenSearches                                  types.String `tfsdk:"time_between_searches"`
 	Description                                          types.String `tfsdk:"description"`
 	Enabled                                              types.Bool   `tfsdk:"enabled"`
+	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
 }
 
 type defaultPluginResourceModel struct {
@@ -383,9 +384,10 @@ type defaultPluginResourceModel struct {
 	InvokeForFailedBinds                                 types.Bool   `tfsdk:"invoke_for_failed_binds"`
 	MaxSearchResultEntriesToUpdate                       types.Int64  `tfsdk:"max_search_result_entries_to_update"`
 	RequestCriteria                                      types.String `tfsdk:"request_criteria"`
-	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
+	TimeBetweenSearches                                  types.String `tfsdk:"time_between_searches"`
 	Description                                          types.String `tfsdk:"description"`
 	Enabled                                              types.Bool   `tfsdk:"enabled"`
+	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -402,13 +404,13 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		Description: "Manages a Plugin.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
-				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
+				Description: "The type of Plugin resource. Options are ['entry-counter', 'last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "coalesce-modifications", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
+					stringvalidator.OneOf([]string{"entry-counter", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "coalesce-modifications", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
 				},
 			},
 			"prevent_adding_members_to_nonexistent_groups": schema.BoolAttribute{
@@ -1220,10 +1222,13 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `last-access-time`: Specifies a set of request criteria that may be used to indicate whether to apply access time updates for the associated operation.\n  - `ping-one-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the PingOne service.\n  - `sub-operation-timing`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be counted when aggregating timing data.\n  - `third-party`: Specifies a set of request criteria that may be used to indicate that this Third Party Plugin should only be invoked for operations in which the associated request matches this criteria.\n  - `pass-through-authentication`: Specifies a set of request criteria that must match the bind request for the bind to be passed through to an alternate server.\n  - `simple-to-external-bind`: Specifies a request criteria object that may be used to indicate the set of requests for which this plugin should be used. If a value is provided, then this plugin will only be used for bind requests matching this criteria.\n  - `coalesce-modifications`: A reference to request criteria that indicates which modify requests should be coalesced.\n  - `delay`: Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be subject to the configured delay.\n  - `groovy-scripted`: Specifies a set of request criteria that may be used to indicate that this Groovy Scripted Plugin should only be invoked for operations in which the associated request matches this criteria.\n  - `pluggable-pass-through-authentication`: A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
 				Optional:            true,
 			},
-			"invoke_for_internal_operations": schema.BoolAttribute{
-				Description: "Indicates whether the plug-in should be invoked for internal operations.",
+			"time_between_searches": schema.StringAttribute{
+				Description: "The length of time between internal searches used to identify entries that match the sets of search criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -1232,6 +1237,11 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether the plug-in is enabled for use.",
 				Required:    true,
+			},
+			"invoke_for_internal_operations": schema.BoolAttribute{
+				Description: "Indicates whether the plug-in should be invoked for internal operations.",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
@@ -1244,7 +1254,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 			stringplanmodifier.UseStateForUnknown(),
 		}
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
+			stringvalidator.OneOf([]string{"entry-counter", "last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"}...),
 		}
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
@@ -2135,7 +2145,7 @@ func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -2146,6 +2156,19 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 	}
 	var model defaultPluginResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "entry-counter" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10200,
+			providerConfig.ProductVersion, resourceName+" with type \"entry_counter\"")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "traditional-static-group-support-for-inverted-static-groups" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
 			providerConfig.ProductVersion, resourceName+" with type \"traditional_static_group_support_for_inverted_static_groups\"")
@@ -2184,6 +2207,78 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.ResourceType.ValueString()
 	// Set any not applicable computed attributes to null for each type
+	if resourceType == "entry-counter" {
+		model.GaugeInfo = types.StringNull()
+		model.SourceAttributeRemovalBehavior = types.StringNull()
+		model.Type, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PollingInterval = types.StringNull()
+		model.EnableControlMapping = types.BoolNull()
+		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SessionTimeout = types.StringNull()
+		model.MultipleValuePatternBehavior = types.StringNull()
+		model.HistogramFormat = types.StringNull()
+		model.LogFileFormat = types.StringNull()
+		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
+		model.EnableAttributeMapping = types.BoolNull()
+		model.NumDeleteThreads = types.Int64Null()
+		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.PerApplicationLDAPStats = types.StringNull()
+		model.PreventNestingNonexistentGroups = types.BoolNull()
+		model.UpdateInterval = types.StringNull()
+		model.TraditionalStaticGroupObjectClass = types.StringNull()
+		model.AllowLaxPassThroughAuthenticationPasswords = types.BoolNull()
+		model.Server, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UpdatedEntryNoLongerMatchesCriteriaBehavior = types.StringNull()
+		model.LinesBetweenHeader = types.Int64Null()
+		model.AgentxPort = types.Int64Null()
+		model.PreventConflictsWithSoftDeletedEntries = types.BoolNull()
+		model.DatetimeFormat = types.StringNull()
+		model.UpdateSourceAttributeBehavior = types.StringNull()
+		model.LowerBound = types.Int64Null()
+		model.MaximumMembershipUpdatesPerModify = types.Int64Null()
+		model.LocalDBBackendInfo = types.StringNull()
+		model.LogFile = types.StringNull()
+		model.TryLocalBind = types.BoolNull()
+		model.NumWorkerThreads = types.Int64Null()
+		model.HeaderPrefixPerColumn = types.BoolNull()
+		model.MultipleAttributeBehavior = types.StringNull()
+		model.TargetAttributeExistsDuringInitialPopulationBehavior = types.StringNull()
+		model.LogInterval = types.StringNull()
+		model.ReadOperationSupport = types.StringNull()
+		model.ReplicationInfo = types.StringNull()
+		model.PreventAddingMembersToNonexistentGroups = types.BoolNull()
+		model.ServerAccessMode = types.StringNull()
+		model.UpdateTargetAttributeBehavior = types.StringNull()
+		model.MaxConnections = types.Int64Null()
+		model.SuppressIfIdle = types.BoolNull()
+		model.MultiValuedAttributeBehavior = types.StringNull()
+		model.EntryCacheInfo = types.StringNull()
+		model.AgentxAddress = types.StringNull()
+		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.DelayAfterAlert = types.StringNull()
+		model.UpdateLocalPassword = types.BoolNull()
+		model.NumThreads = types.Int64Null()
+		model.StatusSummaryInfo = types.StringNull()
+		model.CollectionInterval = types.StringNull()
+		model.EmptyInsteadOfZero = types.BoolNull()
+		model.LoggingErrorBehavior = types.StringNull()
+		model.PreventAddingGroupsAsInvertedStaticGroupMembers = types.BoolNull()
+		model.PingInterval = types.StringNull()
+		model.MaxUpdatesPerSecond = types.Int64Null()
+		model.LdapChangelogInfo = types.StringNull()
+		model.UserMappingRemoteJSONField, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.UserMappingLocalAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.ConnectRetryMaxWait = types.StringNull()
+		model.OverrideLocalPassword = types.BoolNull()
+		model.InitialConnections = types.Int64Null()
+		model.DelayPostGC = types.StringNull()
+		model.NumMostExpensivePhasesShown = types.Int64Null()
+		model.AlwaysMapResponses = types.BoolNull()
+		model.LogFilePermissions = types.StringNull()
+		model.Append = types.BoolNull()
+		model.InvokeGCTimeUtc, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 	if resourceType == "traditional-static-group-support-for-inverted-static-groups" {
 		model.GaugeInfo = types.StringNull()
 		model.SourceAttributeRemovalBehavior = types.StringNull()
@@ -2195,6 +2290,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2264,6 +2360,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -2333,6 +2430,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2406,6 +2504,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -2475,6 +2574,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2546,6 +2646,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -2614,6 +2715,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2680,6 +2782,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2750,6 +2853,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.ValuePattern, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.SessionTimeout = types.StringNull()
 		model.MultipleValuePatternBehavior = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2806,6 +2910,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -2876,6 +2981,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -2946,6 +3052,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3017,6 +3124,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3079,6 +3187,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -3148,6 +3257,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3218,6 +3328,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3290,6 +3401,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3357,6 +3469,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3428,6 +3541,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3496,6 +3610,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.SessionTimeout = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
 		model.ReferralBaseURL, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -3559,6 +3674,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3629,6 +3745,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3699,6 +3816,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3770,6 +3888,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3841,6 +3960,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -3909,6 +4029,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -3976,6 +4097,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
 		model.NumDeleteThreads = types.Int64Null()
@@ -4045,6 +4167,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.MultipleValuePatternBehavior = types.StringNull()
 		model.HistogramFormat = types.StringNull()
 		model.LogFileFormat = types.StringNull()
+		model.TimeBetweenSearches = types.StringNull()
 		model.PluginType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.UpdatedEntryNewlyMatchesCriteriaBehavior = types.StringNull()
 		model.EnableAttributeMapping = types.BoolNull()
@@ -4110,10 +4233,10 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4128,16 +4251,16 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
 				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4153,23 +4276,28 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_between_searches"),
+			path.MatchRoot("resource_type"),
+			[]string{"entry-counter"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("description"),
+			path.MatchRoot("resource_type"),
+			[]string{"entry-counter", "last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("invoke_for_internal_operations"),
+			path.MatchRoot("resource_type"),
+			[]string{"entry-counter", "last-access-time", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("request_criteria"),
 			path.MatchRoot("resource_type"),
 			[]string{"last-access-time", "ping-one-pass-through-authentication", "sub-operation-timing", "third-party", "pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "delay", "groovy-scripted", "pluggable-pass-through-authentication"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("invoke_for_internal_operations"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("description"),
-			path.MatchRoot("resource_type"),
-			[]string{"last-access-time", "stats-collector", "traditional-static-group-support-for-inverted-static-groups", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute", "inverted-static-group-referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("collection_interval"),
@@ -4813,8 +4941,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("resource_type"),
-			"coalesce-modifications",
-			[]path.Expression{path.MatchRoot("request_criteria"), path.MatchRoot("enabled")},
+			"entry-counter",
+			[]path.Expression{path.MatchRoot("enabled")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("resource_type"),
@@ -4900,6 +5028,11 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			"snmp-subagent",
 			[]path.Expression{path.MatchRoot("enabled")},
+		),
+		configvalidators.ValueImpliesAttributeRequired(
+			path.MatchRoot("resource_type"),
+			"coalesce-modifications",
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("request_criteria")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("resource_type"),
@@ -5079,6 +5212,22 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 		),
 	}
 	return append(configValidatorsPlugin(), validators...)
+}
+
+// Add optional fields to create request for entry-counter plugin
+func addOptionalEntryCounterPluginFields(ctx context.Context, addRequest *client.AddEntryCounterPluginRequest, plan pluginResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.TimeBetweenSearches) {
+		addRequest.TimeBetweenSearches = plan.TimeBetweenSearches.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
+	}
+	return nil
 }
 
 // Add optional fields to create request for traditional-static-group-support-for-inverted-static-groups plugin
@@ -6494,6 +6643,36 @@ func populatePluginUnknownValuesDefault(model *defaultPluginResourceModel) {
 	if model.IncludeFilter.IsUnknown() || model.IncludeFilter.IsNull() {
 		model.IncludeFilter, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+}
+
+// Read a EntryCounterPluginResponse object into the model struct
+func readEntryCounterPluginResponse(ctx context.Context, r *client.EntryCounterPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("entry-counter")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TimeBetweenSearches = types.StringValue(r.TimeBetweenSearches)
+	config.CheckMismatchedPDFormattedAttributes("time_between_searches",
+		expectedValues.TimeBetweenSearches, state.TimeBetweenSearches, diagnostics)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValues(state)
+}
+
+// Read a EntryCounterPluginResponse object into the model struct
+func readEntryCounterPluginResponseDefault(ctx context.Context, r *client.EntryCounterPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("entry-counter")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TimeBetweenSearches = types.StringValue(r.TimeBetweenSearches)
+	config.CheckMismatchedPDFormattedAttributes("time_between_searches",
+		expectedValues.TimeBetweenSearches, state.TimeBetweenSearches, diagnostics)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValuesDefault(state)
 }
 
 // Read a LastAccessTimePluginResponse object into the model struct
@@ -8124,9 +8303,10 @@ func createPluginOperations(plan pluginResourceModel, state pluginResourceModel)
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.HostInfo, state.HostInfo, "host-info")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludedLDAPApplication, state.IncludedLDAPApplication, "included-ldap-application")
 	operations.AddStringOperationIfNecessary(&ops, plan.RequestCriteria, state.RequestCriteria, "request-criteria")
-	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForInternalOperations, state.InvokeForInternalOperations, "invoke-for-internal-operations")
+	operations.AddStringOperationIfNecessary(&ops, plan.TimeBetweenSearches, state.TimeBetweenSearches, "time-between-searches")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForInternalOperations, state.InvokeForInternalOperations, "invoke-for-internal-operations")
 	return ops
 }
 
@@ -8285,10 +8465,49 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForFailedBinds, state.InvokeForFailedBinds, "invoke-for-failed-binds")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaxSearchResultEntriesToUpdate, state.MaxSearchResultEntriesToUpdate, "max-search-result-entries-to-update")
 	operations.AddStringOperationIfNecessary(&ops, plan.RequestCriteria, state.RequestCriteria, "request-criteria")
-	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForInternalOperations, state.InvokeForInternalOperations, "invoke-for-internal-operations")
+	operations.AddStringOperationIfNecessary(&ops, plan.TimeBetweenSearches, state.TimeBetweenSearches, "time-between-searches")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddBoolOperationIfNecessary(&ops, plan.InvokeForInternalOperations, state.InvokeForInternalOperations, "invoke-for-internal-operations")
 	return ops
+}
+
+// Create a entry-counter plugin
+func (r *pluginResource) CreateEntryCounterPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
+	addRequest := client.NewAddEntryCounterPluginRequest([]client.EnumentryCounterPluginSchemaUrn{client.ENUMENTRYCOUNTERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINENTRY_COUNTER},
+		plan.Enabled.ValueBool(),
+		plan.Name.ValueString())
+	err := addOptionalEntryCounterPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PluginAPI.AddPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPluginRequest(
+		client.AddEntryCounterPluginRequestAsAddPluginRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PluginAPI.AddPluginExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state pluginResourceModel
+	readEntryCounterPluginResponse(ctx, addResponse.EntryCounterPluginResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
 }
 
 // Create a traditional-static-group-support-for-inverted-static-groups plugin
@@ -9425,6 +9644,12 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state *pluginResourceModel
 	var err error
+	if plan.ResourceType.ValueString() == "entry-counter" {
+		state, err = r.CreateEntryCounterPlugin(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.ResourceType.ValueString() == "traditional-static-group-support-for-inverted-static-groups" {
 		state, err = r.CreateTraditionalStaticGroupSupportForInvertedStaticGroupsPlugin(ctx, req, resp, plan)
 		if err != nil {
@@ -9632,6 +9857,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 
 	// Read the existing configuration
 	var state defaultPluginResourceModel
+	if readResponse.EntryCounterPluginResponse != nil {
+		readEntryCounterPluginResponseDefault(ctx, readResponse.EntryCounterPluginResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.LastAccessTimePluginResponse != nil {
 		readLastAccessTimePluginResponseDefault(ctx, readResponse.LastAccessTimePluginResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -9774,6 +10002,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		}
 
 		// Read the response
+		if updateResponse.EntryCounterPluginResponse != nil {
+			readEntryCounterPluginResponseDefault(ctx, updateResponse.EntryCounterPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -9933,6 +10164,9 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Read the response into the state
+	if readResponse.EntryCounterPluginResponse != nil {
+		readEntryCounterPluginResponse(ctx, readResponse.EntryCounterPluginResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
 		readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx, readResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -10124,6 +10358,9 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
+		if updateResponse.EntryCounterPluginResponse != nil {
+			readEntryCounterPluginResponse(ctx, updateResponse.EntryCounterPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse != nil {
 			readTraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse(ctx, updateResponse.TraditionalStaticGroupSupportForInvertedStaticGroupsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -10255,6 +10492,9 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		}
 
 		// Read the response
+		if updateResponse.EntryCounterPluginResponse != nil {
+			readEntryCounterPluginResponseDefault(ctx, updateResponse.EntryCounterPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}

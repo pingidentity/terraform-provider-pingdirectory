@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -112,6 +113,7 @@ type passwordStorageSchemeResourceModel struct {
 	MemoryUsageKb                     types.Int64  `tfsdk:"memory_usage_kb"`
 	SaltLengthBytes                   types.Int64  `tfsdk:"salt_length_bytes"`
 	DerivedKeyLengthBytes             types.Int64  `tfsdk:"derived_key_length_bytes"`
+	EncodedPasswordCacheSize          types.Int64  `tfsdk:"encoded_password_cache_size"`
 	Description                       types.String `tfsdk:"description"`
 	Enabled                           types.Bool   `tfsdk:"enabled"`
 }
@@ -255,6 +257,15 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of bytes to use for the derived key. The value must be greater than or equal to 8 and less than or equal to 512.\n  - `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.",
 				Optional:            true,
 				Computed:            true,
+			},
+			"encoded_password_cache_size": schema.Int64Attribute{
+				Description:         "Supported in PingDirectory product version 10.2.0.0+. When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The maximum number of Argon2-encoded passwords to cache for faster verification. When the `type` attribute is set to `pbkdf2`: The maximum number of PBKDF2-encoded passwords to cache for faster verification. When the `type` attribute is set to `bcrypt`: The maximum number of Bcrypt-encoded passwords to cache for faster verification. When the `type` attribute is set to `scrypt`: The maximum number of scrypt-encoded passwords to cache for faster verification.",
+				MarkdownDescription: "Supported in PingDirectory product version 10.2.0.0+. When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The maximum number of Argon2-encoded passwords to cache for faster verification.\n  - `pbkdf2`: The maximum number of PBKDF2-encoded passwords to cache for faster verification.\n  - `bcrypt`: The maximum number of Bcrypt-encoded passwords to cache for faster verification.\n  - `scrypt`: The maximum number of scrypt-encoded passwords to cache for faster verification.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Storage Scheme",
@@ -412,7 +423,7 @@ func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, r
 }
 
 func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -423,6 +434,18 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	}
 	var model passwordStorageSchemeResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.EncodedPasswordCacheSize) {
+		resp.Diagnostics.AddError("Attribute 'encoded_password_cache_size' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
@@ -457,6 +480,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.ScryptBlockSize = types.Int64Null()
 		model.DigestAlgorithm = types.StringNull()
 		model.IterationCount = types.Int64Null()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -489,6 +513,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -502,6 +527,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -525,6 +551,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -546,6 +573,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -571,6 +599,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -584,6 +613,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -597,6 +627,7 @@ func (model *passwordStorageSchemeResourceModel) setNotApplicableAttrsNull() {
 		model.MaxPasswordLength = types.Int64Null()
 		model.IterationCount = types.Int64Null()
 		model.PasswordEncodingMechanism = types.StringNull()
+		model.EncodedPasswordCacheSize = types.Int64Null()
 		model.DerivedKeyLengthBytes = types.Int64Null()
 		model.ScryptParallelizationParameter = types.Int64Null()
 		model.ScryptCpuMemoryCostFactorExponent = types.Int64Null()
@@ -642,6 +673,11 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 			path.MatchRoot("derived_key_length_bytes"),
 			path.MatchRoot("type"),
 			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encoded_password_cache_size"),
+			path.MatchRoot("type"),
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2", "bcrypt", "scrypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_encoding_mechanism"),
@@ -823,6 +859,9 @@ func (r defaultPasswordStorageSchemeResource) ConfigValidators(ctx context.Conte
 
 // Add optional fields to create request for argon2d password-storage-scheme
 func addOptionalArgon2dPasswordStorageSchemeFields(ctx context.Context, addRequest *client.AddArgon2dPasswordStorageSchemeRequest, plan passwordStorageSchemeResourceModel) error {
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -855,6 +894,9 @@ func addOptionalCryptPasswordStorageSchemeFields(ctx context.Context, addRequest
 
 // Add optional fields to create request for argon2i password-storage-scheme
 func addOptionalArgon2iPasswordStorageSchemeFields(ctx context.Context, addRequest *client.AddArgon2iPasswordStorageSchemeRequest, plan passwordStorageSchemeResourceModel) error {
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -864,6 +906,9 @@ func addOptionalArgon2iPasswordStorageSchemeFields(ctx context.Context, addReque
 
 // Add optional fields to create request for argon2id password-storage-scheme
 func addOptionalArgon2idPasswordStorageSchemeFields(ctx context.Context, addRequest *client.AddArgon2idPasswordStorageSchemeRequest, plan passwordStorageSchemeResourceModel) error {
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -900,6 +945,9 @@ func addOptionalThirdPartyPasswordStorageSchemeFields(ctx context.Context, addRe
 
 // Add optional fields to create request for argon2 password-storage-scheme
 func addOptionalArgon2PasswordStorageSchemeFields(ctx context.Context, addRequest *client.AddArgon2PasswordStorageSchemeRequest, plan passwordStorageSchemeResourceModel) error {
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -943,6 +991,9 @@ func addOptionalPbkdf2PasswordStorageSchemeFields(ctx context.Context, addReques
 	if internaltypes.IsDefined(plan.MaxPasswordLength) {
 		addRequest.MaxPasswordLength = plan.MaxPasswordLength.ValueInt64Pointer()
 	}
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -967,6 +1018,9 @@ func addOptionalAes256PasswordStorageSchemeFields(ctx context.Context, addReques
 func addOptionalBcryptPasswordStorageSchemeFields(ctx context.Context, addRequest *client.AddBcryptPasswordStorageSchemeRequest, plan passwordStorageSchemeResourceModel) error {
 	if internaltypes.IsDefined(plan.BcryptCostFactor) {
 		addRequest.BcryptCostFactor = plan.BcryptCostFactor.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -1023,6 +1077,9 @@ func addOptionalScryptPasswordStorageSchemeFields(ctx context.Context, addReques
 	}
 	if internaltypes.IsDefined(plan.MaxPasswordLength) {
 		addRequest.MaxPasswordLength = plan.MaxPasswordLength.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.EncodedPasswordCacheSize) {
+		addRequest.EncodedPasswordCacheSize = plan.EncodedPasswordCacheSize.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -1100,6 +1157,7 @@ func readArgon2dPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1131,6 +1189,7 @@ func readArgon2iPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1181,6 +1240,7 @@ func readArgon2idPasswordStorageSchemeResponse(ctx context.Context, r *client.Ar
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1223,6 +1283,7 @@ func readArgon2PasswordStorageSchemeResponse(ctx context.Context, r *client.Argo
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1253,6 +1314,7 @@ func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkd
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1322,6 +1384,7 @@ func readBcryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Bcry
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BcryptCostFactor = internaltypes.Int64TypeOrNil(r.BcryptCostFactor)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1422,6 +1485,7 @@ func readScryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Scry
 	state.ScryptBlockSize = internaltypes.Int64TypeOrNil(r.ScryptBlockSize)
 	state.ScryptParallelizationParameter = internaltypes.Int64TypeOrNil(r.ScryptParallelizationParameter)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1465,6 +1529,7 @@ func createPasswordStorageSchemeOperations(plan passwordStorageSchemeResourceMod
 	operations.AddInt64OperationIfNecessary(&ops, plan.MemoryUsageKb, state.MemoryUsageKb, "memory-usage-kb")
 	operations.AddInt64OperationIfNecessary(&ops, plan.SaltLengthBytes, state.SaltLengthBytes, "salt-length-bytes")
 	operations.AddInt64OperationIfNecessary(&ops, plan.DerivedKeyLengthBytes, state.DerivedKeyLengthBytes, "derived-key-length-bytes")
+	operations.AddInt64OperationIfNecessary(&ops, plan.EncodedPasswordCacheSize, state.EncodedPasswordCacheSize, "encoded-password-cache-size")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops

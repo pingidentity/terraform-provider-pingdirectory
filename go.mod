@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.11.0
 	github.com/katbyte/terrafmt v0.5.4
 	github.com/pavius/impi v0.0.3
-	github.com/pingidentity/pingdirectory-go-client/v10100 v10100.0.1
+	github.com/pingidentity/pingdirectory-go-client/v10200 v10200.0.0
 	github.com/terraform-linters/tflint v0.51.1
 )
 

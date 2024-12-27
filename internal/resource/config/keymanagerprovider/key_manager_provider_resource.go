@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -103,6 +104,7 @@ type keyManagerProviderResourceModel struct {
 	PrivateKeyPin                   types.String `tfsdk:"private_key_pin"`
 	PrivateKeyPinFile               types.String `tfsdk:"private_key_pin_file"`
 	PrivateKeyPinPassphraseProvider types.String `tfsdk:"private_key_pin_passphrase_provider"`
+	EnableKeyManagerCaching         types.Bool   `tfsdk:"enable_key_manager_caching"`
 	Description                     types.String `tfsdk:"description"`
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 }
@@ -199,6 +201,14 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Key Manager Provider private key. If no private key PIN is specified the PIN defaults to the key store PIN.",
 				Optional:    true,
 			},
+			"enable_key_manager_caching": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether key manager providers should cache key managers.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Key Manager Provider",
 				Optional:    true,
@@ -261,7 +271,7 @@ func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -272,6 +282,18 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 	}
 	var model keyManagerProviderResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.EnableKeyManagerCaching) {
+		resp.Diagnostics.AddError("Attribute 'enable_key_manager_caching' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -284,8 +306,12 @@ func (model *keyManagerProviderResourceModel) setNotApplicableAttrsNull() {
 		model.Pkcs11KeyStoreType = types.StringNull()
 		model.Pkcs11MaxCacheDuration = types.StringNull()
 	}
+	if resourceType == "pkcs11" {
+		model.EnableKeyManagerCaching = types.BoolNull()
+	}
 	if resourceType == "third-party" {
 		model.Pkcs11KeyStoreType = types.StringNull()
+		model.EnableKeyManagerCaching = types.BoolNull()
 		model.Pkcs11MaxCacheDuration = types.StringNull()
 	}
 }
@@ -330,6 +356,11 @@ func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("private_key_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_key_manager_caching"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
@@ -420,6 +451,9 @@ func addOptionalFileBasedKeyManagerProviderFields(ctx context.Context, addReques
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PrivateKeyPinPassphraseProvider) {
 		addRequest.PrivateKeyPinPassphraseProvider = plan.PrivateKeyPinPassphraseProvider.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.EnableKeyManagerCaching) {
+		addRequest.EnableKeyManagerCaching = plan.EnableKeyManagerCaching.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -540,6 +574,7 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.KeyStorePinPassphraseProvider))
 	state.PrivateKeyPinFile = internaltypes.StringTypeOrNil(r.PrivateKeyPinFile, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinFile))
 	state.PrivateKeyPinPassphraseProvider = internaltypes.StringTypeOrNil(r.PrivateKeyPinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinPassphraseProvider))
+	state.EnableKeyManagerCaching = internaltypes.BoolTypeOrNil(r.EnableKeyManagerCaching)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -617,6 +652,7 @@ func createKeyManagerProviderOperations(plan keyManagerProviderResourceModel, st
 	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPin, state.PrivateKeyPin, "private-key-pin")
 	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPinFile, state.PrivateKeyPinFile, "private-key-pin-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPinPassphraseProvider, state.PrivateKeyPinPassphraseProvider, "private-key-pin-passphrase-provider")
+	operations.AddBoolOperationIfNecessary(&ops, plan.EnableKeyManagerCaching, state.EnableKeyManagerCaching, "enable-key-manager-caching")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
