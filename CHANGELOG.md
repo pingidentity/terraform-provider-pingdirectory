@@ -1,3 +1,7 @@
+# v1.3.0 July 9, 2024
+### ENHANCEMENTS
+* Added support for PingDirectory version `10.2.0.0` and for latest patches. (#403)
+
 # v1.3.1 December 16, 2024
 ### Notes
 * bump `github.com/hashicorp/terraform-plugin-framework` 1.11.0 => 1.13.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))

@@ -47,8 +47,8 @@ resource "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
   - `file-server`: Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path.
   - `scim2`: The context path to use to access the SCIM 2.0 interface. The value must start with a forward slash and must represent a valid HTTP context path.
 - `basic_auth_enabled` (Boolean) When the `type` attribute is set to:
-  - One of [`delegated-admin`, `consent`, `directory-rest-api`]: Enables HTTP Basic authentication, using a username and password. The Identity Mapper specified by the identity-mapper property will be used to map the username to a DN.
-  - `ldap-mapped-scim`: Enables HTTP Basic authentication, using a username and password.
+  - One of [`delegated-admin`, `consent`, `directory-rest-api`]: Enables HTTP Basic authentication, using a username and password. The Identity Mapper specified by the identity-mapper property will be used to map the username to a DN.  NOTE: Basic authentication is considered less secure than OAuth2 bearer token authentication.
+  - `ldap-mapped-scim`: Enables HTTP Basic authentication, using a username and password.  NOTE: Basic authentication is considered less secure than OAuth2 bearer token authentication.
 - `bulk_max_concurrent_requests` (Number) The maximum number of bulk requests that may be processed concurrently by the server. Any bulk request that would cause this limit to be exceeded is rejected with HTTP status code 503.
 - `bulk_max_operations` (Number) The maximum number of operations that are permitted in a bulk request.
 - `bulk_max_payload_size` (String) The maximum payload size in bytes of a bulk request.
