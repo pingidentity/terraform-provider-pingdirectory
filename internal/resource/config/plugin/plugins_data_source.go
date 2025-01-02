@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -105,6 +105,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.EntryCounterPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.EntryCounterPluginResponse.Id)
+			attributes["type"] = types.StringValue("entry-counter")
+		}
 		if response.LastAccessTimePluginResponse != nil {
 			attributes["id"] = types.StringValue(response.LastAccessTimePluginResponse.Id)
 			attributes["type"] = types.StringValue("last-access-time")

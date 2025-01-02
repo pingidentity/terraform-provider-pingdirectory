@@ -59,6 +59,11 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `pbkdf2`: Specifies the number of bytes to use for the derived key. The value must be greater than or equal to 8.
 - `description` (String) A description for this Password Storage Scheme
 - `digest_algorithm` (String) Specifies the digest algorithm that will be used when encoding passwords.
+- `encoded_password_cache_size` (Number) Supported in PingDirectory product version 10.2.0.0+. When the `type` attribute is set to:
+  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The maximum number of Argon2-encoded passwords to cache for faster verification.
+  - `pbkdf2`: The maximum number of PBKDF2-encoded passwords to cache for faster verification.
+  - `bcrypt`: The maximum number of Bcrypt-encoded passwords to cache for faster verification.
+  - `scrypt`: The maximum number of scrypt-encoded passwords to cache for faster verification.
 - `encryption_settings_definition_id` (String) The identifier for the encryption settings definition that should be used to derive the encryption key to use when encrypting new passwords. If this is not provided, the server's preferred encryption settings definition will be used.
 - `extension_argument` (Set of String) When the `type` attribute is set to:
   - `third-party`: The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.

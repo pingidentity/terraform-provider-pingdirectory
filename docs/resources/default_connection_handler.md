@@ -77,7 +77,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `send_rejection_notice` (Boolean) Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.
 - `ssl_cert_nickname` (String) When the `type` attribute is set to:
   - `jmx`: Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.
-  - `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL communication.
+  - `ldap`: Specifies the nickname (also called the alias) of the certificate that the LDAP Connection Handler should use when performing SSL or StartTLS communication.
   - `http`: Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.
 - `ssl_cipher_suite` (Set of String) When the `type` attribute is set to:
   - `ldap`: Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.

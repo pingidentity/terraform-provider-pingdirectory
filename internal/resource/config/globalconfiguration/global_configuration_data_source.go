@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -140,6 +140,7 @@ type globalConfigurationDataSourceModel struct {
 	TrackedApplication                                             types.Set    `tfsdk:"tracked_application"`
 	JmxValueBehavior                                               types.String `tfsdk:"jmx_value_behavior"`
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
+	SystemProperty                                                 types.Set    `tfsdk:"system_property"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -707,6 +708,13 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 				Optional:    false,
 				Computed:    true,
 			},
+			"system_property": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Specifies the name and value of a system property to set in the JVM.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
 		},
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, false)
@@ -818,6 +826,7 @@ func readGlobalConfigurationResponseDataSource(ctx context.Context, r *client.Gl
 	state.JmxValueBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationJmxValueBehaviorProp(r.JmxValueBehavior), false)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
+	state.SystemProperty = internaltypes.GetStringSet(r.SystemProperty)
 }
 
 // Read resource information

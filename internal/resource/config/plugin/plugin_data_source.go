@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -202,9 +202,10 @@ type pluginDataSourceModel struct {
 	InvokeForFailedBinds                                 types.Bool   `tfsdk:"invoke_for_failed_binds"`
 	MaxSearchResultEntriesToUpdate                       types.Int64  `tfsdk:"max_search_result_entries_to_update"`
 	RequestCriteria                                      types.String `tfsdk:"request_criteria"`
-	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
+	TimeBetweenSearches                                  types.String `tfsdk:"time_between_searches"`
 	Description                                          types.String `tfsdk:"description"`
 	Enabled                                              types.Bool   `tfsdk:"enabled"`
+	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -213,7 +214,7 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Description: "Describes a Plugin.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
-				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
+				Description: "The type of Plugin resource. Options are ['entry-counter', 'last-access-time', 'stats-collector', 'traditional-static-group-support-for-inverted-static-groups', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute', 'inverted-static-group-referential-integrity']",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1190,8 +1191,8 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:            false,
 				Computed:            true,
 			},
-			"invoke_for_internal_operations": schema.BoolAttribute{
-				Description: "Indicates whether the plug-in should be invoked for internal operations.",
+			"time_between_searches": schema.StringAttribute{
+				Description: "The length of time between internal searches used to identify entries that match the sets of search criteria.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1208,10 +1209,27 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"invoke_for_internal_operations": schema.BoolAttribute{
+				Description: "Indicates whether the plug-in should be invoked for internal operations.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 		},
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Read a EntryCounterPluginResponse object into the model struct
+func readEntryCounterPluginResponseDataSource(ctx context.Context, r *client.EntryCounterPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("entry-counter")
+	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
+	state.TimeBetweenSearches = types.StringValue(r.TimeBetweenSearches)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
 // Read a LastAccessTimePluginResponse object into the model struct
@@ -1966,6 +1984,9 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	// Read the response into the state
+	if readResponse.EntryCounterPluginResponse != nil {
+		readEntryCounterPluginResponseDataSource(ctx, readResponse.EntryCounterPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.LastAccessTimePluginResponse != nil {
 		readLastAccessTimePluginResponseDataSource(ctx, readResponse.LastAccessTimePluginResponse, &state, &resp.Diagnostics)
 	}

@@ -9,16 +9,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -92,6 +94,7 @@ type trustManagerProviderResourceModel struct {
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
 	TrustStoreFile                  types.String `tfsdk:"trust_store_file"`
 	TrustStoreType                  types.String `tfsdk:"trust_store_type"`
+	EnableTrustManagerCaching       types.Bool   `tfsdk:"enable_trust_manager_caching"`
 	TrustStorePin                   types.String `tfsdk:"trust_store_pin"`
 	TrustStorePinFile               types.String `tfsdk:"trust_store_pin_file"`
 	TrustStorePinPassphraseProvider types.String `tfsdk:"trust_store_pin_passphrase_provider"`
@@ -141,6 +144,14 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies the format for the data in the trust store file.",
 				Optional:    true,
 			},
+			"enable_trust_manager_caching": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"trust_store_pin": schema.StringAttribute{
 				Description: "Specifies the clear-text PIN needed to access the File Based Trust Manager Provider.",
 				Optional:    true,
@@ -188,6 +199,7 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel trustManagerProviderResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -231,11 +243,39 @@ func (r *trustManagerProviderResource) ModifyPlan(ctx context.Context, req resou
 	resp.Plan.Set(ctx, &planModel)
 }
 
+func (r *defaultTrustManagerProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanTrustManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model trustManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.EnableTrustManagerCaching) {
+		resp.Diagnostics.AddError("Attribute 'enable_trust_manager_caching' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
 func (model *trustManagerProviderResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
+	if resourceType == "blind" {
+		model.EnableTrustManagerCaching = types.BoolNull()
+	}
 	if resourceType == "jvm-default" {
+		model.EnableTrustManagerCaching = types.BoolNull()
 		model.IncludeJVMDefaultIssuers = types.BoolNull()
+	}
+	if resourceType == "third-party" {
+		model.EnableTrustManagerCaching = types.BoolNull()
 	}
 }
 
@@ -254,6 +294,11 @@ func configValidatorsTrustManagerProvider() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_trust_manager_caching"),
 			path.MatchRoot("type"),
 			[]string{"file-based"},
 		),
@@ -317,6 +362,9 @@ func addOptionalFileBasedTrustManagerProviderFields(ctx context.Context, addRequ
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreType) {
 		addRequest.TrustStoreType = plan.TrustStoreType.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.EnableTrustManagerCaching) {
+		addRequest.EnableTrustManagerCaching = plan.EnableTrustManagerCaching.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStorePin) {
@@ -398,6 +446,7 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.EnableTrustManagerCaching = internaltypes.BoolTypeOrNil(r.EnableTrustManagerCaching)
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -444,6 +493,7 @@ func createTrustManagerProviderOperations(plan trustManagerProviderResourceModel
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreFile, state.TrustStoreFile, "trust-store-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreType, state.TrustStoreType, "trust-store-type")
+	operations.AddBoolOperationIfNecessary(&ops, plan.EnableTrustManagerCaching, state.EnableTrustManagerCaching, "enable-trust-manager-caching")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePin, state.TrustStorePin, "trust-store-pin")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePinFile, state.TrustStorePinFile, "trust-store-pin-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePinPassphraseProvider, state.TrustStorePinPassphraseProvider, "trust-store-pin-passphrase-provider")

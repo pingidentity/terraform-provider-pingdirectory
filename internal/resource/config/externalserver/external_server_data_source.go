@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -52,12 +52,11 @@ type externalServerDataSourceModel struct {
 	Type                                   types.String `tfsdk:"type"`
 	VaultServerBaseURI                     types.Set    `tfsdk:"vault_server_base_uri"`
 	VaultAuthenticationMethod              types.String `tfsdk:"vault_authentication_method"`
-	HttpProxyExternalServer                types.String `tfsdk:"http_proxy_external_server"`
 	ConjurServerBaseURI                    types.Set    `tfsdk:"conjur_server_base_uri"`
+	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	AwsAccessKeyID                         types.String `tfsdk:"aws_access_key_id"`
 	AwsSecretAccessKey                     types.String `tfsdk:"aws_secret_access_key"`
 	AwsRegionName                          types.String `tfsdk:"aws_region_name"`
-	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	ConjurAccountName                      types.String `tfsdk:"conjur_account_name"`
 	HttpConnectTimeout                     types.String `tfsdk:"http_connect_timeout"`
 	HttpResponseTimeout                    types.String `tfsdk:"http_response_timeout"`
@@ -70,6 +69,7 @@ type externalServerDataSourceModel struct {
 	JdbcDriverURL                          types.String `tfsdk:"jdbc_driver_url"`
 	SslCertNickname                        types.String `tfsdk:"ssl_cert_nickname"`
 	ResponseTimeout                        types.String `tfsdk:"response_timeout"`
+	HttpProxyExternalServer                types.String `tfsdk:"http_proxy_external_server"`
 	BasicAuthenticationUsername            types.String `tfsdk:"basic_authentication_username"`
 	BasicAuthenticationPassphraseProvider  types.String `tfsdk:"basic_authentication_passphrase_provider"`
 	TransportMechanism                     types.String `tfsdk:"transport_mechanism"`
@@ -130,18 +130,18 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 				Optional:    false,
 				Computed:    true,
 			},
-			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"conjur_server_base_uri": schema.SetAttribute{
 				Description: "The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol (\"http\" or \"https\"), the server address (resolvable name or IP address), and the port number. For example, \"https://conjur.example.com:8443/\".",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
+			},
+			"conjur_authentication_method": schema.StringAttribute{
+				Description: "The mechanism used to authenticate to the Conjur server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
 			},
 			"aws_access_key_id": schema.StringAttribute{
 				Description: "The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.",
@@ -158,12 +158,6 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 			"aws_region_name": schema.StringAttribute{
 				Description: "The name of the AWS region containing the resources that will be accessed.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
-			"conjur_authentication_method": schema.StringAttribute{
-				Description: "The mechanism used to authenticate to the Conjur server.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -241,6 +235,13 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 			"response_timeout": schema.StringAttribute{
 				Description:         "When the `type` attribute is set to `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne. When the `type` attribute is set to `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
 				MarkdownDescription: "When the `type` attribute is set to:\n  - `ping-one-http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.\n  - `http`: Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to the server.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+			},
+			"http_proxy_external_server": schema.StringAttribute{
+				Description:         "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				MarkdownDescription: "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Required:            false,
 				Optional:            false,
 				Computed:            true,
@@ -741,6 +742,7 @@ func readPingOneHttpExternalServerResponseDataSource(ctx context.Context, r *cli
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
 	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, false)
 	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, false)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
@@ -757,6 +759,7 @@ func readHttpExternalServerResponseDataSource(ctx context.Context, r *client.Htt
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, false)
 	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, false)
 	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, false)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
