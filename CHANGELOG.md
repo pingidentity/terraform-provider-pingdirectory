@@ -1,13 +1,16 @@
-# v1.3.0 July 9, 2024
-### ENHANCEMENTS
+# v1.4.0 (Unreleased)
+### Enhancements
 * Added support for PingDirectory version `10.2.0.0` and for latest patches. (#403)
+
+### Notes
+* bump `golang.org/x/net` 0.31.0 => 0.33.0 ([#404](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/404))
 
 # v1.3.1 December 16, 2024
 ### Notes
-* bump `github.com/hashicorp/terraform-plugin-framework` 1.11.0 => 1.13.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
-* bump `github.com/hashicorp/terraform-plugin-framework-validators` 0.13.0 => 0.16.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
-* bump `github.com/hashicorp/terraform-plugin-go` 0.23.0 => 0.25.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
-* bump `golang.org/x/crypto` 0.26.0 => 0.31.0 ([#434](https://github.com/pingidentity/terraform-provider-pingfederate/pull/434))
+* bump `github.com/hashicorp/terraform-plugin-framework` 1.11.0 => 1.13.0 ([#399](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/399))
+* bump `github.com/hashicorp/terraform-plugin-framework-validators` 0.13.0 => 0.16.0 ([#399](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/399))
+* bump `github.com/hashicorp/terraform-plugin-go` 0.23.0 => 0.25.0 ([#399](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/399))
+* bump `golang.org/x/crypto` 0.26.0 => 0.31.0 ([#399](https://github.com/pingidentity/terraform-provider-pingfederate/pull/399))
 
 # v1.3.0 July 9, 2024
 ### ENHANCEMENTS
