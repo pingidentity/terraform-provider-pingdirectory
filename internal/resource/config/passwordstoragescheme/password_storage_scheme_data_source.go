@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -73,6 +73,7 @@ type passwordStorageSchemeDataSourceModel struct {
 	MemoryUsageKb                     types.Int64  `tfsdk:"memory_usage_kb"`
 	SaltLengthBytes                   types.Int64  `tfsdk:"salt_length_bytes"`
 	DerivedKeyLengthBytes             types.Int64  `tfsdk:"derived_key_length_bytes"`
+	EncodedPasswordCacheSize          types.Int64  `tfsdk:"encoded_password_cache_size"`
 	Description                       types.String `tfsdk:"description"`
 	Enabled                           types.Bool   `tfsdk:"enabled"`
 }
@@ -232,6 +233,13 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 				Optional:            false,
 				Computed:            true,
 			},
+			"encoded_password_cache_size": schema.Int64Attribute{
+				Description:         "Supported in PingDirectory product version 10.2.0.0+. When the `type` attribute is set to  one of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The maximum number of Argon2-encoded passwords to cache for faster verification. When the `type` attribute is set to `pbkdf2`: The maximum number of PBKDF2-encoded passwords to cache for faster verification. When the `type` attribute is set to `bcrypt`: The maximum number of Bcrypt-encoded passwords to cache for faster verification. When the `type` attribute is set to `scrypt`: The maximum number of scrypt-encoded passwords to cache for faster verification.",
+				MarkdownDescription: "Supported in PingDirectory product version 10.2.0.0+. When the `type` attribute is set to:\n  - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The maximum number of Argon2-encoded passwords to cache for faster verification.\n  - `pbkdf2`: The maximum number of PBKDF2-encoded passwords to cache for faster verification.\n  - `bcrypt`: The maximum number of Bcrypt-encoded passwords to cache for faster verification.\n  - `scrypt`: The maximum number of scrypt-encoded passwords to cache for faster verification.",
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Storage Scheme",
 				Required:    false,
@@ -271,6 +279,7 @@ func readArgon2dPasswordStorageSchemeResponseDataSource(ctx context.Context, r *
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -298,6 +307,7 @@ func readArgon2iPasswordStorageSchemeResponseDataSource(ctx context.Context, r *
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -340,6 +350,7 @@ func readArgon2idPasswordStorageSchemeResponseDataSource(ctx context.Context, r 
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -376,6 +387,7 @@ func readArgon2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -402,6 +414,7 @@ func readPbkdf2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 	state.SaltLengthBytes = types.Int64Value(r.SaltLengthBytes)
 	state.DerivedKeyLengthBytes = types.Int64Value(r.DerivedKeyLengthBytes)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -459,6 +472,7 @@ func readBcryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.BcryptCostFactor = internaltypes.Int64TypeOrNil(r.BcryptCostFactor)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -543,6 +557,7 @@ func readScryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 	state.ScryptBlockSize = internaltypes.Int64TypeOrNil(r.ScryptBlockSize)
 	state.ScryptParallelizationParameter = internaltypes.Int64TypeOrNil(r.ScryptParallelizationParameter)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
+	state.EncodedPasswordCacheSize = internaltypes.Int64TypeOrNil(r.EncodedPasswordCacheSize)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }

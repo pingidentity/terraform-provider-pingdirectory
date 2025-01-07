@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -153,6 +153,7 @@ type globalConfigurationResourceModel struct {
 	TrackedApplication                                             types.Set    `tfsdk:"tracked_application"`
 	JmxValueBehavior                                               types.String `tfsdk:"jmx_value_behavior"`
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
+	SystemProperty                                                 types.Set    `tfsdk:"system_property"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -926,6 +927,15 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"system_property": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Specifies the name and value of a system property to set in the JVM.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
@@ -934,7 +944,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -945,6 +955,18 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptySet(model.SystemProperty) {
+		resp.Diagnostics.AddError("Attribute 'system_property' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(r.providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.UseSharedDatabaseCacheAcrossAllLocalDBBackends) {
 		resp.Diagnostics.AddError("Attribute 'use_shared_database_cache_across_all_local_db_backends' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
@@ -1109,6 +1131,7 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.JmxValueBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationJmxValueBehaviorProp(r.JmxValueBehavior), true)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
+	state.SystemProperty = internaltypes.GetStringSet(r.SystemProperty)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -1206,6 +1229,7 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
 	operations.AddStringOperationIfNecessary(&ops, plan.JmxValueBehavior, state.JmxValueBehavior, "jmx-value-behavior")
 	operations.AddBoolOperationIfNecessary(&ops, plan.JmxUseLegacyMbeanNames, state.JmxUseLegacyMbeanNames, "jmx-use-legacy-mbean-names")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.SystemProperty, state.SystemProperty, "system-property")
 	return ops
 }
 

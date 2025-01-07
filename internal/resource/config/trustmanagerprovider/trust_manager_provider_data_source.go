@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -54,6 +54,7 @@ type trustManagerProviderDataSourceModel struct {
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
 	TrustStoreFile                  types.String `tfsdk:"trust_store_file"`
 	TrustStoreType                  types.String `tfsdk:"trust_store_type"`
+	EnableTrustManagerCaching       types.Bool   `tfsdk:"enable_trust_manager_caching"`
 	TrustStorePin                   types.String `tfsdk:"trust_store_pin"`
 	TrustStorePinFile               types.String `tfsdk:"trust_store_pin_file"`
 	TrustStorePinPassphraseProvider types.String `tfsdk:"trust_store_pin_passphrase_provider"`
@@ -93,6 +94,12 @@ func (r *trustManagerProviderDataSource) Schema(ctx context.Context, req datasou
 			},
 			"trust_store_type": schema.StringAttribute{
 				Description: "Specifies the format for the data in the trust store file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"enable_trust_manager_caching": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -150,6 +157,7 @@ func readFileBasedTrustManagerProviderResponseDataSource(ctx context.Context, r 
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, false)
+	state.EnableTrustManagerCaching = internaltypes.BoolTypeOrNil(r.EnableTrustManagerCaching)
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, false)
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, false)
 	state.Enabled = types.BoolValue(r.Enabled)

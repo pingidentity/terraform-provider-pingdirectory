@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -64,6 +64,7 @@ type keyManagerProviderDataSourceModel struct {
 	PrivateKeyPin                   types.String `tfsdk:"private_key_pin"`
 	PrivateKeyPinFile               types.String `tfsdk:"private_key_pin_file"`
 	PrivateKeyPinPassphraseProvider types.String `tfsdk:"private_key_pin_passphrase_provider"`
+	EnableKeyManagerCaching         types.Bool   `tfsdk:"enable_key_manager_caching"`
 	Description                     types.String `tfsdk:"description"`
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 }
@@ -169,6 +170,12 @@ func (r *keyManagerProviderDataSource) Schema(ctx context.Context, req datasourc
 				Optional:    false,
 				Computed:    true,
 			},
+			"enable_key_manager_caching": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether key manager providers should cache key managers.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Key Manager Provider",
 				Required:    false,
@@ -198,6 +205,7 @@ func readFileBasedKeyManagerProviderResponseDataSource(ctx context.Context, r *c
 	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, false)
 	state.PrivateKeyPinFile = internaltypes.StringTypeOrNil(r.PrivateKeyPinFile, false)
 	state.PrivateKeyPinPassphraseProvider = internaltypes.StringTypeOrNil(r.PrivateKeyPinPassphraseProvider, false)
+	state.EnableKeyManagerCaching = internaltypes.BoolTypeOrNil(r.EnableKeyManagerCaching)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }

@@ -1,4 +1,7 @@
-# v1.3.2 (Unreleased)
+# v1.4.0 (Unreleased)
+### Enhancements
+* Added support for PingDirectory version `10.2.0.0` and for latest patches. (#403)
+
 ### Notes
 * bump `golang.org/x/net` 0.31.0 => 0.33.0 ([#404](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/404))
 

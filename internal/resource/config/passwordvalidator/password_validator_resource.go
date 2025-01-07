@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -309,7 +309,6 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 			"dictionary_file": schema.StringAttribute{
 				Description: "Specifies the path to the file containing a list of words that cannot be used as passwords.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"max_consecutive_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of times that any character can appear consecutively in a password value.",
@@ -486,13 +485,6 @@ func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource
 	}
 	// Set defaults for dictionary type
 	if resourceType == "dictionary" {
-		if !internaltypes.IsDefined(configModel.DictionaryFile) {
-			defaultVal := types.StringValue("For Unix and Linux systems: config/wordlist.txt. For Windows systems: config\\wordlist.txt")
-			if !planModel.DictionaryFile.Equal(defaultVal) {
-				planModel.DictionaryFile = defaultVal
-				anyDefaultsSet = true
-			}
-		}
 		if !internaltypes.IsDefined(configModel.CaseSensitiveValidation) {
 			defaultVal := types.BoolValue(false)
 			if !planModel.CaseSensitiveValidation.Equal(defaultVal) {
@@ -709,7 +701,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -738,7 +729,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -764,7 +754,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.AllowUnknownCharacters = types.BoolNull()
@@ -790,7 +779,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -840,7 +828,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.AllowUnclassifiedCharacters = types.BoolNull()
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.TestReversedPassword = types.BoolNull()
 		model.AllowUnknownCharacters = types.BoolNull()
@@ -866,7 +853,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -894,7 +880,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -916,7 +901,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -945,7 +929,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -972,7 +955,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -1001,7 +983,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -1029,7 +1010,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -1058,7 +1038,6 @@ func (model *passwordValidatorResourceModel) setNotApplicableAttrsNull() {
 		model.TestPasswordSubstringOfAttributeValue = types.BoolNull()
 		model.MaximumAllowedPercentOfPassword = types.Int64Null()
 		model.MinimumAcceptableTimeToExhaustSearchSpace = types.StringNull()
-		model.DictionaryFile = types.StringNull()
 		model.IgnoreTrailingNonAlphabeticCharacters = types.BoolNull()
 		model.AssumedPasswordGuessesPerSecond = types.StringNull()
 		model.TestReversedPassword = types.BoolNull()
@@ -1321,7 +1300,7 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
 			"dictionary",
-			[]path.Expression{path.MatchRoot("enabled")},
+			[]path.Expression{path.MatchRoot("enabled"), path.MatchRoot("dictionary_file")},
 		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
@@ -1473,10 +1452,6 @@ func addOptionalRepeatedCharactersPasswordValidatorFields(ctx context.Context, a
 
 // Add optional fields to create request for dictionary password-validator
 func addOptionalDictionaryPasswordValidatorFields(ctx context.Context, addRequest *client.AddDictionaryPasswordValidatorRequest, plan passwordValidatorResourceModel) error {
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.DictionaryFile) {
-		addRequest.DictionaryFile = plan.DictionaryFile.ValueStringPointer()
-	}
 	if internaltypes.IsDefined(plan.CaseSensitiveValidation) {
 		addRequest.CaseSensitiveValidation = plan.CaseSensitiveValidation.ValueBoolPointer()
 	}
@@ -2309,6 +2284,7 @@ func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ct
 // Create a dictionary password-validator
 func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
 	addRequest := client.NewAddDictionaryPasswordValidatorRequest([]client.EnumdictionaryPasswordValidatorSchemaUrn{client.ENUMDICTIONARYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDICTIONARY},
+		plan.DictionaryFile.ValueString(),
 		plan.Enabled.ValueBool(),
 		plan.Name.ValueString())
 	err := addOptionalDictionaryPasswordValidatorFields(ctx, addRequest, plan)

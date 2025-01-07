@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -94,12 +94,11 @@ type externalServerResourceModel struct {
 	Type                                   types.String `tfsdk:"type"`
 	VaultServerBaseURI                     types.Set    `tfsdk:"vault_server_base_uri"`
 	VaultAuthenticationMethod              types.String `tfsdk:"vault_authentication_method"`
-	HttpProxyExternalServer                types.String `tfsdk:"http_proxy_external_server"`
 	ConjurServerBaseURI                    types.Set    `tfsdk:"conjur_server_base_uri"`
+	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	AwsAccessKeyID                         types.String `tfsdk:"aws_access_key_id"`
 	AwsSecretAccessKey                     types.String `tfsdk:"aws_secret_access_key"`
 	AwsRegionName                          types.String `tfsdk:"aws_region_name"`
-	ConjurAuthenticationMethod             types.String `tfsdk:"conjur_authentication_method"`
 	ConjurAccountName                      types.String `tfsdk:"conjur_account_name"`
 	HttpConnectTimeout                     types.String `tfsdk:"http_connect_timeout"`
 	HttpResponseTimeout                    types.String `tfsdk:"http_response_timeout"`
@@ -112,6 +111,7 @@ type externalServerResourceModel struct {
 	JdbcDriverURL                          types.String `tfsdk:"jdbc_driver_url"`
 	SslCertNickname                        types.String `tfsdk:"ssl_cert_nickname"`
 	ResponseTimeout                        types.String `tfsdk:"response_timeout"`
+	HttpProxyExternalServer                types.String `tfsdk:"http_proxy_external_server"`
 	BasicAuthenticationUsername            types.String `tfsdk:"basic_authentication_username"`
 	BasicAuthenticationPassphraseProvider  types.String `tfsdk:"basic_authentication_passphrase_provider"`
 	TransportMechanism                     types.String `tfsdk:"transport_mechanism"`
@@ -184,10 +184,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The mechanism used to authenticate to the Vault server.",
 				Optional:    true,
 			},
-			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
-				Optional:    true,
-			},
 			"conjur_server_base_uri": schema.SetAttribute{
 				Description: "The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol (\"http\" or \"https\"), the server address (resolvable name or IP address), and the port number. For example, \"https://conjur.example.com:8443/\".",
 				Optional:    true,
@@ -196,6 +192,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"conjur_authentication_method": schema.StringAttribute{
+				Description: "The mechanism used to authenticate to the Conjur server.",
+				Optional:    true,
 			},
 			"aws_access_key_id": schema.StringAttribute{
 				Description: "The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.",
@@ -208,10 +208,6 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			},
 			"aws_region_name": schema.StringAttribute{
 				Description: "The name of the AWS region containing the resources that will be accessed.",
-				Optional:    true,
-			},
-			"conjur_authentication_method": schema.StringAttribute{
-				Description: "The mechanism used to authenticate to the Conjur server.",
 				Optional:    true,
 			},
 			"conjur_account_name": schema.StringAttribute{
@@ -286,6 +282,11 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"http_proxy_external_server": schema.StringAttribute{
+				Description:         "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				MarkdownDescription: "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Optional:            true,
 			},
 			"basic_authentication_username": schema.StringAttribute{
 				Description: "The username to use to authenticate to the HTTP Proxy External Server.",
@@ -1715,6 +1716,11 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			[]string{"ping-one-http", "http"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"ping-one-http", "http", "amazon-aws"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("base_url"),
 			path.MatchRoot("type"),
 			[]string{"http"},
@@ -1763,11 +1769,6 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			path.MatchRoot("trust_store_type"),
 			path.MatchRoot("type"),
 			[]string{"conjur", "vault"},
-		),
-		configvalidators.ImpliesOtherAttributeOneOfString(
-			path.MatchRoot("http_proxy_external_server"),
-			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("aws_access_key_id"),
@@ -2775,6 +2776,10 @@ func addOptionalPingOneHttpExternalServerFields(ctx context.Context, addRequest 
 		addRequest.ResponseTimeout = plan.ResponseTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
+		addRequest.HttpProxyExternalServer = plan.HttpProxyExternalServer.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
@@ -2810,6 +2815,10 @@ func addOptionalHttpExternalServerFields(ctx context.Context, addRequest *client
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ResponseTimeout) {
 		addRequest.ResponseTimeout = plan.ResponseTimeout.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
+		addRequest.HttpProxyExternalServer = plan.HttpProxyExternalServer.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -3538,6 +3547,7 @@ func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOn
 	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("response_timeout",
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateExternalServerUnknownValues(state)
@@ -3560,6 +3570,7 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, true)
 	config.CheckMismatchedPDFormattedAttributes("response_timeout",
 		expectedValues.ResponseTimeout, state.ResponseTimeout, diagnostics)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateExternalServerUnknownValues(state)
@@ -3680,12 +3691,11 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.VaultServerBaseURI, state.VaultServerBaseURI, "vault-server-base-uri")
 	operations.AddStringOperationIfNecessary(&ops, plan.VaultAuthenticationMethod, state.VaultAuthenticationMethod, "vault-authentication-method")
-	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ConjurServerBaseURI, state.ConjurServerBaseURI, "conjur-server-base-uri")
+	operations.AddStringOperationIfNecessary(&ops, plan.ConjurAuthenticationMethod, state.ConjurAuthenticationMethod, "conjur-authentication-method")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsAccessKeyID, state.AwsAccessKeyID, "aws-access-key-id")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsSecretAccessKey, state.AwsSecretAccessKey, "aws-secret-access-key")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsRegionName, state.AwsRegionName, "aws-region-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.ConjurAuthenticationMethod, state.ConjurAuthenticationMethod, "conjur-authentication-method")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConjurAccountName, state.ConjurAccountName, "conjur-account-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpConnectTimeout, state.HttpConnectTimeout, "http-connect-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.HttpResponseTimeout, state.HttpResponseTimeout, "http-response-timeout")
@@ -3698,6 +3708,7 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 	operations.AddStringOperationIfNecessary(&ops, plan.JdbcDriverURL, state.JdbcDriverURL, "jdbc-driver-url")
 	operations.AddStringOperationIfNecessary(&ops, plan.SslCertNickname, state.SslCertNickname, "ssl-cert-nickname")
 	operations.AddStringOperationIfNecessary(&ops, plan.ResponseTimeout, state.ResponseTimeout, "response-timeout")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
 	operations.AddStringOperationIfNecessary(&ops, plan.BasicAuthenticationUsername, state.BasicAuthenticationUsername, "basic-authentication-username")
 	operations.AddStringOperationIfNecessary(&ops, plan.BasicAuthenticationPassphraseProvider, state.BasicAuthenticationPassphraseProvider, "basic-authentication-passphrase-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.TransportMechanism, state.TransportMechanism, "transport-mechanism")
