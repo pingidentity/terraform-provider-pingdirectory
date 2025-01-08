@@ -1,4 +1,4 @@
-# v1.4.0 (Unreleased)
+# v1.4.0 January 8, 2025
 ### Enhancements
 * Added support for PingDirectory version `10.2.0.0` and for latest patches. (#403)
 
