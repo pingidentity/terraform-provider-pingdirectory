@@ -41,7 +41,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.0.0.0"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.0.0.4"
   ping_directory_ten_one:
     name: Ping Directory 10.1.0.0
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.0"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.2"
   ping_directory_ten_two:
     name: Ping Directory 10.2.0.0
     runs-on: ubuntu-latest
