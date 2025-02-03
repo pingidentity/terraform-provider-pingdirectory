@@ -1,3 +1,5 @@
+// Copyright © 2025 Ping Identity Corporation
+
 package scimsubattribute_test
 
 import (
