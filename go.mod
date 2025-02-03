@@ -1,8 +1,6 @@
 module github.com/pingidentity/terraform-provider-pingdirectory
 
-go 1.22.2
-
-toolchain go1.23.2
+go 1.23.5
 
 require (
 	github.com/bflad/tfproviderlint v0.30.0
