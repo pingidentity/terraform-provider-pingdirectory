@@ -1,3 +1,5 @@
+// Copyright © 2025 Ping Identity Corporation
+
 package dnmap_test
 
 import (

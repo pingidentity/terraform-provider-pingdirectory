@@ -1,3 +1,5 @@
+// Copyright © 2025 Ping Identity Corporation
+
 package pluginroot_test
 
 import (

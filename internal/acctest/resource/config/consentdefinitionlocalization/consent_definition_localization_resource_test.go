@@ -1,3 +1,5 @@
+// Copyright © 2025 Ping Identity Corporation
+
 package consentdefinitionlocalization_test
 
 import (
