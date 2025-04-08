@@ -78,3 +78,19 @@ jobs:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
           PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.2.0.0"
+
+  onfailure:
+    if: ${{ always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure') }}
+    needs: [ping_directory_nine_three, ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two]
+    name: Send failure webhook
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl --silent --request POST "${{ secrets.FAILURE_WEBHOOK_URL }}" \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: text/plain' \
+          --data-raw '{
+              "WorkflowName": "${{ github.workflow }}",
+              "WorkflowURL": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "RepoName" : "${{ github.repository }}",
+          }'
