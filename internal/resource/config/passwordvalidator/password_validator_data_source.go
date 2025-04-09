@@ -181,7 +181,7 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

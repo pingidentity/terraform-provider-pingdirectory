@@ -22,7 +22,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -122,7 +121,7 @@ func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaR
 				},
 			},
 			"signing_encryption_settings_id": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used.",
+				Description: "The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -217,24 +216,6 @@ func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
-}
-
-// Validate that any restrictions are met in the plan and set any type-specific defaults
-func (r *cryptoManagerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model cryptoManagerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.SigningEncryptionSettingsID) {
-		resp.Diagnostics.AddError("Attribute 'signing_encryption_settings_id' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
 }
 
 // Read a CryptoManagerResponse object into the model struct

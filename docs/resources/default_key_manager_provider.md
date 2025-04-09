@@ -44,7 +44,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `pkcs11`: The passphrase provider to use to obtain the clear-text PIN needed to access the PKCS11 Key Manager Provider.
 - `key_store_type` (String) Specifies the format for the data in the key store file.
 - `pkcs11_key_store_type` (String) The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.
-- `pkcs11_max_cache_duration` (String) Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.
+- `pkcs11_max_cache_duration` (String) The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.
 - `pkcs11_provider_class` (String) The fully-qualified name of the Java security provider class that implements support for interacting with PKCS #11 tokens.
 - `pkcs11_provider_configuration_file` (String) The path to the file to use to configure the security provider that implements support for interacting with PKCS #11 tokens.
 - `private_key_pin` (String, Sensitive) Specifies the clear-text PIN needed to access the File Based Key Manager Provider private key. If no private key PIN is specified the PIN defaults to the key store PIN.

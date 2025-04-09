@@ -2,12 +2,12 @@
 page_title: "pingdirectory_prometheus_monitor_attribute_metrics Data Source - terraform-provider-pingdirectory"
 subcategory: "Prometheus Monitor Attribute Metric"
 description: |-
-  Lists Prometheus Monitor Attribute Metric objects in the server configuration. Supported in PingDirectory product version 9.2.0.0+.
+  Lists Prometheus Monitor Attribute Metric objects in the server configuration.
 ---
 
 # pingdirectory_prometheus_monitor_attribute_metrics (Data Source)
 
-Lists Prometheus Monitor Attribute Metric objects in the server configuration. Supported in PingDirectory product version 9.2.0.0+.
+Lists Prometheus Monitor Attribute Metric objects in the server configuration.
 
 Prometheus Monitor Attribute Metrics provide a way of publishing the value of a monitor attribute as a Prometheus metric.
 

@@ -261,7 +261,7 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -342,7 +342,7 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"iteration_count": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
+				Description: "The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

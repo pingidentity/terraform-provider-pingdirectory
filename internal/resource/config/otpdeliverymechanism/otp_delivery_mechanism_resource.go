@@ -23,7 +23,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -171,7 +170,7 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Twilio service.",
 				Optional:    true,
 			},
 			"twilio_account_sid": schema.StringAttribute{
@@ -250,7 +249,6 @@ func otpDeliveryMechanismSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel otpDeliveryMechanismResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -289,27 +287,6 @@ func (r *otpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resou
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
-}
-
-func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanOtpDeliveryMechanism(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model otpDeliveryMechanismResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 }
 
 func (model *otpDeliveryMechanismResourceModel) setNotApplicableAttrsNull() {

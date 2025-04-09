@@ -221,7 +221,7 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
 				Optional:    true,
 			},
 			"http_connect_timeout": schema.StringAttribute{
@@ -445,7 +445,7 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_validator")
+	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel passwordValidatorResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -628,10 +628,10 @@ func (r *passwordValidatorResource) ModifyPlan(ctx context.Context, req resource
 }
 
 func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_password_validator")
+	modifyPlanPasswordValidator(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -648,35 +648,6 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	}
 	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
 		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "utf-8" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"utf_8\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "disallowed-characters" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"disallowed_characters\"")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

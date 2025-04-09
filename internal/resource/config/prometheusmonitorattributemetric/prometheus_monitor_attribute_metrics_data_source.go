@@ -13,7 +13,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -59,7 +58,7 @@ type prometheusMonitorAttributeMetricsDataSourceModel struct {
 // GetSchema defines the schema for the datasource.
 func (r *prometheusMonitorAttributeMetricsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	schemaDef := schema.Schema{
-		Description: "Lists Prometheus Monitor Attribute Metric objects in the server configuration. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Lists Prometheus Monitor Attribute Metric objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
@@ -80,14 +79,6 @@ func (r *prometheusMonitorAttributeMetricsDataSource) Schema(ctx context.Context
 	}
 	config.AddCommonDataSourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
-}
-
-// Validate that any version restrictions are met
-func (r *prometheusMonitorAttributeMetricsDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
-	if r.providerConfig.ProductVersion != "" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			r.providerConfig.ProductVersion, "pingdirectory_prometheus_monitor_attribute_metrics")
-	}
 }
 
 // Read resource information

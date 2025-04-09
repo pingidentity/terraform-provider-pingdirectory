@@ -87,7 +87,7 @@ Since this is a 'default' resource, the managed object must already exist in the
 - `index_exclude_attribute` (Set of String) Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values "*" and "+".
 - `index_include_attribute` (Set of String) Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.
 - `insignificant_config_archive_attribute` (Set of String) The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.
-- `insignificant_config_archive_base_dn` (Set of String) Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.
+- `insignificant_config_archive_base_dn` (Set of String) The base DN that is considered insignificant for the purpose of maintaining the configuration archive.
 - `is_private_backend` (Boolean) When the `type` attribute is set to:
   - `ldif`: Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.
   - `local-db`: Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.
@@ -97,10 +97,10 @@ Since this is a 'default' resource, the managed object must already exist in the
 - `ldif_file` (String) When the `type` attribute is set to:
   - One of [`alert`, `alarm`]: Specifies the path to the LDIF file that serves as the backing file for this backend.
   - `ldif`: Specifies the path to the LDIF file containing the data for this backend.
-- `maintain_config_archive` (Boolean) Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.
+- `maintain_config_archive` (Boolean) Indicates whether the server should maintain the config archive with new changes to the config backend.
 - `max_alarms` (Number) Specifies the maximum number of alarms that should be retained. If more alarms than this configured maximum are generated within the alarm retention time, then the oldest alarms will be purged to achieve this maximum. Only alarms at normal severity will be purged.
 - `max_alerts` (Number) Specifies the maximum number of alerts that should be retained. If more alerts than this configured maximum are generated within the alert retention time, then the oldest alerts will be purged to achieve this maximum.
-- `max_config_archive_count` (Number) Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.
+- `max_config_archive_count` (Number) Indicates the maximum number of previous config files to keep as part of maintaining the config archive.
 - `maximum_final_task_log_messages_to_retain` (Number) The maximum number of log messages to retain in each task entry from the end of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.
 - `maximum_initial_task_log_messages_to_retain` (Number) The maximum number of log messages to retain in each task entry from the beginning of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.
 - `metrics_dir` (String) Specifies the path to the directory that contains metric definitions.

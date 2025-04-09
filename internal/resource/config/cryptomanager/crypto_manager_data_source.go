@@ -97,7 +97,7 @@ func (r *cryptoManagerDataSource) Schema(ctx context.Context, req datasource.Sch
 				Computed:    true,
 			},
 			"signing_encryption_settings_id": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used.",
+				Description: "The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

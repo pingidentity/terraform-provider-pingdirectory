@@ -638,7 +638,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_recurring_task")
+	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel recurringTaskResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -776,10 +776,10 @@ func (r *recurringTaskResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_recurring_task")
+	modifyPlanRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -793,19 +793,6 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptySet(model.PostLDIFExportTaskProcessor) {
 		resp.Diagnostics.AddError("Attribute 'post_ldif_export_task_processor' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
 	}
 }
 
@@ -1049,6 +1036,15 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_file_age"),
+				path.MatchRoot("retain_aggregate_file_size"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
 			[]string{"backup"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("included_backend_id"),
@@ -1057,11 +1053,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"delay"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("sleep_duration"),
-				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
-				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+			[]string{"backup", "ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1074,19 +1069,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
+			[]string{"delay"},
 			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_file_age"),
-				path.MatchRoot("retain_aggregate_file_size"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("sleep_duration"),
+				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

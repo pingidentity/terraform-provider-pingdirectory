@@ -20,7 +20,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -92,7 +91,7 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"include_servlet_information_in_error_pages": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to expose servlet information in the error page response.",
+				Description: "Indicates whether to expose servlet information in the error page response.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -103,24 +102,6 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
-}
-
-// Validate that any restrictions are met in the plan and set any type-specific defaults
-func (r *httpConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model httpConfigurationResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.IncludeServletInformationInErrorPages) {
-		resp.Diagnostics.AddError("Attribute 'include_servlet_information_in_error_pages' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
 }
 
 // Read a HttpConfigurationResponse object into the model struct

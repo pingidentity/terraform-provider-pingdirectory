@@ -868,7 +868,7 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

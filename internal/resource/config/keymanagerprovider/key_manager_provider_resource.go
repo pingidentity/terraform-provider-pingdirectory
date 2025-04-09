@@ -159,7 +159,7 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:    true,
 			},
 			"pkcs11_max_cache_duration": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
+				Description: "The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -286,18 +286,6 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.EnableKeyManagerCaching) {
 		resp.Diagnostics.AddError("Attribute 'enable_key_manager_caching' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

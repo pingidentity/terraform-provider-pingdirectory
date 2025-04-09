@@ -11,17 +11,6 @@ import (
 
 // Supported PingDirectory versions
 const (
-	PingDirectory9100  = "9.1.0.0"
-	PingDirectory9101  = "9.1.0.1"
-	PingDirectory9102  = "9.1.0.2"
-	PingDirectory9103  = "9.1.0.3"
-	PingDirectory9104  = "9.1.0.4"
-	PingDirectory9200  = "9.2.0.0"
-	PingDirectory9201  = "9.2.0.1"
-	PingDirectory9202  = "9.2.0.2"
-	PingDirectory9203  = "9.2.0.3"
-	PingDirectory9204  = "9.2.0.4"
-	PingDirectory9205  = "9.2.0.5"
 	PingDirectory9300  = "9.3.0.0"
 	PingDirectory9301  = "9.3.0.1"
 	PingDirectory9302  = "9.3.0.2"
@@ -55,17 +44,6 @@ func getSortedVersionIndex(versionString string) int {
 
 func getSortedVersions() []string {
 	return []string{
-		PingDirectory9100,
-		PingDirectory9101,
-		PingDirectory9102,
-		PingDirectory9103,
-		PingDirectory9104,
-		PingDirectory9200,
-		PingDirectory9201,
-		PingDirectory9202,
-		PingDirectory9203,
-		PingDirectory9204,
-		PingDirectory9205,
 		PingDirectory9300,
 		PingDirectory9301,
 		PingDirectory9302,
@@ -122,7 +100,7 @@ func Parse(versionString string) (string, diag.Diagnostics) {
 	// Expect a version like "x.x" or "x.x.x.x"
 	// If only two digits are supplied, the last two will be assumed to be "0.0"
 	if len(versionDigits) != 2 && len(versionDigits) != 4 {
-		diags.AddError("failed to parse PingDirectory version '"+versionString+"'", "Expected either two digits (e.g. '9.1') or four digits (e.g. '9.1.0.0')")
+		diags.AddError("failed to parse PingDirectory version '"+versionString+"'", "Expected either two digits (e.g. '9.3') or four digits (e.g. '9.3.0.0')")
 		return "", diags
 	}
 	if len(versionDigits) == 2 {
@@ -139,12 +117,6 @@ func Parse(versionString string) (string, diag.Diagnostics) {
 		sortedVersions := getSortedVersions()
 		versionIndex := -1
 		switch majorMinorVersionString {
-		case "9.1.0.0":
-			// Use the first version prior to 9.2.0.0
-			versionIndex = getSortedVersionIndex(PingDirectory9200) - 1
-		case "9.2.0.0":
-			// Use the first version prior to 9.3.0.0
-			versionIndex = getSortedVersionIndex(PingDirectory9300) - 1
 		case "9.3.0.0":
 			// Use the first version prior to 10.0.0.0
 			versionIndex = getSortedVersionIndex(PingDirectory10000) - 1

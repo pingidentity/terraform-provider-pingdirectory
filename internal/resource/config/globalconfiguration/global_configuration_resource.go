@@ -395,7 +395,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_size_limit": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -411,7 +411,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_time_limit": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -427,7 +427,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_idle_time_limit": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -443,7 +443,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_lookthrough_limit": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -974,27 +974,6 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	if internaltypes.IsDefined(model.SharedLocalDBBackendDatabaseCachePercent) {
 		resp.Diagnostics.AddError("Attribute 'shared_local_db_backend_database_cache_percent' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 }
 
