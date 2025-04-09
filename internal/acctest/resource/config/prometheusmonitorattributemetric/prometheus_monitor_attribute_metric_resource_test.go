@@ -4,7 +4,6 @@ package prometheusmonitorattributemetric_test
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -13,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 const testIdPrometheusMonitorAttributeMetric = "MyId"
@@ -29,17 +27,6 @@ type prometheusMonitorAttributeMetricTestModel struct {
 }
 
 func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
-	pdVersion := os.Getenv("PINGDIRECTORY_PROVIDER_PRODUCT_VERSION")
-	compare, err := version.Compare(pdVersion, version.PingDirectory9200)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-	if compare < 0 {
-		// This resource only exists in PD version 9.2 and later
-		return
-	}
-
 	resourceName := "myresource"
 	initialResourceModel := prometheusMonitorAttributeMetricTestModel{
 		httpServletExtensionName: testPrometheusHttpServletExtensionName,

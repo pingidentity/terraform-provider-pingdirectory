@@ -63,7 +63,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `extension_class` (String) When the `type` attribute is set to:
   - `third-party`: The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.
   - `third-party-enhanced`: The fully-qualified name of the Java class providing the logic for the Third Party Enhanced Password Storage Scheme.
-- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service.
 - `id` (String) The ID of this resource.
 - `iteration_count` (Number) When the `type` attribute is set to:
   - One of [`argon2d`, `argon2i`, `argon2id`, `argon2`]: The number of rounds of cryptographic processing required in the course of encoding each password.

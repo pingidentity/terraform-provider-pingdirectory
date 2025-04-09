@@ -38,7 +38,7 @@ Since this is a 'default' resource, the managed object must already exist in the
 - `allowed_authentication_type` (Set of String) The types of authentication that may be used to authenticate to the file servlet.
 - `allowed_control` (Set of String) Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.
 - `always_include_monitor_entry_name_label` (Boolean) Indicates whether generated metrics should always include a "monitor_entry" label whose value is the name of the monitor entry from which the metric was obtained.
-- `always_use_permissive_modify` (Boolean) Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.
+- `always_use_permissive_modify` (Boolean) Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.
 - `audience` (String) When the `type` attribute is set to:
   - `delegated-admin`: A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.
   - `directory-rest-api`: A string or URI that identifies the Directory REST API HTTP Servlet Extension in the context of OAuth2 authorization.

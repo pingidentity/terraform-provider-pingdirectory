@@ -114,7 +114,7 @@ data "pingdirectory_plugin" "myPlugin" {
 - `histogram_format` (String) The format of the data in the processing time histogram.
 - `histogram_op_type` (Set of String) Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.
 - `host_info` (Set of String) Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.
-- `http_proxy_external_server` (String) Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.
 - `id` (String) The ID of this resource.
 - `ignored_password_policy_state_error_condition` (Set of String) When the `type` attribute is set to:
   - `ping-one-pass-through-authentication`: A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.
