@@ -24,7 +24,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -262,7 +261,6 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_data_security_auditor")
 	var planModel, configModel dataSecurityAuditorResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -436,52 +434,6 @@ func (r *dataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resour
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
-}
-
-func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanDataSecurityAuditor(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_data_security_auditor")
-}
-
-func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model dataSecurityAuditorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "filter" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"filter\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "idle-account" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"idle_account\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "account-validity-window" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"account_validity_window\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "deprecated-password-storage-scheme" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"deprecated_password_storage_scheme\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "account-usability-issues" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"account_usability_issues\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "nonexistent-password-policy" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"nonexistent_password_policy\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "third-party" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"third_party\"")
-	}
 }
 
 func (model *dataSecurityAuditorResourceModel) setNotApplicableAttrsNull() {

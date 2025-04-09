@@ -720,14 +720,14 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
-			Description: "Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
+			Description: "The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
-			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.",
+			Description: "Indicates whether the server should maintain the config archive with new changes to the config backend.",
 		}
 		schemaDef.Attributes["max_config_archive_count"] = schema.Int64Attribute{
-			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
+			Description: "Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
 		}
 		schemaDef.Attributes["mirrored_subtree_peer_polling_interval"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
@@ -1156,33 +1156,6 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	if internaltypes.IsDefined(model.SubtreeModifyDNSizeLimit) {
 		resp.Diagnostics.AddError("Attribute 'subtree_modify_dn_size_limit' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9203)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptySet(model.InsignificantConfigArchiveBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

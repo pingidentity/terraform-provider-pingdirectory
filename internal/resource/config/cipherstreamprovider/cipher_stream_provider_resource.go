@@ -272,7 +272,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
 				Optional:    true,
 			},
 			"secret_name": schema.StringAttribute{
@@ -329,12 +329,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"iteration_count": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
+				Description: "The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Cipher Stream Provider",
@@ -429,6 +426,23 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 				anyDefaultsSet = true
 			}
 		}
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
+	// Set defaults for amazon-secrets-manager type
+	if resourceType == "amazon-secrets-manager" {
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
+		}
 	}
 	// Set defaults for azure-key-vault type
 	if resourceType == "azure-key-vault" {
@@ -436,6 +450,13 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			defaultVal := types.StringValue("config/azure-key-vault-encryption-metadata.json")
 			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
 				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -450,12 +471,43 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			}
 		}
 	}
+	// Set defaults for conjur type
+	if resourceType == "conjur" {
+		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/conjur-encryption-metadata.json")
+			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
+				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+	}
 	// Set defaults for pkcs11 type
 	if resourceType == "pkcs11" {
 		if !internaltypes.IsDefined(configModel.Pkcs11KeyStoreType) {
 			defaultVal := types.StringValue("PKCS11")
 			if !planModel.Pkcs11KeyStoreType.Equal(defaultVal) {
 				planModel.Pkcs11KeyStoreType = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.EncryptionMetadataFile) {
+			defaultVal := types.StringValue("config/pkcs11-cipher-stream-provider-encryption-metadata.json")
+			if !planModel.EncryptionMetadataFile.Equal(defaultVal) {
+				planModel.EncryptionMetadataFile = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -473,6 +525,13 @@ func (r *cipherStreamProviderResource) ModifyPlan(ctx context.Context, req resou
 			defaultVal := types.StringValue("JKS")
 			if !planModel.TrustStoreType.Equal(defaultVal) {
 				planModel.TrustStoreType = defaultVal
+				anyDefaultsSet = true
+			}
+		}
+		if !internaltypes.IsDefined(configModel.IterationCount) {
+			defaultVal := types.Int64Value(600000)
+			if !planModel.IterationCount.Equal(defaultVal) {
+				planModel.IterationCount = defaultVal
 				anyDefaultsSet = true
 			}
 		}
@@ -503,30 +562,6 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.KeyWrappingTransformation) {
 		resp.Diagnostics.AddError("Attribute 'key_wrapping_transformation' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.IterationCount) {
-		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

@@ -337,7 +337,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
-			Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
+			Description: "A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
 		}
 		schemaDef.Attributes["http_connect_timeout"] = schema.StringAttribute{
 			Description: "Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait to obtain an HTTP connection.",
@@ -432,18 +432,6 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 	}
 	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
 		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

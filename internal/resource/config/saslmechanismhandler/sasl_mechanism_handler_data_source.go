@@ -280,7 +280,7 @@ func (r *saslMechanismHandlerDataSource) Schema(ctx context.Context, req datasou
 				ElementType: types.StringType,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.0+. A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -291,20 +291,20 @@ func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				ElementType: types.StringType,
 			},
 			"insignificant_config_archive_base_dn": schema.SetAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.3+. The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
+				Description: "The base DN that is considered insignificant for the purpose of maintaining the configuration archive.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"maintain_config_archive": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether the server should maintain the config archive with new changes to the config backend.",
+				Description: "Indicates whether the server should maintain the config archive with new changes to the config backend.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"max_config_archive_count": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
+				Description: "Indicates the maximum number of previous config files to keep as part of maintaining the config archive.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

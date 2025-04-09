@@ -209,7 +209,7 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"missing_changes_alert_threshold_percent": schema.Int64Attribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes.",
+				Description: "Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -259,18 +259,6 @@ func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource
 	}
 	if internaltypes.IsDefined(model.IncludeAllRemoteServersStateInMonitorMessage) {
 		resp.Diagnostics.AddError("Attribute 'include_all_remote_servers_state_in_monitor_message' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.MissingChangesAlertThresholdPercent) {
-		resp.Diagnostics.AddError("Attribute 'missing_changes_alert_threshold_percent' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 }
 

@@ -242,8 +242,8 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 				Computed:            true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description:         "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
-				MarkdownDescription: "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Description:         "When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Required:            false,
 				Optional:            false,
 				Computed:            true,

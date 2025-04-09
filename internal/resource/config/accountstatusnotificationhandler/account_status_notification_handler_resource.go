@@ -23,7 +23,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -221,7 +220,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 			},
 			"account_authenticated_message_template": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property.",
+				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property.",
 				Optional:    true,
 			},
 			"account_created_message_template": schema.StringAttribute{
@@ -229,7 +228,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 			},
 			"account_deleted_message_template": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property.",
+				Description: "The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property.",
 				Optional:    true,
 			},
 			"account_updated_message_template": schema.StringAttribute{
@@ -329,7 +328,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Default:     booldefault.StaticBool(true),
 			},
 			"account_authentication_notification_result_criteria": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler.",
+				Description: "A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler.",
 				Optional:    true,
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
@@ -337,7 +336,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 			},
 			"account_deletion_notification_request_criteria": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. A request criteria object that identifies which delete requests should result in account deletion notifications for this handler.",
+				Description: "A request criteria object that identifies which delete requests should result in account deletion notifications for this handler.",
 				Optional:    true,
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
@@ -369,7 +368,6 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel accountStatusNotificationHandlerResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -391,36 +389,6 @@ func (r *accountStatusNotificationHandlerResource) ModifyPlan(ctx context.Contex
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
-}
-
-func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model accountStatusNotificationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.AccountAuthenticationNotificationResultCriteria) {
-		resp.Diagnostics.AddError("Attribute 'account_authentication_notification_result_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountDeletionNotificationRequestCriteria) {
-		resp.Diagnostics.AddError("Attribute 'account_deletion_notification_request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountAuthenticatedMessageTemplate) {
-		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
-		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 }
 
 func (model *accountStatusNotificationHandlerResourceModel) setNotApplicableAttrsNull() {

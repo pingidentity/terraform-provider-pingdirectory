@@ -73,7 +73,7 @@ func (r *httpConfigurationDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 			},
 			"include_servlet_information_in_error_pages": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to expose servlet information in the error page response.",
+				Description: "Indicates whether to expose servlet information in the error page response.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

@@ -21,7 +21,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -543,7 +542,6 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanResultCriteria(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_result_criteria")
 	var planModel, configModel resultCriteriaResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -704,28 +702,6 @@ func (r *resultCriteriaResource) ModifyPlan(ctx context.Context, req resource.Mo
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
-}
-
-func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanResultCriteria(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_result_criteria")
-}
-
-func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model resultCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "successful-bind" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"successful_bind\"")
-	}
 }
 
 func (model *resultCriteriaResourceModel) setNotApplicableAttrsNull() {

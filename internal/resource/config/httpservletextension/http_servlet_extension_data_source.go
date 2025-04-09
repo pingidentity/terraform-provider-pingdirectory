@@ -211,7 +211,7 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				ElementType: types.StringType,
 			},
 			"always_use_permissive_modify": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
+				Description: "Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

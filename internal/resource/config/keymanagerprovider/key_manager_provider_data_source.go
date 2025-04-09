@@ -114,7 +114,7 @@ func (r *keyManagerProviderDataSource) Schema(ctx context.Context, req datasourc
 				Computed:    true,
 			},
 			"pkcs11_max_cache_duration": schema.StringAttribute{
-				Description: "Supported in PingDirectory product version 9.2.0.1+. The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
+				Description: "The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

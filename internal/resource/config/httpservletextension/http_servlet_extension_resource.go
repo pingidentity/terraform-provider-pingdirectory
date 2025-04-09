@@ -22,7 +22,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -575,7 +574,7 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			ElementType: types.StringType,
 		}
 		schemaDef.Attributes["always_use_permissive_modify"] = schema.BoolAttribute{
-			Description: "Supported in PingDirectory product version 9.3.0.0+. Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
+			Description: "Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control.",
 		}
 		schemaDef.Attributes["allowed_control"] = schema.SetAttribute{
 			Description: "Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.",
@@ -640,7 +639,6 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
 	var planModel, configModel httpServletExtensionResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -853,40 +851,6 @@ func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resou
 	}
 	planModel.setNotApplicableAttrsNull()
 	resp.Plan.Set(ctx, &planModel)
-}
-
-func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_http_servlet_extension")
-}
-
-func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model defaultHttpServletExtensionResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AlwaysUsePermissiveModify) {
-		resp.Diagnostics.AddError("Attribute 'always_use_permissive_modify' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "prometheus-monitoring" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
-	}
 }
 
 func (model *httpServletExtensionResourceModel) setNotApplicableAttrsNull() {

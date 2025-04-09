@@ -286,8 +286,8 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description:         "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
-				MarkdownDescription: "Supported in PingDirectory product version 9.2.0.0+. When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Description:         "When the `type` attribute is set to  one of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. When the `type` attribute is set to `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				MarkdownDescription: "When the `type` attribute is set to:\n  - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.\n  - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
 				Optional:            true,
 			},
 			"basic_authentication_username": schema.StringAttribute{
@@ -526,7 +526,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 
 // Validate that any restrictions are met in the plan and set any type-specific defaults
 func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_external_server")
+	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
 	var planModel, configModel externalServerResourceModel
 	req.Config.Get(ctx, &configModel)
 	req.Plan.Get(ctx, &planModel)
@@ -1146,10 +1146,10 @@ func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_external_server")
+	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -1166,22 +1166,6 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	}
 	if internaltypes.IsNonEmptyString(model.HttpResponseTimeout) {
 		resp.Diagnostics.AddError("Attribute 'http_response_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
