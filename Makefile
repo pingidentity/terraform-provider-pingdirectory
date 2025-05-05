@@ -65,24 +65,24 @@ devchecknotest: generate install golangcilint tfproviderlint tflint terrafmtlint
 devcheck: devchecknotest test testacc
 
 golangcilint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m ./...
+	go tool golangci-lint run --timeout 10m ./...
 
 tfproviderlint: 
-	go run github.com/bflad/tfproviderlint/cmd/tfproviderlintx \
-									-c 1 \
-									-AT001.ignored-filename-suffixes=_test.go \
-									-AT003=false \
-									-XAT001=false \
-									-XR004=false \
-									-XS002=false ./...
+	go tool tfproviderlintx \
+						-c 1 \
+						-AT001.ignored-filename-suffixes=_test.go \
+						-AT003=false \
+						-XAT001=false \
+						-XR004=false \
+						-XS002=false ./...
 
 tflint:
-	go run github.com/terraform-linters/tflint --recursive --disable-rule "terraform_unused_declarations" --disable-rule "terraform_required_version" --disable-rule "terraform_required_providers"
+	go tool tflint --recursive --disable-rule "terraform_unused_declarations" --disable-rule "terraform_required_version" --disable-rule "terraform_required_providers"
 
 terrafmtlint:
 	find ./internal/acctest -type f -name '*_test.go' \
 		| sort -u \
-		| xargs -I {} go run github.com/katbyte/terrafmt -f fmt {} -v
+		| xargs -I {} go tool terrafmt -f fmt {} -v
 
 importfmtlint:
-	go run github.com/pavius/impi/cmd/impi --local . --scheme stdThirdPartyLocal ./...
+	go tool impi --local . --scheme stdThirdPartyLocal ./...
