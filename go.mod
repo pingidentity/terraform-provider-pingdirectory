@@ -1,20 +1,23 @@
 module github.com/pingidentity/terraform-provider-pingdirectory
 
-go 1.23.5
+go 1.24.1
+
+tool (
+	github.com/bflad/tfproviderlint/cmd/tfproviderlintx
+	github.com/golangci/golangci-lint/cmd/golangci-lint
+	github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+	github.com/katbyte/terrafmt
+	github.com/pavius/impi/cmd/impi
+	github.com/terraform-linters/tflint
+)
 
 require (
-	github.com/bflad/tfproviderlint v0.30.0
-	github.com/golangci/golangci-lint v1.63.4
-	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.16.0
 	github.com/hashicorp/terraform-plugin-go v0.25.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-testing v1.11.0
-	github.com/katbyte/terrafmt v0.5.4
-	github.com/pavius/impi v0.0.3
 	github.com/pingidentity/pingdirectory-go-client/v10200 v10200.0.0
-	github.com/terraform-linters/tflint v0.51.1
 )
 
 require (
@@ -55,6 +58,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bflad/gopaniccheck v0.1.0 // indirect
+	github.com/bflad/tfproviderlint v0.30.0 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/bkielbasa/cyclop v1.2.3 // indirect
@@ -104,6 +108,7 @@ require (
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
 	github.com/golangci/go-printf-func-name v0.1.0 // indirect
 	github.com/golangci/gofmt v0.0.0-20241223200906-057b0627d9b9 // indirect
+	github.com/golangci/golangci-lint v1.63.4 // indirect
 	github.com/golangci/misspell v0.6.0 // indirect
 	github.com/golangci/plugin-module-register v0.1.1 // indirect
 	github.com/golangci/revgrep v0.5.3 // indirect
@@ -142,6 +147,7 @@ require (
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-exec v0.21.0 // indirect
 	github.com/hashicorp/terraform-json v0.23.0 // indirect
+	github.com/hashicorp/terraform-plugin-docs v0.19.4 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.35.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.2.3 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect
@@ -160,6 +166,7 @@ require (
 	github.com/karamaru-alpha/copyloopvar v1.1.0 // indirect
 	github.com/katbyte/andreyvit-diff v0.0.1 // indirect
 	github.com/katbyte/sergi-go-diff v1.1.1 // indirect
+	github.com/katbyte/terrafmt v0.5.4 // indirect
 	github.com/kisielk/errcheck v1.8.0 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.5 // indirect
@@ -198,6 +205,7 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/owenrumney/go-sarif v1.1.1 // indirect
+	github.com/pavius/impi v0.0.3 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -243,6 +251,7 @@ require (
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tdakkota/asciicheck v0.3.0 // indirect
+	github.com/terraform-linters/tflint v0.51.1 // indirect
 	github.com/terraform-linters/tflint-plugin-sdk v0.20.0 // indirect
 	github.com/terraform-linters/tflint-ruleset-terraform v0.7.0 // indirect
 	github.com/tetafro/godot v1.4.20 // indirect
