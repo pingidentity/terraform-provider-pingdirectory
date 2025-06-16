@@ -41,3 +41,5 @@ terraform
 
 # IntelliJ files
 .idea
+
+scratch/
