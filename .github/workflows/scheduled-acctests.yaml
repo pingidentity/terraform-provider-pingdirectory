@@ -6,31 +6,6 @@ on:
     - cron: '0 7 * * *'
      
 jobs:
-  ping_directory_nine_three:
-    name: Ping Directory 9.3.0.0
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        terraform:
-          - "1.2.*"
-          - "1.11.*"
-      max-parallel: 1
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ matrix.terraform }}
-          terraform_wrapper: false
-      - run: mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && grep -E "[a-zA-Z]" $HOME/.pingidentity/config || exit 1 && make testacccomplete && make removetestcontainer
-        env:
-          TF_ACC: '1'
-          CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "9.3.0.5"
   ping_directory_ten_zero:
     name: Ping Directory 10.0.0.0
     runs-on: ubuntu-latest
