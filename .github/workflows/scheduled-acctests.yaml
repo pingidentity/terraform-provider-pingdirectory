@@ -41,7 +41,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.3"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.2"
   ping_directory_ten_two:
     name: Ping Directory 10.2.0.0
     runs-on: ubuntu-latest
@@ -59,11 +59,11 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.2.0.1"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.2.0.0"
 
   onfailure:
     if: ${{ always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure') }}
-    needs: [ping_directory_nine_three, ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two]
+    needs: [ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two]
     name: Send failure webhook
     runs-on: ubuntu-latest
     steps:
