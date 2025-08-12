@@ -18,7 +18,7 @@ jobs:
     if: ${{ github.event_name == 'issues' && github.event.action == 'opened' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           curl --silent --location --request POST "$WORKFLOW_URL" \
           --header 'Accept: application/json' \
