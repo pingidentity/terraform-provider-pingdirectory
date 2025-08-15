@@ -44,11 +44,15 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `enable_multipart_mime_parameters` (Boolean) Determines whether request form parameters submitted in multipart/ form-data (RFC 2388) format should be processed as request parameters.
 - `enable_sni_hostname_checks` (Boolean) Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.
 - `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
+- `expensive_thread_check_interval` (String) Supported in PingDirectory product version 10.3.0.0+. The duration the HTTP Connection Handler waits before checking for potentially expensive operations. If at least N HTTP Connection Handler threads (as defined by expensive-thread-minimum-concurrent-count) are processing the same HTTP requests for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.
+- `expensive_thread_hold_off_interval` (String) Supported in PingDirectory product version 10.3.0.0+. The duration the server waits after generating a full thread dump before creating another. This interval helps prevent excessive disk usage from frequent dumps. Use this property to help identify performance bottlenecks.
+- `expensive_thread_minimum_concurrent_count` (Number) Supported in PingDirectory product version 10.3.0.0+. The minimum number of HTTP Connection Handler threads concurrently processing the same HTTP request that triggers a full thread dump. If at least this many worker threads are processing the same HTTP request for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.
 - `failed_bind_response_delay` (String) Specifies the length of time that the server should delay the response to non-successful bind operations. A value of zero milliseconds indicates that non-successful bind operations should not be delayed.
 - `http_operation_log_publisher` (Set of String) Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.
 - `http_request_header_size` (Number) Specifies the maximum buffer size of an http request including the request uri and all of the request headers.
 - `http_servlet_extension` (Set of String) Specifies information about servlets that will be provided via this connection handler.
 - `idle_time_limit` (String) Specifies the maximum idle time for a connection. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.
+- `include_additional_metrics` (Boolean) Supported in PingDirectory product version 10.3.0.0+. Tracks moving average durations (1, 5, and 15-minute intervals) for the entire HTTP request lifecycle, including socket, connection, queue, request, and response times. Warning: This feature is experimental and can negatively affect performance when enabled. It should be reserved for performance tuning or troubleshooting.
 - `keep_stats` (Boolean) Indicates whether to enable statistics collection for this connection handler.
 - `key_manager_provider` (String) When the `type` attribute is set to:
   - `jmx`: Specifies the name of the key manager that should be used with this JMX Connection Handler .
@@ -93,6 +97,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - `http`: Specifies the trust manager provider that will be used to validate any certificates presented by HTTPS clients.
 - `use_correlation_id_header` (Boolean) If enabled, a correlation ID header will be added to outgoing HTTP responses.
 - `use_forwarded_headers` (Boolean) Indicates whether to use "Forwarded" and "X-Forwarded-*" request headers to override corresponding HTTP request information available during request processing.
+- `use_haproxy_proxy_protocol` (Boolean) Supported in PingDirectory product version 10.3.0.0+. Indicates whether client connections established to this connection handler will pass through a software proxy that uses the HAProxy PROXY protocol to preserve the original end address of the client system. The Directory Server supports versions 1 and 2 of the HAProxy PROXY protocol.
 - `use_ssl` (Boolean) When the `type` attribute is set to:
   - `jmx`: Indicates whether the JMX Connection Handler should use SSL.
   - `ldap`: Indicates whether the LDAP Connection Handler should use SSL.

@@ -28,7 +28,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 ### Optional
 
 - `description` (String) A description for this Key Manager Provider
-- `enable_key_manager_caching` (Boolean) Supported in PingDirectory product version 10.2.0.0+. Indicates whether key manager providers should cache key managers.
+- `enable_key_manager_caching` (Boolean) Supported in PingDirectory product version 10.1.0.3+. Indicates whether key manager providers should cache key managers.
 - `enabled` (Boolean) Indicates whether the Key Manager Provider is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Key Manager Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Key Manager Provider.

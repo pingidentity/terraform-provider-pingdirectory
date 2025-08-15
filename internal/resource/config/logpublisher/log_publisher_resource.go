@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -116,6 +116,7 @@ type logPublisherResourceModel struct {
 	ExtensionClass                                      types.String `tfsdk:"extension_class"`
 	DebugACIEnabled                                     types.Bool   `tfsdk:"debug_aci_enabled"`
 	DefaultDebugLevel                                   types.String `tfsdk:"default_debug_level"`
+	SuppressVirtualAttributesInDeleteRecords            types.Bool   `tfsdk:"suppress_virtual_attributes_in_delete_records"`
 	LogRequestHeaders                                   types.String `tfsdk:"log_request_headers"`
 	SuppressedRequestHeaderName                         types.Set    `tfsdk:"suppressed_request_header_name"`
 	LogResponseHeaders                                  types.String `tfsdk:"log_response_headers"`
@@ -144,6 +145,7 @@ type logPublisherResourceModel struct {
 	ConsentMessageType                                  types.Set    `tfsdk:"consent_message_type"`
 	DirectoryRESTAPIMessageType                         types.Set    `tfsdk:"directory_rest_api_message_type"`
 	ExtensionMessageType                                types.Set    `tfsdk:"extension_message_type"`
+	HttpEvent                                           types.Set    `tfsdk:"http_event"`
 	IncludePathPattern                                  types.Set    `tfsdk:"include_path_pattern"`
 	ExcludePathPattern                                  types.Set    `tfsdk:"exclude_path_pattern"`
 	ServerHostName                                      types.String `tfsdk:"server_host_name"`
@@ -362,6 +364,14 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 					stringvalidator.OneOf([]string{"disabled", "error", "warning", "info", "verbose", "all"}...),
 				},
 			},
+			"suppress_virtual_attributes_in_delete_records": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether to suppress virtual attributes from delete audit log messages.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"log_request_headers": schema.StringAttribute{
 				Description: "Indicates whether request log messages should include information about HTTP headers included in the request.",
 				Optional:    true,
@@ -536,6 +546,13 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			},
 			"extension_message_type": schema.SetAttribute{
 				Description: "Specifies the Server SDK extension message types that can be logged.",
+				Optional:    true,
+				Computed:    true,
+				Default:     internaltypes.EmptySetDefault(types.StringType),
+				ElementType: types.StringType,
+			},
+			"http_event": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the HTTP event types to include in the log.",
 				Optional:    true,
 				Computed:    true,
 				Default:     internaltypes.EmptySetDefault(types.StringType),
@@ -5508,7 +5525,7 @@ func (r *defaultLogPublisherResource) ModifyPlan(ctx context.Context, req resour
 }
 
 func modifyPlanLogPublisher(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -5519,6 +5536,21 @@ func modifyPlanLogPublisher(ctx context.Context, req resource.ModifyPlanRequest,
 	}
 	var model logPublisherResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptySet(model.HttpEvent) {
+		resp.Diagnostics.AddError("Attribute 'http_event' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.SuppressVirtualAttributesInDeleteRecords) {
+		resp.Diagnostics.AddError("Attribute 'suppress_virtual_attributes_in_delete_records' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10100)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptySet(model.LogMessageExclusionPolicy) {
 		resp.Diagnostics.AddError("Attribute 'log_message_exclusion_policy' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -5550,6 +5582,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -5610,6 +5643,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -5676,6 +5710,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -5733,6 +5768,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -5798,6 +5834,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -5866,6 +5903,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
@@ -5915,6 +5953,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -5988,6 +6027,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -6060,6 +6100,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6126,6 +6167,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6197,6 +6239,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -6254,6 +6297,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
@@ -6297,6 +6341,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.CorrelateRequestsAndResults = types.BoolNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
 		model.LogRedirectURI = types.BoolNull()
@@ -6351,6 +6396,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6414,6 +6460,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6480,6 +6527,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -6547,6 +6595,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
@@ -6584,6 +6633,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.DefaultOmitMethodReturnValue = types.BoolNull()
 		model.CorrelateRequestsAndResults = types.BoolNull()
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6632,6 +6682,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
 		model.UseReversibleForm = types.BoolNull()
@@ -6673,6 +6724,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.DefaultOmitMethodReturnValue = types.BoolNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -6725,6 +6777,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.SignLog = types.BoolNull()
 		model.BufferSize = types.StringNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -6787,6 +6840,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6903,6 +6957,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -6963,6 +7018,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
@@ -7024,6 +7080,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -7084,6 +7141,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
@@ -7132,6 +7190,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -7200,6 +7259,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -7266,6 +7326,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -7321,6 +7382,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.SignLog = types.BoolNull()
 		model.BufferSize = types.StringNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -7376,6 +7438,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.LogRedirectURI = types.BoolNull()
 		model.UseReversibleForm = types.BoolNull()
@@ -7424,6 +7487,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -7490,6 +7554,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.DefaultOmitMethodReturnValue = types.BoolNull()
 		model.CorrelateRequestsAndResults = types.BoolNull()
 		model.ObscureAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
 		model.IncludeExtendedSearchRequestDetails = types.BoolNull()
@@ -7552,6 +7617,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -7622,6 +7688,7 @@ func (model *logPublisherResourceModel) setNotApplicableAttrsNull() {
 		model.BufferSize = types.StringNull()
 		model.LogRequestCookieNames = types.BoolNull()
 		model.LogRequestProtocol = types.BoolNull()
+		model.SuppressVirtualAttributesInDeleteRecords = types.BoolNull()
 		model.LogSecurityNegotiation = types.BoolNull()
 		model.TimeInterval = types.StringNull()
 		model.IncludeAddAttributeNames = types.BoolNull()
@@ -8102,6 +8169,11 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			[]string{"file-based-trace"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_event"),
+			path.MatchRoot("type"),
+			[]string{"file-based-trace"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_path_pattern"),
 			path.MatchRoot("type"),
 			[]string{"file-based-trace"},
@@ -8230,6 +8302,11 @@ func configValidatorsLogPublisher() []resource.ConfigValidator {
 			path.MatchRoot("debug_aci_enabled"),
 			path.MatchRoot("type"),
 			[]string{"debug-access"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("suppress_virtual_attributes_in_delete_records"),
+			path.MatchRoot("type"),
+			[]string{"file-based-audit"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("script_class"),
@@ -9216,6 +9293,19 @@ func addOptionalFileBasedTraceLogPublisherFields(ctx context.Context, addRequest
 			enumSlice[i] = *enumVal
 		}
 		addRequest.ExtensionMessageType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.HttpEvent) {
+		var slice []string
+		plan.HttpEvent.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumlogPublisherHttpEventProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumlogPublisherHttpEventPropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.HttpEvent = enumSlice
 	}
 	if internaltypes.IsDefined(plan.IncludePathPattern) {
 		var slice []string
@@ -11083,6 +11173,9 @@ func addOptionalFileBasedAuditLogPublisherFields(ctx context.Context, addRequest
 	if internaltypes.IsDefined(plan.UseReversibleForm) {
 		addRequest.UseReversibleForm = plan.UseReversibleForm.ValueBoolPointer()
 	}
+	if internaltypes.IsDefined(plan.SuppressVirtualAttributesInDeleteRecords) {
+		addRequest.SuppressVirtualAttributesInDeleteRecords = plan.SuppressVirtualAttributesInDeleteRecords.ValueBoolPointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SoftDeleteEntryAuditBehavior) {
 		softDeleteEntryAuditBehavior, err := client.NewEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorPropFromValue(plan.SoftDeleteEntryAuditBehavior.ValueString())
@@ -12635,6 +12728,9 @@ func populateLogPublisherUnknownValues(model *logPublisherResourceModel) {
 	if model.RetentionPolicy.IsUnknown() || model.RetentionPolicy.IsNull() {
 		model.RetentionPolicy, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
+	if model.HttpEvent.IsUnknown() || model.HttpEvent.IsNull() {
+		model.HttpEvent, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 	if model.ExcludeAttribute.IsUnknown() || model.ExcludeAttribute.IsNull() {
 		model.ExcludeAttribute, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
@@ -13047,6 +13143,8 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 		client.StringSliceEnumlogPublisherDirectoryRESTAPIMessageTypeProp(r.DirectoryRESTAPIMessageType))
 	state.ExtensionMessageType = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherExtensionMessageTypeProp(r.ExtensionMessageType))
+	state.HttpEvent = internaltypes.GetStringSet(
+		client.StringSliceEnumlogPublisherHttpEventProp(r.HttpEvent))
 	state.IncludePathPattern = internaltypes.GetStringSet(r.IncludePathPattern)
 	state.ExcludePathPattern = internaltypes.GetStringSet(r.ExcludePathPattern)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -13765,6 +13863,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.IncludeRequesterDN = internaltypes.BoolTypeOrNil(r.IncludeRequesterDN)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
+	state.SuppressVirtualAttributesInDeleteRecords = internaltypes.BoolTypeOrNil(r.SuppressVirtualAttributesInDeleteRecords)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), true)
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
@@ -14408,6 +14507,7 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddBoolOperationIfNecessary(&ops, plan.DebugACIEnabled, state.DebugACIEnabled, "debug-aci-enabled")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultDebugLevel, state.DefaultDebugLevel, "default-debug-level")
+	operations.AddBoolOperationIfNecessary(&ops, plan.SuppressVirtualAttributesInDeleteRecords, state.SuppressVirtualAttributesInDeleteRecords, "suppress-virtual-attributes-in-delete-records")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogRequestHeaders, state.LogRequestHeaders, "log-request-headers")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.SuppressedRequestHeaderName, state.SuppressedRequestHeaderName, "suppressed-request-header-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogResponseHeaders, state.LogResponseHeaders, "log-response-headers")
@@ -14436,6 +14536,7 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ConsentMessageType, state.ConsentMessageType, "consent-message-type")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DirectoryRESTAPIMessageType, state.DirectoryRESTAPIMessageType, "directory-rest-api-message-type")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionMessageType, state.ExtensionMessageType, "extension-message-type")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.HttpEvent, state.HttpEvent, "http-event")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludePathPattern, state.IncludePathPattern, "include-path-pattern")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExcludePathPattern, state.ExcludePathPattern, "exclude-path-pattern")
 	operations.AddStringOperationIfNecessary(&ops, plan.ServerHostName, state.ServerHostName, "server-host-name")

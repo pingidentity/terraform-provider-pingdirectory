@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -581,7 +581,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"never-acquire", "acquire-on-retry", "always-acquire"}...),
+					stringvalidator.OneOf([]string{"never-acquire", "acquire-after-retries", "acquire-on-retry", "always-acquire"}...),
 				},
 			},
 			"subtree_modify_dn_size_limit": schema.Int64Attribute{

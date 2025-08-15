@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -58,6 +58,7 @@ type scimResourceTypeDataSourceModel struct {
 	Description                 types.String `tfsdk:"description"`
 	Enabled                     types.Bool   `tfsdk:"enabled"`
 	Endpoint                    types.String `tfsdk:"endpoint"`
+	IdAttribute                 types.String `tfsdk:"id_attribute"`
 	LookthroughLimit            types.Int64  `tfsdk:"lookthrough_limit"`
 	SchemaCheckingOption        types.Set    `tfsdk:"schema_checking_option"`
 	StructuralLDAPObjectclass   types.String `tfsdk:"structural_ldap_objectclass"`
@@ -113,6 +114,12 @@ func (r *scimResourceTypeDataSource) Schema(ctx context.Context, req datasource.
 			},
 			"endpoint": schema.StringAttribute{
 				Description: "The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"id_attribute": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the primary attribute to use as the value for the SCIM object ID. The object ID should be a unique, immutable identifier for fetch, update and delete operations on an object.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -183,6 +190,7 @@ func readLdapPassThroughScimResourceTypeResponseDataSource(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
@@ -205,6 +213,7 @@ func readMappingScimResourceTypeResponseDataSource(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
@@ -227,6 +236,7 @@ func readLdapMappingScimResourceTypeResponseDataSource(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))

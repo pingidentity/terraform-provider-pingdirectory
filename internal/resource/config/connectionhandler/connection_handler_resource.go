@@ -13,13 +13,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -107,7 +108,7 @@ type connectionHandlerResourceModel struct {
 	KeyManagerProvider                     types.String `tfsdk:"key_manager_provider"`
 	TrustManagerProvider                   types.String `tfsdk:"trust_manager_provider"`
 	KeepStats                              types.Bool   `tfsdk:"keep_stats"`
-	AllowLDAPV2                            types.Bool   `tfsdk:"allow_ldap_v2"`
+	UseHaproxyProxyProtocol                types.Bool   `tfsdk:"use_haproxy_proxy_protocol"`
 	AllowTCPReuseAddress                   types.Bool   `tfsdk:"allow_tcp_reuse_address"`
 	IdleTimeLimit                          types.String `tfsdk:"idle_time_limit"`
 	LowResourcesConnectionThreshold        types.Int64  `tfsdk:"low_resources_connection_threshold"`
@@ -119,8 +120,13 @@ type connectionHandlerResourceModel struct {
 	UseCorrelationIDHeader                 types.Bool   `tfsdk:"use_correlation_id_header"`
 	CorrelationIDResponseHeader            types.String `tfsdk:"correlation_id_response_header"`
 	CorrelationIDRequestHeader             types.Set    `tfsdk:"correlation_id_request_header"`
-	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
+	AllowLDAPV2                            types.Bool   `tfsdk:"allow_ldap_v2"`
 	EnableSniHostnameChecks                types.Bool   `tfsdk:"enable_sni_hostname_checks"`
+	ExpensiveThreadCheckInterval           types.String `tfsdk:"expensive_thread_check_interval"`
+	ExpensiveThreadMinimumConcurrentCount  types.Int64  `tfsdk:"expensive_thread_minimum_concurrent_count"`
+	ExpensiveThreadHoldOffInterval         types.String `tfsdk:"expensive_thread_hold_off_interval"`
+	IncludeAdditionalMetrics               types.Bool   `tfsdk:"include_additional_metrics"`
+	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
 	SendRejectionNotice                    types.Bool   `tfsdk:"send_rejection_notice"`
 	FailedBindResponseDelay                types.String `tfsdk:"failed_bind_response_delay"`
 	MaxRequestSize                         types.String `tfsdk:"max_request_size"`
@@ -245,10 +251,13 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 			},
-			"allow_ldap_v2": schema.BoolAttribute{
-				Description: "Indicates whether connections from LDAPv2 clients are allowed.",
+			"use_haproxy_proxy_protocol": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether client connections established to this connection handler will pass through a software proxy that uses the HAProxy PROXY protocol to preserve the original end address of the client system. The Directory Server supports versions 1 and 2 of the HAProxy PROXY protocol.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_tcp_reuse_address": schema.BoolAttribute{
 				Description: "Indicates whether the server should attempt to reuse socket descriptors. This may be useful in environments with a high rate of connection establishment and termination.",
@@ -315,8 +324,8 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				Default:     internaltypes.EmptySetDefault(types.StringType),
 				ElementType: types.StringType,
 			},
-			"use_tcp_keep_alive": schema.BoolAttribute{
-				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
+			"allow_ldap_v2": schema.BoolAttribute{
+				Description: "Indicates whether connections from LDAPv2 clients are allowed.",
 				Optional:    true,
 				Computed:    true,
 			},
@@ -327,6 +336,39 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"expensive_thread_check_interval": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The duration the HTTP Connection Handler waits before checking for potentially expensive operations. If at least N HTTP Connection Handler threads (as defined by expensive-thread-minimum-concurrent-count) are processing the same HTTP requests for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.",
+				Optional:    true,
+			},
+			"expensive_thread_minimum_concurrent_count": schema.Int64Attribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The minimum number of HTTP Connection Handler threads concurrently processing the same HTTP request that triggers a full thread dump. If at least this many worker threads are processing the same HTTP request for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"expensive_thread_hold_off_interval": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The duration the server waits after generating a full thread dump before creating another. This interval helps prevent excessive disk usage from frequent dumps. Use this property to help identify performance bottlenecks.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"include_additional_metrics": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Tracks moving average durations (1, 5, and 15-minute intervals) for the entire HTTP request lifecycle, including socket, connection, queue, request, and response times. Warning: This feature is experimental and can negatively affect performance when enabled. It should be reserved for performance tuning or troubleshooting.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"use_tcp_keep_alive": schema.BoolAttribute{
+				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"send_rejection_notice": schema.BoolAttribute{
 				Description: "Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.",
@@ -459,6 +501,11 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
+	} else {
+		// Add RequiresReplace modifier for read-only attributes
+		useHaproxyProxyProtocolAttr := schemaDef.Attributes["use_haproxy_proxy_protocol"].(schema.BoolAttribute)
+		useHaproxyProxyProtocolAttr.PlanModifiers = append(useHaproxyProxyProtocolAttr.PlanModifiers, boolplanmodifier.RequiresReplace())
+		schemaDef.Attributes["use_haproxy_proxy_protocol"] = useHaproxyProxyProtocolAttr
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -686,7 +733,7 @@ func (r *defaultConnectionHandlerResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanConnectionHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -697,6 +744,30 @@ func modifyPlanConnectionHandler(ctx context.Context, req resource.ModifyPlanReq
 	}
 	var model connectionHandlerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.UseHaproxyProxyProtocol) {
+		resp.Diagnostics.AddError("Attribute 'use_haproxy_proxy_protocol' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.ExpensiveThreadCheckInterval) {
+		resp.Diagnostics.AddError("Attribute 'expensive_thread_check_interval' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.ExpensiveThreadMinimumConcurrentCount) {
+		resp.Diagnostics.AddError("Attribute 'expensive_thread_minimum_concurrent_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.ExpensiveThreadHoldOffInterval) {
+		resp.Diagnostics.AddError("Attribute 'expensive_thread_hold_off_interval' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludeAdditionalMetrics) {
+		resp.Diagnostics.AddError("Attribute 'include_additional_metrics' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.RequestHandlerPerConnection) {
 		resp.Diagnostics.AddError("Attribute 'request_handler_per_connection' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -709,45 +780,52 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 	resourceType := model.Type.ValueString()
 	// Set any not applicable computed attributes to null for each type
 	if resourceType == "jmx" {
-		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.ExpensiveThreadHoldOffInterval = types.StringNull()
+		model.AcceptBacklog = types.Int64Null()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.IncludeAdditionalMetrics = types.BoolNull()
+		model.ExpensiveThreadMinimumConcurrentCount = types.Int64Null()
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxCancelHandlers = types.Int64Null()
+		model.SslClientAuthPolicy = types.StringNull()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
+		model.NumRequestHandlers = types.Int64Null()
+		model.KeepStats = types.BoolNull()
 		model.AllowLDAPV2 = types.BoolNull()
 		model.EnableSniHostnameChecks = types.BoolNull()
 		model.NumAcceptHandlers = types.Int64Null()
 		model.SendRejectionNotice = types.BoolNull()
 		model.PollInterval = types.StringNull()
-		model.AcceptBacklog = types.Int64Null()
-		model.AllowTCPReuseAddress = types.BoolNull()
+		model.UseHaproxyProxyProtocol = types.BoolNull()
 		model.LowResourcesIdleTimeLimit = types.StringNull()
-		model.CorrelationIDResponseHeader = types.StringNull()
 		model.MaxRequestSize = types.StringNull()
 		model.MaxBlockedWriteTimeLimit = types.StringNull()
-		model.CloseConnectionsWhenUnavailable = types.BoolNull()
-		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
-		model.MaxCancelHandlers = types.Int64Null()
 		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
 		model.LowResourcesConnectionThreshold = types.Int64Null()
-		model.SslClientAuthPolicy = types.StringNull()
 		model.UseForwardedHeaders = types.BoolNull()
-		model.AllowStartTLS = types.BoolNull()
-		model.UseTCPKeepAlive = types.BoolNull()
 		model.LdifDirectory = types.StringNull()
-		model.RequestHandlerPerConnection = types.BoolNull()
 		model.UseCorrelationIDHeader = types.BoolNull()
 		model.IdleTimeLimit = types.StringNull()
 		model.HttpRequestHeaderSize = types.Int64Null()
 		model.FailedBindResponseDelay = types.StringNull()
 		model.CloseConnectionsOnExplicitGC = types.BoolNull()
-		model.NumRequestHandlers = types.Int64Null()
 	}
 	if resourceType == "ldap" {
-		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.ExpensiveThreadHoldOffInterval = types.StringNull()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.IncludeAdditionalMetrics = types.BoolNull()
+		model.ExpensiveThreadMinimumConcurrentCount = types.Int64Null()
+		model.KeepStats = types.BoolNull()
 		model.EnableSniHostnameChecks = types.BoolNull()
 		model.PollInterval = types.StringNull()
-		model.AllowTCPReuseAddress = types.BoolNull()
 		model.LowResourcesIdleTimeLimit = types.StringNull()
-		model.CorrelationIDResponseHeader = types.StringNull()
 		model.LowResourcesConnectionThreshold = types.Int64Null()
 		model.UseForwardedHeaders = types.BoolNull()
 		model.LdifDirectory = types.StringNull()
@@ -756,50 +834,55 @@ func (model *connectionHandlerResourceModel) setNotApplicableAttrsNull() {
 		model.HttpRequestHeaderSize = types.Int64Null()
 	}
 	if resourceType == "ldif" {
-		model.KeepStats = types.BoolNull()
 		model.EnableMultipartMIMEParameters = types.BoolNull()
+		model.ExpensiveThreadHoldOffInterval = types.StringNull()
+		model.AcceptBacklog = types.Int64Null()
+		model.AllowTCPReuseAddress = types.BoolNull()
+		model.CorrelationIDResponseHeader = types.StringNull()
+		model.IncludeAdditionalMetrics = types.BoolNull()
+		model.ExpensiveThreadMinimumConcurrentCount = types.Int64Null()
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.MaxCancelHandlers = types.Int64Null()
+		model.SslClientAuthPolicy = types.StringNull()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
+		model.NumRequestHandlers = types.Int64Null()
+		model.KeepStats = types.BoolNull()
 		model.AllowLDAPV2 = types.BoolNull()
 		model.EnableSniHostnameChecks = types.BoolNull()
 		model.NumAcceptHandlers = types.Int64Null()
 		model.SendRejectionNotice = types.BoolNull()
-		model.AcceptBacklog = types.Int64Null()
-		model.AllowTCPReuseAddress = types.BoolNull()
+		model.UseHaproxyProxyProtocol = types.BoolNull()
 		model.LowResourcesIdleTimeLimit = types.StringNull()
-		model.CorrelationIDResponseHeader = types.StringNull()
 		model.UseSSL = types.BoolNull()
 		model.MaxRequestSize = types.StringNull()
 		model.MaxBlockedWriteTimeLimit = types.StringNull()
-		model.CloseConnectionsWhenUnavailable = types.BoolNull()
-		model.ListenAddress, _ = types.SetValue(types.StringType, []attr.Value{})
-		model.MaxCancelHandlers = types.Int64Null()
 		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
 		model.LowResourcesConnectionThreshold = types.Int64Null()
-		model.SslClientAuthPolicy = types.StringNull()
 		model.UseForwardedHeaders = types.BoolNull()
-		model.AllowStartTLS = types.BoolNull()
-		model.UseTCPKeepAlive = types.BoolNull()
-		model.RequestHandlerPerConnection = types.BoolNull()
 		model.UseCorrelationIDHeader = types.BoolNull()
 		model.IdleTimeLimit = types.StringNull()
 		model.HttpRequestHeaderSize = types.Int64Null()
 		model.FailedBindResponseDelay = types.StringNull()
 		model.CloseConnectionsOnExplicitGC = types.BoolNull()
-		model.NumRequestHandlers = types.Int64Null()
 	}
 	if resourceType == "http" {
+		model.CloseConnectionsWhenUnavailable = types.BoolNull()
+		model.MaxCancelHandlers = types.Int64Null()
+		model.AllowStartTLS = types.BoolNull()
+		model.UseTCPKeepAlive = types.BoolNull()
+		model.RequestHandlerPerConnection = types.BoolNull()
 		model.AllowLDAPV2 = types.BoolNull()
 		model.NumAcceptHandlers = types.Int64Null()
 		model.SendRejectionNotice = types.BoolNull()
 		model.PollInterval = types.StringNull()
+		model.UseHaproxyProxyProtocol = types.BoolNull()
 		model.MaxRequestSize = types.StringNull()
 		model.MaxBlockedWriteTimeLimit = types.StringNull()
-		model.CloseConnectionsWhenUnavailable = types.BoolNull()
-		model.MaxCancelHandlers = types.Int64Null()
 		model.AutoAuthenticateUsingClientCertificate = types.BoolNull()
-		model.AllowStartTLS = types.BoolNull()
-		model.UseTCPKeepAlive = types.BoolNull()
 		model.LdifDirectory = types.StringNull()
-		model.RequestHandlerPerConnection = types.BoolNull()
 		model.FailedBindResponseDelay = types.StringNull()
 		model.CloseConnectionsOnExplicitGC = types.BoolNull()
 	}
@@ -860,6 +943,11 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			path.MatchRoot("trust_manager_provider"),
 			path.MatchRoot("type"),
 			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_haproxy_proxy_protocol"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_ldap_v2"),
@@ -1036,6 +1124,26 @@ func configValidatorsConnectionHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"http"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expensive_thread_check_interval"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expensive_thread_minimum_concurrent_count"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expensive_thread_hold_off_interval"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_additional_metrics"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
 		configvalidators.ValueImpliesAttributeRequired(
 			path.MatchRoot("type"),
 			"jmx",
@@ -1118,6 +1226,9 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.UseHaproxyProxyProtocol) {
+		addRequest.UseHaproxyProxyProtocol = plan.UseHaproxyProxyProtocol.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowLDAPV2) {
 		addRequest.AllowLDAPV2 = plan.AllowLDAPV2.ValueBoolPointer()
@@ -1333,6 +1444,20 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.EnableSniHostnameChecks = plan.EnableSniHostnameChecks.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ExpensiveThreadCheckInterval) {
+		addRequest.ExpensiveThreadCheckInterval = plan.ExpensiveThreadCheckInterval.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.ExpensiveThreadMinimumConcurrentCount) {
+		addRequest.ExpensiveThreadMinimumConcurrentCount = plan.ExpensiveThreadMinimumConcurrentCount.ValueInt64Pointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ExpensiveThreadHoldOffInterval) {
+		addRequest.ExpensiveThreadHoldOffInterval = plan.ExpensiveThreadHoldOffInterval.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeAdditionalMetrics) {
+		addRequest.IncludeAdditionalMetrics = plan.IncludeAdditionalMetrics.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
@@ -1393,6 +1518,9 @@ func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes
 	if model.PollInterval.IsUnknown() || model.PollInterval.IsNull() {
 		model.PollInterval = types.StringValue("")
 	}
+	if model.ExpensiveThreadCheckInterval.IsUnknown() || model.ExpensiveThreadCheckInterval.IsNull() {
+		model.ExpensiveThreadCheckInterval = types.StringValue("")
+	}
 	if model.SslClientAuthPolicy.IsUnknown() || model.SslClientAuthPolicy.IsNull() {
 		model.SslClientAuthPolicy = types.StringValue("")
 	}
@@ -1407,6 +1535,9 @@ func (model *connectionHandlerResourceModel) populateAllComputedStringAttributes
 	}
 	if model.LdifDirectory.IsUnknown() || model.LdifDirectory.IsNull() {
 		model.LdifDirectory = types.StringValue("")
+	}
+	if model.ExpensiveThreadHoldOffInterval.IsUnknown() || model.ExpensiveThreadHoldOffInterval.IsNull() {
+		model.ExpensiveThreadHoldOffInterval = types.StringValue("")
 	}
 	if model.MaxRequestSize.IsUnknown() || model.MaxRequestSize.IsNull() {
 		model.MaxRequestSize = types.StringValue("")
@@ -1445,6 +1576,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
+	state.UseHaproxyProxyProtocol = internaltypes.BoolTypeOrNil(r.UseHaproxyProxyProtocol)
 	state.AllowLDAPV2 = internaltypes.BoolTypeOrNil(r.AllowLDAPV2)
 	state.UseTCPKeepAlive = internaltypes.BoolTypeOrNil(r.UseTCPKeepAlive)
 	state.SendRejectionNotice = internaltypes.BoolTypeOrNil(r.SendRejectionNotice)
@@ -1536,6 +1668,14 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.EnableSniHostnameChecks = internaltypes.BoolTypeOrNil(r.EnableSniHostnameChecks)
+	state.ExpensiveThreadCheckInterval = internaltypes.StringTypeOrNil(r.ExpensiveThreadCheckInterval, internaltypes.IsEmptyString(expectedValues.ExpensiveThreadCheckInterval))
+	config.CheckMismatchedPDFormattedAttributes("expensive_thread_check_interval",
+		expectedValues.ExpensiveThreadCheckInterval, state.ExpensiveThreadCheckInterval, diagnostics)
+	state.ExpensiveThreadMinimumConcurrentCount = internaltypes.Int64TypeOrNil(r.ExpensiveThreadMinimumConcurrentCount)
+	state.ExpensiveThreadHoldOffInterval = internaltypes.StringTypeOrNil(r.ExpensiveThreadHoldOffInterval, true)
+	config.CheckMismatchedPDFormattedAttributes("expensive_thread_hold_off_interval",
+		expectedValues.ExpensiveThreadHoldOffInterval, state.ExpensiveThreadHoldOffInterval, diagnostics)
+	state.IncludeAdditionalMetrics = internaltypes.BoolTypeOrNil(r.IncludeAdditionalMetrics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1558,7 +1698,7 @@ func createConnectionHandlerOperations(plan connectionHandlerResourceModel, stat
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyManagerProvider, state.KeyManagerProvider, "key-manager-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustManagerProvider, state.TrustManagerProvider, "trust-manager-provider")
 	operations.AddBoolOperationIfNecessary(&ops, plan.KeepStats, state.KeepStats, "keep-stats")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowLDAPV2, state.AllowLDAPV2, "allow-ldap-v2")
+	operations.AddBoolOperationIfNecessary(&ops, plan.UseHaproxyProxyProtocol, state.UseHaproxyProxyProtocol, "use-haproxy-proxy-protocol")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowTCPReuseAddress, state.AllowTCPReuseAddress, "allow-tcp-reuse-address")
 	operations.AddStringOperationIfNecessary(&ops, plan.IdleTimeLimit, state.IdleTimeLimit, "idle-time-limit")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LowResourcesConnectionThreshold, state.LowResourcesConnectionThreshold, "low-resources-connection-threshold")
@@ -1570,8 +1710,13 @@ func createConnectionHandlerOperations(plan connectionHandlerResourceModel, stat
 	operations.AddBoolOperationIfNecessary(&ops, plan.UseCorrelationIDHeader, state.UseCorrelationIDHeader, "use-correlation-id-header")
 	operations.AddStringOperationIfNecessary(&ops, plan.CorrelationIDResponseHeader, state.CorrelationIDResponseHeader, "correlation-id-response-header")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorrelationIDRequestHeader, state.CorrelationIDRequestHeader, "correlation-id-request-header")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseTCPKeepAlive, state.UseTCPKeepAlive, "use-tcp-keep-alive")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowLDAPV2, state.AllowLDAPV2, "allow-ldap-v2")
 	operations.AddBoolOperationIfNecessary(&ops, plan.EnableSniHostnameChecks, state.EnableSniHostnameChecks, "enable-sni-hostname-checks")
+	operations.AddStringOperationIfNecessary(&ops, plan.ExpensiveThreadCheckInterval, state.ExpensiveThreadCheckInterval, "expensive-thread-check-interval")
+	operations.AddInt64OperationIfNecessary(&ops, plan.ExpensiveThreadMinimumConcurrentCount, state.ExpensiveThreadMinimumConcurrentCount, "expensive-thread-minimum-concurrent-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.ExpensiveThreadHoldOffInterval, state.ExpensiveThreadHoldOffInterval, "expensive-thread-hold-off-interval")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeAdditionalMetrics, state.IncludeAdditionalMetrics, "include-additional-metrics")
+	operations.AddBoolOperationIfNecessary(&ops, plan.UseTCPKeepAlive, state.UseTCPKeepAlive, "use-tcp-keep-alive")
 	operations.AddBoolOperationIfNecessary(&ops, plan.SendRejectionNotice, state.SendRejectionNotice, "send-rejection-notice")
 	operations.AddStringOperationIfNecessary(&ops, plan.FailedBindResponseDelay, state.FailedBindResponseDelay, "failed-bind-response-delay")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaxRequestSize, state.MaxRequestSize, "max-request-size")

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -173,7 +173,7 @@ func (r *keyManagerProviderDataSource) Schema(ctx context.Context, req datasourc
 				Computed:    true,
 			},
 			"enable_key_manager_caching": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether key manager providers should cache key managers.",
+				Description: "Supported in PingDirectory product version 10.1.0.3+. Indicates whether key manager providers should cache key managers.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
