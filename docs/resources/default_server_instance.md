@@ -19,7 +19,7 @@ Since this is a 'default' resource, the managed object must already exist in the
 resource "pingdirectory_default_directory_server_instance" "myServerInstance" {
   name                 = "MyServerInstance"
   server_instance_name = "MyDirectoryServerInstance"
-  server_version       = "10.2.0.0"
+  server_version       = "10.3.0.0"
 }
 ```
 
