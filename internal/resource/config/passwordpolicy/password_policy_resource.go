@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -139,6 +139,7 @@ type passwordPolicyResourceModel struct {
 	MaximumRecentLoginHistorySuccessfulAuthenticationDuration types.String `tfsdk:"maximum_recent_login_history_successful_authentication_duration"`
 	MaximumRecentLoginHistoryFailedAuthenticationCount        types.Int64  `tfsdk:"maximum_recent_login_history_failed_authentication_count"`
 	MaximumRecentLoginHistoryFailedAuthenticationDuration     types.String `tfsdk:"maximum_recent_login_history_failed_authentication_duration"`
+	SuppressRecentLoginHistoryUpdatesForUnusableAccounts      types.Bool   `tfsdk:"suppress_recent_login_history_updates_for_unusable_accounts"`
 	RecentLoginHistorySimilarAttemptBehavior                  types.String `tfsdk:"recent_login_history_similar_attempt_behavior"`
 	LastLoginIPAddressAttribute                               types.String `tfsdk:"last_login_ip_address_attribute"`
 	LastLoginTimeAttribute                                    types.String `tfsdk:"last_login_time_attribute"`
@@ -465,6 +466,14 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The maximum age of failed authentication attempts to include in the recent login history for each account.",
 				Optional:    true,
 			},
+			"suppress_recent_login_history_updates_for_unusable_accounts": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether the server should suppress updates to a user's recent login history as a result of authentication attempts that fail because the account is in an unusable state (e.g., if the account is administratively disabled, if the account is locked, or if the password is expired).",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"recent_login_history_similar_attempt_behavior": schema.StringAttribute{
 				Description: "The behavior that the server will exhibit when multiple similar authentication attempts (with the same values for the successful, authentication-method, client-ip-address, and failure-reason fields) are processed for an account.",
 				Optional:    true,
@@ -523,7 +532,7 @@ func (r *defaultPasswordPolicyResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanPasswordPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -534,6 +543,18 @@ func modifyPlanPasswordPolicy(ctx context.Context, req resource.ModifyPlanReques
 	}
 	var model passwordPolicyResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.SuppressRecentLoginHistoryUpdatesForUnusableAccounts) {
+		resp.Diagnostics.AddError("Attribute 'suppress_recent_login_history_updates_for_unusable_accounts' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.ReEncodePasswordsOnSchemeConfigChange) {
 		resp.Diagnostics.AddError("Attribute 're_encode_passwords_on_scheme_config_change' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -737,6 +758,9 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 	if internaltypes.IsNonEmptyString(plan.MaximumRecentLoginHistoryFailedAuthenticationDuration) {
 		addRequest.MaximumRecentLoginHistoryFailedAuthenticationDuration = plan.MaximumRecentLoginHistoryFailedAuthenticationDuration.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.SuppressRecentLoginHistoryUpdatesForUnusableAccounts) {
+		addRequest.SuppressRecentLoginHistoryUpdatesForUnusableAccounts = plan.SuppressRecentLoginHistoryUpdatesForUnusableAccounts.ValueBoolPointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RecentLoginHistorySimilarAttemptBehavior) {
 		recentLoginHistorySimilarAttemptBehavior, err := client.NewEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorPropFromValue(plan.RecentLoginHistorySimilarAttemptBehavior.ValueString())
@@ -925,6 +949,7 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration))
 	config.CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_failed_authentication_duration",
 		expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, diagnostics)
+	state.SuppressRecentLoginHistoryUpdatesForUnusableAccounts = internaltypes.BoolTypeOrNil(r.SuppressRecentLoginHistoryUpdatesForUnusableAccounts)
 	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), true)
 	state.LastLoginIPAddressAttribute = internaltypes.StringTypeOrNil(r.LastLoginIPAddressAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginIPAddressAttribute))
@@ -983,6 +1008,7 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, "maximum-recent-login-history-successful-authentication-duration")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumRecentLoginHistoryFailedAuthenticationCount, state.MaximumRecentLoginHistoryFailedAuthenticationCount, "maximum-recent-login-history-failed-authentication-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, "maximum-recent-login-history-failed-authentication-duration")
+	operations.AddBoolOperationIfNecessary(&ops, plan.SuppressRecentLoginHistoryUpdatesForUnusableAccounts, state.SuppressRecentLoginHistoryUpdatesForUnusableAccounts, "suppress-recent-login-history-updates-for-unusable-accounts")
 	operations.AddStringOperationIfNecessary(&ops, plan.RecentLoginHistorySimilarAttemptBehavior, state.RecentLoginHistorySimilarAttemptBehavior, "recent-login-history-similar-attempt-behavior")
 	operations.AddStringOperationIfNecessary(&ops, plan.LastLoginIPAddressAttribute, state.LastLoginIPAddressAttribute, "last-login-ip-address-attribute")
 	operations.AddStringOperationIfNecessary(&ops, plan.LastLoginTimeAttribute, state.LastLoginTimeAttribute, "last-login-time-attribute")

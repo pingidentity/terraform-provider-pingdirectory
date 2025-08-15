@@ -826,8 +826,8 @@ github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3v
 github.com/pelletier/go-toml v1.9.5/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
 github.com/pelletier/go-toml/v2 v2.2.3 h1:YmeHyLY8mFWbdkNWwpr+qIL2bEqT0o95WSdkNHvL12M=
 github.com/pelletier/go-toml/v2 v2.2.3/go.mod h1:MfCQTFTvCcUyyvvwm1+G6H/jORL20Xlb6rzQu9GuUkc=
-github.com/pingidentity/pingdirectory-go-client/v10200 v10200.0.0 h1:zwxXzgTe8YguS4I/Sc6hMsnNagAR39sUNRD76VskVsA=
-github.com/pingidentity/pingdirectory-go-client/v10200 v10200.0.0/go.mod h1:0SRht9iY11Rr2XeUB1LCBlnrgMifT+YseQWzkWkCNzQ=
+github.com/pingidentity/pingdirectory-go-client/v10300 v10300.0.0 h1:EysvtMEo3irLci0pQm1fC+uhs0xXHY51hsNrkdWVdUU=
+github.com/pingidentity/pingdirectory-go-client/v10300 v10300.0.0/go.mod h1:XmQ0vj5GsHqDqGOJaMHv+nwPZVWL2T41ubfnrV8bVkU=
 github.com/pjbgf/sha1cd v0.3.2 h1:a9wb0bp1oC2TGwStyn0Umc/IGKQnEgF0vVaZ8QF8eo4=
 github.com/pjbgf/sha1cd v0.3.2/go.mod h1:zQWigSxVmsHEZow5qaLtPYxpcKMMQpa09ixqBxuCS6A=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

@@ -12,13 +12,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -164,6 +165,7 @@ type pluginResourceModel struct {
 	Scope                                                types.String `tfsdk:"scope"`
 	IncludeAttribute                                     types.Set    `tfsdk:"include_attribute"`
 	GaugeInfo                                            types.String `tfsdk:"gauge_info"`
+	IncludeHTTPMetrics                                   types.Bool   `tfsdk:"include_http_metrics"`
 	LogFileFormat                                        types.String `tfsdk:"log_file_format"`
 	LogFile                                              types.String `tfsdk:"log_file"`
 	LogFilePermissions                                   types.String `tfsdk:"log_file_permissions"`
@@ -317,6 +319,7 @@ type defaultPluginResourceModel struct {
 	HistogramCategoryBoundary                            types.Set    `tfsdk:"histogram_category_boundary"`
 	IncludeAttribute                                     types.Set    `tfsdk:"include_attribute"`
 	GaugeInfo                                            types.String `tfsdk:"gauge_info"`
+	IncludeHTTPMetrics                                   types.Bool   `tfsdk:"include_http_metrics"`
 	LogFileFormat                                        types.String `tfsdk:"log_file_format"`
 	LogFile                                              types.String `tfsdk:"log_file"`
 	LogFilePermissions                                   types.String `tfsdk:"log_file_permissions"`
@@ -329,6 +332,7 @@ type defaultPluginResourceModel struct {
 	PreviousFileExtension                                types.String `tfsdk:"previous_file_extension"`
 	IncludeQueueTime                                     types.Bool   `tfsdk:"include_queue_time"`
 	SeparateMonitorEntryPerTrackedApplication            types.Bool   `tfsdk:"separate_monitor_entry_per_tracked_application"`
+	IncludeParseableAttributeNames                       types.Bool   `tfsdk:"include_parseable_attribute_names"`
 	ChangelogPasswordEncryptionKeyPassphraseProvider     types.String `tfsdk:"changelog_password_encryption_key_passphrase_provider"`
 	ApiURL                                               types.String `tfsdk:"api_url"`
 	AuthURL                                              types.String `tfsdk:"auth_url"`
@@ -858,6 +862,14 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 					stringvalidator.OneOf([]string{"none", "basic", "extended"}...),
 				},
 			},
+			"include_http_metrics": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies whether to log moving averages (1, 5, and 15-minute intervals) for HTTP socket, connection, queue, request, and response durations.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"log_file_format": schema.StringAttribute{
 				Description: "Specifies the format to use when logging server statistics.",
 				Optional:    true,
@@ -1309,6 +1321,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		}
 		schemaDef.Attributes["separate_monitor_entry_per_tracked_application"] = schema.BoolAttribute{
 			Description: "When enabled, separate monitor entries will be included for each application defined in the Global Configuration's tracked-application property.",
+		}
+		schemaDef.Attributes["include_parseable_attribute_names"] = schema.BoolAttribute{
+			Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether attribute names in monitor entries should be formatted to be easily parseable by monitoring applications.",
 		}
 		schemaDef.Attributes["changelog_password_encryption_key_passphrase_provider"] = schema.StringAttribute{
 			Description: "A passphrase provider that may be used to obtain the passphrase that will be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
@@ -2147,7 +2162,7 @@ func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -2158,6 +2173,21 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 	}
 	var model defaultPluginResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.IncludeParseableAttributeNames) {
+		resp.Diagnostics.AddError("Attribute 'include_parseable_attribute_names' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludeHTTPMetrics) {
+		resp.Diagnostics.AddError("Attribute 'include_http_metrics' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "entry-counter" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10200,
 			providerConfig.ProductVersion, resourceName+" with type \"entry_counter\"")
@@ -2234,6 +2264,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2304,6 +2335,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2375,6 +2407,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.StatusSummaryInfo = types.StringNull()
 		model.CollectionInterval = types.StringNull()
@@ -2447,6 +2480,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2519,6 +2553,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EntryCacheInfo = types.StringNull()
 		model.AgentxAddress = types.StringNull()
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2590,6 +2625,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2661,6 +2697,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EntryCacheInfo = types.StringNull()
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2730,6 +2767,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
 		model.CollectionInterval = types.StringNull()
@@ -2799,6 +2837,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2925,6 +2964,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -2997,6 +3037,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3068,6 +3109,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3135,6 +3177,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
 		model.CollectionInterval = types.StringNull()
@@ -3202,6 +3245,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3272,6 +3316,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3345,6 +3390,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3415,6 +3461,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EntryCacheInfo = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3486,6 +3533,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3557,6 +3605,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3619,6 +3668,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EntryCacheInfo = types.StringNull()
 		model.AgentxAddress = types.StringNull()
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3690,6 +3740,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3761,6 +3812,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3832,6 +3884,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3904,6 +3957,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -3975,6 +4029,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
 		model.CollectionInterval = types.StringNull()
@@ -4042,6 +4097,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.EntryCacheInfo = types.StringNull()
 		model.AgentxAddress = types.StringNull()
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -4111,6 +4167,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -4182,6 +4239,7 @@ func (model *pluginResourceModel) setNotApplicableAttrsNull() {
 		model.AgentxAddress = types.StringNull()
 		model.AttributeType, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.DelayAfterAlert = types.StringNull()
+		model.IncludeHTTPMetrics = types.BoolNull()
 		model.UpdateLocalPassword = types.BoolNull()
 		model.NumThreads = types.Int64Null()
 		model.StatusSummaryInfo = types.StringNull()
@@ -4210,18 +4268,10 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("bind_dn_pattern"),
-				path.MatchRoot("search_filter_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4234,10 +4284,18 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("search_filter_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("resource_type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -4252,7 +4310,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("resource_type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
 				path.MatchRoot("search_filter_pattern"),
 			),
 		),
@@ -4578,6 +4636,11 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("gauge_info"),
+			path.MatchRoot("resource_type"),
+			[]string{"periodic-stats-logger"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_http_metrics"),
 			path.MatchRoot("resource_type"),
 			[]string{"periodic-stats-logger"},
 		),
@@ -5138,6 +5201,11 @@ func (r defaultPluginResource) ConfigValidators(ctx context.Context) []resource.
 			[]string{"processing-time-histogram"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_parseable_attribute_names"),
+			path.MatchRoot("resource_type"),
+			[]string{"processing-time-histogram"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("encryption_settings_definition_id"),
 			path.MatchRoot("resource_type"),
 			[]string{"encrypt-attribute-values"},
@@ -5590,6 +5658,9 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 			return err
 		}
 		addRequest.GaugeInfo = gaugeInfo
+	}
+	if internaltypes.IsDefined(plan.IncludeHTTPMetrics) {
+		addRequest.IncludeHTTPMetrics = plan.IncludeHTTPMetrics.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFileFormat) {
@@ -7020,6 +7091,7 @@ func readProcessingTimeHistogramPluginResponseDefault(ctx context.Context, r *cl
 	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
 	state.IncludeQueueTime = internaltypes.BoolTypeOrNil(r.IncludeQueueTime)
 	state.SeparateMonitorEntryPerTrackedApplication = internaltypes.BoolTypeOrNil(r.SeparateMonitorEntryPerTrackedApplication)
+	state.IncludeParseableAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeParseableAttributeNames)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -7103,6 +7175,7 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
+	state.IncludeHTTPMetrics = internaltypes.BoolTypeOrNil(r.IncludeHTTPMetrics)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
@@ -7158,6 +7231,7 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), true)
+	state.IncludeHTTPMetrics = internaltypes.BoolTypeOrNil(r.IncludeHTTPMetrics)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), true)
 	state.LogFile = types.StringValue(r.LogFile)
@@ -8222,6 +8296,7 @@ func createPluginOperations(plan pluginResourceModel, state pluginResourceModel)
 	operations.AddStringOperationIfNecessary(&ops, plan.Scope, state.Scope, "scope")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludeAttribute, state.IncludeAttribute, "include-attribute")
 	operations.AddStringOperationIfNecessary(&ops, plan.GaugeInfo, state.GaugeInfo, "gauge-info")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeHTTPMetrics, state.IncludeHTTPMetrics, "include-http-metrics")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFileFormat, state.LogFileFormat, "log-file-format")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFile, state.LogFile, "log-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFilePermissions, state.LogFilePermissions, "log-file-permissions")
@@ -8373,6 +8448,7 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.HistogramCategoryBoundary, state.HistogramCategoryBoundary, "histogram-category-boundary")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludeAttribute, state.IncludeAttribute, "include-attribute")
 	operations.AddStringOperationIfNecessary(&ops, plan.GaugeInfo, state.GaugeInfo, "gauge-info")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeHTTPMetrics, state.IncludeHTTPMetrics, "include-http-metrics")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFileFormat, state.LogFileFormat, "log-file-format")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFile, state.LogFile, "log-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFilePermissions, state.LogFilePermissions, "log-file-permissions")
@@ -8385,6 +8461,7 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	operations.AddStringOperationIfNecessary(&ops, plan.PreviousFileExtension, state.PreviousFileExtension, "previous-file-extension")
 	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeQueueTime, state.IncludeQueueTime, "include-queue-time")
 	operations.AddBoolOperationIfNecessary(&ops, plan.SeparateMonitorEntryPerTrackedApplication, state.SeparateMonitorEntryPerTrackedApplication, "separate-monitor-entry-per-tracked-application")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeParseableAttributeNames, state.IncludeParseableAttributeNames, "include-parseable-attribute-names")
 	operations.AddStringOperationIfNecessary(&ops, plan.ChangelogPasswordEncryptionKeyPassphraseProvider, state.ChangelogPasswordEncryptionKeyPassphraseProvider, "changelog-password-encryption-key-passphrase-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.ApiURL, state.ApiURL, "api-url")
 	operations.AddStringOperationIfNecessary(&ops, plan.AuthURL, state.AuthURL, "auth-url")

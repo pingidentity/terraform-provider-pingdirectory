@@ -24,6 +24,7 @@ Since this is a 'default' resource, the managed object must already exist in the
 
 ### Optional
 
+- `application_title` (String) Supported in PingDirectory product version 10.3.0.0+. Specifies the title of the console application.
 - `base_context_path` (String) Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and at least one additional character and must represent a valid HTTP context path.
 - `complexity` (String) Specifies the maximum complexity level for managed configuration elements.
 - `deployment_descriptor_file` (String) Specifies the path to the deployment descriptor file when used with document-root-directory.

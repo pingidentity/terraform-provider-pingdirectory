@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -1036,6 +1036,23 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("encryption_passphrase_file"),
+				path.MatchRoot("encryption_settings_definition_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"delay"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("sleep_duration"),
+				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
 			[]string{"file-retention"},
 			resourcevalidator.AtLeastOneOf(
 				path.MatchRoot("retain_file_count"),
@@ -1053,27 +1070,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"backup", "ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("encryption_passphrase_file"),
-				path.MatchRoot("encryption_settings_definition_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"ldif-export"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("backend_id"),
 				path.MatchRoot("exclude_backend_id"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"delay"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("sleep_duration"),
-				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
-				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

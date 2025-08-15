@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -83,7 +83,7 @@ func (r *workQueueDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:    true,
 			},
 			"num_write_worker_threads": schema.Int64Attribute{
-				Description: "Specifies the number of worker threads that should be used within the server to process write (add, delete, modify, and modify DN) operations. If this is specified, then separate sets of worker threads will be used for processing read and write operations, and the value of the num-worker-threads property will reflect the number of threads to use to process read operations.",
+				Description: "Specifies the number of worker threads that should be used within the server to process write (add, delete, modify, and modify DN) operations, as well as some types of extended operations that are known to perform writes. If this is specified, then separate sets of worker threads will be used for processing read and write operations, and the value of the num-worker-threads property will reflect the number of threads to use to process read operations.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

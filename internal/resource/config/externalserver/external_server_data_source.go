@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -97,6 +97,7 @@ type externalServerDataSourceModel struct {
 	MaxResponseSize                        types.String `tfsdk:"max_response_size"`
 	KeyManagerProvider                     types.String `tfsdk:"key_manager_provider"`
 	TrustManagerProvider                   types.String `tfsdk:"trust_manager_provider"`
+	AllowInitiallyEmptyConnectionPools     types.Bool   `tfsdk:"allow_initially_empty_connection_pools"`
 	InitialConnections                     types.Int64  `tfsdk:"initial_connections"`
 	MaxConnections                         types.Int64  `tfsdk:"max_connections"`
 	DefunctConnectionResultCode            types.Set    `tfsdk:"defunct_connection_result_code"`
@@ -408,8 +409,14 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 				Optional:            false,
 				Computed:            true,
 			},
+			"allow_initially_empty_connection_pools": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies whether an initial-connections value of zero should cause the connection pool to be created without any initial connections, requiring all connections to be created on demand. By default, an initial-connections value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"initial_connections": schema.Int64Attribute{
-				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
+				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that either the number of connections should be dynamically based on the number of available worker threads, or that the pool will be initially empty, based on the value of the allow-initially-empty-connection-pools property. This will be ignored when using a thread-local connection pool.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -509,6 +516,7 @@ func readNokiaDsExternalServerResponseDataSource(ctx context.Context, r *client.
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -538,6 +546,7 @@ func readPingIdentityDsExternalServerResponseDataSource(ctx context.Context, r *
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -566,6 +575,7 @@ func readActiveDirectoryExternalServerResponseDataSource(ctx context.Context, r 
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -629,6 +639,7 @@ func readPingIdentityProxyServerExternalServerResponseDataSource(ctx context.Con
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -670,6 +681,7 @@ func readNokiaProxyServerExternalServerResponseDataSource(ctx context.Context, r
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -698,6 +710,7 @@ func readOpendjExternalServerResponseDataSource(ctx context.Context, r *client.O
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -726,6 +739,7 @@ func readLdapExternalServerResponseDataSource(ctx context.Context, r *client.Lda
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -785,6 +799,7 @@ func readOracleUnifiedDirectoryExternalServerResponseDataSource(ctx context.Cont
 	state.MaxResponseSize = types.StringValue(r.MaxResponseSize)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(

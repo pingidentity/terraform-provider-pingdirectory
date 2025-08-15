@@ -31,7 +31,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 
 ### Read-Only
 
-- `enable_trust_manager_caching` (Boolean) Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.
+- `enable_trust_manager_caching` (Boolean) Supported in PingDirectory product version 10.1.0.3+. Indicates whether trust manager providers should cache trust managers.
 - `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Trust Manager Provider.

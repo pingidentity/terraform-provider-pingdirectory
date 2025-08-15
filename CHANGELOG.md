@@ -1,4 +1,7 @@
-# v1.4.1 (Unreleased)
+# v1.5.0 (Unreleased)
+### Enhancements
+* Added support for PingDirectory version `10.3.0.0` and for latest patches.
+
 ### Notes
 * bump Go 1.22.2 => 1.23.5 ([#414](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/414))
 

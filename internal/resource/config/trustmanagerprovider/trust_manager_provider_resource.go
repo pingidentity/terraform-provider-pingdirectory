@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -147,7 +147,7 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"enable_trust_manager_caching": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.",
+				Description: "Supported in PingDirectory product version 10.1.0.3+. Indicates whether trust manager providers should cache trust managers.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -250,7 +250,7 @@ func (r *defaultTrustManagerProviderResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanTrustManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10103)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return

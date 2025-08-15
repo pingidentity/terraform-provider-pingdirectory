@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -98,6 +98,7 @@ type passwordPolicyDataSourceModel struct {
 	MaximumRecentLoginHistorySuccessfulAuthenticationDuration types.String `tfsdk:"maximum_recent_login_history_successful_authentication_duration"`
 	MaximumRecentLoginHistoryFailedAuthenticationCount        types.Int64  `tfsdk:"maximum_recent_login_history_failed_authentication_count"`
 	MaximumRecentLoginHistoryFailedAuthenticationDuration     types.String `tfsdk:"maximum_recent_login_history_failed_authentication_duration"`
+	SuppressRecentLoginHistoryUpdatesForUnusableAccounts      types.Bool   `tfsdk:"suppress_recent_login_history_updates_for_unusable_accounts"`
 	RecentLoginHistorySimilarAttemptBehavior                  types.String `tfsdk:"recent_login_history_similar_attempt_behavior"`
 	LastLoginIPAddressAttribute                               types.String `tfsdk:"last_login_ip_address_attribute"`
 	LastLoginTimeAttribute                                    types.String `tfsdk:"last_login_time_attribute"`
@@ -399,6 +400,12 @@ func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.Sc
 				Optional:    false,
 				Computed:    true,
 			},
+			"suppress_recent_login_history_updates_for_unusable_accounts": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether the server should suppress updates to a user's recent login history as a result of authentication attempts that fail because the account is in an unusable state (e.g., if the account is administratively disabled, if the account is locked, or if the password is expired).",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"recent_login_history_similar_attempt_behavior": schema.StringAttribute{
 				Description: "The behavior that the server will exhibit when multiple similar authentication attempts (with the same values for the successful, authentication-method, client-ip-address, and failure-reason fields) are processed for an account.",
 				Required:    false,
@@ -493,6 +500,7 @@ func readPasswordPolicyResponseDataSource(ctx context.Context, r *client.Passwor
 	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, false)
 	state.MaximumRecentLoginHistoryFailedAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationCount)
 	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, false)
+	state.SuppressRecentLoginHistoryUpdatesForUnusableAccounts = internaltypes.BoolTypeOrNil(r.SuppressRecentLoginHistoryUpdatesForUnusableAccounts)
 	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), false)
 	state.LastLoginIPAddressAttribute = internaltypes.StringTypeOrNil(r.LastLoginIPAddressAttribute, false)

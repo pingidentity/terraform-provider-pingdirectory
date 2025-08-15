@@ -36,6 +36,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 ### Optional
 
 - `abandon_on_timeout` (Boolean) Indicates whether to send an abandon request for an operation for which a response timeout is encountered. A request which has timed out on one server may be retried on another server regardless of whether an abandon request is sent, but if the initial attempt is not abandoned then a long-running operation may unnecessarily continue to consume processing resources on the initial server.
+- `allow_initially_empty_connection_pools` (Boolean) Supported in PingDirectory product version 10.3.0.0+. Specifies whether an initial-connections value of zero should cause the connection pool to be created without any initial connections, requiring all connections to be created on demand. By default, an initial-connections value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `authentication_method` (String) When the `type` attribute is set to:
   - One of [`nokia-ds`, `ping-identity-ds`, `active-directory`, `ping-identity-proxy-server`, `nokia-proxy-server`, `opendj`, `ldap`, `oracle-unified-directory`]: The mechanism to use to authenticate to the target server.
   - `amazon-aws`: The mechanism to use to authenticate to AWS.
@@ -69,7 +70,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
   - One of [`ping-one-http`, `http`]: A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.
   - `amazon-aws`: A reference to an HTTP proxy server that should be used for requests sent to the AWS service.
 - `http_response_timeout` (String) Supported in PingDirectory product version 10.0.0.0+. The maximum length of time to wait for a response to an HTTP request.
-- `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
+- `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that either the number of connections should be dynamically based on the number of available worker threads, or that the pool will be initially empty, based on the value of the allow-initially-empty-connection-pools property. This will be ignored when using a thread-local connection pool.
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.
 - `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.
 - `jdbc_driver_url` (String) Specify the complete JDBC URL which will be used instead of the automatic URL format. You must select type 'other' for the jdbc-driver-type.

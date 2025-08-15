@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )

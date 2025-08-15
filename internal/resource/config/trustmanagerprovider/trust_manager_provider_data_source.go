@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -101,7 +101,7 @@ func (r *trustManagerProviderDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 			},
 			"enable_trust_manager_caching": schema.BoolAttribute{
-				Description: "Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.",
+				Description: "Supported in PingDirectory product version 10.1.0.3+. Indicates whether trust manager providers should cache trust managers.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,

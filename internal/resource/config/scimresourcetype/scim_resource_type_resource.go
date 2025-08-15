@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -98,6 +98,7 @@ type scimResourceTypeResourceModel struct {
 	Description                 types.String `tfsdk:"description"`
 	Enabled                     types.Bool   `tfsdk:"enabled"`
 	Endpoint                    types.String `tfsdk:"endpoint"`
+	IdAttribute                 types.String `tfsdk:"id_attribute"`
 	LookthroughLimit            types.Int64  `tfsdk:"lookthrough_limit"`
 	SchemaCheckingOption        types.Set    `tfsdk:"schema_checking_option"`
 	StructuralLDAPObjectclass   types.String `tfsdk:"structural_ldap_objectclass"`
@@ -160,6 +161,14 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"endpoint": schema.StringAttribute{
 				Description: "The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.",
 				Required:    true,
+			},
+			"id_attribute": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the primary attribute to use as the value for the SCIM object ID. The object ID should be a unique, immutable identifier for fetch, update and delete operations on an object.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"lookthrough_limit": schema.Int64Attribute{
 				Description: "The maximum number of resources that the SCIM Resource Type should \"look through\" in the course of processing a search request.",
@@ -240,7 +249,7 @@ func (r *defaultScimResourceTypeResource) ModifyPlan(ctx context.Context, req re
 }
 
 func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10103)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -251,6 +260,18 @@ func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequ
 	}
 	var model scimResourceTypeResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.IdAttribute) {
+		resp.Diagnostics.AddError("Attribute 'id_attribute' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "mapping" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory10000,
 			providerConfig.ProductVersion, resourceName+" with type \"mapping\"")
@@ -303,6 +324,10 @@ func addOptionalLdapPassThroughScimResourceTypeFields(ctx context.Context, addRe
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.IdAttribute) {
+		addRequest.IdAttribute = plan.IdAttribute.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.LookthroughLimit) {
 		addRequest.LookthroughLimit = plan.LookthroughLimit.ValueInt64Pointer()
@@ -366,6 +391,10 @@ func addOptionalMappingScimResourceTypeFields(ctx context.Context, addRequest *c
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.IdAttribute) {
+		addRequest.IdAttribute = plan.IdAttribute.ValueStringPointer()
+	}
 	if internaltypes.IsDefined(plan.LookthroughLimit) {
 		addRequest.LookthroughLimit = plan.LookthroughLimit.ValueInt64Pointer()
 	}
@@ -428,6 +457,10 @@ func addOptionalLdapMappingScimResourceTypeFields(ctx context.Context, addReques
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.IdAttribute) {
+		addRequest.IdAttribute = plan.IdAttribute.ValueStringPointer()
+	}
 	if internaltypes.IsDefined(plan.LookthroughLimit) {
 		addRequest.LookthroughLimit = plan.LookthroughLimit.ValueInt64Pointer()
 	}
@@ -486,6 +519,9 @@ func populateScimResourceTypeUnknownValues(model *scimResourceTypeResourceModel)
 
 // Populate any computed string values with empty strings, since that is equivalent to null to PD. This will reduce noise in plan output
 func (model *scimResourceTypeResourceModel) populateAllComputedStringAttributes() {
+	if model.IdAttribute.IsUnknown() || model.IdAttribute.IsNull() {
+		model.IdAttribute = types.StringValue("")
+	}
 	if model.Description.IsUnknown() || model.Description.IsNull() {
 		model.Description = types.StringValue("")
 	}
@@ -514,6 +550,7 @@ func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
@@ -538,6 +575,7 @@ func readMappingScimResourceTypeResponse(ctx context.Context, r *client.MappingS
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
@@ -562,6 +600,7 @@ func readLdapMappingScimResourceTypeResponse(ctx context.Context, r *client.Ldap
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
+	state.IdAttribute = types.StringValue(r.IdAttribute)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.SchemaCheckingOption = internaltypes.GetStringSet(
 		client.StringSliceEnumscimResourceTypeSchemaCheckingOptionProp(r.SchemaCheckingOption))
@@ -584,6 +623,7 @@ func createScimResourceTypeOperations(plan scimResourceTypeResourceModel, state 
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	operations.AddStringOperationIfNecessary(&ops, plan.Endpoint, state.Endpoint, "endpoint")
+	operations.AddStringOperationIfNecessary(&ops, plan.IdAttribute, state.IdAttribute, "id-attribute")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LookthroughLimit, state.LookthroughLimit, "lookthrough-limit")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.SchemaCheckingOption, state.SchemaCheckingOption, "schema-checking-option")
 	operations.AddStringOperationIfNecessary(&ops, plan.StructuralLDAPObjectclass, state.StructuralLDAPObjectclass, "structural-ldap-objectclass")

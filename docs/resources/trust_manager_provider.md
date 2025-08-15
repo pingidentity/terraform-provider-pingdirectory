@@ -35,7 +35,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 
 ### Optional
 
-- `enable_trust_manager_caching` (Boolean) Supported in PingDirectory product version 10.2.0.0+. Indicates whether trust manager providers should cache trust managers.
+- `enable_trust_manager_caching` (Boolean) Supported in PingDirectory product version 10.1.0.3+. Indicates whether trust manager providers should cache trust managers.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Trust Manager Provider.
 - `include_jvm_default_issuers` (Boolean) Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.

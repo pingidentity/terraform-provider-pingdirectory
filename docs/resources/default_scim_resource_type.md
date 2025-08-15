@@ -33,6 +33,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `description` (String) A description for this SCIM Resource Type
 - `enabled` (Boolean) Indicates whether the SCIM Resource Type is enabled.
 - `endpoint` (String) The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.
+- `id_attribute` (String) Supported in PingDirectory product version 10.3.0.0+. Specifies the primary attribute to use as the value for the SCIM object ID. The object ID should be a unique, immutable identifier for fetch, update and delete operations on an object.
 - `include_base_dn` (String) Specifies the base DN of the branch of the LDAP directory that can be accessed by this SCIM Resource Type.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this SCIM Resource Type.
 - `include_operational_attribute` (Set of String) Specifies the set of operational LDAP attributes to be provided by this SCIM Resource Type.

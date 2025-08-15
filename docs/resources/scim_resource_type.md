@@ -41,6 +41,7 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `core_schema` (String) The core schema enforced on core attributes at the top level of a SCIM resource representation exposed by thisMapping SCIM Resource Type.
 - `create_dn_pattern` (String) Specifies the template to use for the DN when creating new entries.
 - `description` (String) A description for this SCIM Resource Type
+- `id_attribute` (String) Supported in PingDirectory product version 10.3.0.0+. Specifies the primary attribute to use as the value for the SCIM object ID. The object ID should be a unique, immutable identifier for fetch, update and delete operations on an object.
 - `include_base_dn` (String) Specifies the base DN of the branch of the LDAP directory that can be accessed by this SCIM Resource Type.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this SCIM Resource Type.
 - `include_operational_attribute` (Set of String) Specifies the set of operational LDAP attributes to be provided by this SCIM Resource Type.

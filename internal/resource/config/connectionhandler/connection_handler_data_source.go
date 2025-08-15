@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -65,7 +65,7 @@ type connectionHandlerDataSourceModel struct {
 	KeyManagerProvider                     types.String `tfsdk:"key_manager_provider"`
 	TrustManagerProvider                   types.String `tfsdk:"trust_manager_provider"`
 	KeepStats                              types.Bool   `tfsdk:"keep_stats"`
-	AllowLDAPV2                            types.Bool   `tfsdk:"allow_ldap_v2"`
+	UseHaproxyProxyProtocol                types.Bool   `tfsdk:"use_haproxy_proxy_protocol"`
 	AllowTCPReuseAddress                   types.Bool   `tfsdk:"allow_tcp_reuse_address"`
 	IdleTimeLimit                          types.String `tfsdk:"idle_time_limit"`
 	LowResourcesConnectionThreshold        types.Int64  `tfsdk:"low_resources_connection_threshold"`
@@ -77,8 +77,13 @@ type connectionHandlerDataSourceModel struct {
 	UseCorrelationIDHeader                 types.Bool   `tfsdk:"use_correlation_id_header"`
 	CorrelationIDResponseHeader            types.String `tfsdk:"correlation_id_response_header"`
 	CorrelationIDRequestHeader             types.Set    `tfsdk:"correlation_id_request_header"`
-	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
+	AllowLDAPV2                            types.Bool   `tfsdk:"allow_ldap_v2"`
 	EnableSniHostnameChecks                types.Bool   `tfsdk:"enable_sni_hostname_checks"`
+	ExpensiveThreadCheckInterval           types.String `tfsdk:"expensive_thread_check_interval"`
+	ExpensiveThreadMinimumConcurrentCount  types.Int64  `tfsdk:"expensive_thread_minimum_concurrent_count"`
+	ExpensiveThreadHoldOffInterval         types.String `tfsdk:"expensive_thread_hold_off_interval"`
+	IncludeAdditionalMetrics               types.Bool   `tfsdk:"include_additional_metrics"`
+	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
 	SendRejectionNotice                    types.Bool   `tfsdk:"send_rejection_notice"`
 	FailedBindResponseDelay                types.String `tfsdk:"failed_bind_response_delay"`
 	MaxRequestSize                         types.String `tfsdk:"max_request_size"`
@@ -199,8 +204,8 @@ func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource
 				Optional:    false,
 				Computed:    true,
 			},
-			"allow_ldap_v2": schema.BoolAttribute{
-				Description: "Indicates whether connections from LDAPv2 clients are allowed.",
+			"use_haproxy_proxy_protocol": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether client connections established to this connection handler will pass through a software proxy that uses the HAProxy PROXY protocol to preserve the original end address of the client system. The Directory Server supports versions 1 and 2 of the HAProxy PROXY protocol.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -273,14 +278,44 @@ func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource
 				Computed:    true,
 				ElementType: types.StringType,
 			},
-			"use_tcp_keep_alive": schema.BoolAttribute{
-				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
+			"allow_ldap_v2": schema.BoolAttribute{
+				Description: "Indicates whether connections from LDAPv2 clients are allowed.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
 			"enable_sni_hostname_checks": schema.BoolAttribute{
 				Description: "Supported in PingDirectory product version 10.0.0.0+. Requires SNI hostnames to match or else throw an Invalid SNI error.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"expensive_thread_check_interval": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The duration the HTTP Connection Handler waits before checking for potentially expensive operations. If at least N HTTP Connection Handler threads (as defined by expensive-thread-minimum-concurrent-count) are processing the same HTTP requests for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"expensive_thread_minimum_concurrent_count": schema.Int64Attribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The minimum number of HTTP Connection Handler threads concurrently processing the same HTTP request that triggers a full thread dump. If at least this many worker threads are processing the same HTTP request for two consecutive polls, the server writes stack traces for all threads to a file in /logs/thread-dumps. Use this file to help identify performance bottlenecks.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"expensive_thread_hold_off_interval": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. The duration the server waits after generating a full thread dump before creating another. This interval helps prevent excessive disk usage from frequent dumps. Use this property to help identify performance bottlenecks.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"include_additional_metrics": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Tracks moving average durations (1, 5, and 15-minute intervals) for the entire HTTP request lifecycle, including socket, connection, queue, request, and response times. Warning: This feature is experimental and can negatively affect performance when enabled. It should be reserved for performance tuning or troubleshooting.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"use_tcp_keep_alive": schema.BoolAttribute{
+				Description: "Indicates whether the LDAP Connection Handler should use TCP keep-alive.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -441,6 +476,7 @@ func readLdapConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, false)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
+	state.UseHaproxyProxyProtocol = internaltypes.BoolTypeOrNil(r.UseHaproxyProxyProtocol)
 	state.AllowLDAPV2 = internaltypes.BoolTypeOrNil(r.AllowLDAPV2)
 	state.UseTCPKeepAlive = internaltypes.BoolTypeOrNil(r.UseTCPKeepAlive)
 	state.SendRejectionNotice = internaltypes.BoolTypeOrNil(r.SendRejectionNotice)
@@ -516,6 +552,10 @@ func readHttpConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), false)
 	state.EnableSniHostnameChecks = internaltypes.BoolTypeOrNil(r.EnableSniHostnameChecks)
+	state.ExpensiveThreadCheckInterval = internaltypes.StringTypeOrNil(r.ExpensiveThreadCheckInterval, false)
+	state.ExpensiveThreadMinimumConcurrentCount = internaltypes.Int64TypeOrNil(r.ExpensiveThreadMinimumConcurrentCount)
+	state.ExpensiveThreadHoldOffInterval = internaltypes.StringTypeOrNil(r.ExpensiveThreadHoldOffInterval, false)
+	state.IncludeAdditionalMetrics = internaltypes.BoolTypeOrNil(r.IncludeAdditionalMetrics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }

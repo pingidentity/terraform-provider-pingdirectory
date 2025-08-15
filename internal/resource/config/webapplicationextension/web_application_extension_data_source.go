@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -68,6 +68,7 @@ type webApplicationExtensionDataSourceModel struct {
 	TrustStorePinPassphraseProvider     types.String `tfsdk:"trust_store_pin_passphrase_provider"`
 	LogFile                             types.String `tfsdk:"log_file"`
 	Complexity                          types.String `tfsdk:"complexity"`
+	ApplicationTitle                    types.String `tfsdk:"application_title"`
 	Description                         types.String `tfsdk:"description"`
 	BaseContextPath                     types.String `tfsdk:"base_context_path"`
 	WarFile                             types.String `tfsdk:"war_file"`
@@ -185,6 +186,12 @@ func (r *webApplicationExtensionDataSource) Schema(ctx context.Context, req data
 				Optional:    false,
 				Computed:    true,
 			},
+			"application_title": schema.StringAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the title of the console application.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Web Application Extension",
 				Required:    false,
@@ -255,6 +262,7 @@ func readConsoleWebApplicationExtensionResponseDataSource(ctx context.Context, r
 	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, false)
 	state.Complexity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), false)
+	state.ApplicationTitle = internaltypes.StringTypeOrNil(r.ApplicationTitle, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, false)

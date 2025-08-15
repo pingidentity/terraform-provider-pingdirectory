@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -135,6 +135,7 @@ type pluginDataSourceModel struct {
 	HistogramCategoryBoundary                            types.Set    `tfsdk:"histogram_category_boundary"`
 	IncludeAttribute                                     types.Set    `tfsdk:"include_attribute"`
 	GaugeInfo                                            types.String `tfsdk:"gauge_info"`
+	IncludeHTTPMetrics                                   types.Bool   `tfsdk:"include_http_metrics"`
 	LogFileFormat                                        types.String `tfsdk:"log_file_format"`
 	LogFile                                              types.String `tfsdk:"log_file"`
 	LogFilePermissions                                   types.String `tfsdk:"log_file_permissions"`
@@ -147,6 +148,7 @@ type pluginDataSourceModel struct {
 	PreviousFileExtension                                types.String `tfsdk:"previous_file_extension"`
 	IncludeQueueTime                                     types.Bool   `tfsdk:"include_queue_time"`
 	SeparateMonitorEntryPerTrackedApplication            types.Bool   `tfsdk:"separate_monitor_entry_per_tracked_application"`
+	IncludeParseableAttributeNames                       types.Bool   `tfsdk:"include_parseable_attribute_names"`
 	ChangelogPasswordEncryptionKeyPassphraseProvider     types.String `tfsdk:"changelog_password_encryption_key_passphrase_provider"`
 	ApiURL                                               types.String `tfsdk:"api_url"`
 	AuthURL                                              types.String `tfsdk:"auth_url"`
@@ -746,6 +748,12 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"include_http_metrics": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies whether to log moving averages (1, 5, and 15-minute intervals) for HTTP socket, connection, queue, request, and response durations.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"log_file_format": schema.StringAttribute{
 				Description: "Specifies the format to use when logging server statistics.",
 				Required:    false,
@@ -820,6 +828,12 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"separate_monitor_entry_per_tracked_application": schema.BoolAttribute{
 				Description: "When enabled, separate monitor entries will be included for each application defined in the Global Configuration's tracked-application property.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"include_parseable_attribute_names": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether attribute names in monitor entries should be formatted to be easily parseable by monitoring applications.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1427,6 +1441,7 @@ func readProcessingTimeHistogramPluginResponseDataSource(ctx context.Context, r 
 	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
 	state.IncludeQueueTime = internaltypes.BoolTypeOrNil(r.IncludeQueueTime)
 	state.SeparateMonitorEntryPerTrackedApplication = internaltypes.BoolTypeOrNil(r.SeparateMonitorEntryPerTrackedApplication)
+	state.IncludeParseableAttributeNames = internaltypes.BoolTypeOrNil(r.IncludeParseableAttributeNames)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -1479,6 +1494,7 @@ func readPeriodicStatsLoggerPluginResponseDataSource(ctx context.Context, r *cli
 		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), false)
 	state.GaugeInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginGaugeInfoProp(r.GaugeInfo), false)
+	state.IncludeHTTPMetrics = internaltypes.BoolTypeOrNil(r.IncludeHTTPMetrics)
 	state.LogFileFormat = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginLogFileFormatProp(r.LogFileFormat), false)
 	state.LogFile = types.StringValue(r.LogFile)

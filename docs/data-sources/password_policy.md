@@ -83,5 +83,6 @@ See the [PingDirectory documentation](https://docs.pingidentity.com/r/en-us/ping
 - `return_password_expiration_controls` (String) Indicates whether the server should return the password expiring and password expired response controls (as described in draft-vchu-ldap-pwd-policy).
 - `skip_validation_for_administrators` (Boolean) Indicates whether passwords set by administrators are allowed to bypass the password validation process that is required for user password changes.
 - `state_update_failure_policy` (String) Specifies how the server deals with the inability to update password policy state information during an authentication attempt.
+- `suppress_recent_login_history_updates_for_unusable_accounts` (Boolean) Supported in PingDirectory product version 10.3.0.0+. Indicates whether the server should suppress updates to a user's recent login history as a result of authentication attempts that fail because the account is in an unusable state (e.g., if the account is administratively disabled, if the account is locked, or if the password is expired).
 - `type` (String) The type of Password Policy resource. Options are ['password-policy']
 
