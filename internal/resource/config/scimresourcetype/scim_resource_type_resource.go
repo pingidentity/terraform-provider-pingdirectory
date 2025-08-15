@@ -249,7 +249,7 @@ func (r *defaultScimResourceTypeResource) ModifyPlan(ctx context.Context, req re
 }
 
 func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10103)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
