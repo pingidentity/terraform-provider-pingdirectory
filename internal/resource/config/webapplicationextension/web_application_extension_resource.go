@@ -16,11 +16,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -121,6 +122,7 @@ type defaultWebApplicationExtensionResourceModel struct {
 	TrustStorePinPassphraseProvider     types.String `tfsdk:"trust_store_pin_passphrase_provider"`
 	LogFile                             types.String `tfsdk:"log_file"`
 	Complexity                          types.String `tfsdk:"complexity"`
+	ApplicationTitle                    types.String `tfsdk:"application_title"`
 	Description                         types.String `tfsdk:"description"`
 	BaseContextPath                     types.String `tfsdk:"base_context_path"`
 	WarFile                             types.String `tfsdk:"war_file"`
@@ -251,10 +253,39 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 				stringvalidator.OneOf([]string{"basic", "standard", "advanced", "expert"}...),
 			},
 		}
+		schemaDef.Attributes["application_title"] = schema.StringAttribute{
+			Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the title of the console application.",
+		}
 		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan and set any type-specific defaults
+func (r *webApplicationExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanWebApplicationExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultWebApplicationExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanWebApplicationExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanWebApplicationExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model defaultWebApplicationExtensionResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.ApplicationTitle) {
+		resp.Diagnostics.AddError("Attribute 'application_title' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 }
 
 // Add config validators that apply to both default_ and non-default_
@@ -368,6 +399,11 @@ func (r defaultWebApplicationExtensionResource) ConfigValidators(ctx context.Con
 			path.MatchRoot("type"),
 			[]string{"console"},
 		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("application_title"),
+			path.MatchRoot("type"),
+			[]string{"console"},
+		),
 	}
 	return append(configValidatorsWebApplicationExtension(), validators...)
 }
@@ -423,6 +459,7 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, true)
 	state.Complexity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), true)
+	state.ApplicationTitle = internaltypes.StringTypeOrNil(r.ApplicationTitle, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, true)
@@ -503,6 +540,7 @@ func createWebApplicationExtensionOperationsDefault(plan defaultWebApplicationEx
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePinPassphraseProvider, state.TrustStorePinPassphraseProvider, "trust-store-pin-passphrase-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFile, state.LogFile, "log-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.Complexity, state.Complexity, "complexity")
+	operations.AddStringOperationIfNecessary(&ops, plan.ApplicationTitle, state.ApplicationTitle, "application-title")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddStringOperationIfNecessary(&ops, plan.BaseContextPath, state.BaseContextPath, "base-context-path")
 	operations.AddStringOperationIfNecessary(&ops, plan.WarFile, state.WarFile, "war-file")
