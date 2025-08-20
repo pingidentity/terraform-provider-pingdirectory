@@ -41,7 +41,7 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.2"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.1.0.3"
   ping_directory_ten_two:
     name: Ping Directory 10.2.0.0
     runs-on: ubuntu-latest
@@ -59,11 +59,29 @@ jobs:
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
-          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.2.0.0"
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.2.0.1"
+  ping_directory_ten_three:
+    name: Ping Directory 10.3.0.0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.terraform }}
+          terraform_wrapper: false
+      - run: mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && grep -E "[a-zA-Z]" $HOME/.pingidentity/config || exit 1 && make testacccomplete && make removetestcontainer
+        env:
+          TF_ACC: '1'
+          CONFIG: ${{ secrets.Config }}
+          PINGDIRECTORY_PROVIDER_PRODUCT_VERSION: "10.3.0.0"
 
   onfailure:
     if: ${{ always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure') }}
-    needs: [ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two]
+    needs: [ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two, ping_directory_ten_three]
     name: Send failure webhook
     runs-on: ubuntu-latest
     steps:

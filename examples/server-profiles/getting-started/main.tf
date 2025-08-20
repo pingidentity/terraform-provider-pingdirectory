@@ -19,7 +19,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "10.2.0.0"
+  product_version        = "10.3.0.0"
 }
 
 variable "root_user_dn" {

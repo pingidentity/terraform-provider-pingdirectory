@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -19,7 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
@@ -139,6 +140,7 @@ type externalServerResourceModel struct {
 	MaxResponseSize                        types.String `tfsdk:"max_response_size"`
 	KeyManagerProvider                     types.String `tfsdk:"key_manager_provider"`
 	TrustManagerProvider                   types.String `tfsdk:"trust_manager_provider"`
+	AllowInitiallyEmptyConnectionPools     types.Bool   `tfsdk:"allow_initially_empty_connection_pools"`
 	InitialConnections                     types.Int64  `tfsdk:"initial_connections"`
 	MaxConnections                         types.Int64  `tfsdk:"max_connections"`
 	DefunctConnectionResultCode            types.Set    `tfsdk:"defunct_connection_result_code"`
@@ -445,8 +447,16 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:            true,
 				Computed:            true,
 			},
+			"allow_initially_empty_connection_pools": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies whether an initial-connections value of zero should cause the connection pool to be created without any initial connections, requiring all connections to be created on demand. By default, an initial-connections value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"initial_connections": schema.Int64Attribute{
-				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
+				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that either the number of connections should be dynamically based on the number of available worker threads, or that the pool will be initially empty, based on the value of the allow-initially-empty-connection-pools property. This will be ignored when using a thread-local connection pool.",
 				Optional:    true,
 				Computed:    true,
 			},
@@ -1150,7 +1160,7 @@ func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory10300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -1161,6 +1171,18 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	}
 	var model externalServerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.AllowInitiallyEmptyConnectionPools) {
+		resp.Diagnostics.AddError("Attribute 'allow_initially_empty_connection_pools' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory10000)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptyString(model.HttpConnectTimeout) {
 		resp.Diagnostics.AddError("Attribute 'http_connect_timeout' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -1180,6 +1202,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
@@ -1245,6 +1268,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
@@ -1267,6 +1291,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.AbandonOnTimeout = types.BoolNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
@@ -1305,6 +1330,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
@@ -1371,6 +1397,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
@@ -1394,6 +1421,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
 		model.AuthenticationMethod = types.StringNull()
@@ -1430,6 +1458,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.AbandonOnTimeout = types.BoolNull()
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AuthenticationMethod = types.StringNull()
@@ -1455,6 +1484,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpResponseTimeout = types.StringNull()
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.HttpConnectTimeout = types.StringNull()
@@ -1480,6 +1510,7 @@ func (model *externalServerResourceModel) setNotApplicableAttrsNull() {
 		model.TrustManagerProvider = types.StringNull()
 		model.MaxConnectionAge = types.StringNull()
 		model.ConjurServerBaseURI, _ = types.SetValue(types.StringType, []attr.Value{})
+		model.AllowInitiallyEmptyConnectionPools = types.BoolNull()
 		model.HostnameVerificationMethod = types.StringNull()
 		model.DefunctConnectionResultCode, _ = types.SetValue(types.StringType, []attr.Value{})
 		model.AuthenticationMethod = types.StringNull()
@@ -1502,18 +1533,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("password"),
 				path.MatchRoot("passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1620,6 +1651,11 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 			path.MatchRoot("trust_manager_provider"),
 			path.MatchRoot("type"),
 			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_initially_empty_connection_pools"),
+			path.MatchRoot("type"),
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("initial_connections"),
@@ -1991,6 +2027,9 @@ func addOptionalNokiaDsExternalServerFields(ctx context.Context, addRequest *cli
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
@@ -2096,6 +2135,9 @@ func addOptionalPingIdentityDsExternalServerFields(ctx context.Context, addReque
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
@@ -2197,6 +2239,9 @@ func addOptionalActiveDirectoryExternalServerFields(ctx context.Context, addRequ
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
@@ -2384,6 +2429,9 @@ func addOptionalPingIdentityProxyServerExternalServerFields(ctx context.Context,
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
@@ -2506,6 +2554,9 @@ func addOptionalNokiaProxyServerExternalServerFields(ctx context.Context, addReq
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
@@ -2608,6 +2659,9 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
+	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
@@ -2709,6 +2763,9 @@ func addOptionalLdapExternalServerFields(ctx context.Context, addRequest *client
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
@@ -2885,6 +2942,9 @@ func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, 
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.AllowInitiallyEmptyConnectionPools) {
+		addRequest.AllowInitiallyEmptyConnectionPools = plan.AllowInitiallyEmptyConnectionPools.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
@@ -3208,6 +3268,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3249,6 +3310,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3289,6 +3351,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3374,6 +3437,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3429,6 +3493,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3469,6 +3534,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3509,6 +3575,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3592,6 +3659,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 		expectedValues.MaxResponseSize, state.MaxResponseSize, diagnostics)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, true)
+	state.AllowInitiallyEmptyConnectionPools = internaltypes.BoolTypeOrNil(r.AllowInitiallyEmptyConnectionPools)
 	state.InitialConnections = internaltypes.Int64TypeOrNil(r.InitialConnections)
 	state.MaxConnections = internaltypes.Int64TypeOrNil(r.MaxConnections)
 	state.DefunctConnectionResultCode = internaltypes.GetStringSet(
@@ -3720,6 +3788,7 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 	operations.AddStringOperationIfNecessary(&ops, plan.MaxResponseSize, state.MaxResponseSize, "max-response-size")
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyManagerProvider, state.KeyManagerProvider, "key-manager-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.TrustManagerProvider, state.TrustManagerProvider, "trust-manager-provider")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowInitiallyEmptyConnectionPools, state.AllowInitiallyEmptyConnectionPools, "allow-initially-empty-connection-pools")
 	operations.AddInt64OperationIfNecessary(&ops, plan.InitialConnections, state.InitialConnections, "initial-connections")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaxConnections, state.MaxConnections, "max-connections")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefunctConnectionResultCode, state.DefunctConnectionResultCode, "defunct-connection-result-code")

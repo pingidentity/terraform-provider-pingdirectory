@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v10200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v10300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -74,6 +74,7 @@ type logPublisherDataSourceModel struct {
 	ExtensionClass                                      types.String `tfsdk:"extension_class"`
 	DebugACIEnabled                                     types.Bool   `tfsdk:"debug_aci_enabled"`
 	DefaultDebugLevel                                   types.String `tfsdk:"default_debug_level"`
+	SuppressVirtualAttributesInDeleteRecords            types.Bool   `tfsdk:"suppress_virtual_attributes_in_delete_records"`
 	LogRequestHeaders                                   types.String `tfsdk:"log_request_headers"`
 	SuppressedRequestHeaderName                         types.Set    `tfsdk:"suppressed_request_header_name"`
 	LogResponseHeaders                                  types.String `tfsdk:"log_response_headers"`
@@ -102,6 +103,7 @@ type logPublisherDataSourceModel struct {
 	ConsentMessageType                                  types.Set    `tfsdk:"consent_message_type"`
 	DirectoryRESTAPIMessageType                         types.Set    `tfsdk:"directory_rest_api_message_type"`
 	ExtensionMessageType                                types.Set    `tfsdk:"extension_message_type"`
+	HttpEvent                                           types.Set    `tfsdk:"http_event"`
 	IncludePathPattern                                  types.Set    `tfsdk:"include_path_pattern"`
 	ExcludePathPattern                                  types.Set    `tfsdk:"exclude_path_pattern"`
 	ServerHostName                                      types.String `tfsdk:"server_host_name"`
@@ -319,6 +321,12 @@ func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:    false,
 				Computed:    true,
 			},
+			"suppress_virtual_attributes_in_delete_records": schema.BoolAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Indicates whether to suppress virtual attributes from delete audit log messages.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"log_request_headers": schema.StringAttribute{
 				Description: "Indicates whether request log messages should include information about HTTP headers included in the request.",
 				Required:    false,
@@ -498,6 +506,13 @@ func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 			"extension_message_type": schema.SetAttribute{
 				Description: "Specifies the Server SDK extension message types that can be logged.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"http_event": schema.SetAttribute{
+				Description: "Supported in PingDirectory product version 10.3.0.0+. Specifies the HTTP event types to include in the log.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -1181,6 +1196,8 @@ func readFileBasedTraceLogPublisherResponseDataSource(ctx context.Context, r *cl
 		client.StringSliceEnumlogPublisherDirectoryRESTAPIMessageTypeProp(r.DirectoryRESTAPIMessageType))
 	state.ExtensionMessageType = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherExtensionMessageTypeProp(r.ExtensionMessageType))
+	state.HttpEvent = internaltypes.GetStringSet(
+		client.StringSliceEnumlogPublisherHttpEventProp(r.HttpEvent))
 	state.IncludePathPattern = internaltypes.GetStringSet(r.IncludePathPattern)
 	state.ExcludePathPattern = internaltypes.GetStringSet(r.ExcludePathPattern)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1837,6 +1854,7 @@ func readFileBasedAuditLogPublisherResponseDataSource(ctx context.Context, r *cl
 	state.IncludeRequesterDN = internaltypes.BoolTypeOrNil(r.IncludeRequesterDN)
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
+	state.SuppressVirtualAttributesInDeleteRecords = internaltypes.BoolTypeOrNil(r.SuppressVirtualAttributesInDeleteRecords)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), false)
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)

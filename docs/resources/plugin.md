@@ -118,6 +118,7 @@ resource "pingdirectory_plugin" "myPlugin" {
   - `last-mod`: Specifies the name or OID of an attribute type that must be updated in order for the modifiersName and modifyTimestamp attributes to be updated in the target entry.
 - `include_base_dn` (Set of String) The set of base DNs below which composed values may be generated.
 - `include_filter` (Set of String) The set of search filters that identify entries for which composed values may be generated.
+- `include_http_metrics` (Boolean) Supported in PingDirectory product version 10.3.0.0+. Specifies whether to log moving averages (1, 5, and 15-minute intervals) for HTTP socket, connection, queue, request, and response durations.
 - `included_ldap_application` (Set of String) If statistics should not be included for all applications, this property names the subset of applications that should be included.
 - `included_ldap_stat` (Set of String) Specifies the types of statistics related to LDAP connections and operation processing that should be included in the output.
 - `included_local_entry_base_dn` (Set of String) When the `type` attribute is set to:

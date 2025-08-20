@@ -16,8 +16,8 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-validators v0.18.0
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	github.com/hashicorp/terraform-plugin-testing v1.13.2
-	github.com/pingidentity/pingdirectory-go-client/v10200 v10200.0.0
+	github.com/hashicorp/terraform-plugin-testing v1.13.3
+	github.com/pingidentity/pingdirectory-go-client/v10300 v10300.0.0
 )
 
 require (
