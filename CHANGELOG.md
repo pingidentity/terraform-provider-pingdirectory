@@ -1,6 +1,7 @@
-# v1.5.0 (Unreleased)
+# v1.5.0 August 22, 2025
 ### Enhancements
 * Added support for PingDirectory version `10.3.0.0` and for latest patches.
+* Removed support for PingDirectory versions before `9.3`, in accordance with Ping's End of Life policy.
 
 ### Notes
 * bump Go 1.22.2 => 1.23.5 ([#414](https://github.com/pingidentity/terraform-provider-pingdirectory/pull/414))
