@@ -63,7 +63,7 @@ jobs:
 
   onfailure:
     if: ${{ always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure') }}
-    needs: [ping_directory_ten_zero, ping_directory_ten_one, ping_directory_ten_two, ping_directory_ten_three]
+    needs: [ping_directory_ten_one, ping_directory_ten_two, ping_directory_ten_three]
     name: Send failure webhook
     runs-on: ubuntu-latest
     steps:
